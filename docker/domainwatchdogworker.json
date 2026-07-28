@@ -1,0 +1,96 @@
+{
+  "name": "domain-watchdog-worker",
+  "repo": "maelgangloff/domain-watchdog:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/maelgangloff/domain-watchdog",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --no-healthcheck",
+  "post_parameters": "php /app/bin/console messenger:consume --all --time-limit=3600 -vvv",
+  "web_ui_url": null,
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/domain-watchdog.png",
+  "project": "https://github.com/maelgangloff/domain-watchdog",
+  "description": "Background worker for Domain Watchdog. Processes RDAP lookups, domain drop attempts, and async queue tasks. Must be deployed alongside the domain-watchdog container. All connection strings must match exactly.",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "JWT Passphrase",
+      "key": "JWT_PASSPHRASE",
+      "value": "",
+      "description": "Must match the JWT Passphrase set in the domain-watchdog container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App Environment",
+      "key": "APP_ENV",
+      "value": "prod",
+      "description": "Leave as prod.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Secret",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "Must match the App Secret set in the domain-watchdog container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Worker Consumer Name",
+      "key": "MESSENGER_CONSUMER_NAME",
+      "value": "worker",
+      "description": "Internal messenger identifier. Leave as worker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://app:password@postgresql:5432/domainwatchdog?serverVersion=16&amp;charset=utf8",
+      "description": "Must match the Database URL set in the domain-watchdog container exactly.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Async DSN",
+      "key": "MESSENGER_ASYNC_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages?lazy=1",
+      "description": "Must match the domain-watchdog container setting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis RDAP Low DSN",
+      "key": "MESSENGER_RDAP_LOW_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages-rdap-low?lazy=1",
+      "description": "Must match the domain-watchdog container setting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis RDAP High DSN",
+      "key": "MESSENGER_RDAP_HIGH_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages-rdap-high?lazy=1",
+      "description": "Must match the domain-watchdog container setting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Lock DSN",
+      "key": "LOCK_DSN",
+      "value": "redis://redis:6379",
+      "description": "Must match the domain-watchdog container setting.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

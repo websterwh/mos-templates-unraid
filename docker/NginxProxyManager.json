@@ -1,0 +1,117 @@
+{
+  "name": "NginxProxyManager",
+  "repo": "jlesage/nginx-proxy-manager",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://registry.hub.docker.com/r/jlesage/nginx-proxy-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8181]",
+  "icon": "https://raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/nginx-proxy-manager-icon.png",
+  "project": "https://nginxproxymanager.com",
+  "description": "Nginx Proxy Manager enables you to easily forward to your websites running at home or otherwise, including free SSL, without having to know too much about Nginx or Letsencrypt. The container is built against Alpine Linux to provide an efficient image in terms of size and resource usage. For a complete documentation of this container, see https://github.com/jlesage/docker-nginx-proxy-manager#readme **NOTE**: For this container to be accessible from the internet, make sure ports **80** and **443** on the internet side of your router are properly forwarded to this container. See the documentation for more details.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/nginx-proxy-manager",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the application's configuration, state, logs, and any files requiring persistency.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7818",
+      "container": "8181",
+      "protocol": "tcp",
+      "description": "Port used to access the web interface of the application. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "1880",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port used to serve HTTP requests. NOTE: Your router should be configured to forward port 80 to this port. If your router doesn't allow setting the destination/internal IP address, this *must* be set to 80. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPs Port",
+      "host": "18443",
+      "container": "4443",
+      "protocol": "tcp",
+      "description": "Port used to serve HTTPs requests. NOTE: Your router should be configured to forward port 443 to this port. If your router doesn't allow setting the destination/internal IP address, this *must* be set to 443. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "ID of the user the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "ID of the group the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "0000",
+      "description": "Mask controlling permissions for newly created files and folders, specified in octal notation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Niceness (priority)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "Priority at which the application should run. A niceness value of `-20` is the highest, `19` is the lowest and `0` the default. NOTE: Setting a negative value requires additional permissions. Thus, `--cap-add=SYS_NICE` must be added to Extra Parameters (shown when Advanced View is enabled).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable IPv6",
+      "key": "DISABLE_IPV6",
+      "value": "0",
+      "description": "When set to `1`, IPv6 support is disabled. This is needed when IPv6 is not enabled/supported on the host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable NGINX Resolver",
+      "key": "DISABLE_RESOLVER",
+      "value": "0",
+      "description": "When set to `1`, usage of NGINX resolver is disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fetch IP Ranges",
+      "key": "IP_RANGES_FETCH_ENABLED",
+      "value": "1",
+      "description": "When set to `1`, official Cloudflare and CloudFront IP ranges are periodically fetched to define a trusted list. This ensures the system recognizes these providers as legitimate intermediaries, allowing it use the original client IP from request headers instead of the provider's IP.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

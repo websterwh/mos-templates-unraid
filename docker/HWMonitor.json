@@ -1,0 +1,123 @@
+{
+  "name": "HW-Monitor",
+  "repo": "ghcr.io/antond645-cpu/hw-monitor:latest",
+  "category": [
+    "Monitoring"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=SYS_ADMIN --cap-add=SYS_RAWIO",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8181]/",
+  "icon": "https://raw.githubusercontent.com/antond645-cpu/hw_monitor/main/assets/hw_monitor.png",
+  "project": "https://github.com/antond645-cpu/hw_monitor",
+  "description": "Web dashboard for CPU, GPUs, disks, motherboard voltages, and SMART temps on Linux/Unraid\u2014live charts plus SQLite-backed history. You need host /dev and /sys (read-only) so sensors and drives are visible. SMART reads rely on SYS_ADMIN and SYS_RAWIO (template adds these caps). NVIDIA expects nvidia-smi in the image/runtime; AMD/Intel come from sysfs and depend on your kernel/driver stack.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/hw_monitor/data",
+      "container": "/var/lib/hw_monitor",
+      "mode": "rw",
+      "description": "Persistent history database",
+      "required": true
+    },
+    {
+      "name": "Host /dev (read-only)",
+      "host": "/dev",
+      "container": "/dev",
+      "mode": "ro",
+      "description": "Device nodes for SMART/sensors access",
+      "required": true
+    },
+    {
+      "name": "Host /sys (read-only)",
+      "host": "/sys",
+      "container": "/sys",
+      "mode": "ro",
+      "description": "Kernel hardware information",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8181",
+      "container": "8181",
+      "protocol": "tcp",
+      "description": "Container Port: 8181",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Login Password",
+      "key": "AUTH_PASS",
+      "value": "change-me",
+      "description": "Web UI login password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Flask Secret Key",
+      "key": "SECRET_KEY",
+      "value": "replace-with-long-random-string",
+      "description": "Session signing key (set to a long random value)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App Title",
+      "key": "APP_TITLE",
+      "value": "HW Monitor",
+      "description": "Title displayed in the web interface",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disk Discovery",
+      "key": "SMART_DEVICES",
+      "value": "auto",
+      "description": "auto or comma-separated devices, e.g. /dev/sda,/dev/nvme0n1",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Mode",
+      "key": "ENABLE_NVIDIA",
+      "value": "auto",
+      "description": "auto / true / false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMD Mode",
+      "key": "ENABLE_AMD",
+      "value": "auto",
+      "description": "auto / true / false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Intel Mode",
+      "key": "ENABLE_INTEL",
+      "value": "auto",
+      "description": "auto / true / false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING, ERROR",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

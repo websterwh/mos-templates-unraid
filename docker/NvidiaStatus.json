@@ -1,0 +1,259 @@
+{
+  "name": "Nvidia-Status",
+  "repo": "edddeduck/nvidia-status:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/edddeduck/nvidia-status",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --cap-add SYS_RAWIO --device /dev/mem --pid=host --cgroupns=host",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9835]/",
+  "icon": "https://raw.githubusercontent.com/edddeduck/nvidia-status/main/icon.png",
+  "project": "https://github.com/edddeduck/nvidia-status",
+  "description": "NVIDIA GPU dashboard + exporter \u2014 shows the GDDR6/GDDR6X VRAM & junction temps that nvidia-smi hides on consumer RTX 30/40 cards, plus detailed stats including per-Docker-container resource usage. Exports to Prometheus, JSON, MQTT/Home Assistant and InfluxDB out of the box for long-term analysis. Reports (per GPU): core/junction/VRAM temps + thresholds, clocks, power + limits, utilisation, VRAM, fan, PCIe gen/width + live bandwidth, throttle reasons, per-process usage mapped to the owning Docker container, and NVENC sessions (codec + resolution). Optional per-GPU power-limit control. Multi-GPU aware. Configure from the built-in Settings page or the variables below. Requires the Unraid Nvidia-Driver plugin. SECURITY: reads GPU BAR0 via SYS_RAWIO + /dev/mem (needed for the hidden junction/VRAM temps). Per-process container mapping needs --pid=host + --cgroupns=host + the read-only docker containers mount (all pre-set below). Power-limit control additionally requires Privileged=on.",
+  "paths": [
+    {
+      "name": "Config (appdata)",
+      "host": "/mnt/cache/appdata/nvidia-status",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persists settings.json + the power-limit latch",
+      "required": true
+    },
+    {
+      "name": "Container names (ro)",
+      "host": "/var/lib/docker/containers",
+      "container": "/hostcontainers",
+      "mode": "ro",
+      "description": "Read-only mount so GPU processes can be mapped to container names",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / API Port",
+      "host": "9835",
+      "container": "9835",
+      "protocol": "tcp",
+      "description": "Dashboard, /metrics, /json, /settings, /help",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GPUs",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Which GPUs to expose (all, or a UUID/index)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Driver capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Leave as all (needs compute+utility+video)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mode",
+      "key": "MODE",
+      "value": "prometheus",
+      "description": "prometheus = web/HTTP server (normal). json = print JSON lines to the log instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Node name",
+      "key": "NODE_NAME",
+      "value": "",
+      "description": "Identifier used in MQTT topics, InfluxDB tags and the HA device name. Defaults to the hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poll interval (s)",
+      "key": "INTERVAL",
+      "value": "5",
+      "description": "How often stats are refreshed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable dashboard",
+      "key": "ENABLE_DASHBOARD",
+      "value": "1",
+      "description": "Serve the web dashboard at / (1=on, 0=off)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Prometheus",
+      "key": "ENABLE_METRICS",
+      "value": "1",
+      "description": "Serve Prometheus at /metrics (1=on, 0=off)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable JSON API",
+      "key": "ENABLE_JSON",
+      "value": "1",
+      "description": "Serve the JSON snapshot at /json (1=on, 0=off)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable MQTT",
+      "key": "ENABLE_MQTT",
+      "value": "1",
+      "description": "Publish to MQTT if a broker host is set below (1=on, 0=off)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable InfluxDB",
+      "key": "ENABLE_INFLUX",
+      "value": "1",
+      "description": "Write to InfluxDB if a URL is set below (1=on, 0=off)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT broker host",
+      "key": "MQTT_HOST",
+      "value": "",
+      "description": "MQTT broker IP/host. Blank = MQTT off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "MQTT broker port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT username",
+      "key": "MQTT_USER",
+      "value": "",
+      "description": "MQTT username (if the broker needs auth)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "MQTT_PASS",
+      "value": "",
+      "description": "MQTT password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HA discovery prefix",
+      "key": "MQTT_DISCOVERY_PREFIX",
+      "value": "homeassistant",
+      "description": "Home Assistant MQTT discovery prefix",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB URL",
+      "key": "INFLUX_URL",
+      "value": "",
+      "description": "e.g. http://host:8086 . Blank = InfluxDB off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB database (v1)",
+      "key": "INFLUX_DB",
+      "value": "",
+      "description": "v1 database name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB user (v1)",
+      "key": "INFLUX_USER",
+      "value": "",
+      "description": "v1 username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB password (v1)",
+      "key": "INFLUX_PASS",
+      "value": "",
+      "description": "v1 password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "InfluxDB write interval (s)",
+      "key": "INFLUX_INTERVAL",
+      "value": "10",
+      "description": "How often to write to InfluxDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB token (v2)",
+      "key": "INFLUX_TOKEN",
+      "value": "",
+      "description": "v2 API token (presence selects the v2 API)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "InfluxDB org (v2)",
+      "key": "INFLUX_ORG",
+      "value": "",
+      "description": "v2 organisation",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB bucket (v2)",
+      "key": "INFLUX_BUCKET",
+      "value": "",
+      "description": "v2 bucket",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable power-limit control",
+      "key": "ENABLE_POWER_LIMIT",
+      "value": "0",
+      "description": "Allow setting the GPU power limit from the Settings page. Also requires Privileged = ON (advanced view). Default 0 = read-only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Power-limit min (clamp)",
+      "key": "PL_MIN",
+      "value": "",
+      "description": "Optional lower clamp (watts). Blank = use the GPU's own minimum.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Power-limit max (clamp)",
+      "key": "PL_MAX",
+      "value": "",
+      "description": "Optional upper clamp (watts). Blank = use the GPU's own maximum.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

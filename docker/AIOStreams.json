@@ -1,0 +1,107 @@
+{
+  "name": "AIOStreams",
+  "repo": "ghcr.io/viren070/aiostreams:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Viren070/AIOStreams/pkgs/container/aiostreams",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/JamsRepos/Unraid-Templates/master/logos/aiostreams.png",
+  "project": "https://github.com/Viren070/AIOStreams",
+  "description": "AIOStreams is a Stremio addon that combines and configures multiple stream sources, filters, and debrid options in one configurable installation. See the project documentation for Stremio setup and built-in addon notes.",
+  "paths": [
+    {
+      "name": "Data Folder",
+      "host": "/mnt/cache/appdata/aiostreams",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent data directory (SQLite database and application data). Maps to ./data in the upstream compose example.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port mapped to the container web UI (container listens on 3000 by default).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Public base URL of this instance (required). Used for install links, stream URLs, and built-in addons. Example: https://aiostreams.yourdomain.com \u2014 avoid a trailing slash.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "64-character hex string for encrypting addon configuration. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database URI",
+      "key": "DATABASE_URI",
+      "value": "sqlite://./data/db.sqlite",
+      "description": "Database connection string. Default SQLite path matches the Data Folder mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Addon Name",
+      "key": "ADDON_NAME",
+      "value": "AIOStreams",
+      "description": "Display name for this addon instance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Addon ID",
+      "key": "ADDON_ID",
+      "value": "aiostreams.viren070.com",
+      "description": "Unique identifier for this addon instance; change if you run a distinct public instance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Addon Password",
+      "key": "ADDON_PASSWORD",
+      "value": "",
+      "description": "Optional API/install password. Leave empty to disable. Multiple values allowed, comma-separated.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Internal URL",
+      "key": "INTERNAL_URL",
+      "value": "http://127.0.0.1:3000",
+      "description": "Optional override for how the server reaches itself (e.g. behind reverse proxy). Defaults to local container access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis URI",
+      "key": "REDIS_URI",
+      "value": "",
+      "description": "Optional Redis URL for caching in scaled deployments. Leave blank for single-container setups.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "OpenProject",
+  "repo": "openproject/openproject:17.0.2",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/openproject/openproject",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/ImSkully/unraid-templates/master/OpenProject/OpenProject.png",
+  "project": "https://www.openproject.org/",
+  "description": "OpenProject is a web-based project management system for location-independent team collaboration, this is a release of the open-source community edition. Once the container has started it may take a few minutes before the WebUI is available, see container logs for startup progress. The default administrator login credentials are: **Username:** `admin` **Password:** `admin` For advanced configuration, see all supported environment variables: (https://www.openproject.org/docs/installation-and-operations/configuration/environment/#supported-environment-variables)",
+  "paths": [
+    {
+      "name": "Postgres Data Directory",
+      "host": "/mnt/cache/appdata/openproject/pgdata",
+      "container": "/var/openproject/pgdata",
+      "mode": "rw",
+      "description": "The directory to store all data from the Postgres database running on this container.",
+      "required": true
+    },
+    {
+      "name": "Assets Directory",
+      "host": "/mnt/cache/appdata/openproject/assets",
+      "container": "/var/openproject/assets",
+      "mode": "rw",
+      "description": "The directory where assets are saved.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5683",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "The port to serve the frontend WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Host Name",
+      "key": "OPENPROJECT_HOST__NAME",
+      "value": "YOUR_SERVER_IP:5683",
+      "description": "This must be equal to your server IP and the WebUI port above. (5683 by default)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key Base",
+      "key": "SECRET_KEY_BASE",
+      "value": "RANDOM_STRING_HERE",
+      "description": "The secret key used to sign sensitive data, enter a random string here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Application Title",
+      "key": "OPENPROJECT_APP__TITLE",
+      "value": "OpenProject",
+      "description": "Change the default application title that appears on the frontend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Attachment Size (KB)",
+      "key": "OPENPROJECT_ATTACHMENT__MAX__SIZE",
+      "value": "5120",
+      "description": "The maximum file size (KB) to allow for attachments, defaults to 5 MB. (1024KB = 1MB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HSTS Headers",
+      "key": "OPENPROJECT_HSTS",
+      "value": "false",
+      "description": "Allow disabling of HSTS headers and HTTP > HTTPS redirects, this should only be enabled if HTTPS is on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use HTTPS (SSL)",
+      "key": "OPENPROJECT_HTTPS",
+      "value": "false",
+      "description": "Whether or not to use HTTPS, if you only plan to only run OpenProject locally then leave this disabled.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

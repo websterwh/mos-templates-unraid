@@ -1,0 +1,395 @@
+{
+  "name": "itsweber-play",
+  "repo": "ghcr.io/itsweber-official/itsweber-play:main",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/itsweber-official/itsweber-play",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/ITSWEBER-OFFICIAL/itsweber-play/main/assets/logo/exports/icon-256-transparent.png",
+  "project": "https://github.com/ITSWEBER-OFFICIAL/itsweber-play",
+  "description": "Self-hosted video platform",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/itsweber-play/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Postgres, Redis, MinIO, Logs, Whisper-Modelle \u2014 alles unter /data. Regelm\u00e4\u00dfig sichern.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Einziger exponierter Port. Nginx multiplext intern zu Web/API/S3.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "https://play.example.com",
+      "description": "Die externe HTTPS-URL (ohne Trailing-Slash). Wird f\u00fcr Auth-Cookies, OG-Tags und Uploads gebraucht. Muss auf den Reverse-Proxy vor diesem Container zeigen.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Site URL (public)",
+      "key": "NEXT_PUBLIC_SITE_URL",
+      "value": "https://play.example.com",
+      "description": "Identisch zu Public URL \u2014 landet ins JS-Bundle.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API URL (public)",
+      "key": "NEXT_PUBLIC_API_URL",
+      "value": "/api",
+      "description": "Relativ lassen (/api), wenn ein Reverse-Proxy alles auf Port 3000 schickt. Nur \u00e4ndern bei separatem API-Subdomain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 URL (public)",
+      "key": "NEXT_PUBLIC_S3_PUBLIC_URL",
+      "value": "/s3",
+      "description": "Relativ lassen (/s3). Wird f\u00fcr Thumbnails + HLS-Playlists verwendet.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 URL (server-side)",
+      "key": "S3_PUBLIC_URL",
+      "value": "/s3",
+      "description": "MUSS identisch zu S3 URL (public) sein.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Secret",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Erzeugen mit: openssl rand -hex 32 \u2014 Pflicht, sonst startet Better-Auth nicht.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Erzeugen mit: openssl rand -hex 24 \u2014 wird auch als Part von DATABASE_URL gebraucht.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MinIO Root Password",
+      "key": "MINIO_ROOT_PASSWORD",
+      "value": "",
+      "description": "Erzeugen mit: openssl rand -hex 24 \u2014 wird als S3-Secret f\u00fcr die API verwendet.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Initial Admin Email",
+      "key": "INITIAL_ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Der erste User mit dieser Email wird beim Sign-up automatisch auf ADMIN gesetzt.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial Admin Handle",
+      "key": "INITIAL_ADMIN_HANDLE",
+      "value": "admin",
+      "description": "Handle (Benutzername ohne @) des Admin-Accounts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial Admin Name",
+      "key": "INITIAL_ADMIN_NAME",
+      "value": "Admin",
+      "description": "Anzeige-Name des Admin-Accounts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial Admin Password",
+      "key": "INITIAL_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Starkes Passwort. Kann nach dem ersten Login \u00fcber den Profil-Reset-Flow ge\u00e4ndert werden.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Cookie Domain",
+      "key": "AUTH_COOKIE_DOMAIN",
+      "value": "",
+      "description": "Leer lassen f\u00fcr Single-Domain. F\u00fcr SSO \u00fcber Subdomains: .deine-domain.tld (mit f\u00fchrendem Punkt).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Name",
+      "key": "NEXT_PUBLIC_APP_NAME",
+      "value": "Play",
+      "description": "Sichtbarer Name im Header / Meta-Tags. Leer lassen = &quot;Play&quot;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Vendor Name",
+      "key": "NEXT_PUBLIC_VENDOR_NAME",
+      "value": "",
+      "description": "Dein Firmen-/Creator-Name (optional, im Footer). Leer lassen f\u00fcr generisch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Vendor URL",
+      "key": "NEXT_PUBLIC_VENDOR_URL",
+      "value": "",
+      "description": "Link auf deine Firmen-/Creator-Homepage (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Author Name",
+      "key": "NEXT_PUBLIC_AUTHOR_NAME",
+      "value": "",
+      "description": "F\u00fcr HTML-Meta-Tag (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Author URL",
+      "key": "NEXT_PUBLIC_AUTHOR_URL",
+      "value": "",
+      "description": "F\u00fcr HTML-Meta-Tag (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Product Homepage",
+      "key": "NEXT_PUBLIC_PRODUCT_HOMEPAGE",
+      "value": "",
+      "description": "Externe Landing-Page (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "TZ-Database-Name, z. B. Europe/Berlin, UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Host",
+      "key": "POSTGRES_HOST",
+      "value": "127.0.0.1",
+      "description": "All-in-One: Postgres l\u00e4uft im selben Container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres DB",
+      "key": "POSTGRES_DB",
+      "value": "itsweber_play",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "play",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://play:REPLACE_WITH_POSTGRES_PASSWORD@127.0.0.1:5432/itsweber_play",
+      "description": "Muss dasselbe Passwort enthalten wie POSTGRES_PASSWORD oben. Bei \u00c4nderung beides anpassen.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redis Host",
+      "key": "REDIS_HOST",
+      "value": "127.0.0.1",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MinIO Root User",
+      "key": "MINIO_ROOT_USER",
+      "value": "play-admin",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Endpoint",
+      "key": "S3_ENDPOINT",
+      "value": "http://127.0.0.1:9000",
+      "description": "All-in-One: MinIO im selben Container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Region",
+      "key": "S3_REGION",
+      "value": "us-east-1",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Access Key",
+      "key": "S3_ACCESS_KEY",
+      "value": "play-admin",
+      "description": "Identisch zu MinIO Root User.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Secret Key",
+      "key": "S3_SECRET_KEY",
+      "value": "",
+      "description": "Identisch zu MinIO Root Password (oben).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Bucket Videos",
+      "key": "S3_BUCKET_VIDEOS",
+      "value": "play-videos",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bucket Thumbs",
+      "key": "S3_BUCKET_THUMBS",
+      "value": "play-thumbs",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bucket Raw",
+      "key": "S3_BUCKET_RAW",
+      "value": "play-raw",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bucket Assets",
+      "key": "S3_BUCKET_ASSETS",
+      "value": "play-assets",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Upload Size (MB)",
+      "key": "MAX_UPLOAD_SIZE_MB",
+      "value": "8192",
+      "description": "Muss \u2264 `client_max_body_size` im Reverse-Proxy sein. 8192 = 8 GB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transcode Qualities",
+      "key": "TRANSCODE_QUALITIES",
+      "value": "1080p,720p,480p",
+      "description": "Komma-getrennt. Weglassen = weniger Qualit\u00e4tsstufen = schnellerer Transcode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transcode Concurrency",
+      "key": "TRANSCODE_CONCURRENCY",
+      "value": "2",
+      "description": "Gleichzeitig verarbeitete Videos. H\u00f6her = CPU-intensiver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Import Concurrency",
+      "key": "IMPORT_CONCURRENCY",
+      "value": "2",
+      "description": "Gleichzeitige yt-dlp-Imports.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto-Captions",
+      "key": "AUTO_CAPTIONS_ENABLED",
+      "value": "0",
+      "description": "1 = automatische Untertitel via Whisper.cpp generieren. Braucht Whisper-Modell im /data-Volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit Max",
+      "key": "RATE_LIMIT_MAX",
+      "value": "120",
+      "description": "Requests pro Fenster auf sensible Endpoints.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit Window (ms)",
+      "key": "RATE_LIMIT_WINDOW_MS",
+      "value": "60000",
+      "description": "Zeitfenster in Millisekunden. 60000 = 1 Minute.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,172 @@
+{
+  "name": "TinyMM-GUIv5-Selkies",
+  "repo": "hernandito/tinymm5-selkies:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/hernandito/tinymm5-selkies",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=6gb",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/hernandito/docker-templates/master/hernando/tmmv5-icon.png",
+  "project": "https://www.tinymediamanager.org/",
+  "description": "Unofficial tinyMediaManager v5 Docker image with a LinuxServer Selkies browser-based desktop interface. Provides a modern HTTPS WebUI as an alternative to the official noVNC container, persistent appdata storage, editable media mappings, and optional HTTP API access for automation.",
+  "paths": [
+    {
+      "name": "Selkies Config",
+      "host": "/mnt/cache/appdata/tinymm5-selkies/config/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent Selkies configuration, certificate files, and browser-desktop settings.",
+      "required": true
+    },
+    {
+      "name": "tinyMediaManager Appdata",
+      "host": "/mnt/cache/appdata/tinymm5-selkies/data/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent tinyMediaManager database, settings, cache, logs, backups, and license file.",
+      "required": true
+    },
+    {
+      "name": "tinyMediaManager Linux Data Path",
+      "host": "/mnt/cache/appdata/tinymm5-selkies/data/",
+      "container": "/config/.local/share/tinyMediaManager",
+      "mode": "rw",
+      "description": "Must point to the same host folder as tinyMediaManager Appdata. This intentionally exposes the same files at TMM's Linux storage path without duplicating data.",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/Media/Movies/",
+      "container": "/media/movies",
+      "mode": "rw",
+      "description": "Host folder containing your movie library.",
+      "required": false
+    },
+    {
+      "name": "TV Shows",
+      "host": "/mnt/cache/Media/TV/",
+      "container": "/media/tvshows",
+      "mode": "rw",
+      "description": "Host folder containing your television library.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Selkies HTTPS WebUI",
+      "host": "4066",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "HTTPS port for the Selkies browser desktop. A self-signed certificate warning is expected on first access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "tinyMediaManager HTTP API",
+      "host": "7890",
+      "container": "7878",
+      "protocol": "tcp",
+      "description": "Optional tinyMediaManager HTTP API port for automation scripts.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID used to run the container. The standard unRAID nobody user is 99.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID used to run the container. The standard unRAID users group is 100.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone. Change this to your local IANA timezone if desired.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Locale",
+      "key": "LC_ALL",
+      "value": "en_US.UTF-8",
+      "description": "Container locale.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Language",
+      "key": "LANG",
+      "value": "en_US.UTF-8",
+      "description": "Container language.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Browser Tab Title",
+      "key": "TITLE",
+      "value": "tinyMediaManager",
+      "description": "Title displayed in the browser tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Selkies Sidebar Title",
+      "key": "SELKIES_UI_TITLE",
+      "value": "tinyMediaManager",
+      "description": "Title displayed in the Selkies sidebar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use CSS Scaling",
+      "key": "SELKIES_USE_CSS_SCALING",
+      "value": "false",
+      "description": "Leave disabled for a sharper desktop image. High-density displays can be tuned from the Selkies sidebar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Interface DPI",
+      "key": "SELKIES_SCALING_DPI",
+      "value": "96",
+      "description": "Desktop interface DPI. The general default is 96. Lower or raise this value if the interface is too large or too small.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Selkies Username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Optional username for the Selkies WebUI. Leave blank for no username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Selkies Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Optional password for the Selkies WebUI. Leave blank for no password.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,169 @@
+{
+  "name": "GitHub-Azure-CI-Runner-Agent",
+  "repo": "ghcr.io/goldngroup/github-actions-runner-azure-pipelines-agent:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/goldngroup/github-actions-runner-azure-pipelines-agent",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/GoldnGroup/unraid-templates/main/icon.png",
+  "project": "https://github.com/GoldnGroup/GH-AZ-Runner-Agent-Container",
+  "description": "Self-hosted CI runner for GitHub Actions and Azure Pipelines. Run builds directly on Unraid with optional embedded Docker support. Supports GitHub Actions runners, Azure DevOps Pipelines agents, PowerShell 7, and Docker builds inside the container. Designed for home lab CI/CD, private automation pipelines, and self-hosted build infrastructure. Keywords: GitHub runner, GitHub Actions, Azure Pipelines, Azure DevOps agent, CI/CD, self-hosted runner, Docker builds.",
+  "paths": [
+    {
+      "name": "Runner Data",
+      "host": "/mnt/cache/appdata/github-azure-ci-runner-agent",
+      "container": "/runner-data",
+      "mode": "rw",
+      "description": "Persistent storage for runner configuration, work folders, updates, and embedded Docker data. Use a unique appdata path per container. Do not map this to /runner.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Use Azure Pipelines Agent",
+      "key": "USE_AZDO",
+      "value": "false",
+      "description": "Set to true to enable Azure Pipelines Agent. If false, all Azure DevOps fields are ignored.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Azure DevOps URL",
+      "key": "AZP_URL",
+      "value": "https://dev.azure.com/YOUR_ORG",
+      "description": "Azure DevOps organization URL. Example: https://dev.azure.com/myorg",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Azure DevOps PAT",
+      "key": "AZP_TOKEN",
+      "value": "",
+      "description": "Azure DevOps Personal Access Token with Agent Pools Read and manage permission. Required only when Use Azure Pipelines Agent is true.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Azure Agent Pool",
+      "key": "AZP_POOL",
+      "value": "SelfHosted",
+      "description": "Azure DevOps Agent Pool name. The pool must already exist in Azure DevOps. Default: SelfHosted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Azure Agent Name",
+      "key": "AZP_AGENT_NAME",
+      "value": "unraid-azure-pipelines-agent",
+      "description": "Name shown for this agent in Azure DevOps.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Azure Agent Work Folder",
+      "key": "AZP_WORK",
+      "value": "_work",
+      "description": "Azure Pipelines work folder. Leave as _work unless you need a custom path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use GitHub Actions Runner",
+      "key": "USE_GITHUB",
+      "value": "false",
+      "description": "Set to true to enable GitHub Actions Runner. If false, all GitHub fields are ignored.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub Scope",
+      "key": "GITHUB_SCOPE",
+      "value": "repo",
+      "description": "Use repo for a repository runner, or org for an organization-level runner.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Repository URL",
+      "key": "GITHUB_URL",
+      "value": "https://github.com/YOUR_ORG/YOUR_REPO",
+      "description": "GitHub repository URL. Required only when GitHub Scope is repo. Example: https://github.com/myorg/myrepo",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Organization",
+      "key": "GITHUB_ORG",
+      "value": "YOUR_ORG",
+      "description": "GitHub organization name. Required only when GitHub Scope is org. Example: myorg",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub PAT",
+      "key": "GITHUB_PAT",
+      "value": "",
+      "description": "GitHub Personal Access Token used to register the runner. For repo scope, grant Administration Read and Write on the selected repository. Required only when Use GitHub Actions Runner is true.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GitHub Runner Name",
+      "key": "GITHUB_RUNNER_NAME",
+      "value": "unraid-github-actions-runner",
+      "description": "Name shown for this runner in GitHub.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Runner Labels",
+      "key": "GITHUB_RUNNER_LABELS",
+      "value": "SelfHosted",
+      "description": "Comma-separated labels used to target this runner in workflows. Default: SelfHosted. Example: SelfHosted,unraid,docker",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Runner Work Folder",
+      "key": "GITHUB_WORK",
+      "value": "_work",
+      "description": "GitHub Actions work folder. Leave as _work unless you need a custom path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Embedded Docker",
+      "key": "ENABLE_DOCKER",
+      "value": "false",
+      "description": "Set to true to enable Docker builds inside the runner container. Requires Extra Parameters to include --privileged.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Docker Storage Driver",
+      "key": "DOCKER_STORAGE_DRIVER",
+      "value": "vfs",
+      "description": "Storage driver used by embedded Docker. Default vfs is slower but works reliably with Unraid appdata paths such as /mnt/user/appdata. Use overlay2 only if Runner Data is mapped to a path or filesystem that supports overlay mounts, for example a suitable cache or disk path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Advanced Docker Options",
+      "key": "DOCKER_OPTS",
+      "value": "",
+      "description": "Optional extra options passed to the embedded Docker daemon. Leave empty unless troubleshooting or customizing Docker.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

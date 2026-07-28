@@ -1,0 +1,107 @@
+{
+  "name": "backrest",
+  "repo": "garethgeorge/backrest:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/garethgeorge/backrest",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9898]",
+  "icon": "https://raw.githubusercontent.com/alex-red/unraid-ca-templates/master/templates/images/backrest-icon.png",
+  "project": "https://github.com/garethgeorge/backrest",
+  "description": "Web UI and orchestrator for Restic backup. Backrest is a web-accessible backup solution built on top of restic and providing a WebUI which wraps the restic CLI and makes it easy to create repos, browse snapshots, and restore files. Additionally, Backrest can run in the background and take an opinionated approach to scheduling snapshots and orchestrating repo health operations. Features: - Import your existing restic repositories - Cron scheduled backups and health operations (e.g. prune and forget) - UI for browing and restoring files from snapshots - Configurable backup notifications (e.g. Discord, Slack, Shoutrrr, Gotify) - Add shell command hooks to run before and after backup operations. - Compatible with rclone remotes - Cross-platform support (Linux, macOS, Windows, FreeBSD, Docker) - Backup to any restic supported storage (e.g. S3, B2, Azure, GCS, local, SFTP, and all rclone remotes) Github: https://github.com/garethgeorge/backrest Documentation: https://garethgeorge.github.io/backrest/introduction/getting-started",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/backrest/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "location of the config.json file",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/backrest/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "path for the restic cache which greatly improves performance.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/backrest/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Restic repos",
+      "host": "/mnt/cache/appdata/backrest/repos",
+      "container": "/repos",
+      "mode": "rw",
+      "description": "(optional) - mount restic repositories on the filesystem",
+      "required": false
+    },
+    {
+      "name": "Path to backup",
+      "host": "/mnt/cache/backup",
+      "container": "/backup",
+      "mode": "ro",
+      "description": "mount directories for backup",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "9898",
+      "container": "9898",
+      "protocol": "tcp",
+      "description": "Webui access port, BACKREST_PORT env variable can be used to change the app port as well",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "BACKREST_DATA",
+      "key": "BACKREST_DATA",
+      "value": "/data",
+      "description": "path for backrest data. restic binary and the database are placed here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BACKREST_CONFIG",
+      "key": "BACKREST_CONFIG",
+      "value": "/config/config.json",
+      "description": "path for the backrest config file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "XDG_CACHE_HOME",
+      "key": "XDG_CACHE_HOME",
+      "value": "/cache",
+      "description": "path for the restic cache which greatly improves performance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Toronto",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,105 @@
+{
+  "name": "pocketlog-importer",
+  "repo": "ghcr.io/anym001/pocketlog-importer:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/anym001/pocketlog-importer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/anym001/pocketlog/main/frontend/icons/icon-512.png",
+  "project": "https://github.com/anym001/pocketlog-importer",
+  "description": "PocketLog Importer is a companion container for PocketLog (https://github.com/anym001/pocketlog) that turns bank CSV exports into PocketLog transactions automatically. It has no web interface - it runs as a background service. HOW IT WORKS: Drop a bank CSV into /data/input. An internal scheduler (cron, default hourly) auto-detects the bank format (easybank, dadat), parses and normalises each booking, then matches it against a regex rules whitelist (config/rules.yaml). A booking that matches a rule is enriched (description, category, tags) and imported into PocketLog via its CSV import API. A booking that matches no rule is dropped and written to a *.unmatched.csv for review - only curated bookings reach PocketLog. PocketLog deduplicates server-side, so re-runs are safe. Processed originals move to /data/processed; files that fail to parse or import move to /data/failed. You can also trigger a run on demand with the User Scripts plugin: docker exec pocketlog-importer pocketlog-import --once (add --dry-run to write output CSVs without importing). SETUP: In PocketLog create an API key with the \"import\" scope and provide it via POCKETLOG_API_KEY. On first start the container seeds config/config.yaml and config/rules.yaml from bundled examples (it logs a WARNING) - then edit config/config.yaml to set pocketlog.base_url (or use POCKETLOG_BASE_URL), edit config/rules.yaml to match your bookings, and restart. STORAGE: Map /config (config.yaml, rules.yaml, optional logs) and /data (input, output, processed, failed). Set PUID=99 / PGID=100 so the files are owned by nobody:users on Unraid. NOTIFICATIONS (optional): Run-outcome push notifications to any Gotify-compatible endpoint (PushBits, Gotify). Set notify.url in config.yaml and provide the application token via NOTIFY_TOKEN. Project: https://github.com/anym001/pocketlog-importer",
+  "paths": [
+    {
+      "name": "App Config Dir",
+      "host": "/mnt/cache/appdata/pocketlog-importer/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent app directory. Holds config.yaml, rules.yaml and optional log files (/config/logs). On first start the example config and rules are seeded here if missing.",
+      "required": true
+    },
+    {
+      "name": "Data Dir",
+      "host": "/mnt/cache/appdata/pocketlog-importer/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Work directory. Drop bank CSVs into data/input; generated PocketLog CSVs and *.unmatched.csv land in data/output; processed originals in data/processed; files that failed to parse or import in data/failed.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "POCKETLOG_API_KEY",
+      "key": "POCKETLOG_API_KEY",
+      "value": "",
+      "description": "Required for real imports: a PocketLog API key with the import scope (created in PocketLog under API keys). Never stored in YAML.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POCKETLOG_BASE_URL",
+      "key": "POCKETLOG_BASE_URL",
+      "value": "",
+      "description": "Optional override of the PocketLog base URL used for the CSV import API (e.g. http://pocketlog:8000). If empty, the value from config.yaml (pocketlog.base_url) is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user ID that owns the files under /config and /data (Unraid: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group ID for the files under /config and /data (Unraid: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone (affects the scheduler cron times)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FORMAT",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log output format: text or json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FILE",
+      "key": "LOG_FILE",
+      "value": "",
+      "description": "Optional path to a log file inside /config/logs (e.g. /config/logs/pocketlog-importer.log). Leave empty to log to stdout only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

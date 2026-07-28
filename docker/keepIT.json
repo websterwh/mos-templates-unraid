@@ -1,0 +1,179 @@
+{
+  "name": "keepIT",
+  "repo": "richy1989/keepit:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/richy1989/keepit",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/richy1989/keepIT/main/docs/logo.png",
+  "project": "https://github.com/Richy1989/keepIT",
+  "description": "A self-hosted notes app with sharing between users, real-time sync, search, and reminders - plus a native Android app with offline support and a home-screen widget",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/keepit",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Host folder where keepIT stores its SQLite database, encryption keys and uploaded images. Point this at your appdata share to persist data across updates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the keepIT web UI. Browse to http:// :[this port].",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Key",
+      "key": "Jwt__Key",
+      "value": "change-me-to-a-random-secret-of-at-least-32-characters",
+      "description": "REQUIRED. A random secret of at least 32 characters used to sign login tokens. Change this before first use; changing it later signs everyone out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Environment",
+      "key": "ASPNETCORE_ENVIRONMENT",
+      "value": "Production",
+      "description": "Production (default) or Development. Development also enables the Scalar API explorer at /scalar/v1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Refresh Cookie Secure",
+      "key": "Auth__RefreshCookie__Secure",
+      "value": "false",
+      "description": "Keep false when accessing over plain http. Set true only when keepIT is served over https (e.g. behind a reverse proxy with TLS).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy Hops",
+      "key": "App__ForwardedProxyHops",
+      "value": "1",
+      "description": "Number of reverse-proxy hops in front of the API. This image already contains one nginx hop, so: 1 = you reach keepIT directly (browser \u2192 this container); 2 = another reverse proxy such as Traefik sits in front (Traefik \u2192 nginx \u2192 api). Must be exact: too low and all clients share one rate-limit bucket; too high and clients can spoof their IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Registration",
+      "key": "App__AllowRegistration",
+      "value": "true",
+      "description": "Whether new accounts may be created. If keepIT is reachable from the internet, register your own accounts first and then set this to false so strangers cannot sign up. Existing users keep working.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Base URL",
+      "key": "App__PublicBaseUrl",
+      "value": "",
+      "description": "Optional. Public address of your instance (e.g. https://notes.example.com), used to build password-reset links in emails. Usually auto-detected from the request; set it only if reset links point to the wrong host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "Email__SmtpHost",
+      "value": "",
+      "description": "Optional. SMTP server for outgoing email (password-reset links). LEAVE EMPTY to run without email \u2014 reset links then land in the container log instead. Setting this is the switch that enables email delivery (then also set From).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP From",
+      "key": "Email__From",
+      "value": "",
+      "description": "From address for outgoing email, e.g. keepIT no-reply@example.com. Required once SMTP Host is set; ignored while SMTP Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "Email__SmtpUsername",
+      "value": "",
+      "description": "Optional SMTP login username. Leave empty (with SMTP Password) for an unauthenticated relay. Ignored while SMTP Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "Email__SmtpPassword",
+      "value": "",
+      "description": "Optional SMTP login password, paired with SMTP Username. Ignored while SMTP Host is empty.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Port",
+      "key": "Email__SmtpPort",
+      "value": "587",
+      "description": "SMTP port \u2014 587 for STARTTLS submission (default), 465 for implicit TLS (set Use STARTTLS to false too). Ignored while SMTP Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use STARTTLS",
+      "key": "Email__UseStartTls",
+      "value": "true",
+      "description": "true = STARTTLS on port 587 (default); false = implicit TLS on port 465. Ignored while SMTP Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "Optional. LEAVE EMPTY to use the built-in SQLite database (recommended for testing). This field is the switch: empty = SQLite, filled = Postgres. Set it to your Postgres host/container to switch databases (then also set Postgres Password).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Port",
+      "key": "POSTGRES_PORT",
+      "value": "",
+      "description": "Optional Postgres port (defaults to 5432 if empty). Ignored while Postgres Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Database",
+      "key": "POSTGRES_DB",
+      "value": "",
+      "description": "Optional Postgres database name (defaults to 'keepit'). Ignored while Postgres Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "",
+      "description": "Optional Postgres username (defaults to 'keepit'). Ignored while Postgres Host is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Optional Postgres password. Ignored while Postgres Host is empty.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

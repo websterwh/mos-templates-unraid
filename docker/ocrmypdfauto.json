@@ -1,0 +1,113 @@
+{
+  "name": "ocrmypdf-auto",
+  "repo": "cmccambridge/ocrmypdf-auto:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/cmccambridge/ocrmypdf-auto",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/cmccambridge/ocrmypdf-auto/master/media/logo.png",
+  "project": "https://github.com/cmccambridge/ocrmypdf-auto",
+  "description": "[p]This container monitors an input file directory for PDF documents to process, and automatically invokes [a href='https://github.com/jbarlow83/OCRmyPDF'][code][strong]OCRmyPDF[/strong][/code][/a] on each file.[/p] [p]It uses [code]inotify[/code] to monitor the input directory efficiently, and is fairly configurable.[/p] [h4]Configuration Details[/h4] [p]See the descriptions of the Unraid volumes and environment variables for highlights of the configurability of [code]ocrmypdf-auto[/code], but for details including how to specify custom commandline parameters to [code]ocrmydf[/code] itself, or custom [code]tesseract[/code] configuration files, see the full README at [a href='https://github.com/cmccambridge/ocrmypdf-auto/blob/master/README.md']https://github.com/cmccambridge/ocrmypdf-auto/blob/master/README.md[/a][/p]",
+  "paths": [
+    {
+      "name": "Input Directory",
+      "host": "",
+      "container": "/input",
+      "mode": "rw",
+      "description": "Input directory from which to process files for OCR. emContainer path: code/input/code/em",
+      "required": true
+    },
+    {
+      "name": "Output Directory",
+      "host": "",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Output directory to which post-OCR files will be written. emContainer path: code/output/code/em",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/ocrmypdf-auto",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Config/appdata directory. emContainer path: code/config/code/em",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Output Mode",
+      "key": "OCR_OUTPUT_MODE",
+      "value": "MIRROR_TREE",
+      "description": "Controls the output directory layout: br / codeMIRROR_TREE/code - (Default) Mirror the directory structure of the input directory, i.e. for an input file code/input/foo/bar.pdf/code create an output file code/output/foo/bar.pdf/code. br / codeSINGLE_FOLDER/code - Collect all output files in a single flat folder, i.e. for an input file code/input/foo/bar.pdf/code create an output file code/output/bar.pdf/code.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Action On Success",
+      "key": "OCR_ACTION_ON_SUCCESS",
+      "value": "NOTHING",
+      "description": "Controls the action (if any) to perform after successful OCR processing: br / codeNOTHING/code - (Default) Do nothing. Input files remain in place where they were found. br / codeARCHIVE_INPUT_FILES/code - Archive input files by strongmoving/strong them em(overwriting existing files!)/em to the code/archive/code Volume br / codeDELETE_INPUT_FILES/code - Delete the input file after successful processing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Additional Languages",
+      "key": "OCR_LANGUAGES",
+      "value": "",
+      "description": "Additional languages (besides English) to install, given as a space-separated list of language abbreviations. All available languages can be found on the a href=https://packages.ubuntu.com/search?keywords=tesseract-ocr-&searchon=names&suite=bionic&section=allUbuntu site/a. Example for German, Chinese - Simplified, and Italian: codedeu chi-sim ita/code",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify URL",
+      "key": "OCR_NOTIFY_URL",
+      "value": "",
+      "description": "On a successful completion, a POST will be made to the given URL, with a JSON payload of code{'pdf': '/output/doc.pdf', 'txt': '/output/doc.pdf.txt'} /code. The txt property will only be present if you add the code--sidecar /code option to the codeocr.config/code file. This could be used to kick off additional processing, like indexing of the content or notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Process Existing on Startup",
+      "key": "OCR_PROCESS_EXISTING_ON_START",
+      "value": "0",
+      "description": "Set to code1/code to enable processing of any files in the input directory when the container is launched. br/ Set to code0/code (Default) or unset to ignore existing files until they are modified.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verbosity",
+      "key": "OCR_VERBOSITY",
+      "value": "",
+      "description": "Control the verbosity of debug logging. Accepts python codelogging/code levels, e.g. codewarn/code (Default), codeinfo/code, codedebug/code, etc.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UID Override",
+      "key": "USERMAP_UID",
+      "value": "99",
+      "description": "Set the UID that the OCR tools will run as. unRAID standard is 99.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GID Override",
+      "key": "USERMAP_GID",
+      "value": "100",
+      "description": "Set the primary GID that the OCR tools will run with. unRAID standard is 100.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

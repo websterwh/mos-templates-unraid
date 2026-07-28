@@ -1,0 +1,93 @@
+{
+  "name": "splunk",
+  "repo": "atunnecliffe/splunk",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/atunnecliffe/splunk",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://secure.gravatar.com/avatar/c4cadc82a16e67018f57f1fc2547caa4.jpg",
+  "project": "https://www.splunk.com/",
+  "description": "This is a Dockerfile for Splunk designed for OpenShift and Unraid based on Alpine Linux - https://www.splunk.com If you run the Dockerfile with no arguments you will get a single instance of Splunk 9.0.3 with the user admin:changeme2019. The web interface is exposed on port HTTP/8000, data ingest on TCP/9997, and API on HTTPS/8089. Compatible with Splunk 7.1.0 and newer.",
+  "paths": [
+    {
+      "name": "DataPersist",
+      "host": "/mnt/cache/appdata/splunkenterprise/splunkdata",
+      "container": "/splunkdata",
+      "mode": "rw",
+      "description": "For indexed data persistence",
+      "required": true
+    },
+    {
+      "name": "ConfigPersist",
+      "host": "/mnt/cache/appdata/splunkenterprise/etc/apps",
+      "container": "/opt/splunk/etc/apps",
+      "mode": "rw",
+      "description": "For config and app data persistence",
+      "required": true
+    },
+    {
+      "name": "AppCredsPersist",
+      "host": "/mnt/cache/appdata/splunkenterprise/etc/auth",
+      "container": "/opt/splunk/etc/auth",
+      "mode": "rw",
+      "description": "For password/encryption persistence",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP Web UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Management",
+      "host": "8089",
+      "container": "8089",
+      "protocol": "tcp",
+      "description": "HTTPS API",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Data Ingest",
+      "host": "9997",
+      "container": "9997",
+      "protocol": "tcp",
+      "description": "SplunkTCP input",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Splunk start args",
+      "key": "SPLUNK_CLI_ARGS",
+      "value": "--accept-license --no-prompt",
+      "description": "Arguments to start Splunk with.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "changeme2019",
+      "description": "Splunk Web UI admin password.",
+      "required": true,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

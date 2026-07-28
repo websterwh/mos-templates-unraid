@@ -1,0 +1,133 @@
+{
+  "name": "Fodaris",
+  "repo": "goodhallsolutions/fodaris:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/goodhallsolutions/fodaris",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--pid=host",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8443]/",
+  "icon": "https://fodaris.co.uk/images/icon.png",
+  "project": "https://fodaris.co.uk",
+  "description": "Fodaris - self-hosted monitoring and observability platform for homelabs and small businesses. Monitor servers, Docker containers, network devices (SNMP), websites, APIs, databases, and applications from a single dashboard. Features: real-time metrics, alerting, uptime monitoring, IPAM, log viewer, network topology, and reporting. Agents available for Linux, Windows, macOS, and Docker. Includes a built-in PostgreSQL database, TLS (auto-generated self-signed cert), and a React-based web UI accessible on port 8443. After installation, open https://your-Unraid-ip:8443 and log in with admin / Fodaris2026. You will be prompted to change your password on first login.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/fodaris/config",
+      "container": "/app/server/config",
+      "mode": "rw",
+      "description": "Persistent storage for Fodaris configuration.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/fodaris/data",
+      "container": "/app/server/data",
+      "mode": "rw",
+      "description": "Persistent storage for the Fodaris database and metrics.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/fodaris/backups",
+      "container": "/app/server/backups",
+      "mode": "rw",
+      "description": "Persistent storage for Fodaris backups.",
+      "required": true
+    },
+    {
+      "name": "TLS Certificates (optional)",
+      "host": "",
+      "container": "/app/certs",
+      "mode": "ro",
+      "description": "Optional: path to a directory containing fodaris.crt and fodaris.key for custom TLS. Leave blank to use the auto-generated self-signed certificate.",
+      "required": false
+    },
+    {
+      "name": "Host /proc",
+      "host": "/proc",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "Mounts the host process filesystem so Fodaris can monitor host processes and sensors.",
+      "required": false
+    },
+    {
+      "name": "Host /sys",
+      "host": "/sys",
+      "container": "/host/sys",
+      "mode": "ro",
+      "description": "Mounts the host sysfs so Fodaris can read hardware sensor data.",
+      "required": false
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Grants Fodaris read-only access to Docker for container monitoring.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port (HTTPS)",
+      "host": "8443",
+      "container": "8443",
+      "protocol": "tcp",
+      "description": "Port for the Fodaris web interface. Access via https://your-unraid-ip:8443",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Agent Ingest Port",
+      "host": "24443",
+      "container": "24443",
+      "protocol": "tcp",
+      "description": "Port your Fodaris agents push metrics to. Keep this on your LAN; you do not need to open it to the internet. Your agents' Server URL should be https://your-unraid-ip:24443",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenTelemetry Ingest Port",
+      "host": "24444",
+      "container": "24444",
+      "protocol": "tcp",
+      "description": "Port for OpenTelemetry collectors pushing OTLP/HTTP. Only needed if you push OTel metrics into Fodaris. Safe to leave open on the LAN.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption Key",
+      "key": "FODARIS_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Secret key for encrypting stored data. Generate with: openssl rand -hex 32. Save this value \u2014 if lost, stored data cannot be decrypted. Leave blank to auto-generate (key lost on container restart).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Server Name",
+      "key": "FODARIS_SERVER_NAME",
+      "value": "fodaris-core",
+      "description": "Display name for this Fodaris server instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metric Retention (days)",
+      "key": "FODARIS_RETENTION_DAYS",
+      "value": "30",
+      "description": "How many days of metric history to retain. Higher values use more disk space.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

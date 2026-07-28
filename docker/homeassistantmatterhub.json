@@ -1,0 +1,73 @@
+{
+  "name": "home-assistant-matter-hub",
+  "repo": "ghcr.io/riddix/home-assistant-matter-hub:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/riddix/home-assistant-matter-hub/pkgs/container/home-assistant-matter-hub",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8482]",
+  "icon": "https://github.com/ds-sebastian/unraid-templates/blob/main/icons/ha-matter-hub-icon.png?raw=true",
+  "project": "https://github.com/riddix/home-assistant-matter-hub",
+  "description": "This project simulates a Matter bridge to publish your Home Assistant entities to any Matter-compatible controller like Alexa, Apple Home, or Google Home. REQUIRED SETTINGS: 1. You MUST generate a \"Long-Lived Access Token\" in Home Assistant (User Profile > Security). 2. Network Type MUST be set to Host . 3. IPv6 MUST be enabled in Unraid's Network Settings. TROUBLESHOOTING (Offline Devices / Issue #563): If devices pair but show as \"Offline\" or \"Not Responding\", your Unraid host is likely dropping IPv6 packets on the bridge interface. This is common in Unraid 7+ or Docker 26+. Fix: Run this command in the Unraid Terminal: [code]ip6tables -A FORWARD -i br0 -o br0 -j ACCEPT[/code] (If this fixes it, add that command to the \"User Scripts\" plugin to run at array startup).",
+  "paths": [
+    {
+      "name": "Storage Path",
+      "host": "/mnt/cache/appdata/home-assistant-matter-hub",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage location.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Home Assistant URL",
+      "key": "HAMH_HOME_ASSISTANT_URL",
+      "value": "http://YOUR_HA_IP:8123",
+      "description": "Full URL including http/https and port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Access Token",
+      "key": "HAMH_HOME_ASSISTANT_ACCESS_TOKEN",
+      "value": "",
+      "description": "Long-Lived Access Token from Home Assistant.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "WebUI Port",
+      "key": "HAMH_HTTP_PORT",
+      "value": "8482",
+      "description": "Port for the web interface. Note: Changing this requires manually updating the WebUI link.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "HAMH_LOG_LEVEL",
+      "value": "info",
+      "description": "Options: silly, debug, info, warn, error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "mDNS Interface",
+      "key": "HAMH_MDNS_NETWORK_INTERFACE",
+      "value": "",
+      "description": "Optional: Force a specific interface for mDNS (e.g., br0 or eth0). Leave empty to auto-detect.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

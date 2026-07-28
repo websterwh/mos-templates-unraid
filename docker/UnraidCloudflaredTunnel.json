@@ -1,0 +1,131 @@
+{
+  "name": "Unraid-Cloudflared-Tunnel",
+  "repo": "figro/unraid-cloudflared-tunnel",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/figro/unraid-cloudflared-tunnel",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:46495]",
+  "icon": "https://raw.githubusercontent.com/AriaGomes/Unraid-Templates/fc45e49d77f4e8546b78b50a636f236cfa30b5b5/Images/unraid-cloudflared-tunnel.png",
+  "project": "https://github.com/AriaGomes/Unraid-Cloudflared-Tunnel",
+  "description": "Simple cloudflared docker container for Unraid. Simply add your token from cloudflare dashboard as a variable and your done. There are advanced environement variables that can be set. The default values in these fields are what cloudflared will use by default if they are not set. There is more environement variables that can be added but will need a value entered or other configuration to use so I have removed them from the template. They can be seen on the github readme or the cloudflared docs. Cloudflared Docs: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/ https://hub.docker.com/r/cloudflare/cloudflared https://github.com/cloudflare/cloudflared Github: https://github.com/AriaGomes/Unraid-Cloudflared-Tunnel DockerHub: https://hub.docker.com/r/figro/Unraid-cloudflared-tunnel Discord: Figro#4064",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/cloudflared",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Used in conjuction with log, pid, and cert env variables to get more info or use your own cert. If you don't need this you can delete or ignore this.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Metrics Port",
+      "host": "46495",
+      "container": "46495",
+      "protocol": "tcp",
+      "description": "Exposes prometheus metrics server (Can be removed if you don't care about metrics)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TUNNEL_TOKEN",
+      "key": "TUNNEL_TOKEN",
+      "value": "",
+      "description": "Associates the cloudflared instance with a specific tunnel. The tunnel\u2019s token is shown in the dashboard when you first create the tunnel. You can also retrieve the token using the API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NO_AUTOUPDATE",
+      "key": "NO_AUTOUPDATE",
+      "value": "true",
+      "description": "Disables automatic cloudflared updates. Set to false or delete to autoupdate. Autoupdating can cause tunnel to go down.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_RETRIES",
+      "key": "TUNNEL_RETRIES",
+      "value": "5",
+      "description": "Specifies the maximum number of retries for connection/protocol errors. Retries use exponential backoff (retrying at 1, 2, 4, 8, 16 seconds by default), so it is not recommended that you increase this value significantly.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_REGION",
+      "key": "TUNNEL_REGION",
+      "value": "",
+      "description": "Allows you to choose the regions to which connections are established. Currently the only available value is us, which routes all connections through data centers in the United States. Omit or leave empty to connect to the global region.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_TRANSPORT_PROTOCOL",
+      "key": "TUNNEL_TRANSPORT_PROTOCOL",
+      "value": "auto",
+      "description": "Specifies the protocol used to establish a connection between cloudflared and the Cloudflare global network. Available values are auto, http2, and quic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_EDGE_BIND_ADDRESS",
+      "key": "TUNNEL_EDGE_BIND_ADDRESS",
+      "value": "",
+      "description": "Specifies the outgoing IP address used to establish a connection between cloudflared and the Cloudflare global network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_EDGE_IP_VERSION",
+      "key": "TUNNEL_EDGE_IP_VERSION",
+      "value": "auto",
+      "description": "Specifies the IP address version (IPv4 or IPv6) used to establish a connection between cloudflared and the Cloudflare global network. Available values are auto, 4, and 6.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_GRACE_PERIOD",
+      "key": "TUNNEL_GRACE_PERIOD",
+      "value": "30s",
+      "description": "When cloudflared receives SIGINT/SIGTERM it will stop accepting new requests, wait for in-progress requests to terminate, then shut down. Waiting for in-progress requests will timeout after this grace period, or when a second SIGTERM/SIGINT is received.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_ORIGIN_CERT",
+      "key": "TUNNEL_ORIGIN_CERT",
+      "value": "",
+      "description": "Specifies the account certificate for one of your zones, authorizing the client to serve as an origin for that zone. You can obtain a certificate by using the cloudflared tunnel login command or by visiting https://dash.cloudflare.com/argotunnel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_METRICS",
+      "key": "TUNNEL_METRICS",
+      "value": "0.0.0.0:46495",
+      "description": "Exposes a Prometheus endpoint on the specified IP address/port, which you can then query for usage metrics. (You will need to add a port to the unraid template)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TUNNEL_LOGLEVEL",
+      "key": "TUNNEL_LOGLEVEL",
+      "value": "info",
+      "description": "Specifies the verbosity of logging. The default info level does not produce much output, but you may wish to use the warn level in production. Available values are: debug, info, warn, error, fatal.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,197 @@
+{
+  "name": "swag",
+  "repo": "lscr.io/linuxserver/swag",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/swag",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:443]",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png",
+  "project": "https://linuxserver.io",
+  "description": "SWAG - Secure Web Application Gateway (formerly known as letsencrypt, no relation to Let's Encrypt\u2122) sets up an Nginx webserver and reverse proxy with php support and a built-in certbot client that automates free SSL server certificate generation and renewal processes (Let's Encrypt and ZeroSSL). It also contains fail2ban for intrusion prevention.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent config files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: 80",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP port (required for HTTP validation and HTTP - HTTPS redirect)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: 443",
+      "host": "443",
+      "container": "443",
+      "protocol": "udp",
+      "description": "QUIC (HTTP/3) port. Must be enabled in the default and proxy confs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "URL",
+      "key": "URL",
+      "value": "example.com",
+      "description": "Top url you have control over (e.g. `example.com` if you own it, or `customsubdomain.example.com` if dynamic dns).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VALIDATION",
+      "key": "VALIDATION",
+      "value": "http|dns",
+      "description": "Certbot validation method to use, options are `http` or `dns` (`dns` method also requires `DNSPLUGIN` variable set).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUBDOMAINS",
+      "key": "SUBDOMAINS",
+      "value": "www,",
+      "description": "Subdomains you'd like the cert to cover (comma separated, no spaces) ie. `www,ftp,cloud`. For a wildcard cert, set this *exactly* to `wildcard` (wildcard cert is available via `dns` validation only)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CERTPROVIDER",
+      "key": "CERTPROVIDER",
+      "value": "",
+      "description": "Optionally define the cert provider. Set to `zerossl` for ZeroSSL certs (requires existing ZeroSSL account(https://app.zerossl.com/signup) and the e-mail address entered in `EMAIL` env var). Otherwise defaults to Let's Encrypt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CERT_PROFILE",
+      "key": "CERT_PROFILE",
+      "value": "",
+      "description": "Optionally define a cert profile to use for cert generation. This is useful if you want to use a custom cert profile instead of the default one. Currently only supported for Let's Encrypt. See https://letsencrypt.org/docs/profiles/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNSPLUGIN",
+      "key": "DNSPLUGIN",
+      "value": "cloudflare",
+      "description": "Required if `VALIDATION` is set to `dns`. Options are `acmedns`, `aliyun`, `azure`, `bunny`, `cloudflare`, `cpanel`, `desec`, `digitalocean`, `directadmin`, `dnsimple`, `dnsmadeeasy`, `dnspod`, `do`, `domeneshop`, `dreamhost`, `duckdns`, `dynu`, `freedns`, `gandi`, `gehirn`, `glesys`, `godaddy`, `google`, `he`, `hetzner`, `hetzner-cloud`, `infomaniak`, `inwx`, `ionos`, `linode`, `loopia`, `luadns`, `mijn-host`, `namecheap`, `netcup`, `njalla`, `nsone`, `ovh`, `porkbun`, `rfc2136`, `route53`, `sakuracloud`, `standalone`, `transip`, and `vultr`. Also need to enter the credentials into the corresponding ini (or json for some plugins) file under `/config/dns-conf`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PROPAGATION",
+      "key": "PROPAGATION",
+      "value": "",
+      "description": "Optionally override (in seconds) the default propagation time for the dns plugins.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL",
+      "key": "EMAIL",
+      "value": "",
+      "description": "Optional e-mail address used for cert expiration notifications (Required for ZeroSSL).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONLY_SUBDOMAINS",
+      "key": "ONLY_SUBDOMAINS",
+      "value": "false",
+      "description": "If you wish to get certs only for certain subdomains, but not the main domain (main domain may be hosted on another machine and cannot be validated), set this to `true`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXTRA_DOMAINS",
+      "key": "EXTRA_DOMAINS",
+      "value": "",
+      "description": "Additional fully qualified domain names (comma separated, no spaces) ie. `example.net,subdomain.example.net,*.example.org`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STAGING",
+      "key": "STAGING",
+      "value": "false",
+      "description": "Set to `true` to retrieve certs in staging mode. Rate limits will be much higher, but the resulting cert will not pass the browser's security test. Only to be used for testing purposes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_F2B",
+      "key": "DISABLE_F2B",
+      "value": "",
+      "description": "Set to `true` to disable the Fail2ban service in the container, if you're already running it elsewhere or using a different IPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SWAG_AUTORELOAD",
+      "key": "SWAG_AUTORELOAD",
+      "value": "",
+      "description": "Set to `true` to enable automatic reloading of confs on change without stopping/restarting nginx. Your filesystem must support inotify. This functionality was previously offered via mod(https://github.com/linuxserver/docker-mods/tree/swag-auto-reload).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SWAG_AUTORELOAD_WATCHLIST",
+      "key": "SWAG_AUTORELOAD_WATCHLIST",
+      "value": "",
+      "description": "A pipe(https://en.wikipedia.org/wiki/Vertical_bar)-separated list of additional folders for auto reload to watch in addition to `/config/nginx`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Container Variable: UMASK",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

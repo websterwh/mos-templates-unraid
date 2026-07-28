@@ -1,0 +1,131 @@
+{
+  "name": "Transcoding-GPU-Benchmark",
+  "repo": "spaceinvaderone/transcoding-gpu-benchmark:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/spaceinvaderone/transcoding-gpu-benchmark",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add PERFMON",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8088]",
+  "icon": "https://raw.githubusercontent.com/SpaceinvaderOne/transcoding-gpu-benchmark/main/icon.png",
+  "project": "https://github.com/SpaceinvaderOne/transcoding-gpu-benchmark",
+  "description": "Measures the maximum SUSTAINED number of simultaneous 4K HEVC -> 1080p H.264 (8 Mbit, strict >= 1.0x realtime) transcodes a GPU can do, shown live on a web scoreboard you can watch in a browser. Supports Intel (VAAPI), AMD (VAAPI), NVIDIA (NVENC/NVDEC) and CPU software transcoding - you pick which device to test from the web UI. GPU SETUP: INTEL and AMD work OUT OF THE BOX via the /dev/dri device below. FOR NVIDIA make ONE change - add --runtime=nvidia to Extra Parameters (the NVIDIA variables are already set; the NVIDIA driver plugin must be installed; on an NVIDIA-only host you can also remove the /dev/dri device). Everything else is identical for all vendors. It ramps the stream count one at a time and reports the highest count where EVERY stream still runs at or above real-time (same pinned test clips across vendors, so the numbers are comparable - and you can submit yours to the community leaderboard). Built on the Jellyfin image only to reuse the jellyfin-ffmpeg binary and its validated driver stack - the Jellyfin server itself is NOT run (the entrypoint is overridden). This is a run-and-watch benchmark, not an always-on service: pick a GPU, start it, watch the scoreboard reach the limit, then stop it. Nothing else should be using the GPU while it runs, or the result will be skewed.",
+  "paths": [
+    {
+      "name": "RAM disk (source clip)",
+      "host": "/tmp/transcode-test",
+      "container": "/ramdisk",
+      "mode": "rw",
+      "description": "MUST be a RAM-backed path. The benchmark hot-loads its source clip here at run start; keeping it in RAM ensures we measure the GPU, not disk I/O. /tmp is RAM-backed on Unraid - do NOT point this at an array or cache disk, or the stream count will be limited by storage speed instead of the GPU.",
+      "required": true
+    },
+    {
+      "name": "App data (clips + history)",
+      "host": "/mnt/cache/appdata/transcoding-gpu-benchmark",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent app-data folder (standard Unraid appdata). REQUIRED for the one-time download of the pinned benchmark clips (kept here forever - container updates never re-download them), and stores your run history, CPU efficiency baseline and leaderboard identity. Safe to leave as-is.",
+      "required": true
+    },
+    {
+      "name": "Cache (unused, keeps Docker tidy)",
+      "host": "/mnt/cache/appdata/transcoding-gpu-benchmark/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "The Jellyfin base image declares a /cache volume the benchmark never uses. Mapping it here stops Docker from creating a new anonymous volume on every container update. Safe to leave as-is.",
+      "required": false
+    },
+    {
+      "name": "CPU power readout (optional)",
+      "host": "/sys/devices/virtual/powercap",
+      "container": "/powercap",
+      "mode": "ro",
+      "description": "Optional, read-only. Exposes the kernel's RAPL energy counters (the same source as the Unraid dashboard's CPU power) so CPU and iGPU tests can show real package watts - works on Intel AND modern AMD (Zen 2+) CPUs, no extra capabilities needed. Safe to leave as-is; remove it and CPU power falls back to intel_gpu_top (Intel GPU + PERFMON only).",
+      "required": false
+    },
+    {
+      "name": "RAM speed readout (Intel iGPU, optional)",
+      "host": "/sys/firmware/dmi/tables",
+      "container": "/dmi",
+      "mode": "ro",
+      "description": "Optional, read-only. Lets the scoreboard show the system RAM type/speed for Intel iGPU runs (useful for explaining different results - e.g. XMP/EXPO off). Safe to leave as-is; remove it if you prefer not to expose the DMI tables.",
+      "required": false
+    },
+    {
+      "name": "Unraid version (optional)",
+      "host": "/etc/unraid-version",
+      "container": "/unraid-version",
+      "mode": "ro",
+      "description": "Optional, read-only. Lets the result include your Unraid OS version (handy for the shared results database). Safe to leave as-is.",
+      "required": false
+    },
+    {
+      "name": "Temperature unit (optional)",
+      "host": "/boot/config/plugins/dynamix/dynamix.cfg",
+      "container": "/dynamix.cfg",
+      "mode": "ro",
+      "description": "Optional, read-only. Lets the scoreboard show temperatures in Fahrenheit or Celsius to match your Unraid display setting (Settings - Display Settings). Safe to leave as-is; remove it and temperatures default to Celsius (you can still click the Temp readout to switch).",
+      "required": false
+    },
+    {
+      "name": "Your test clips folder",
+      "host": "/mnt/cache/appdata/transcoding-gpu-benchmark/input",
+      "container": "/input",
+      "mode": "ro",
+      "description": "Read-only drop folder for benchmarking YOUR OWN videos: copy one or a few files in and they appear in the 'Or test your own file' picker (codec and resolution auto-detected). The benchmark samples 60 seconds from the MIDDLE of the chosen file (openings are easy-to-decode logos/credits) and loads it into RAM. You can point this at any folder - but NOT your whole media library (too many files and it refuses). Custom-file runs are local-only and never submitted to the shared database.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8088",
+      "container": "8088",
+      "protocol": "tcp",
+      "description": "Scoreboard web UI - open in a browser to pick a GPU and watch the benchmark live.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MAX_STREAMS",
+      "key": "MAX_STREAMS",
+      "value": "128",
+      "description": "Safety cap on the ramp. Fast GPUs (e.g. high-end NVIDIA) can sustain many streams; raise only if a run ends with 'MAX >= 128'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "NVIDIA only. Which NVIDIA GPUs the container can see. 'all' exposes every NVIDIA GPU. Requires --runtime=nvidia in Extra Parameters. Ignored by Intel/AMD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "NVIDIA only. Driver capabilities exposed to the container. 'all' includes video (NVENC/NVDEC) + compute. Requires --runtime=nvidia in Extra Parameters. Ignored by Intel/AMD.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "GPU device (Intel / AMD)",
+      "host": "/dev/dri/",
+      "container": "/dev/dri/",
+      "description": "Intel/AMD GPU passthrough (VAAPI) - required to test an Intel or AMD GPU. Leave it for any host that has an Intel or AMD GPU. On an NVIDIA-only host with no /dev/dri you can remove this and instead add --runtime=nvidia to Extra Parameters.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

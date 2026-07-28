@@ -1,0 +1,147 @@
+{
+  "name": "Makershelf",
+  "repo": "ghcr.io/nilsn3dp/makershelf-server:beta",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/NilsN3DP/makershelf/main/public/makershelf-logo.png",
+  "project": "https://github.com/NilsN3DP/makershelf",
+  "description": "makershelf Server for Unraid \u2014 3D print file and project manager for makers, workshops and teams. Organise models, track filament, manage your printer farm and maintenance schedules. Note: this is a beta release. Please report issues on GitHub. Before starting: install a PostgreSQL container from Community Apps (search \"postgres\"), create a database named \"makershelf\" with a dedicated user, then fill in the PostgreSQL Connection field below. On first launch, open the Web UI and follow the setup wizard to create your workspace and first admin account.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/makershelf",
+      "container": "/config",
+      "mode": "rw",
+      "description": "AppData folder for configuration and runtime files.",
+      "required": true
+    },
+    {
+      "name": "Project Storage",
+      "host": "/mnt/cache/Makershelf/Projects",
+      "container": "/storage",
+      "mode": "rw",
+      "description": "Folder where imported project files are stored permanently.",
+      "required": true
+    },
+    {
+      "name": "Import Folder",
+      "host": "/mnt/cache/Makershelf/Import",
+      "container": "/import",
+      "mode": "rw",
+      "description": "Drop files or library folders here. The server scans this folder for bulk import without a browser upload.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web interface. Leave as 8080 when using a dedicated container IP.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Internal App Port",
+      "key": "PORT",
+      "value": "8080",
+      "description": "Port the app listens on inside the container. Must match the Web UI Port when using a dedicated container IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Secret",
+      "key": "MAKERSHELF_AUTH_SECRET",
+      "value": "",
+      "description": "Long random secret for login sessions. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PostgreSQL Connection",
+      "key": "DATABASE_URL",
+      "value": "postgresql://makershelf:change-me@makershelf-postgres:5432/makershelf",
+      "description": "PostgreSQL connection string. Format: postgresql://user:password@host:5432/database \u2014 must match the credentials you set up in your PostgreSQL container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DATABASE_PROVIDER",
+      "key": "DATABASE_PROVIDER",
+      "value": "postgresql",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_PRODUCT_PROFILE",
+      "key": "MAKERSHELF_PRODUCT_PROFILE",
+      "value": "server",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_DEPLOYMENT_MODE",
+      "key": "MAKERSHELF_DEPLOYMENT_MODE",
+      "value": "docker-team",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_DATA_BACKEND",
+      "key": "MAKERSHELF_DATA_BACKEND",
+      "value": "postgres",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_STORAGE_DRIVER",
+      "key": "MAKERSHELF_STORAGE_DRIVER",
+      "value": "filesystem",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_APPDATA_ROOT",
+      "key": "MAKERSHELF_APPDATA_ROOT",
+      "value": "/config",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_STORAGE_ROOT",
+      "key": "MAKERSHELF_STORAGE_ROOT",
+      "value": "/storage",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAKERSHELF_IMPORT_ROOT",
+      "key": "MAKERSHELF_IMPORT_ROOT",
+      "value": "/import",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

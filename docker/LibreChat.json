@@ -1,0 +1,163 @@
+{
+  "name": "LibreChat",
+  "repo": "ghcr.io/danny-avila/librechat:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/danny-avila/LibreChat",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3080]/",
+  "icon": "https://raw.githubusercontent.com/danny-avila/LibreChat/main/client/public/assets/logo.png",
+  "project": "https://github.com/danny-avila/LibreChat",
+  "description": "LibreChat: Enhanced ChatGPT Clone. Features: Agents, Anthropic, AWS, OpenAI, Azure, Gemini, AI model switching, message search, langchain, DALL-E-3, Multi-User Auth, and more. PREREQUISITES: 1. You must have a MongoDB container running (e.g., the official mongo docker). 2. You must generate random hex strings for the CREDS_KEY, CREDS_IV, and JWT_SECRET below, or logins will fail. CONFIGURATION: - This template uses Environment Variables for config. - The 'librechat.yaml' file is optional and not mapped by default to prevent boot errors. If you need advanced configuration (custom endpoints), create the file on your server first, then add a Host Path mapping manually: /mnt/user/appdata/librechat/librechat.yaml -> /app/librechat.yaml",
+  "paths": [
+    {
+      "name": "Image Storage",
+      "host": "/mnt/cache/appdata/librechat/images",
+      "container": "/app/client/public/images",
+      "mode": "rw",
+      "description": "Persist uploaded images and avatars.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/librechat/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Container logs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3080",
+      "container": "3080",
+      "protocol": "tcp",
+      "description": "The port to access the LibreChat interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Host Binding",
+      "key": "HOST",
+      "value": "0.0.0.0",
+      "description": "Required for Docker networking.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Client Domain",
+      "key": "DOMAIN_CLIENT",
+      "value": "http://[IP]:[PORT:3080]",
+      "description": "The URL used to access the app. MUST include http:// or https://.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Domain",
+      "key": "DOMAIN_SERVER",
+      "value": "http://[IP]:[PORT:3080]",
+      "description": "Usually the same as Client Domain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MongoDB URI",
+      "key": "MONGO_URI",
+      "value": "",
+      "description": "Required. Format: mongodb:// :27017/LibreChat",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Crypto Key",
+      "key": "CREDS_KEY",
+      "value": "",
+      "description": "Required. 64-character hex string. Run 'openssl rand -hex 32' to generate.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Crypto IV",
+      "key": "CREDS_IV",
+      "value": "",
+      "description": "Required. 32-character hex string. Run 'openssl rand -hex 16' to generate.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required. Long random string for signing tokens.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "JWT Refresh Secret",
+      "key": "JWT_REFRESH_SECRET",
+      "value": "",
+      "description": "Required. Long random string for refresh tokens.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "user_provided",
+      "description": "Optional. If set to 'user_provided', users can enter their own key in the UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Install MeiliSearch",
+      "key": "SEARCH",
+      "value": "false",
+      "description": "Set to 'true' only if you have a separate MeiliSearch container running for chat history search.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MeiliSearch Host",
+      "key": "MEILI_HOST",
+      "value": "",
+      "description": "http:// :7700",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MeiliSearch Key",
+      "key": "MEILI_MASTER_KEY",
+      "value": "",
+      "description": "The master key from your MeiliSearch container.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Unraid Default User ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Unraid Default Group ID",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

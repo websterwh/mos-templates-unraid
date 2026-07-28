@@ -1,0 +1,91 @@
+{
+  "name": "Tor-Proxy",
+  "repo": "leplusorg/tor:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/leplusorg/tor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9050]",
+  "icon": "https://www.torproject.org/static/images/tor-logo/Color.png",
+  "project": "https://github.com/leplusorg/docker-tor",
+  "description": "Tor Proxy runs the Tor network daemon as a SOCKS5 proxy in a container, so other apps can route explicitly configured outbound traffic through Tor.",
+  "paths": [
+    {
+      "name": "Tor Data",
+      "host": "/mnt/cache/appdata/tor-proxy",
+      "container": "/var/lib/tor",
+      "mode": "rw",
+      "description": "Persistent Tor data directory, including cached relay state and keys if you add relay or onion-service configuration.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "SOCKS5 Port",
+      "host": "9050",
+      "container": "9050",
+      "protocol": "tcp",
+      "description": "Tor SOCKS5 proxy port. Container port: 9050.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SOCKS Hostname",
+      "key": "SOCKS_HOSTNAME",
+      "value": "0.0.0.0",
+      "description": "Interface Tor listens on inside the container. Keep 0.0.0.0 for Unraid bridge networking and other containers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SOCKS Port",
+      "key": "SOCKS_PORT",
+      "value": "9050",
+      "description": "SOCKS port Tor listens on inside the container. Keep this aligned with the container port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "notice",
+      "description": "Tor log level, for example err, warn, notice, info, or debug.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Enable wrapper debug output for troubleshooting. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Set Permissions",
+      "key": "SET_PERMISSIONS",
+      "value": "false",
+      "description": "Allow the container wrapper to chown/chmod the Tor data directory at startup. Keep false on Unraid if you see Operation not permitted on /var/lib/tor.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrc Append",
+      "key": "TORRC_APPEND",
+      "value": "",
+      "description": "Optional raw torrc lines appended to the generated configuration. Use for advanced relay, bridge, onion service, or isolation settings only after checking Tor documentation.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

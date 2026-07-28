@@ -1,0 +1,139 @@
+{
+  "name": "Tally",
+  "repo": "jaydenroberts/tally:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jaydenroberts/tally",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8091]",
+  "icon": "https://raw.githubusercontent.com/jaydenroberts/tally/main/frontend/public/android-chrome-512x512.png",
+  "project": "https://github.com/jaydenroberts/tally",
+  "description": "Self-hosted personal finance for households. Track accounts, transactions, budgets, savings goals, and debt. Link transactions to savings goals and debts. Record transfers between accounts. CSV and PDF bank statement import with reconciliation. AI chat interface (Anthropic, OpenAI, or Ollama). Dracula theme. Single Docker container. Runs as a non-root user; the appdata data path must remain writable by the container (default on Unraid). If you reach Tally through a reverse proxy, tunnel, or custom domain, set ALLOWED_ORIGINS.",
+  "paths": [
+    {
+      "name": "Data Volume",
+      "host": "/mnt/cache/appdata/tally/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database storage. Must be a persistent path on the host. The container runs as a non-root user, so this path must be writable by the container (the default /mnt/user/appdata location on Unraid already is). Tally fails to create its database on first start if it is not writable.",
+      "required": true
+    },
+    {
+      "name": "Financial Data Volume",
+      "host": "/mnt/cache/appdata/tally/financial-data",
+      "container": "/financial-data",
+      "mode": "ro",
+      "description": "Read-only directory for bank statement files (CSV/PDF) available for import.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8091",
+      "container": "8091",
+      "protocol": "tcp",
+      "description": "Port Tally listens on. Access the app at http://[serverIP]:[this port].",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "JWT signing key. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ACCESS_TOKEN_EXPIRE_DAYS",
+      "key": "ACCESS_TOKEN_EXPIRE_DAYS",
+      "value": "30",
+      "description": "JWT token lifetime in days.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOWED_ORIGINS",
+      "key": "ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated allow-list of browser origins permitted to call the app (CORS). Leave blank to allow only the local origin. If you reach Tally through a reverse proxy, tunnel, or custom domain/hostname, you MUST list that origin here or the browser app will break. Example: https://tally.example.com,https://tally.example.duckdns.org",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_UPLOAD_BYTES",
+      "key": "MAX_UPLOAD_BYTES",
+      "value": "10485760",
+      "description": "Maximum size in bytes for an uploaded bank statement file (CSV/PDF). Default 10485760 (10 MB). Increase only if you import unusually large statements.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIRST_RUN_OWNER_USERNAME",
+      "key": "FIRST_RUN_OWNER_USERNAME",
+      "value": "",
+      "description": "Auto-creates the first owner account on startup. Leave blank to use the setup page instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIRST_RUN_OWNER_PASSWORD",
+      "key": "FIRST_RUN_OWNER_PASSWORD",
+      "value": "",
+      "description": "Required if FIRST_RUN_OWNER_USERNAME is set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RECOVERY_TOKEN",
+      "key": "RECOVERY_TOKEN",
+      "value": "",
+      "description": "Emergency owner password reset token. Set to any strong random value (openssl rand -hex 32), call POST /api/auth/recover, then remove this variable and restart. Leave blank when not in use.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI_PROVIDER",
+      "key": "AI_PROVIDER",
+      "value": "",
+      "description": "AI provider for the chat feature: anthropic, openai, or ollama (any OpenAI-compatible endpoint). Leave unset to disable the chat page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI_API_KEY",
+      "key": "AI_API_KEY",
+      "value": "",
+      "description": "API key for the selected AI provider. Not required for local Ollama.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI_MODEL",
+      "key": "AI_MODEL",
+      "value": "",
+      "description": "Model name to use (e.g. claude-sonnet-4-6, gpt-4o, llama3). Defaults to provider default if left blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI_BASE_URL",
+      "key": "AI_BASE_URL",
+      "value": "",
+      "description": "Base URL for OpenAI-compatible endpoints (e.g. http://ollama:11434/v1). Required for Ollama; leave blank for Anthropic or OpenAI.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

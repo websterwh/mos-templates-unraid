@@ -1,0 +1,149 @@
+{
+  "name": "Chivalry-MedievalWarfare",
+  "repo": "ghcr.io/ich777/steamcmd:chivalrymw",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7000]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/chivalrymw.png",
+  "project": "https://www.steampowered.com/",
+  "description": "This Docker will download and install SteamCMD. It will also install Chivalry: Medieval Warfare and run it. ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. Server Config: You find the server config in: 'appdata/UDKGame/Config/' (eg: the servername is located in: 'PCServer-UDKGame.ini') You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": "Container Path: /serverdata/steamcmd",
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/chivalrymw",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Container Path: /serverdata/serverfiles",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP1 - GamePort",
+      "host": "7000",
+      "container": "7000",
+      "protocol": "udp",
+      "description": "UDP Gameport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to change the Ports in your 'Game Parameters' Variable)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP2 - GameQueryPort",
+      "host": "7010",
+      "container": "7010",
+      "protocol": "udp",
+      "description": "UDP Gamequeryport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to change the Ports in your 'Game Parameters' Variable)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP3 - SteamQueryPort",
+      "host": "27015",
+      "container": "27015",
+      "protocol": "udp",
+      "description": "UDP Steamqueryport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to change the Ports in your 'Game Parameters' Variable)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "220070",
+      "description": "The GAME_ID that the container download at startup. (https://developer.valvesoftware.com/wiki/Dedicated_Servers_List)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Map",
+      "key": "MAP",
+      "value": "aocffa-moor_p",
+      "description": "Map name (eg: 'aocffa-arena3_p', 'aocffa-hillside_p', 'aocffa-battlegrounds_v3_p')",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Admin Password",
+      "key": "ADMIN_PWD",
+      "value": "adminDocker",
+      "description": "Server Admin Password (can't be empty)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game Parameters",
+      "key": "GAME_PARAMS",
+      "value": "?port=7000?queryport=7010",
+      "description": "Enter your game parameters seperated with ? and start with a ? (don't put spaces in between eg: ?port=7000?queryport=7010)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "-seekfreeloadingserver",
+      "description": "Type in your Extra Game Parameters seperated with a space and - (eg: -seekfreeloadingserver)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Container Variable: UID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Container Variable: GID",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

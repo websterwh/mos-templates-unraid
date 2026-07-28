@@ -1,0 +1,75 @@
+{
+  "name": "AppFlowy-Nginx",
+  "repo": "nginx:stable-alpine",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/_/nginx",
+  "network": "custom:appflowy",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://avatars.githubusercontent.com/u/81710027?s=200&v=4",
+  "project": "https://github.com/vmalinics0/unraid-appflowy",
+  "description": "Step 7/7 (deploy last): Nginx reverse proxy \u2014 the single entry point for all AppFlowy Cloud services. Routes HTTP/WebSocket traffic to AppFlowy-Cloud, AppFlowy-GoTrue, AppFlowy-Web, AppFlowy-Admin, and AppFlowy-MinIO. Part of the AppFlowy Cloud stack.",
+  "paths": [
+    {
+      "name": "nginx.conf",
+      "host": "/mnt/cache/appdata/AppFlowy-Nginx/nginx.conf",
+      "container": "/etc/nginx/nginx.conf",
+      "mode": "ro",
+      "description": "nginx configuration file. Use nginx.conf (HTTP only), nginx-https-custom.conf (user-provided TLS certs), or nginx-letsencrypt.conf (Let's Encrypt). All configs are in the template repository.",
+      "required": true
+    },
+    {
+      "name": "SSL Directory",
+      "host": "/mnt/cache/appdata/AppFlowy-Nginx/ssl",
+      "container": "/etc/nginx/ssl",
+      "mode": "ro",
+      "description": "Directory for user-provided TLS certificate and key (certificate.crt, private_key.key). Required for nginx-https-custom.conf. Create the directory even if empty.",
+      "required": true
+    },
+    {
+      "name": "Let's Encrypt certs (optional)",
+      "host": "/mnt/cache/appdata/AppFlowy-Nginx/letsencrypt",
+      "container": "/etc/letsencrypt",
+      "mode": "ro",
+      "description": "Directory where AppFlowy-Certbot stores Let's Encrypt certificates. Required only when using nginx-letsencrypt.conf.",
+      "required": false
+    },
+    {
+      "name": "Certbot webroot (optional)",
+      "host": "/mnt/cache/appdata/AppFlowy-Nginx/certbot-webroot",
+      "container": "/var/www/certbot",
+      "mode": "ro",
+      "description": "Webroot directory for Let's Encrypt HTTP-01 ACME challenge files. Required only when using nginx-letsencrypt.conf with AppFlowy-Certbot.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP port exposed to your Unraid host / LAN. This is the main AppFlowy access port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS port. Only needed if you configure TLS in nginx.conf.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

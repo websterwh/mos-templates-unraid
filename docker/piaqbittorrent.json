@@ -1,0 +1,187 @@
+{
+  "name": "pia-qbittorrent",
+  "repo": "gjergjk/pia-qbittorrent",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/gjergjk/pia-qbittorrent",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8888]/",
+  "icon": "https://raw.githubusercontent.com/GeorgeAL78/pia-qbittorrent-docker/master/readme/icon.png",
+  "project": "https://github.com/GeorgeAL78/pia-qbittorrent-docker",
+  "description": "qBittorrent 5.2.3 combined with Private Internet Access (PIA) VPN, built on Alpine Linux for a minimal footprint. Features: \u2022 WireGuard and OpenVPN \u2022 Kill switch (IPv4 + IPv6) and DNS leak protection \u2022 Auto-healing VPN (reconnects itself if the tunnel drops) \u2022 PIA port forwarding for better seeding \u2022 Correct UID/GID file ownership for Unraid \u2022 Configurable UMASK \u2022 Multi-arch (amd64 + arm64) Components: \u2022 qBittorrent 5.2.3 with libtorrent 2.0.13 \u2022 Alpine Linux 3.24, Boost 1.91.0 \u2022 OpenVPN 2.7.5, WireGuard 1.0.20260223, iptables 1.8.13 Custom bridge networks work fine (the VPN tunnel runs inside the container either way). Avoid Host networking \u2014 the kill switch would firewall the Unraid host itself, not just this container. Extra Parameters must keep --cap-add=NET_ADMIN (required for the VPN + kill switch) and --restart unless-stopped (lets the container auto-restart to recover a dropped VPN connection). Both are set for new installs; if you added this container early, check your Extra Parameters field includes both. Pair with the Windows 11 desktop app: https://github.com/GeorgeAL78/qbittorrent-desktop Fork of j4ym0/pia-qbittorrent with bug fixes and extra features.",
+  "paths": [
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads/",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Download directory",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/pia-qbittorrent/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "qBittorrent config and profiles",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "qBittorrent Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PIA Username",
+      "key": "PIA_USERNAME",
+      "value": "",
+      "description": "Your PIA account username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PIA Password",
+      "key": "PIA_PASSWORD",
+      "value": "",
+      "description": "Your PIA account password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PIA Region",
+      "key": "PIA_REGION",
+      "value": "netherlands",
+      "description": "VPN region e.g. ca_montreal, us_new_york",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN Client",
+      "key": "VPN_CLIENT",
+      "value": "wireguard",
+      "description": "VPN client: wireguard or openvpn",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding",
+      "key": "PORT_FORWARDING",
+      "value": "true",
+      "description": "Enable PIA port forwarding for better seeding. Falls back gracefully if your region does not support it (e.g. US)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "User ID for qBittorrent process. Use 99 for Unraid nobody",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Group ID for qBittorrent process. Use 100 for Unraid users",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Umask for downloads. 000=fully open (recommended for Unraid), 002=group-writable, 022=owner only",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Port Variable",
+      "key": "WEBUI_PORT",
+      "value": "8888",
+      "description": "Must match the port mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Interfaces",
+      "key": "WEBUI_INTERFACES",
+      "value": "",
+      "description": "Comma-separated network interfaces for Web UI access e.g. eth0,eth1 (defaults to the VPN's physical interface)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host Header Validation",
+      "key": "HOSTHEADERVALIDATION",
+      "value": "true",
+      "description": "Set to false if having trouble accessing the WebUI (e.g. behind a reverse proxy)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CSRF Protection",
+      "key": "CSRFPROTECTION",
+      "value": "true",
+      "description": "Set to false if having trouble accessing the WebUI (e.g. behind a reverse proxy)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Servers",
+      "key": "DNS_SERVERS",
+      "value": "9.9.9.9,149.112.112.112",
+      "description": "Comma-separated DNS servers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Legacy IPTables",
+      "key": "LEGACY_IPTABLES",
+      "value": "false",
+      "description": "Use legacy iptables instead of nftables",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Timezone e.g. America/New_York",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Subnets",
+      "key": "EXTRA_SUBNETS",
+      "value": "",
+      "description": "Comma-separated extra subnets allowed through the kill switch. Use this if your *arr apps or reverse proxy are on a different Docker network and cannot reach qBittorrent e.g. 172.18.0.0/16",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Local Subnet Traffic",
+      "key": "ALLOW_LOCAL_SUBNET_TRAFFIC",
+      "value": "false",
+      "description": "Set to true to allow LAN devices to connect directly to the container",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

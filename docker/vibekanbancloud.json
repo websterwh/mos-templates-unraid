@@ -1,0 +1,181 @@
+{
+  "name": "vibe-kanban-cloud",
+  "repo": "ghcr.io/rorar/vibe-kanban-cloud:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/rorar/vibe-kanban-cloud-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": "--hostname=vibe-kanban-cloud",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/vibe-kanban-logo.png",
+  "project": "https://vibekanban.com",
+  "description": "Deploy Vibe Kanban Cloud on Unraid. This is a true Docker-in-Docker wrapper that runs the entire Cloud stack (remote-server, Postgres, ElectricSQL, Caddy). Important: You MUST use Privileged mode. For Local setups without domain, enter your local IP in DOMAIN and it will auto-generate an SSL cert you can find in your appdata. For External proxies (Nginx/Traefik), set USE_EXTERNAL_PROXY to true and map the External App Port.",
+  "paths": [
+    {
+      "name": "Path: Appdata Directory",
+      "host": "/mnt/cache/appdata/vibe-kanban-cloud",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for all data (database, electric, SSL certs, generated secrets in .env).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: HTTP (Internal Proxy)",
+      "host": "180",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Internal Caddy HTTP Port (used if USE_EXTERNAL_PROXY=false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: HTTPS (Internal Proxy)",
+      "host": "1443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Internal Caddy HTTPS Port (used if USE_EXTERNAL_PROXY=false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: External App (Direct)",
+      "host": "8081",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "Direct access to Vibe Kanban App (used if USE_EXTERNAL_PROXY=true). Point your external reverse proxy to this port.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "--- Core Configuration ---",
+      "key": "--- Core Configuration ---",
+      "value": "",
+      "description": "Main server settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Domain (IP or FQDN)",
+      "key": "DOMAIN",
+      "value": "vibe.local",
+      "description": "Your domain. If you enter a local IP/hostname (e.g. 192.168.x.x), Caddy uses internal SSL. If public FQDN, Caddy uses Let's Encrypt.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: External Proxy Mode",
+      "key": "USE_EXTERNAL_PROXY",
+      "value": "false",
+      "description": "Set to 'true' if you use Nginx Proxy Manager, Traefik, or an external Caddy. This disables the internal Caddy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TLS Email",
+      "key": "TLS_EMAIL",
+      "value": "",
+      "description": "(Optional) Email address for Let's Encrypt ACME registration if you use a public domain and internal Caddy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Local Authentication ---",
+      "key": "--- Local Authentication ---",
+      "value": "",
+      "description": "Bootstrap credentials for initial setup without OAuth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Local Admin Email",
+      "key": "SELF_HOST_LOCAL_AUTH_EMAIL",
+      "value": "admin@example.com",
+      "description": "The email address to use for the bootstrap admin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Local Admin Password",
+      "key": "SELF_HOST_LOCAL_AUTH_PASSWORD",
+      "value": "changeme",
+      "description": "Secure password for the bootstrap admin.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- OAuth Providers (Advanced) ---",
+      "key": "--- OAuth Providers (Advanced) ---",
+      "value": "",
+      "description": "Configure GitHub or Google login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GitHub OAuth Client ID",
+      "key": "GITHUB_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for GitHub Auth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GitHub OAuth Client Secret",
+      "key": "GITHUB_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Client Secret for GitHub Auth.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: Google OAuth Client ID",
+      "key": "GOOGLE_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for Google Auth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Google OAuth Client Secret",
+      "key": "GOOGLE_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Client Secret for Google Auth.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- User &amp; Permissions (Advanced) ---",
+      "key": "--- User &amp; Permissions (Advanced) ---",
+      "value": "",
+      "description": "Advanced user and permission settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container User ID for file ownership in /data (default: 99).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Group ID for file ownership in /data (default: 100).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

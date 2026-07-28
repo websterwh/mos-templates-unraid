@@ -1,0 +1,67 @@
+{
+  "name": "Maki",
+  "repo": "ghcr.io/orbitmpgh/maki:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/OrbitMPGH/Maki/pkgs/container/maki",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8990]/",
+  "icon": "https://raw.githubusercontent.com/OrbitMPGH/Maki/main/frontend/public/favicon.png",
+  "project": "https://github.com/OrbitMPGH/Maki",
+  "description": "Maki is a manga collection manager for the *arr ecosystem. It tracks series across multiple scraper sources and torrent trackers, downloads chapters into CBZ files with embedded metadata, and lets you read them with a built-in reader (with a Home screen and progress tracking) or hand them off to Kavita. Includes an OPDS server for external readers, scrobbling to AniList/MyAnimeList/Kitsu/MangaBaka, rewind reading stats, user tags and saved library filters, and a local-embeddings \"Discover\" recommendation engine over the MangaBaka dump. After starting the container, open the WebUI, go to Settings, and add your /library path as a root folder. Point a Kavita library at the same /library folder to read the downloaded CBZs.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/maki",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, logs, covers, page cache, config.json/API key",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/cache/manga",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Manga library root \u2014 mount the same path in Kavita",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8990",
+      "container": "8990",
+      "protocol": "tcp",
+      "description": "Maki web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run as (matches file ownership of Config/Library)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run as (matches file ownership of Config/Library)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

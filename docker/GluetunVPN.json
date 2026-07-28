@@ -1,0 +1,652 @@
+{
+  "name": "GluetunVPN",
+  "repo": "qmcgaw/gluetun",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/qmcgaw/gluetun",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/qdm12/gluetun/master/doc/logo_256.png",
+  "project": "https://github.com/qdm12/gluetun",
+  "description": "# Gluetun VPN client Lightweight swiss-knife-like VPN client to multiple VPN service providers # Quick links - Setup - https://github.com/qdm12/gluetun-wiki - Problem? - Check the Wiki: https://github.com/qdm12/gluetun-wiki - Start a discussion: https://github.com/qdm12/gluetun/discussions - Fix the Unraid template: https://github.com/qdm12/gluetun/discussions/550 - Suggestion? - Create an issue: https://github.com/qdm12/gluetun/issues - Join the Slack channel: https://join.slack.com/t/qdm12/shared_invite/enQtOTE0NjcxNTM1ODc5LTYyZmVlOTM3MGI4ZWU0YmJkMjUxNmQ4ODQ2OTAwYzMxMTlhY2Q1MWQyOWUyNjc2ODliNjFjMDUxNWNmNzk5MDk - Happy? - Sponsor me: https://github.com/sponsors/qdm12 - Donate: https://www.paypal.me/qmcgaw - Drop me an email: quentin.mcgaw@gmail.com - Want to add a VPN provider? - Check development: https://github.com/qdm12/gluetun-wiki/blob/main/contributing/development.md - Add a provider: https://github.com/qdm12/gluetun-wiki/blob/main/contributing/add-a-provider.md # Features - Based on Alpine 3.18 for a small Docker image of 35.6MB - Supports: **AirVPN**, **Cyberghost**, **ExpressVPN**, **FastestVPN**, **Giganews**, **HideMyAss**, **IPVanish**, **IVPN**, **Mullvad**, **NordVPN**, **Perfect Privacy**, **Privado**, **Private Internet Access**, **PrivateVPN**, **ProtonVPN**, **PureVPN**, **SlickVPN**, **Surfshark**, **TorGuard**, **VPNSecure.me**, **VPNUnlimited**, **Vyprvpn**, **WeVPN**, **Windscribe** servers - Supports OpenVPN for all providers listed - Supports Wireguard both kernelspace and userspace - For **Mullvad**, **Ivpn**, **Surfshark** and **Windscribe** - For **ProtonVPN**, **PureVPN**, **Torguard**, **VPN Unlimited** and **WeVPN** using the custom provider - For custom Wireguard configurations using the custom provider - More in progress, see: https://github.com/qdm12/gluetun/issues/134 - DNS over TLS baked in with service provider(s) of your choice - DNS fine blocking of malicious/ads/surveillance hostnames and IP addresses, with live update every 24 hours - Choose the vpn network protocol, `udp` or `tcp` - Built in firewall kill switch to allow traffic only with needed the VPN servers and LAN devices - Built in Shadowsocks proxy (protocol based on SOCKS5 with an encryption layer, tunnels TCP+UDP) - Built in HTTP proxy (tunnels HTTP and HTTPS through TCP) - Connect other containers to it - Connect LAN devices to it - Compatible with amd64, i686 (32 bit), **ARM** 64 bit, ARM 32 bit v6 and v7, and even ppc64le \ud83c\udf86 - Custom VPN server side port forwarding for Private Internet Access - Possibility of split horizon DNS by selecting multiple DNS over TLS providers - Unbound subprogram drops root privileges once launched - Can work as a Kubernetes sidecar container, thanks @rorph # Setup \ud83c\udf89 There are now instructions specific to each VPN provider with examples to help you get started as quickly as possible! Go to the Wiki: https://github.com/qdm12/gluetun-wiki \ud83c\udd95 Image also available as `ghcr.io/qdm12/gluetun` # License MIT: https://github.com/qdm12/gluetun/master/LICENSE",
+  "paths": [
+    {
+      "name": "config",
+      "host": "/mnt/cache/appdata/gluetun",
+      "container": "/gluetun",
+      "mode": "rw",
+      "description": "Container Path: /gluetun",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPPROXY_PORT",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "Internal port number for the HTTP proxy to listen on",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_PORT",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TIMEZONE",
+      "key": "TZ",
+      "value": "",
+      "description": "Specify a timezone to use to have correct log times. i.e. Europe/London",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN_SERVICE_PROVIDER",
+      "key": "VPN_SERVICE_PROVIDER",
+      "value": "private internet access",
+      "description": "VPN Service Provider",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN_TYPE",
+      "key": "VPN_TYPE",
+      "value": "openvpn",
+      "description": "VPN Type. Default is OpenVPN. Note not all providers support Wireguard.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN_INTERFACE",
+      "key": "VPN_INTERFACE",
+      "value": "tun0",
+      "description": "OPTIONAL: Specify a custom network interface name to use. (e.g. tun0 or wg0)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN_ENDPOINT_PORT",
+      "key": "VPN_ENDPOINT_PORT",
+      "value": "",
+      "description": "OPTIONAL: Custom OpenVPN/Wireguard server endpoint port to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_ENDPOINT_IP",
+      "key": "VPN_ENDPOINT_IP",
+      "value": "",
+      "description": "OPTIONAL: Specify a target VPN IP address to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PROTOCOL",
+      "key": "OPENVPN_PROTOCOL",
+      "value": "udp",
+      "description": "OPTIONAL: Container Variable: OPENVPN_PROTOCOL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_USER",
+      "key": "OPENVPN_USER",
+      "value": "",
+      "description": "Container Variable: OPENVPN_USER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PASSWORD",
+      "key": "OPENVPN_PASSWORD",
+      "value": "",
+      "description": "Container Variable: OPENVPN_PASSWORD (Optional for Mullvad)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_VERSION",
+      "key": "OPENVPN_VERSION",
+      "value": "2.6",
+      "description": "OPTIONAL: Set the OpenVPN version to run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_VERBOSITY",
+      "key": "OPENVPN_VERBOSITY",
+      "value": "1",
+      "description": "OPTIONAL: OpenVPN verbosity level",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_FLAGS",
+      "key": "OPENVPN_FLAGS",
+      "value": "",
+      "description": "OPTIONAL: Space delimited OpenVPN flags to pass to openvpn",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CIPHERS",
+      "key": "OPENVPN_CIPHERS",
+      "value": "",
+      "description": "OPTIONAL: Specify one or more custom ciphers to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_AUTH",
+      "key": "OPENVPN_AUTH",
+      "value": "",
+      "description": "OPTIONAL: Specify a custom auth algorithm to use. i.e. sha256",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PROCESS_USER",
+      "key": "OPENVPN_PROCESS_USER",
+      "value": "no",
+      "description": "OPTIONAL: Run OpenVPN as root",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_IPV6",
+      "key": "OPENVPN_IPV6",
+      "value": "off",
+      "description": "OPTIONAL: Enable tunneling of IPv6 (only for Mullvad)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CUSTOM_CONFIG",
+      "key": "OPENVPN_CUSTOM_CONFIG",
+      "value": "",
+      "description": "OPTIONAL: The path to your OpenVPN configuration file. This implies VPN_SERVICE_PROVIDER=custom",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_IMPLEMENTATION",
+      "key": "WIREGUARD_IMPLEMENTATION",
+      "value": "auto",
+      "description": "Implementation of Wireguard to use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PRIVATE_KEY",
+      "key": "WIREGUARD_PRIVATE_KEY",
+      "value": "",
+      "description": "OPTINAL: 32 bytes private key in base64 format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PRESHARED_KEY",
+      "key": "WIREGUARD_PRESHARED_KEY",
+      "value": "",
+      "description": "OPTINAL: 32 bytes pre-shared key in base64 format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PUBLIC_KEY",
+      "key": "WIREGUARD_PUBLIC_KEY",
+      "value": "",
+      "description": "Only for VPN_SERVICE_PROVIDER=custom and VPN_TYPE=wireguard: Wireguard server public key",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ADDRESSES",
+      "key": "WIREGUARD_ADDRESSES",
+      "value": "",
+      "description": "Wireguard IP network in the format xx.xx.xx.xx/xx. Wireguard interface address, only required if VPN_TYPE=wireguard. Note this is usually specific by user and the same for all servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ALLOWED_IPS",
+      "key": "WIREGUARD_ALLOWED_IPS",
+      "value": "0.0.0.0/0,::/0",
+      "description": "OPTIONAL: CSV of IP address ranges, only required if VPN_TYPE=wireguard. Note this is usually specific by user and the same for all servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_MTU",
+      "key": "WIREGUARD_MTU",
+      "value": "1320",
+      "description": "OPTIONAL: Any positive value up to 65535, only required if VPN_TYPE=wireguard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "key": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "",
+      "description": "OPTIONAL: Wireguard persistent keepalive interval. i.e. 25s.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_COUNTRIES",
+      "key": "SERVER_COUNTRIES",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of VPN countries. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_CITIES",
+      "key": "SERVER_CITIES",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of VPN cities. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_NAMES",
+      "key": "SERVER_NAMES",
+      "value": "",
+      "description": "OPTIONAL: (PIA ONLY) Single server hostname. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_HOSTNAMES",
+      "key": "SERVER_HOSTNAMES",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of server hostnames. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING",
+      "key": "VPN_PORT_FORWARDING",
+      "value": "off",
+      "description": "OPTIONAL: Enable custom port forwarding code for supported providers. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_LISTENING_PORT",
+      "key": "VPN_PORT_FORWARDING_LISTENING_PORT",
+      "value": "",
+      "description": "OPTIONAL: Port redirection for the VPN server side port forwarded. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL",
+      "key": "FIREWALL",
+      "value": "on",
+      "description": "Turn on or off the container built-in firewall. You should turn off for debugging purposes only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_VPN_INPUT_PORTS",
+      "key": "FIREWALL_VPN_INPUT_PORTS",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of ports to allow from the VPN server side (useful for vyprvpn port forwarding)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_INPUT_PORTS",
+      "key": "FIREWALL_INPUT_PORTS",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of ports to allow through the default interface. This seems needed for Unraid containers and Kubernetes sidecars.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_OUTBOUND_SUBNETS",
+      "key": "FIREWALL_OUTBOUND_SUBNETS",
+      "value": "",
+      "description": "OPTIONAL: You first need to set your LAN CIDR in FIREWALL_OUTBOUND_SUBNETS. For example with FIREWALL_OUTBOUND_SUBNETS=192.168.1.0/24",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_DEBUG",
+      "key": "FIREWALL_DEBUG",
+      "value": "off",
+      "description": "OPTIONAL: Prints every firewall related command. You should use it for debugging purposes only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "OPTIONAL: Container Variable: LOG_LEVEL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_SERVER",
+      "key": "DNS_SERVER",
+      "value": "on",
+      "description": "(Recommended: on) Activate DNS over TLS (DOT) with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_RESOLVERS",
+      "key": "DNS_UPSTREAM_RESOLVERS",
+      "value": "cloudflare",
+      "description": "Comma delimited list of DNS over TLS providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_BLOCK_IP_PREFIXES",
+      "key": "DNS_BLOCK_IP_PREFIXES",
+      "value": "127.0.0.1/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,::1/128,fc00::/7,fe80::/10,::ffff:7f00:1/104,::ffff:a00:0/104,::ffff:a9fe:0/112,::ffff:ac10:0/108,::ffff:c0a8:0/112",
+      "description": "All private CIDRs ranges. Comma separated list of CIDRs or single IP addresses Unbound won't resolve to. Note that the default setting prevents DNS rebinding",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_CACHING",
+      "key": "DNS_CACHING",
+      "value": "on",
+      "description": "OPTIONAL: Unbound caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_IPV6",
+      "key": "DNS_UPSTREAM_IPV6",
+      "value": "off",
+      "description": "OPTIONAL: DNS IPv6 resolution",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_MALICIOUS",
+      "key": "BLOCK_MALICIOUS",
+      "value": "on",
+      "description": "OPTIONAL: Block malicious hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_SURVEILLANCE",
+      "key": "BLOCK_SURVEILLANCE",
+      "value": "off",
+      "description": "OPTIONAL: Block surveillance hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_ADS",
+      "key": "BLOCK_ADS",
+      "value": "off",
+      "description": "OPTIONAL: Block ads hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNBLOCK",
+      "key": "UNBLOCK",
+      "value": "",
+      "description": "OPTIONAL: Comma separated list of domain names to leave unblocked with Unbound. i.e. domain1.com,x.domain2.co.uk",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPDATE_PERIOD",
+      "key": "DNS_UPDATE_PERIOD",
+      "value": "24h",
+      "description": "OPTIONAL: Period to update block lists and cryptographic files and restart Unbound. Set to 0 to deactivate updates. i.e. 0, 30s, 5m, 24h",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_ADDRESS",
+      "key": "DNS_ADDRESS",
+      "value": "",
+      "description": "OPTIONAL: IP address to use as DNS resolver if DOT is off",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_KEEP_NAMESERVER",
+      "key": "DNS_KEEP_NAMESERVER",
+      "value": "off",
+      "description": "OPTIONAL: Keep the nameservers in /etc/resolv.conf untouched, but disabled DNS blocking features",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY",
+      "key": "HTTPPROXY",
+      "value": "off",
+      "description": "OPTIONAL: Enable the internal HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_LOG",
+      "key": "HTTPPROXY_LOG",
+      "value": "off",
+      "description": "OPTIONAL: Logs every tunnel requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_USER",
+      "key": "HTTPPROXY_USER",
+      "value": "",
+      "description": "OPTIONAL: Username to use to connect to the HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_PASSWORD",
+      "key": "HTTPPROXY_PASSWORD",
+      "value": "",
+      "description": "OPTIONAL: Password to use to connect to the HTTP proxy",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ENABLE_HTTPPROXY_STEALTH",
+      "key": "HTTPPROXY_STEALTH",
+      "value": "off",
+      "description": "OPTIONAL: Stealth mode means HTTP proxy headers are not added to your requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS",
+      "key": "SHADOWSOCKS",
+      "value": "off",
+      "description": "OPTIONAL: Enable the internal Shadowsocks proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_LOG",
+      "key": "SHADOWSOCKS_LOG",
+      "value": "off",
+      "description": "OPTIONAL: Enable Shadowsocks logging",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_LISTENING_ADDRESS",
+      "key": ":8388",
+      "value": ":8388",
+      "description": "OPTIONAL: Port number for the HTTP proxy to listen on",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_PASSWORD",
+      "key": "SHADOWSOCKS_PASSWORD",
+      "value": "",
+      "description": "OPTIONAL: Password to use to connect to Shadowsocks",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SHADOWSOCKS_CIPHER",
+      "key": "SHADOWSOCKS_CIPHER",
+      "value": "chacha20-ietf-poly1305",
+      "description": "OPTIONAL: Cipher to use for Shadowsocks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_PERIOD",
+      "key": "UPDATER_PERIOD",
+      "value": "0",
+      "description": "OPTIONAL: Period to update all VPN servers information in memory and to /gluetun/servers.json. Set to 0 to disable. This does a burst of DNS over TLS requests, which may be blocked if you set BLOCK_MALICIOUS=on for example. Valid duration string such as 24h.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT_FORWARD_ONLY",
+      "key": "PORT_FORWARD_ONLY",
+      "value": "off",
+      "description": "OPTIONAL: Filter only port-forwarding enabled (aka *p2p*) servers (pia and protonvpn only)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "key": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "value": "/gluetun/forwarded_port",
+      "description": "OPTIONAL: File path to use for writing the forwarded port obtained. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_UP_COMMAND",
+      "key": "VPN_PORT_FORWARDING_UP_COMMAND",
+      "value": "",
+      "description": "OPTIONAL: Command to run when port forwarding has finished setting up (pia and protonvpn only). https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_DOWN_COMMAND",
+      "key": "VPN_PORT_FORWARDING_DOWN_COMMAND",
+      "value": "",
+      "description": "OPTIONAL: Command to run when port forwarding has finished tearing down (pia and protonvpn only). https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_PROVIDER",
+      "key": "VPN_PORT_FORWARDING_PROVIDER",
+      "value": "",
+      "description": "OPTIONAL: Choose the custom port forwarding code to use. This is useful when using the custom provider with Wireguard. For PIA, make sure you set SERVER_NAMES=xxxx. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_USERNAME",
+      "key": "VPN_PORT_FORWARDING_USERNAME",
+      "value": "",
+      "description": "OPTIONAL: This is needed when using the custom provider with Wireguard with PIA. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_PASSWORD",
+      "key": "VPN_PORT_FORWARDING_PASSWORD",
+      "value": "",
+      "description": "OPTIONAL: This is needed when using the custom provider with Wireguard with PIA. https://github.com/qdm12/gluetun-wiki",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HEALTH_SERVER_ADDRESS",
+      "key": "HEALTH_SERVER_ADDRESS",
+      "value": "127.0.0.1:9999",
+      "description": "OPTIONAL: Internal Health Server Listening Addroess",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_TARGET_ADDRESS",
+      "key": "HEALTH_TARGET_ADDRESS",
+      "value": "cloudflare.com:443",
+      "description": "OPTIONAL: Address used to check tunnel health",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUBLICIP_FILE",
+      "key": "PUBLICIP_FILE",
+      "value": "/gluetun/ip",
+      "description": "OPTIONAL: Filepath to store the public IP address assigned",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUBLICIP_ENABLED",
+      "key": "PUBLICIP_ENABLED",
+      "value": "true",
+      "description": "OPTIONAL: Check for public IP address information on VPN connection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VERSION_INFORMATION",
+      "key": "VERSION_INFORMATION",
+      "value": "on",
+      "description": "OPTIONAL: Filepath to store the public IP address assigned",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_LOG",
+      "key": "HTTP_CONTROL_SERVER_LOG",
+      "value": "on",
+      "description": "OPTIONAL: Enable logging of HTTP requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

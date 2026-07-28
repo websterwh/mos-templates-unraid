@@ -1,0 +1,107 @@
+{
+  "name": "DVarr",
+  "repo": "ghcr.io/haydenw22/dvarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/haydenw22/DVarr/pkgs/container/dvarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1867]/",
+  "icon": "https://raw.githubusercontent.com/haydenw22/DVarr/main/src/DVarr/wwwroot/icons/icon-512.png",
+  "project": "https://github.com/haydenw22/DVarr",
+  "description": "DVarr is a reliability-first, self-hosted IPTV sports DVR with one overriding job: never miss a can't-miss live sports event. It watches the leagues you follow on TheSportsDB, maps them to your IPTV channels, and records every event automatically. - Bulletproof recorder: supervised, segmented MPEG-TS capture (-c copy) that relaunches on stall and concatenates losslessly, so a feed blip costs you the blip, not the event. - League automation: follow a whole league, just one team, or (motorsport) only the sessions you care about. Events, posters and season data sync from TheSportsDB. - Smart auto-stop: near the scheduled end DVarr polls the live score and extends the recording in 15-minute steps while play continues, so extra time and penalty shoot-outs land in the file. - Match-aware channel picking: an hour before start it re-checks the EPG and records from the channel actually showing your event; ranked fallbacks fail over automatically. - Integrations: Plex custom metadata provider, Sonarr-v3-compatible API for Prowlarr, Home Assistant status endpoint, token-secured ICS calendar feed, credential-free M3U/XMLTV export, and a mobile PWA. First run: open the WebUI on port 1867 and sign in with the username/password you set below (defaults user/password, which the container warns about until changed). Then add a TheSportsDB API key, add your IPTV source, ingest channels + EPG, follow a league, and map it to channels. Full setup guide: https://github.com/haydenw22/DVarr#full-setup-guide GPU is optional: recording capture never needs one; only the in-browser live preview transcodes. To enable it, add --runtime=nvidia to Extra Parameters, install the Unraid Nvidia Driver plugin, and set the NVIDIA_* variables (shown under Advanced).",
+  "paths": [
+    {
+      "name": "Appdata (/config)",
+      "host": "/mnt/cache/appdata/dvarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "SQLite database (WAL), settings and logs. Small - keep it on a fast disk (cache/SSD).",
+      "required": true
+    },
+    {
+      "name": "Media (/media)",
+      "host": "/mnt/cache/media/sports",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Finished recordings, filed in Plex-scannable show/season folders. Point this at your sports library.",
+      "required": true
+    },
+    {
+      "name": "Segments (/segments)",
+      "host": "/mnt/cache/appdata/dvarr/segments",
+      "container": "/segments",
+      "mode": "rw",
+      "description": "In-flight capture scratch (several GB per recording, auto-cleaned after finalize). Prefer a disk with plenty of free space; ideally the same filesystem as /media for a cheap finalize.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "1867",
+      "container": "1867",
+      "protocol": "tcp",
+      "description": "DVarr web UI and API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Your local timezone, e.g. Australia/Brisbane or America/New_York (display and log times only; storage is UTC epoch).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI username",
+      "key": "DVARR_AUTH_USER",
+      "value": "user",
+      "description": "Username for the web UI and API. Change it from the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI password",
+      "key": "DVARR_AUTH_PASS",
+      "value": "password",
+      "description": "Password for the web UI and API. Set a strong one - the container logs a warning while the default is active.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HOME",
+      "key": "HOME",
+      "value": "/config",
+      "description": "Keeps .NET caches inside /config. Leave as /config; required if you run the container as a non-root user via Extra Parameters (e.g. --user 99:100 for nobody:users ownership).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA GPU (optional)",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Only used if you enable the GPU: add --runtime=nvidia to Extra Parameters and install the Nvidia Driver plugin. Set to 'all' or the card's UUID/PCI id. GPU accelerates only the in-browser live preview; recording never needs it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA capabilities (optional)",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,video,utility",
+      "description": "Only used with the GPU enabled. 'video' = NVENC/NVDEC, 'compute' = CUDA (scale_cuda).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

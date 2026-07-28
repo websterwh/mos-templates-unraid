@@ -1,0 +1,137 @@
+{
+  "name": "monitor-agent-nvidia",
+  "repo": "ghcr.io/realfascinated/monitor-agent:nvidia-latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": "--pid=host --runtime=nvidia --gpus=all",
+  "post_parameters": null,
+  "web_ui_url": "https://monitor.fascinated.cc",
+  "icon": "https://monitor.fascinated.cc/apple-touch-icon.png",
+  "project": "https://github.com/RealFascinated/Monitor-Agent",
+  "description": "Monitor Agent pushes host metrics (CPU, memory, network, array disks, ZFS pools, Docker containers, and NVIDIA GPU stats via nvidia-smi) to your Monitor dashboard. Requires an ingest token from https://monitor.fascinated.cc Install the Unraid NVIDIA Driver plugin before using this template. This image uses the NVIDIA Container Toolkit (--runtime=nvidia --gpus=all) so nvidia-smi and driver libraries match your host. For AMD or Intel GPUs, use the default monitor-agent template instead (sysfs, no NVIDIA runtime).",
+  "paths": [
+    {
+      "name": "Host Root",
+      "host": "/",
+      "container": "/host",
+      "mode": "ro",
+      "description": "Host filesystem (read-only) for disk usage on array shares and ZFS mount points.",
+      "required": true
+    },
+    {
+      "name": "Host /proc",
+      "host": "/proc",
+      "container": "/proc",
+      "mode": "ro",
+      "description": "Host procfs for CPU, memory, load, and network metrics.",
+      "required": true
+    },
+    {
+      "name": "Host /sys",
+      "host": "/sys",
+      "container": "/sys",
+      "mode": "ro",
+      "description": "Host sysfs.",
+      "required": true
+    },
+    {
+      "name": "Host /dev",
+      "host": "/dev",
+      "container": "/dev",
+      "mode": "ro",
+      "description": "Host devices for disk I/O and ZFS (zpool).",
+      "required": true
+    },
+    {
+      "name": "Host OS Release",
+      "host": "/etc/os-release",
+      "container": "/etc/os-release",
+      "mode": "ro",
+      "description": "Host OS identification.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket for container statistics.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Ingest Token",
+      "key": "MONITOR_INGEST_TOKEN",
+      "value": "",
+      "description": "Ingest token from your Monitor server settings (required).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "API Endpoint",
+      "key": "MONITOR_API_ENDPOINT",
+      "value": "https://monitor.fascinated.cc/api/v1/servers/ingest",
+      "description": "Monitor ingest API URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Push Schedule",
+      "key": "MONITOR_PUSH_SCHEDULE",
+      "value": "*/15 * * * * *",
+      "description": "Cron schedule with seconds field (default: every 15 seconds).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Docker Stats",
+      "key": "MONITOR_ENABLE_DOCKER",
+      "value": "true",
+      "description": "Collect per-container CPU and memory from the host Docker daemon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "MONITOR_LOG_LEVEL",
+      "value": "info",
+      "description": "Agent log level: debug, info, warn, or error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Timezone (e.g. America/New_York). Leave empty to use the Unraid system timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config File",
+      "key": "MONITOR_CONFIG_FILE",
+      "value": "-",
+      "description": "Set to - to configure via environment variables only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host Root Prefix",
+      "key": "MONITOR_HOST_ROOT",
+      "value": "/host",
+      "description": "Path prefix for host disk metrics (must match the Host Root volume target).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

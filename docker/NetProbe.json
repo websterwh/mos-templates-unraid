@@ -1,0 +1,267 @@
+{
+  "name": "NetProbe",
+  "repo": "bmmbmm01/netprobe:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/bmmbmm01/netprobe",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://github.com/bmartino1/unraid-docker-templates/blob/main/images/netprobe.png?raw=true",
+  "project": "https://github.com/bmartino1/NetProbe_Python",
+  "description": "Netprobe 2.0 \u2013 Internet Quality Dashboard Netprobe 2.0 is a lightweight, container-friendly network probe and web UI for home/lab internet monitoring. It periodically: Pings your gateway, router, and a list of \u201canchor\u201d sites. Measures packet loss, latency, and jitter. Measures DNS lookup latency per DNS server. Runs scheduled and manual Speedtest.net tests. Stores everything in SQLite and renders a dark-mode dashboard with Chart.js. The goal is a simple \u201cdrop in and forget it\u201d quality monitor that you can run on Unraid, Proxmox, Docker, etc. Additional variables can be found here: https://github.com/bmartino1/NetProbe_Python Optional data: ALL are OPTIONAL! Defaults/fallbacks to SQLite. # Optional: if ping needs extra caps in your environment --cap-add=NET_RAW --cap-add=NET_ADMIN --cap-add=SYS_ADMIN # Use standalone Postgres for backend storage docker variables... (May be hidden in template) USE_POSTGRES: ${USE_POSTGRES:-true} DB_ENGINE: ${DB_ENGINE:-postgres} # Postgres connection details (match the Postgres service above via env file...) POSTGRES_HOST: ${POSTGRES_HOST:-postgres} POSTGRES_PORT: ${POSTGRES_PORT:-5432} POSTGRES_DB: ${POSTGRES_DB:-netprobe} POSTGRES_USER: ${POSTGRES_USER:-netprobe} POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-netprobe}",
+  "paths": [
+    {
+      "name": "Database path",
+      "host": "/mnt/cache/appdata/netprobe_database",
+      "container": "/data/",
+      "mode": "rw",
+      "description": "Container /data location for SQLite file that holds long-term data. Container path can be changed if DB_PATH variable is assigned. DB_PATH defaults to /data/netprobe.sqlite",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "DockerNatPort",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PROBE_INTERVAL",
+      "key": "PROBE_INTERVAL",
+      "value": "30",
+      "description": "Seconds between script probe runs. (Countdown in web page.) This runs the pings, DNS lookups, and others to collect data...",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PING_COUNT",
+      "key": "PING_COUNT",
+      "value": "4",
+      "description": "ICMP packets per target per probe.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_TIMEZONE",
+      "key": "APP_TIMEZONE",
+      "value": "UTC",
+      "description": "Time zone, e.g. America/Chicago",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SITES",
+      "key": "SITES",
+      "value": "fast.com,google.com,youtube.com",
+      "description": "Comma-separated ping targets.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ROUTER_IP",
+      "key": "ROUTER_IP",
+      "value": "192.168.1.1",
+      "description": "Optional LAN router IP. Your router/gateway IP address to help with pings. Can leave blank (to leave blank, delete this variable).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS_TEST_SITE",
+      "key": "DNS_TEST_SITE",
+      "value": "google.com",
+      "description": "Domain for DNS latency tests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_4",
+      "key": "DNS_NAMESERVER_4",
+      "value": "My_DNS_Server",
+      "description": "Web UI display name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_4_IP",
+      "key": "DNS_NAMESERVER_4_IP",
+      "value": "192.168.1.1",
+      "description": "DNS IPs to probe. Do you run a custom DNS server? Set this to that IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_ENABLED",
+      "key": "SPEEDTEST_ENABLED",
+      "value": "True",
+      "description": "Enable periodic speed tests at SPEEDTEST_INTERVAL in seconds.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_INTERVAL",
+      "key": "SPEEDTEST_INTERVAL",
+      "value": "14400",
+      "description": "14400 seconds = 4 hours. Seconds between automatic speed tests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_1",
+      "key": "DNS_NAMESERVER_1",
+      "value": "Google_DNS",
+      "description": "Google_DNS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_1_IP",
+      "key": "DNS_NAMESERVER_1_IP",
+      "value": "8.8.8.8",
+      "description": "Google_DNS 8.8.8.8",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_2",
+      "key": "DNS_NAMESERVER_2",
+      "value": "Quad9_DNS",
+      "description": "Quad9_DNS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_2_IP",
+      "key": "DNS_NAMESERVER_2_IP",
+      "value": "9.9.9.9",
+      "description": "Quad9_DNS 9.9.9.9",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_3",
+      "key": "DNS_NAMESERVER_3",
+      "value": "CloudFlare_DNS",
+      "description": "CloudFlare_DNS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_NAMESERVER_3_IP",
+      "key": "DNS_NAMESERVER_3_IP",
+      "value": "1.1.1.1",
+      "description": "CloudFlare_DNS 1.1.1.1",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_POSTGRES",
+      "key": "USE_POSTGRES",
+      "value": "false",
+      "description": "Requires DB_ENGINE set to postgres Use a standalone Postgres and set the required Postgres Docker variables manually.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_ENGINE",
+      "key": "DB_ENGINE",
+      "value": "sqlite",
+      "description": "Choose database backend. If using Postgres, set USE_POSTGRES to true as well.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEIGHT_LOSS",
+      "key": "WEIGHT_LOSS",
+      "value": "-0.6",
+      "description": "Weight of packet loss in score (0\u20131, sum = 1).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEIGHT_LATENCY",
+      "key": "WEIGHT_LATENCY",
+      "value": "0.15",
+      "description": "Weight of latency.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEIGHT_JITTER",
+      "key": "WEIGHT_JITTER",
+      "value": "0.2",
+      "description": "Weight of jitter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEIGHT_DNS_LATENCY",
+      "key": "WEIGHT_DNS_LATENCY",
+      "value": "0.05",
+      "description": "Weight of DNS latency.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THRESHOLD_LOSS",
+      "key": "THRESHOLD_LOSS",
+      "value": "5",
+      "description": "Loss % considered \u201cmax bad\u201d for scoring.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THRESHOLD_LATENCY",
+      "key": "THRESHOLD_LATENCY",
+      "value": "100",
+      "description": "Latency ms considered \u201cmax bad\u201d.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THRESHOLD_JITTER",
+      "key": "THRESHOLD_JITTER",
+      "value": "30",
+      "description": "Jitter ms considered \u201cmax bad\u201d.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THRESHOLD_DNS_LATENCY",
+      "key": "THRESHOLD_DNS_LATENCY",
+      "value": "100",
+      "description": "DNS ms considered \u201cmax bad\u201d.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_PORT",
+      "key": "WEB_PORT",
+      "value": "8080",
+      "description": "This sets the Python web server port. If edited, update Docker NAT ports and WebUI URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TailScale Fallback State Directory",
+      "key": "CA_TS_FALLBACK_DIR",
+      "value": "/data/",
+      "description": "Fallback container directory for Tailscale state information - Added by Community Applications",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,147 @@
+{
+  "name": "Find-My-Timeline",
+  "repo": "ghcr.io/heckpiet/find-my-timeline-unraid:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/heckpiet/find-my-timeline-unraid/pkgs/container/find-my-timeline-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]/",
+  "icon": "https://raw.githubusercontent.com/heckpiet/find-my-timeline-unraid/master/icon.svg",
+  "project": "https://github.com/heckpiet/find-my-timeline-unraid",
+  "description": "Find My Timeline is a self-hosted location-history dashboard for Apple devices available through the Find My service. It polls device locations at configurable intervals, stores the history locally in SQLite and displays routes, timestamps, battery levels and chronological timelines on an interactive map. The Unraid edition includes persistent appdata storage, Docker health monitoring and optional protected Apple re-authentication. This is an unofficial project and the WebUI must not be exposed directly to the internet.",
+  "paths": [
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/find-my-timeline/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent directory for the SQLite database containing device and location history. Include this directory in protected backups.",
+      "required": true
+    },
+    {
+      "name": "Apple Session",
+      "host": "/mnt/cache/appdata/find-my-timeline/session",
+      "container": "/root/.find-my-timeline",
+      "mode": "rw",
+      "description": "Stores reusable Apple session cookies and authentication metadata. Keep this mapping enabled during updates and include it in protected backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Host port used to open the responsive Find My Timeline WebUI. Keep this port limited to your trusted network and do not expose it directly to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Apple ID",
+      "key": "ICLOUD_USERNAME",
+      "value": "",
+      "description": "Email address of the Apple ID whose Find My devices should be recorded. Do not enter the Apple password in this field.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable WebUI authentication flow",
+      "key": "WEB_AUTH_ENABLED",
+      "value": "false",
+      "description": "Set to true to allow Apple re-authentication from the WebUI. Requires a WebUI administrator password and protected network access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI administrator password",
+      "key": "WEB_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Create a long and unique password for starting Apple authentication from the WebUI. This protects only authentication actions, not the location map or APIs.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Estimated session lifetime",
+      "key": "AUTH_SESSION_LIFETIME_DAYS",
+      "value": "90",
+      "description": "Estimated Apple session lifetime in days used by the status countdown. Apple can invalidate a session earlier.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication flow timeout",
+      "key": "WEB_AUTH_FLOW_TIMEOUT_SECONDS",
+      "value": "600",
+      "description": "Maximum number of seconds allowed between starting Apple authentication and entering the verification code.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Apple ID password",
+      "key": "ICLOUD_PASSWORD",
+      "value": "",
+      "description": "Optional persistent Apple password. Leaving this empty reduces stored secrets and is recommended for most installations.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Minimum polling interval",
+      "key": "POLL_MIN_INTERVAL",
+      "value": "7",
+      "description": "Minimum number of minutes between Apple location requests. Use a value no greater than the maximum interval.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum polling interval",
+      "key": "POLL_MAX_INTERVAL",
+      "value": "10",
+      "description": "Maximum number of minutes between Apple location requests. Must be equal to or greater than the minimum interval.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database path",
+      "key": "DATABASE_PATH",
+      "value": "/app/data/locations.db",
+      "description": "Database file path inside the container. Change only when using a custom persistent data layout.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web host",
+      "key": "WEB_HOST",
+      "value": "0.0.0.0",
+      "description": "Internal web server binding. Keep 0.0.0.0 when using the standard Unraid bridge network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web port",
+      "key": "WEB_PORT",
+      "value": "5000",
+      "description": "Internal container port for the WebUI. Normally this should remain 5000.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone used for container logs and displayed timestamps, for example Europe/Berlin.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

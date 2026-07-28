@@ -1,0 +1,108 @@
+{
+  "name": "machinaris-chia-harvester",
+  "repo": "ghcr.io/guydavis/machinaris",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/guydavis/machinaris-chia-harvester",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "-h $HOSTNAME",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8926]/",
+  "icon": "https://raw.githubusercontent.com/guydavis/machinaris-unraid/master/machinaris.png",
+  "project": "https://github.com/guydavis/machinaris",
+  "description": "On a secondary Unraid system, allows for harvesting of local Chia plots. Connects to the main Machinaris application. PREREQUISITE: On another machine! Install the Machinaris application, providing the Chia fullnode, which this harvester container will connect with. WARNING: Do NOT install this harvester on the same system as you installed the fullnode. The fullnode already runs a harvester internally. This harvester software is for a second physical server. INSTALL: Set the host path to first directory containing plots using '/plots1' Path. Add more Paths for additional host directories. Also be sure to set the LAN IP address of your Unraid server in the controller_host, farmer_address and worker_address variables. SETUP: Control of this harvester will be available within the Machinaris WebUI. SUPPORT: Join the Discord server for fastest response: https://discord.gg/mX4AtMTt87 Ask a question or start a discussion on Github: https://github.com/guydavis/machinaris/discussions DISCLAIMER OF WARRANTY. Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.",
+  "paths": [
+    {
+      "name": "appdata",
+      "host": "/mnt/cache/appdata/machinaris",
+      "container": "/root/.chia",
+      "mode": "rw",
+      "description": "Holds app data for the container. Not for temp plotting or final plot storage.",
+      "required": false
+    },
+    {
+      "name": "plots1",
+      "host": "",
+      "container": "/plots1",
+      "mode": "rw",
+      "description": "Holds completed plots for farming. Create more Paths for additional folders like plots1,plots2,etc...",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "web_port",
+      "host": "8926",
+      "container": "8926",
+      "protocol": "tcp",
+      "description": "Machinaris local web app port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "worker_port",
+      "host": "8927",
+      "container": "8927",
+      "protocol": "tcp",
+      "description": "Leave at 8927 for Chia",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "plots_dir",
+      "key": "plots_dir",
+      "value": "/plots1",
+      "description": "A colon-separated list of all in-container paths (defined above) holding your completed plots. Example: /plots1:/plots2:/plots3",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "controller_host",
+      "key": "controller_host",
+      "value": "",
+      "description": "The IP address of the Machinaris Controller on your LAN for controller/worker communication. ANOTHER COMPUTER",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "farmer_address",
+      "key": "farmer_address",
+      "value": "",
+      "description": "The IP address of the Chia fullnode farmer this harvester will connect to. ANOTHER COMPUTER",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "worker_address",
+      "key": "worker_address",
+      "value": "",
+      "description": "The IP address of this Unraid server on your LAN for controller/worker communication. THIS COMPUTER",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "mode",
+      "key": "mode",
+      "value": "harvester",
+      "description": "Default is 'harvester'. If plotting as well, use 'harvester,plotter' and add a '/plotting' Path mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "blockchains",
+      "key": "blockchains",
+      "value": "chia",
+      "description": "Leave at 'chia'. Only one, not multple.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

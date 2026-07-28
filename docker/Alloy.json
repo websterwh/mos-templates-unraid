@@ -1,0 +1,76 @@
+{
+  "name": "Alloy",
+  "repo": "grafana/alloy:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/grafana/alloy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy",
+  "web_ui_url": "http://[IP]:[PORT:12345]",
+  "icon": "https://raw.githubusercontent.com/ccmpbll/unraid-docker-templates/main/images/grafana-alloy.png",
+  "project": "https://github.com/grafana/alloy",
+  "description": "Grafana Alloy is an open source OpenTelemetry Collector distribution with built-in Prometheus pipelines and support for metrics, logs, traces, and profiles. You will need to drop a copy of your config.alloy file in the conf directory. I have a template copy available here: https://github.com/ccmpbll/Unraid-docker-templates/blob/master/extras/config.alloy If you plan to change the default port for the web ui, you will also need to change the Post Arguments for this template.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/alloy/conf",
+      "container": "/etc/alloy",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/alloy/data",
+      "container": "/var/lib/alloy/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Host docker.sock",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Path to docker.sock for log retrieval. Read only.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Syslog UDP",
+      "host": "514",
+      "container": "514",
+      "protocol": "udp",
+      "description": "Port for Syslog receiver.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port",
+      "host": "12345",
+      "container": "12345",
+      "protocol": "tcp",
+      "description": "Port for Web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Host Name",
+      "key": "HOSTNAME",
+      "value": "vault",
+      "description": "The name of this Unraid server. Used for tagging logs as they come in.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,195 @@
+{
+  "name": "sonarr-metadata-localizer",
+  "repo": "waazaafr/sonarr-metadata-localizer:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/waazaafr/sonarr-metadata-localizer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]",
+  "icon": "https://iili.io/qKfsxN2.png",
+  "project": "https://hub.docker.com/r/waazaafr/sonarr-metadata-localizer",
+  "description": "FR: Image docker qui met \u00e0 jour les .nfo g\u00e9n\u00e9r\u00e9s par Sonarr pour y mettre les titres et plot localis\u00e9s depuis TMDB. EN: Docker image that updates Sonarr-generated NFO files using TMDb localized metadata (title/overview), and can optionally download series artwork in Jellyfin-friendly filenames.",
+  "paths": [
+    {
+      "name": "/tv",
+      "host": "/mnt/cache/Series",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Map a folder containing all your series/shows.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Webhook server port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDB_API_KEY",
+      "key": "TMDB_API_KEY",
+      "value": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "description": "Your TMDB_API_KEY",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_TOKEN",
+      "key": "AUTH_TOKEN",
+      "value": "webhooklongtokenaccess",
+      "description": "The token for accepting webhook",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TMDB_LANGUAGE",
+      "key": "TMDB_LANGUAGE",
+      "value": "fr_FR",
+      "description": "Your locale for title and plot of .nfo from TMDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB_IMAGE_LANGUAGE",
+      "key": "TMDB_IMAGE_LANGUAGE",
+      "value": "fr,null",
+      "description": "Language for artworks from TMDB when available.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CRON_CHECK_INTERVAL",
+      "key": "CRON_CHECK_INTERVAL",
+      "value": "0 6 * * *",
+      "description": "Cron interval for proactive work on existent files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CRON_BAK_CLEANUP",
+      "key": "CRON_BAK_CLEANUP",
+      "value": "15 3 * * *",
+      "description": "Cron interval for cleanup of .bak files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SONARR_ROOT_FOLDER",
+      "key": "SONARR_ROOT_FOLDER",
+      "value": "/tv",
+      "description": "The correspind path on container side of your folder containing your series/shows.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DOWNLOAD_IMAGES ?",
+      "key": "DOWNLOAD_IMAGES",
+      "value": "true",
+      "description": "Download localized artworks when available ?",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SKIP_EMPTY ?",
+      "key": "SKIP_EMPTY",
+      "value": "true",
+      "description": "Skip when there are no TMDB content.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DRY_RUN ?",
+      "key": "DRY_RUN",
+      "value": "true",
+      "description": "Dry-run process ? Set to false to do the work.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATE_SHOW_TITLE ?",
+      "key": "UPDATE_SHOW_TITLE",
+      "value": "false",
+      "description": "Should also replace title ?",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERIES_COVER_NAME",
+      "key": "SERIES_COVER_NAME",
+      "value": "cover.jpg",
+      "description": "Name of cover artwork",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERIES_POSTER_NAME",
+      "key": "SERIES_POSTER_NAME",
+      "value": "poster.jpg",
+      "description": "Name of poster artwork",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERIES_BACKDROP_NAME",
+      "key": "SERIES_BACKDROP_NAME",
+      "value": "backdrop.jpg",
+      "description": "Name of the backdrop artwork",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERIES_LOGO_NAME",
+      "key": "SERIES_LOGO_NAME",
+      "value": "logo.png",
+      "description": "Name of the logo artwork",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLEEP_BETWEEN_REQUESTS",
+      "key": "SLEEP_BETWEEN_REQUESTS",
+      "value": "0.25",
+      "description": "To respect call limit of TMDB of 4 per second.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_TIMEOUT",
+      "key": "HTTP_TIMEOUT",
+      "value": "25",
+      "description": "HTTP timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOWED_EVENT_TYPES",
+      "key": "ALLOWED_EVENT_TYPES",
+      "value": "Download,Upgrade,Rename,SeriesAdd,SeriesEdit",
+      "description": "Comma separated Sonarr event processed by webhook",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "LOG level",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

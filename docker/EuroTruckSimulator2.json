@@ -1,0 +1,107 @@
+{
+  "name": "EuroTruckSimulator2",
+  "repo": "ghcr.io/ich777/steamcmd:ets2",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:27015-27016]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/ets2.png",
+  "project": "https://steampowered.com/",
+  "description": "This Docker will download and install SteamCMD. It will also install Euro Truck Simulator 2 and run it. **Server Credentials:** The default name from the server is: **Docker Server** and the password is: **Docker** **ATTENTION:** First Startup can take very long since it downloads the gameserver files and the world template! **Server Configuration:** For more information see the file 'server_readme.txt' in the main directory from the dedicated server. **Save Path:** The configuration files and save data is located in: '.../.local/share/Euro Truck Simulator 2'. **Update Notice:** Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/eurotrucksimulator2",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP Game Ports",
+      "host": "27015-27016",
+      "container": "27015-27016",
+      "protocol": "udp",
+      "description": "UDP Gameports (if you need other port, please delete this entry and create a new UDP Ports with the required port numbers, also don't forget to change the port numbers in your game config)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "1948160",
+      "description": "The GAME_ID that the container download at startup. If you want to install a static or beta version of the game change the value to: '1948160 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game Parameters",
+      "key": "GAME_PARAMS",
+      "value": "",
+      "description": "Enter your game parameters (only change the worldId if you know what you are doing!).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

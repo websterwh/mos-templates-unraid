@@ -1,0 +1,91 @@
+{
+  "name": "Nestview",
+  "repo": "ghcr.io/kylejschultz/nestview:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/kylejschultz/nestview/pkgs/container/nestview",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8484]",
+  "icon": "https://raw.githubusercontent.com/kylejschultz/unraid-templates/main/nestview/nestview-icon.png",
+  "project": "https://github.com/kylejschultz/nestview",
+  "description": "Nestview is a lightweight, self-hosted Docker visibility and health tool for homelabbers. Zero-config autodiscovery of all running containers, a health dashboard, searchable log history, per-container CPU/memory/network stats, Discord alerting, and image update awareness, all from a single container with no manual service configuration required. - Default port: 8484 - First run: A setup wizard will guide you through creating your admin account. - Documentation: https://github.com/kylejschultz/nestview - Discord: https://discord.gg/UQAZ3bJ6",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/nestview",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for the Nestview database (SQLite) and configuration.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Access to the Docker socket. Required for container autodiscovery, monitoring, and container restart functionality.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8484",
+      "container": "8484",
+      "protocol": "tcp",
+      "description": "Port to access the Nestview web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Stats Poll Interval (seconds)",
+      "key": "POLL_INTERVAL",
+      "value": "",
+      "description": "How often Nestview polls Docker for container stats. Leave blank to use the default (10 seconds).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Retention (days)",
+      "key": "LOG_RETENTION_DAYS",
+      "value": "",
+      "description": "How many days of container log history to keep. Leave blank to use the default (7 days). This value is only read on first run - set it before starting Nestview for the first time if you want a non-default value. Changes after initial setup must be made in the Nestview Settings UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Timezone for log timestamps and scheduled tasks. Leave blank for UTC. Use a standard tz database name, e.g. America/Chicago or Europe/London.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "NESTVIEW_SECURE_COOKIES",
+      "value": "",
+      "description": "Set to true if Nestview is behind a TLS-terminating reverse proxy (Nginx, Caddy, Traefik). Leave blank otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reset Admin Password",
+      "key": "RESET_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Set to true to clear stored credentials and re-trigger the setup wizard on next start. Remove this value and restart the container again after completing setup.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

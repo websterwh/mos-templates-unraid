@@ -1,0 +1,145 @@
+{
+  "name": "nas-doctor",
+  "repo": "ghcr.io/mcdays94/nas-doctor:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/mcdays94/nas-doctor/pkgs/container/nas-doctor",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": "--pid=host",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8060]",
+  "icon": "https://raw.githubusercontent.com/mcdays94/nas-doctor/main/icons/icon3.png",
+  "project": "https://github.com/mcdays94/nas-doctor",
+  "description": "NAS Doctor is a local diagnostic and monitoring tool for your NAS. It runs periodic health checks \u2014 analyzing SMART data, disk usage, Docker containers, GPU, network, kernel logs, temperatures, ZFS pools, UPS power, and Unraid parity \u2014 then presents findings in a beautiful web dashboard with actionable recommendations backed by Backblaze failure rate data. Features: - 20+ diagnostic rules with automatic root-cause correlation - SMART health with Backblaze failure-rate thresholds (337k+ drives) - Top Processes with Docker container attribution (cgroup matching) - Historical trend sparklines (CPU, memory, I/O, drive temps) - Full stats page with trend charts and process CPU history - GPU monitoring (NVIDIA, Intel, AMD) - Speed test scheduling (Ookla CLI) - ZFS pool health (vdev tree, scrub/resilver, ARC stats) - UPS / power monitoring (NUT and apcupsd) - NAS OS update check (notifies when behind latest stable) - Parity check speed trend analysis (Unraid) - 2 dashboard themes (Midnight and Clean) - Export professional PDF diagnostic reports - Multi-server fleet monitoring (monitor all your NAS instances) - Prometheus /metrics endpoint (120+ gauges) - Webhook alerts: Discord, Slack, Gotify, Ntfy, generic HTTP - Automatic backups with configurable schedule and location - Data lifecycle management (retention policies, DB size cap) - Dashboard section visibility toggles and multi-column layout",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/nas-doctor",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data (SQLite database, config, backups)",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket for container monitoring",
+      "required": true
+    },
+    {
+      "name": "Emhttp Status",
+      "host": "/var/local/emhttp",
+      "container": "/var/local/emhttp",
+      "mode": "ro",
+      "description": "Unraid emhttp status (required for merged drive view)",
+      "required": true
+    },
+    {
+      "name": "Device Nodes",
+      "host": "/dev",
+      "container": "/dev",
+      "mode": "ro",
+      "description": "Device nodes (required for SMART and GPU access)",
+      "required": true
+    },
+    {
+      "name": "Sysfs",
+      "host": "/sys",
+      "container": "/sys",
+      "mode": "ro",
+      "description": "Sysfs (required for SMART, GPU, and drive mapping)",
+      "required": true
+    },
+    {
+      "name": "Boot Config",
+      "host": "/boot",
+      "container": "/host/boot",
+      "mode": "ro",
+      "description": "Unraid boot config (parity logs, ident)",
+      "required": false
+    },
+    {
+      "name": "System Logs",
+      "host": "/var/log",
+      "container": "/host/log",
+      "mode": "ro",
+      "description": "System log files (syslog, messages)",
+      "required": false
+    },
+    {
+      "name": "Unraid Version",
+      "host": "/etc/unraid-version",
+      "container": "/etc/unraid-version",
+      "mode": "ro",
+      "description": "Unraid version file (for OS update detection)",
+      "required": false
+    },
+    {
+      "name": "Host Mounts",
+      "host": "/mnt",
+      "container": "/host/mnt",
+      "mode": "ro",
+      "description": "Host disk mounts (for per-disk space monitoring)",
+      "required": false
+    },
+    {
+      "name": "Tailscale Socket",
+      "host": "/var/run/tailscale",
+      "container": "/var/run/tailscale",
+      "mode": "ro",
+      "description": "Required ONLY for Tailscale peer detection (tailscale-nas-util plugin OR network_mode: host Tailscale Docker container). Leave unset if you don't use Tailscale.",
+      "required": false
+    },
+    {
+      "name": "Borg Repo Path (optional)",
+      "host": "",
+      "container": "/mnt/user/appdata/borg",
+      "mode": "ro",
+      "description": "Optional bind-mount for External Borg Monitoring. Mount your host Borg repo path here as Read Only \u2014 NAS Doctor uses `borg --bypass-lock` so it never writes to the repo, making RO mounts safe. After adding the mount, configure the repo in Settings \u2192 Advanced \u2192 Backup Monitors \u2192 Borg. Leave blank if you don't use Borg or don't want to monitor external repos. No host binary mount needed \u2014 borg is bundled in the image.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Web UI Port",
+      "key": "NAS_DOCTOR_LISTEN",
+      "value": ":8060",
+      "description": "HTTP listen address (host networking). Change to e.g. :8067 to avoid port conflicts. If you type a bare number like 8067, it will be normalized to :8067 automatically. After changing, update the WebUI URL (container settings, Advanced View) to match.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Scan Interval",
+      "key": "NAS_DOCTOR_INTERVAL",
+      "value": "30m",
+      "description": "How often to run diagnostic scans (e.g. 30m, 1h, 6h, 24h)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (e.g. Europe/London, America/New_York)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Borg Passphrase (optional)",
+      "key": "BORG_PASSPHRASE",
+      "value": "",
+      "description": "Optional passphrase for an encrypted Borg repo configured in Settings \u2192 Advanced \u2192 Backup Monitors \u2192 Borg. NAS Doctor reads this env var by name (configurable per-repo if you have multiple passphrases). Leave blank if your repos are unencrypted or if you don't use external Borg monitoring.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

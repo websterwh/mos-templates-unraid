@@ -1,0 +1,216 @@
+{
+  "name": "Docker-Mailserver",
+  "repo": "mailserver/docker-mailserver:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/mailserver/docker-mailserver",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname mail.example.com --restart=unless-stopped --cap-add=NET_ADMIN --cap-add=SYS_PTRACE",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:25]",
+  "icon": "https://avatars.githubusercontent.com/u/76868633?s=200&v=4",
+  "project": "https://github.com/docker-mailserver/docker-mailserver",
+  "description": "A production-ready fullstack but simple mail server (SMTP, IMAP, LDAP, Antispam, Antivirus, etc.). Only configuration files, no SQL database. Keep it simple and versioned. Easy to deploy and upgrade. h3 Preperations /h3 This short guide will help you to set up a mailserver. To keep the mailserver running, there are some important points to consider, like at least one configured mail account, SSL type, hostname, etc. If these points are missing, they will be mentioned in the Docker logs to simplify troubleshooting. Make sure, you got an domain and a static IP adress to setup your mailserver. MX and A DNS entries are needed. After that, portforward the mentioned ports in your router. h3 Initial steps: /h3 The following placeholders will be used: b user /b is the mail account you create. b example.com /b is the domain you are using. b mail.example.com /bis the FQDN of the mailserver. b password /bis the password for your mail account./b 1. At first, setup the b environment variables /b and change b--hostname mail.example.com /b in the b Extra Parameters (advanced view)/b as needed. Choose custom b Network Type /b and set an fixed IP Adress. (didn't tested other options) 2. Create an e-mail account by starting the container with bPost arguments /b (advanced view): bsetup email add user@example.com 'password'/b bsetup email add admin@company.org 'Ch33rs#M8!' /b (for example) 3. b Remove the post arguments. /b 4. Start container and check the logs. Optional and recommended: Open Container Console and type in... bsetup config dkim/b 5. Try to connect to the server with an e-mail client. 6. Test sending and recieving mails Optional: If everything works, you can enable bFail2Ban/b in the environment variables For further informations, visit the extended documention: https://docker-mailserver.github.io/docker-mailserver/edge/",
+  "paths": [
+    {
+      "name": "Mails",
+      "host": "/mnt/cache/appdata/dms/mail-data/",
+      "container": "/var/mail/",
+      "mode": "rw",
+      "description": "/var/mail/",
+      "required": true
+    },
+    {
+      "name": "Mail state",
+      "host": "/mnt/cache/appdata/dms/mail-state/",
+      "container": "/var/mail-state/",
+      "mode": "rw",
+      "description": "/var/mail-state/",
+      "required": true
+    },
+    {
+      "name": "Log files",
+      "host": "/mnt/cache/appdata/dms/mail-log/",
+      "container": "/var/log/mail/",
+      "mode": "rw",
+      "description": "/var/log/mail/",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/dms/config/",
+      "container": "/tmp/docker-mailserver/",
+      "mode": "rw",
+      "description": "/tmp/docker-mailserver/",
+      "required": true
+    },
+    {
+      "name": "Mount SSL Path",
+      "host": "",
+      "container": "/etc/letsencrypt/",
+      "mode": "rw",
+      "description": "bMounting path/b where certs are stored If bletsencrypt/b is choosen as bSSL Type/b, then path structure bmust/b look like this: Host: /mnt/user/appdata/.../letsencrypt/ Container: /etc/letsencrypt/",
+      "required": false
+    },
+    {
+      "name": "Localtime",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Localtime",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: SMTP",
+      "host": "25",
+      "container": "25",
+      "protocol": "tcp",
+      "description": "SMTP (explicit TLS =&gt; STARTTLS) Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: IMAP4",
+      "host": "143",
+      "container": "143",
+      "protocol": "tcp",
+      "description": "IMAP4 (explicit TLS =&gt; STARTTLS) Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: ESMTP",
+      "host": "465",
+      "container": "465",
+      "protocol": "tcp",
+      "description": "ESMTP (implicit TLS) Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: ESMTP (SSL)",
+      "host": "587",
+      "container": "587",
+      "protocol": "tcp",
+      "description": "ESMTP (explicit TLS =&gt; STARTTLS) Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: IMAP4 (SSL)",
+      "host": "993",
+      "container": "993",
+      "protocol": "tcp",
+      "description": "IMAP4 (implicit TLS) Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Managesieve",
+      "host": "4190",
+      "container": "4190",
+      "protocol": "tcp",
+      "description": "Managesieve",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SSL Type",
+      "key": "SSL_TYPE",
+      "value": "",
+      "description": "bempty/b = SSL disabled b (NOT recommended)/b bletsencrypt/b = Enables Let's Encrypt certificates b (/etc/letsencrypt/live/example.com/) /b bcustom/b = Enables custom certificates bmanual/b = Let's you manually specify locations of your SSL certificates for non-standard cases bself-signed/b= Enables self-signed certificates If bemtpy/b is b not /b choosen, go to = Show more settings...",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Key path",
+      "key": "SSL_KEY_PATH",
+      "value": "",
+      "description": "This is only supported with b`SSL_TYPE=manual`/b. Provide the path to your bkey/b file that you've mounted access to within the container. Example: /etc/letsencrypt/live/example.com/privkey.pem",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cert Path",
+      "key": "SSL_CERT_PATH",
+      "value": "",
+      "description": "This is only supported with b`SSL_TYPE=manual`/b. Provide the path to your bcert/b file that you've mounted access to within the container. Example: /etc/letsencrypt/live/example.com/fullchain.pem",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgrey",
+      "key": "ENABLE_POSTGREY",
+      "value": "1",
+      "description": "Greylist &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fail2Ban",
+      "key": "ENABLE_FAIL2BAN",
+      "value": "0",
+      "description": "Fail2Ban &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ClamAV",
+      "key": "ENABLE_CLAMAV",
+      "value": "1",
+      "description": "ClamAV &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max mail size",
+      "key": "POSTFIX_MESSAGE_SIZE_LIMIT",
+      "value": "10240000",
+      "description": "empty =&gt; 10240000 (~10 MB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPAMASSASSIN",
+      "key": "ENABLE_SPAMASSASSIN",
+      "value": "1",
+      "description": "Spamassassin &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Single state directory",
+      "key": "ONE_DIR",
+      "value": "1",
+      "description": "0 =&gt; mail state in default directories &lt;br&gt; 1 =&gt; consolidate all states into a single directory (`/var/mail-state`) to allow persistence using docker volumes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Spam to inbox",
+      "key": "SPAMASSASSIN_SPAM_TO_INBOX",
+      "value": "1",
+      "description": "deliver spam messages in the inbox &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Managesieve",
+      "key": "ENABLE_MANAGESIEVE",
+      "value": "1",
+      "description": "Managesieve &lt;br&gt; 1 = Enable &lt;br&gt; 0 = Disable",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

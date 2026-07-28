@@ -1,0 +1,75 @@
+{
+  "name": "Prismarr",
+  "repo": "shoshuo/prismarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/shoshuo/prismarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout=30",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7070]/",
+  "icon": "https://raw.githubusercontent.com/Shoshuo/Prismarr/main/symfony/public/img/prismarr/prismarr-icon-512.png",
+  "project": "https://github.com/Shoshuo/Prismarr",
+  "description": "One dashboard for your self-hosted media stack. Prismarr brings qBittorrent, Radarr, Sonarr, Prowlarr, Seerr and TMDb together in a single modern interface: unified Ctrl+K search, a merged movie/episode calendar, a dashboard that surfaces what matters today, and one settings page where every API key lives (stored in SQLite, never in environment variables). Ships as a single container with SQLite inside, no external database and no Redis. First boot opens a 7-step setup wizard: create the admin, plug your services in, done. IMPORTANT: the data volume must map to /var/www/html/var/data (Prismarr does NOT use the Servarr /config convention). All credentials are configured from the UI and kept in the database.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/prismarr",
+      "container": "/var/www/html/var/data",
+      "mode": "rw",
+      "description": "Persistent data: SQLite DB, auto-generated secrets, sessions, cache, avatars. Container target MUST stay /var/www/html/var/data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7070",
+      "container": "7070",
+      "protocol": "tcp",
+      "description": "HTTP port Prismarr listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "IANA timezone for the clock and date helpers, e.g. Europe/Paris. Falls back to UTC if unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PHP_MEMORY_LIMIT",
+      "key": "PHP_MEMORY_LIMIT",
+      "value": "1024M",
+      "description": "PHP memory ceiling per request. Bump (e.g. 2048M, or -1 for unlimited) for very large Radarr/Sonarr libraries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PHP_MAX_EXECUTION_TIME",
+      "key": "PHP_MAX_EXECUTION_TIME",
+      "value": "120",
+      "description": "PHP wall-time ceiling per request, in seconds. Bump alongside PHP_MEMORY_LIMIT if the films/series page times out.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "Set to your reverse-proxy network (Traefik, nginx, Caddy, Cloudflare Tunnel) so Symfony reads the right X-Forwarded-* headers. Leave empty otherwise.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,147 @@
+{
+  "name": "Enshrouded_Proton",
+  "repo": "nodiaque/steamcmd:enshrouded_proton",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/nodiaque/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:15637]",
+  "icon": "https://raw.githubusercontent.com/nodiaque/unraid_template/master/nodiaque/images/enshrouded.png",
+  "project": "https://github.com/nodiaque/docker-steamcmd-server/tree/enshrouded_proton",
+  "description": "This Docker will download and install SteamCMD. It will also install Enshrouded and run it using Proton. **Server Name:** Enshrouded Docker **Configuration:** Set the variable below accordingly and edit the config file. To edit the config file, start the docker at least once, stop it, edit enshrouded_server.json and then start back again. By default, there is 3 user group based on default config file with 3 different password. You can delete those you don't want. Variables from template will overwrite config file settings (server name, query port and slots) **WARNING:** IF YOU USED MY OTHER ENSHROUDED DOCKER IN WINE, DO NOT USE SAME SERVERFILES MOUNT! **ATTENTION:** First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. If upgrading from earlier version, just do the following in the Unraid template (keeping them have no effect but is useless): GAME_PORT WAS REMOVED FROM EARLIER CONFIG FILE. PRESENTLY, THE GAME COPY THAT VALUE OVER QUERY_PORT Update the following: QUERY_PORT => You're current GAME_PORT value (default 15637) UDP - Queryport => You're current GAME_PORT value (default 15637, don't forget to recreate the port forward to the new port) Remove the following: Variable: GAME_PORT Port Forwarding: UPD - GAME_PORT Variable: SERVER_PASSWORD Set your password in the config file (see above) You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/enshrouded_proton",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP - Queryport",
+      "host": "15637",
+      "container": "15637",
+      "protocol": "udp",
+      "description": "UDP Queryport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to click an 'Show more settings ...' and change the port number)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "2278520",
+      "description": "The GAME_ID that the container download at startup. If you want to install a static or beta version of the game change the value to: '2278520 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SERVER_NAME",
+      "key": "SERVER_NAME",
+      "value": "My Enshrouded Docker",
+      "description": "The server name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SERVER_SLOTS",
+      "key": "SERVER_SLOTS",
+      "value": "8",
+      "description": "The number of player slots",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QUERY_PORT",
+      "key": "QUERY_PORT",
+      "value": "15637",
+      "description": "The Query Port used by the server. Don't forget to delete and redo port forwarding for UDP - Queryport of you change",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game parameters",
+      "key": "GAME_PARAMS",
+      "value": "",
+      "description": "Enter your game parameters",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Backups",
+      "key": "BACKUP",
+      "value": "true",
+      "description": "Set this value to 'true' to enable the automated backup function from the container, you find the Backups in '/Backups/'. Set to 'false' to disable the backup function.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup Interval",
+      "key": "BACKUP_INTERVAL",
+      "value": "120",
+      "description": "The backup interval in minutes (ATTENTION: The first backup will be triggered after the set interval in this variable after the start/restart of the container)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups to Keep",
+      "key": "BACKUPS_TO_KEEP",
+      "value": "12",
+      "description": "Number of backups to keep (by default set to 12 to keep the backups of the last 24 hours)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

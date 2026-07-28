@@ -1,0 +1,89 @@
+{
+  "name": "Win98_inabox",
+  "repo": "spaceinvaderone/win98_inabox:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/SpaceinvaderOne/Win98_inabox",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://github.com/SpaceinvaderOne/unraid_vm_icons/raw/master/icons/Windows/Windows_98.png",
+  "project": null,
+  "description": "This container will install a fully updated Windows 98SE virtual machine (VM) into the VMs tab of your server. The container variables that you select will apply to the VM, and for most users, the default settings are sufficient and do not require modification. However, if you need to change the locations within the container, here is a brief explanation of what each location does. The \"VM Share on Server\" setting should be configured to reflect the location of your VM share. By default, the VM share on Unraid is located at /mnt/user/domains. The \"Name to call VM\" setting is straightforward. It allows you to choose a custom name for your vm. The default name is \"Windows 98\" but you have the option to change it to any desired name. Windows 98 type WIN98-KernelEX This allows Win98 to run some Win2000 and XP software WIN98-Normal Normal vanilla install After configuring the container variables as described above, the container will take care of the rest. It will create an XML file for the Win 98 virtual machine based on your selections and install the VM directly onto the server. Once the container has been run, you can go to the VMs tab and locate the installed VM. It is important to note that the container does not need to be kept running after installation. It is simply a tool for installation purposes and does not have a web user interface (UI). To monitor the container's progress, you can view the container log. ** This container cant translate the location of an unassigned disk across to the vm template. So all locations choosen must be on the array or pool device.",
+  "paths": [
+    {
+      "name": "VM Share on Server",
+      "host": "/mnt/cache/domains/",
+      "container": "/vm_location",
+      "mode": "rw",
+      "description": "This should be the share in which you store your VM images. Default is /mnt/user/domains",
+      "required": true
+    },
+    {
+      "name": "access libvirt daemon",
+      "host": "/var/run/libvirt",
+      "container": "/var/run/libvirt",
+      "mode": "rw",
+      "description": "to access the libvirt daemon running on the host",
+      "required": true
+    },
+    {
+      "name": "temp",
+      "host": "/tmp",
+      "container": "/tmp",
+      "mode": "rw",
+      "description": "only used for xml so vm can be defined",
+      "required": true
+    },
+    {
+      "name": "Location on Unraid which stores vm icons",
+      "host": "/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/",
+      "container": "/unraid_vm_icons",
+      "mode": "rw",
+      "description": "dont change",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Name to call VM",
+      "key": "vm_name",
+      "value": "Windows 98",
+      "description": "Your VM will be created with this name. Default is RetroNAS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Windows 98 type",
+      "key": "TYPE",
+      "value": "WIN98-KernelEX",
+      "description": "WIN98-KernelEX - Installs Windows 98 with Kernel Extensions and updates ......... WIN98-Normal - Installs Windows 98 Vanilla with updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "What to do if VM exists",
+      "key": "RUNTYPE",
+      "value": "Fix-xml",
+      "description": "Fix-xml -- fixes custom xml for vm ....... Backup-then-install -- Backs up vdisks and makes new vm",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Start VM after creation",
+      "key": "START_VM",
+      "value": "Yes",
+      "description": "Yes -- Starts the Windows98 VM after creation ....... No -- VM does not autostart",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

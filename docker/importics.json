@@ -1,0 +1,81 @@
+{
+  "name": "import_ics",
+  "repo": "vilhjalmr26/import_ics",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/vilhjalmr26/import_ics",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Vilhjalmr26/unraid_icons/main/calendar.png",
+  "project": "https://github.com/Vilhjalmr26/import_ics",
+  "description": "Runs a python script at a crontab defined interval that downloads/imports ics files into a caldav server. Environment Variables: ICS_USERNAME - Username for caldav server ICS_PASSWORD - Password for caldav server ICS_URL - URL to the caldav server CRONTAB_SCHEDULE - crontab time string, eg. \"0 0 * * *\" TZ - Timezone eg. \"America/Chicago\" creates a calendar_download_map.py file in the config path. The dictionary contained within uses calendar name as key, and URL to ics as value. Will download the ics file at the given URL and load its contents into the given calendar name, creating it if it doesnt exist. If ics file is not from a download, you can put the file in the /config/ical_export forlder with calendar_name.ics as the filename. Again, when run the script will import the ics file into calendar_name, creating it if it doesnt exist.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/import_ics",
+      "container": "/config",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ICS Export Folder",
+      "host": "/mnt/cache/appdata/import_ics/ical_export",
+      "container": "/import_ics/ical_export",
+      "mode": "rw",
+      "description": "Folder into which you can place ics files to be imported. And which downloaded ics files will be placed into. If unmapped, downloads will still work.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "ICS_USERNAME",
+      "key": "ICS_USERNAME",
+      "value": "",
+      "description": "Username for connecting to CalDAV server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ICS_PASSWORD",
+      "key": "ICS_PASSWORD",
+      "value": "",
+      "description": "Password for connecting to CalDAV server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ICS_URL",
+      "key": "ICS_URL",
+      "value": "",
+      "description": "URL to access the CalDAV Server eg. http://example.com/dav.php",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CRONTAB_SCHEDULE",
+      "key": "CRONTAB_SCHEDULE",
+      "value": "0 0 * * *",
+      "description": "Crontab schedule string for when script is desired to run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TimeZone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for docker to run in.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

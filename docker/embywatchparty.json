@@ -1,0 +1,139 @@
+{
+  "name": "emby-watchparty",
+  "repo": "ghcr.io/oratorian/emby-watchparty:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/oratorian/emby-watchparty",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/Oratorian/unraid-templates/refs/heads/main/emby-watchparty/emby-watchparty-icon.png",
+  "project": "https://github.com/Oratorian/emby-watchparty",
+  "description": "A synchronized watch party application for Emby media servers. Vue 3 SPA + FastAPI backend with per-user HLS transcodes, late-joiner voting, in-party admin panel, and drift correction. All streaming is proxied through the container so your Emby server can stay on your internal network. Only boot-essential values are set here; everything else (logging, security, rate limits, late-join vote, static session, force-transcode, etc.) is managed live via the /admin panel and persisted to config.json.",
+  "paths": [
+    {
+      "name": "Avatar Database",
+      "host": "/mnt/cache/appdata/emby-watchparty/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persists the avatars.db SQLite database. Without this mount, every container recreate wipes every member's chosen avatar.",
+      "required": true
+    },
+    {
+      "name": "Avatar Images",
+      "host": "/mnt/cache/appdata/emby-watchparty/avatars",
+      "container": "/app/images/avatars",
+      "mode": "rw",
+      "description": "Persists uploaded avatar image files. Paired with the Avatar Database mount above.",
+      "required": true
+    },
+    {
+      "name": "Admin Config (config.json)",
+      "host": "/mnt/cache/appdata/emby-watchparty/config.json",
+      "container": "/app/config.json",
+      "mode": "rw",
+      "description": "Persists the runtime admin config (edited via /admin) across container recreates. IMPORTANT: `touch config.json` on the host BEFORE the first start, otherwise Docker silently creates it as an empty DIRECTORY and the backend fails to write.",
+      "required": true
+    },
+    {
+      "name": "Logs (optional)",
+      "host": "/mnt/cache/appdata/emby-watchparty/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Optional: persist application logs to disk. Only writes when Log To File is enabled in the /admin panel (default: console-only).",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Host port for the emby-watchparty web interface. Must match WATCH_PARTY_PORT below.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Emby Server URL",
+      "key": "EMBY_SERVER_URL",
+      "value": "http://192.168.1.x:8096",
+      "description": "Full URL to your Emby server, e.g. http://192.168.1.100:8096. Reachable from inside this container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emby API Key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Admin Emby API key. Generate one in Emby Dashboard &gt; Advanced &gt; API Keys. Per-user credentials are NOT set here -- users log in from inside the party UI.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session Secret",
+      "key": "SESSION_SECRET",
+      "value": "change-me-openssl-rand-hex-32",
+      "description": "Signing key for the party-bound session cookie. Generate ONCE with `openssl rand -hex 32` and leave it -- must persist across restarts and across every uvicorn worker. If left at the default, an ephemeral key is generated at boot with a loud warning; fine for local dev, catastrophic in production (every restart kicks everyone out).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session Cookie Secure",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "When `true`, the session cookie carries the Secure flag so browsers only send it over HTTPS. Set `true` for every deployment behind TLS; leave `false` for local http://localhost dev (setting it true on an http origin locks users out).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind Address",
+      "key": "WATCH_PARTY_BIND",
+      "value": "0.0.0.0",
+      "description": "Interface the app listens on inside the container. 0.0.0.0 listens on all interfaces (typical for Docker); rarely needs changing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port",
+      "key": "WATCH_PARTY_PORT",
+      "value": "5000",
+      "description": "Port the app binds inside the container. Must match the container-side of the Web UI Port mapping above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Prefix",
+      "key": "APP_PREFIX",
+      "value": "",
+      "description": "URL prefix for reverse-proxy deployments behind a subpath (e.g. /watchparty). Leave empty for root-of-domain deployments. Backend routers, Socket.IO, /assets, and the SPA all honour the prefix at runtime -- no rebuild required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Allowed Origins",
+      "key": "CORS_ALLOWED_ORIGINS",
+      "value": "*",
+      "description": "Comma-separated origin allowlist for the Socket.IO server. `*` accepts XHR-poll handshakes from any origin -- convenient for testing but pair with per-IP throttling. Pin to your real origin(s) for a proper deployment, e.g. `https://watchparty.example.com,https://staging.example.com`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Expiry (seconds)",
+      "key": "SESSION_EXPIRY",
+      "value": "86400",
+      "description": "Session cookie lifetime in seconds. Default 86400 (24 hours).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

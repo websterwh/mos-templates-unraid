@@ -1,0 +1,189 @@
+{
+  "name": "nornicdb-hermes-memory-apple-silicon",
+  "repo": "timothyswt/nornicdb-arm64-metal-bge:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/u/timothyswt",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7474]",
+  "icon": "https://raw.githubusercontent.com/orneryd/NornicDB/main/macos/Assets/NornicDB.iconset/icon_1024x1024.png",
+  "project": "https://github.com/orneryd/NornicDB",
+  "description": "NornicDB is a Neo4j-compatible graph + vector + temporal database and the best long-term memory store for the Hermes agent. This Apple Silicon build (M1/M2/M3/M4) uses Metal GPU acceleration with bundled BGE-M3 embeddings to give the Hermes agent sub-millisecond HNSW vector search, native graph traversal, and hybrid (vector + BM25) retrieval in one engine. Through Bolt/Cypher and Qdrant-compatible gRPC, the Hermes agent can store, auto-link, and recall memories without a separate vector store. Managed embeddings, auto-relationships, MVCC temporal/as-of reads, and policy-based memory decay let the Hermes agent build a persistent, self-organizing knowledge graph on your Mac or ARM64 host \u2014 ideal Graph-RAG memory for the Hermes agent. Connection guide (Hermes / Python / Node.js): https://github.com/RapalS/Unraid_DOCKER_TEMPLATES/blob/main/docs/guides/nornicdb-connection.md",
+  "paths": [
+    {
+      "name": "Database data",
+      "host": "/mnt/cache/appdata/nornicdb/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent graph data (Container path: /data).",
+      "required": true
+    },
+    {
+      "name": "Export directory",
+      "host": "/mnt/cache/appdata/nornicdb/export",
+      "container": "/data/export",
+      "mode": "rw",
+      "description": "Optional import/export staging path.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Admin UI",
+      "host": "7474",
+      "container": "7474",
+      "protocol": "tcp",
+      "description": "HTTP API and web admin UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bolt Protocol",
+      "host": "7687",
+      "container": "7687",
+      "protocol": "tcp",
+      "description": "Bolt protocol for Neo4j-compatible drivers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Qdrant gRPC",
+      "host": "6334",
+      "container": "6334",
+      "protocol": "tcp",
+      "description": "Qdrant-compatible gRPC. Enable NORNICDB_QDRANT_GRPC_ENABLED.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Data directory env",
+      "key": "NORNICDB_DATA_DIR",
+      "value": "/data",
+      "description": "Must match mounted /data path inside container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP port env",
+      "key": "NORNICDB_HTTP_PORT",
+      "value": "7474",
+      "description": "HTTP port inside container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bolt port env",
+      "key": "NORNICDB_BOLT_PORT",
+      "value": "7687",
+      "description": "Bolt port inside container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable authentication",
+      "key": "NORNICDB_NO_AUTH",
+      "value": "true",
+      "description": "true = no auth (default). Set false before exposing to untrusted networks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Headless mode",
+      "key": "NORNICDB_HEADLESS",
+      "value": "false",
+      "description": "Disable web UI. Use with metal-headless branch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall AI assistant",
+      "key": "NORNICDB_HEIMDALL_ENABLED",
+      "value": "false",
+      "description": "Enable Bifrost AI chat. Set true on metal-heimdall branch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall provider",
+      "key": "NORNICDB_HEIMDALL_PROVIDER",
+      "value": "local",
+      "description": "local=GGUF in /app/models (Metal auto). ollama=Ollama. openai=OpenAI-compatible.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall API URL",
+      "key": "NORNICDB_HEIMDALL_API_URL",
+      "value": "",
+      "description": "Ollama: http://host:11434. OpenAI: https://api.openai.com. Empty = provider default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall API key",
+      "key": "NORNICDB_HEIMDALL_API_KEY",
+      "value": "",
+      "description": "Required when Heimdall provider=openai.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Heimdall model",
+      "key": "NORNICDB_HEIMDALL_MODEL",
+      "value": "qwen3-0.6b-instruct",
+      "description": "GGUF name (no .gguf), Ollama model, or OpenAI model. metal-heimdall image bundles default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall max tokens",
+      "key": "NORNICDB_HEIMDALL_MAX_TOKENS",
+      "value": "1024",
+      "description": "Max tokens per assistant response.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall temperature",
+      "key": "NORNICDB_HEIMDALL_TEMPERATURE",
+      "value": "0.5",
+      "description": "Creativity 0.0-1.0. Default 0.5 for Qwen3.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heimdall GPU layers",
+      "key": "NORNICDB_HEIMDALL_GPU_LAYERS",
+      "value": "-1",
+      "description": "Local provider only. -1=auto (Metal on Apple Silicon).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedding provider",
+      "key": "NORNICDB_EMBEDDING_PROVIDER",
+      "value": "local",
+      "description": "Embedding backend. local works with bge images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Qdrant gRPC enabled",
+      "key": "NORNICDB_QDRANT_GRPC_ENABLED",
+      "value": "false",
+      "description": "Expose Qdrant-compatible gRPC on port 6334.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

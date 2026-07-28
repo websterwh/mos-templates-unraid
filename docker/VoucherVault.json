@@ -1,0 +1,83 @@
+{
+  "name": "VoucherVault",
+  "repo": "l4rm4nd/vouchervault:1.30.x",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/l4rm4nd/vouchervault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/l4rm4nd/VoucherVault/main/myapp/static/assets/img/logo.svg",
+  "project": "https://github.com/l4rm4nd/VoucherVault",
+  "description": "Django web application to store and manage vouchers, coupons, loyalty and gift cards digitally. Supports expiry notifications, transaction histories, file uploads and OIDC SSO. Once the container is up and running, you can access the web portal at `http://YOUR-IP:8000`. The default username is admin. The default password is auto-generated and displayed in container logs. Installation Instructions: https://github.com/l4rm4nd/VoucherVault/wiki/01-%E2%80%90-Installation#Unraid-installation",
+  "paths": [
+    {
+      "name": "DOCKER BIND MOUNT DIR",
+      "host": "/mnt/cache/appdata/vouchervault/db",
+      "container": "/opt/app/database",
+      "mode": "rw",
+      "description": "Defines the Docker bind mount volume for persisted database data. Assign proper read+write permissions for the `www-data` user (UID: 33, GID: 33) or execute `chmod -R 777 /mnt/user/appdata/vouchervault/*` via Unraid terminal shell as root.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Defines the Docker port mapping.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DOMAIN",
+      "key": "DOMAIN",
+      "value": "",
+      "description": "Defines the FQDN or IP address on which you plan to access the VoucherVault container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECURE_COOKIES",
+      "key": "SECURE_COOKIES",
+      "value": "False",
+      "description": "Set to `True` if you use a reverse proxy with TLS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "EXPIRY_THRESHOLD_DAYS",
+      "key": "EXPIRY_THRESHOLD_DAYS",
+      "value": "90",
+      "description": "Send notifications xx days prior expiry",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "redis://redis-vouchervault:6379/0",
+      "description": "Defines the redis container name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Defines the timezone to use",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

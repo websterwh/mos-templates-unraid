@@ -1,0 +1,105 @@
+{
+  "name": "immich-machine-learning-openvino",
+  "repo": "ghcr.io/immich-app/immich-machine-learning:release-openvino",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/immich-app/immich/pkgs/container/immich-machine-learning",
+  "network": "immich_internal",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--device-cgroup-rule=c 189:* rmw",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/immich-ml-logo.png",
+  "project": "https://immich.app",
+  "description": "Immich Machine Learning service with Intel OpenVINO GPU acceleration. Uses Intel iGPU (UHD/Iris Graphics) for ML inference. Works with Intel N100, N150, NUC, and other chips with integrated graphics. Handles face recognition, CLIP-based image search, and OCR using GPU-accelerated inference. Must be on the same Docker network as the Immich server.",
+  "paths": [
+    {
+      "name": "Path: USB Bus",
+      "host": "/dev/bus/usb",
+      "container": "/dev/bus/usb",
+      "mode": "rw",
+      "description": "USB device bus. Required for Intel Neural Compute Stick or VPU devices. Can be removed if using only iGPU.",
+      "required": false
+    },
+    {
+      "name": "Path: Model Cache",
+      "host": "/mnt/cache/appdata/immich/model-cache/",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "ML model cache directory. Models are downloaded on first use (several GB).",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "--- System ---",
+      "key": "--- System ---",
+      "value": "",
+      "description": "General settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Advanced ---",
+      "key": "--- Advanced ---",
+      "value": "",
+      "description": "Advanced ML settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_MODEL_TTL",
+      "key": "MACHINE_LEARNING_MODEL_TTL",
+      "value": "300",
+      "description": "Seconds of inactivity before unloading models from memory. Set to 0 to keep loaded permanently.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_WORKERS",
+      "key": "MACHINE_LEARNING_WORKERS",
+      "value": "1",
+      "description": "Number of ML worker processes. For multi-GPU setups, increase workers and set MACHINE_LEARNING_DEVICE_IDS (e.g. 0,1) to distribute workers across GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_WORKER_TIMEOUT",
+      "key": "MACHINE_LEARNING_WORKER_TIMEOUT",
+      "value": "300",
+      "description": "Seconds before a worker is considered unresponsive. GPU inference can be slow on first run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMMICH_LOG_LEVEL",
+      "key": "IMMICH_LOG_LEVEL",
+      "value": "log",
+      "description": "Log verbosity: verbose, debug, log, warn, error",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Device: Intel iGPU",
+      "host": "/dev/dri",
+      "container": "/dev/dri",
+      "description": "Intel integrated GPU device. Required for OpenVINO acceleration.",
+      "required": true
+    }
+  ],
+  "labels": []
+}

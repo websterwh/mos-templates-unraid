@@ -1,0 +1,137 @@
+{
+  "name": "Unraid-Monitor-Bot",
+  "repo": "dervish/unraidmonitorbot:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/dervish/unraidmonitorbot",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/dervish666/UnraidMonitor/master/icon.png",
+  "project": "https://github.com/dervish666/UnraidMonitor",
+  "description": "Telegram bot for monitoring Docker containers and Unraid servers. Get real-time alerts, check container status, view logs, control containers, and monitor server health - all from Telegram. On first launch, an interactive setup wizard in Telegram guides you through connecting to your Unraid server and auto-classifies your containers into categories (priority, protected, watched, killable, ignored). Re-run anytime with /setup. Features: - Interactive setup wizard with container auto-classification - Container crash, health-check, and restart-loop alerts with one-tap action buttons - Container control from Telegram - start, stop, restart, and pull/update (with confirmation) - Auto-heal - opt-in automatic restart of containers that fail their healthcheck, with a storm guard - Image-update detection - opt-in daily digest of containers with newer images, each with a Pull button - Resource monitoring with per-container CPU/memory thresholds, adjustable straight from the alert - Log watching with error detection and smart, AI-generated ignore patterns - AI-powered diagnostics and container classification (Anthropic, OpenAI, or Ollama; switch at runtime with /model) - Unraid server monitoring (CPU, memory, temps, UPS, array, disks) - Natural language chat interface (\"what's wrong with plex?\", \"restart sonarr\") - Mute system to temporarily silence alerts per container, server, or array - Interactive /manage dashboard for status, resources, mutes, ignores, and feature toggles Setup requires a Telegram bot token from @BotFather and your Telegram user ID. After installing, message your bot with /start to begin the setup wizard.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket for container monitoring (read-only)",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/unraidmonitorbot/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Configuration files location",
+      "required": true
+    },
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/unraidmonitorbot/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database and persistent data location",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Bot token from @BotFather on Telegram",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Allowed Telegram Users",
+      "key": "TELEGRAM_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated list of Telegram user IDs allowed to use the bot (get yours from @userinfobot)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional: Enables AI features via Anthropic Claude models",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional: Enables AI features via OpenAI models",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama Host",
+      "key": "OLLAMA_HOST",
+      "value": "http://localhost:11434",
+      "description": "Optional: Ollama server URL for local LLM support",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Model",
+      "key": "DEFAULT_MODEL",
+      "value": "",
+      "description": "Optional: Override default AI model (e.g. qwen2.5:7b, gpt-4o)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Unraid API Key",
+      "key": "UNRAID_API_KEY",
+      "value": "",
+      "description": "Optional: Enables Unraid server monitoring (get from Unraid Connect plugin)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging verbosity (DEBUG, INFO, WARNING, ERROR)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership (99 = nobody on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership (100 = users on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Timezone for timestamps (e.g. America/New_York)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

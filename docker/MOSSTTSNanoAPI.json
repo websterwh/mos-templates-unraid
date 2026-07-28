@@ -1,0 +1,83 @@
+{
+  "name": "MOSS-TTS-Nano-API",
+  "repo": "ghcr.io/hsiang-han/moss-tts-nano-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --shm-size=2g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/docs",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/moss-tts-nano-api-icon.png",
+  "project": "https://github.com/hsiang-han/MOSS-TTS-Nano-API",
+  "description": "OpenAI-compatible TTS API powered by MOSS-TTS-Nano (100M params, Fudan OpenMOSS). 20 languages, 48kHz stereo, voice cloning, CPU-capable. Ultra-lightweight \u2014 can run alongside other GPU services without conflict. First start downloads model from HuggingFace. China users: set HF_ENDPOINT to https://hf-mirror.com for faster downloads. Works with or without GPU.",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/moss-tts-nano-api/models",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Model download cache. Persists across container recreates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible TTS API port. Swagger docs at /docs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Device",
+      "key": "DEVICE",
+      "value": "auto",
+      "description": "Compute device: auto (GPU if available, else CPU), cuda:0, or cpu.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Voice",
+      "key": "DEFAULT_VOICE",
+      "value": "zh_1",
+      "description": "Default voice preset when none specified. Options: zh_1-zh_6, en_1-en_5, jp_1-jp_5, etc.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HuggingFace Endpoint",
+      "key": "HF_ENDPOINT",
+      "value": "https://huggingface.co",
+      "description": "HuggingFace download endpoint. China users: change to https://hf-mirror.com for faster downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU selection (all, 0, 1, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA driver capabilities",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

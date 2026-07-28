@@ -1,0 +1,83 @@
+{
+  "name": "databasement",
+  "repo": "davidcrty/databasement:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/davidcrty/databasement",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2226]",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/databasement-logo.png",
+  "project": "https://github.com/David-Crty/databasement",
+  "description": "Databasement is a web application for managing database server backups. It allows you to register database servers (MySQL, PostgreSQL, MariaDB), test connections, schedule automated backups, and restore snapshots to any registered server. The APP_KEY is required for encryption. Generate one with: docker run --rm davidcrty/databasement:latest php artisan key:generate --show Copy the output (e.g., base64:xxxx...) and set it as APP_KEY.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/databasement/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEBUI",
+      "host": "2226",
+      "container": "2226",
+      "protocol": "tcp",
+      "description": "Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "application key",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "# Generate an application key docker run --rm davidcrty/databasement:latest php artisan key:generate --show",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_CONNECTION",
+      "key": "DB_CONNECTION",
+      "value": "sqlite",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database File location",
+      "key": "DB_DATABASE",
+      "value": "/data/database.sqlite",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_QUEUE_WORKER",
+      "key": "ENABLE_QUEUE_WORKER",
+      "value": "True",
+      "description": "The ENABLE_QUEUE_WORKER=true environment variable enables the background queue worker inside the container. This is required for processing backup and restore jobs. When using Docker Compose, the worker runs as a separate service instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "*",
+      "description": "127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,::1') - This covers all RFC 1918 private ranges * - Trust all proxies (suitable for Kubernetes/Docker where proxy IPs are dynamic) Comma-separated IPs: 10.0.0.1,192.168.1.0/24 - Trust specific proxies Empty - Trust no proxies",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

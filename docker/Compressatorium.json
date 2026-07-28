@@ -1,0 +1,75 @@
+{
+  "name": "Compressatorium",
+  "repo": "pacnpal/compressatorium:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/pacnpal/compressatorium",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add SYS_NICE",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://github.com/pacnpal/compressatorium/blob/latest/static/images/logo.png?raw=true",
+  "project": "https://github.com/pacnpal/compressatorium",
+  "description": "Compressatorium is a multi-tool game disc image converter with a web UI. Supports CHDMAN (CD/DVD/LaserDisc to CHD), Dolphin-tool (GameCube/Wii ISO/GCZ/WIA/RVZ/WBFS), and z3ds_compressor (3DS ROM compression). Features batch conversion with progress tracking, nested directory scanning, compressed archive support (ZIP, 7z, RAR), smart duplicate handling, verification, and a REST API. Mount multiple volumes under /data/ to organize different game libraries (e.g. /data/library1, /data/library2).",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/compressatorium",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent application data (verified files DB, metadata cache)",
+      "required": true
+    },
+    {
+      "name": "Games",
+      "host": "",
+      "container": "/data/games",
+      "mode": "rw",
+      "description": "Primary game library. Add additional volumes under /data/ for separate libraries. All directories under /data in the container will be automatically mounted, and you can browse and use subdirectories.",
+      "required": true
+    },
+    {
+      "name": "More Games",
+      "host": "",
+      "container": "/data/games2",
+      "mode": "rw",
+      "description": "Optional: Additional game library",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8090",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Log Level",
+      "key": "LOGLEVEL",
+      "value": "INFO",
+      "description": "Logs to be shown in the docker logs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Maximum Concurrent Jobs",
+      "key": "MAX_CONCURRENT_JOBS",
+      "value": "1",
+      "description": "Number of parallel conversion jobs",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

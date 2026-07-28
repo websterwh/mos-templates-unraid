@@ -1,0 +1,131 @@
+{
+  "name": "factorio-stack-manager",
+  "repo": "brennanwoodbury/factorio-stack-manager:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/brennanwoodbury/factorio-stack-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/BrennanWoodbury/factorio-stack-manager/main/icon.png",
+  "project": "https://github.com/BrennanWoodbury/factorio-stack-manager",
+  "description": "Run and manage **many Factorio dedicated servers** from one web UI. This container is the manager only. It creates each Factorio server as its own sibling container through the Docker socket, so servers keep running across a manager update and are managed entirely from the UI: create, start/stop, live RCON console and container logs, saves and backups, mods and shared modpacks, map-generation settings with per-planet previews, whitelists, and per-server Factorio version. Optionally, each server can be reachable at its own subdomain with no port number to type (for example factory1.yourdomain.com), using Cloudflare DNS SRV records plus a built-in DDNS job. That is configured in the UI, not here, and the app works fine without it. Before you start [ol] [li]Pick a contiguous UDP port range for your games (default 34197-34297) and forward it on your router to this server, using the SAME external and internal ports. The manager only ever hands out ports from that range, so every server it creates is reachable.[/li] [li]Set ADMIN_PASSWORD below. It is the only required setting.[/li] [/ol] Notes [li]The manager runs in privileged mode and controls the host Docker daemon through the Docker socket. This is required to create and manage sibling Factorio containers. Treat access to its web UI as equivalent to host administrator access, and do not expose it directly to the internet.[/li] [li]Game ports are published by the individual server containers, not by this one, so there are no game ports to map here.[/li] [li]The Factorio servers it creates appear in the Docker tab without their own templates. That is expected \u2014 manage them from this app's UI.[/li] [li]RCON is never exposed off the host and never appears in DNS.[/li] [li]The Space Age mods ship with the game and require the DLC; they are enabled, never downloaded.[/li]",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/factorio-stack-manager",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Everything persistent lives here: the manager database and each server's saves, mods and config. The manager detects the host path behind this mount automatically, so the Factorio containers it creates bind-mount the right directory.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required with privileged mode. The manager creates each Factorio server as a sibling container through this socket. Treat access to the web UI as equivalent to host administrator access.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the web UI. Put a TLS reverse proxy in front if you expose it beyond your LAN.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required. The password for the web UI login.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Game Port Range",
+      "key": "GAME_PORT_RANGE",
+      "value": "34197-34297",
+      "description": "The contiguous UDP range you forwarded on your router. Servers are only ever given ports from inside it, so this must match your port forward.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON Port Range",
+      "key": "RCON_PORT_RANGE",
+      "value": "27015-27115",
+      "description": "TCP range for server admin (RCON). Published on host loopback only \u2014 never forward this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Data Dir",
+      "key": "DATA_DIR",
+      "value": "/data",
+      "description": "Where the data lives inside the container. Must match the container side of the Appdata mount above \u2014 change both or neither.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Signs the login session cookie. Leave blank to derive one, or set your own (openssl rand -hex 32). Changing it logs everyone out.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Factorio Image",
+      "key": "FACTORIO_IMAGE",
+      "value": "factoriotools/factorio:stable",
+      "description": "Base image for the game servers. Each server picks its own tag (stable / latest / a specific version) in the UI; this sets the repository.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the Factorio containers run as, which owns the files under appdata. 845 matches the Factorio image default; set 99 for the usual Unraid 'nobody'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the Factorio containers run as. 845 matches the Factorio image default; set 100 for the usual Unraid 'users'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resume Servers On Startup",
+      "key": "RESUME_SERVERS_ON_STARTUP",
+      "value": "true",
+      "description": "Restart the servers that were running when the manager last stopped.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Servers On Shutdown",
+      "key": "STOP_SERVERS_ON_SHUTDOWN",
+      "value": "false",
+      "description": "Stop every Factorio server when the manager stops. Off by default so games survive a manager update.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

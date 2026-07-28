@@ -1,0 +1,175 @@
+{
+  "name": "pihole",
+  "repo": "pihole/pihole:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/pihole/pihole/",
+  "network": "Bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped  --cap-add=NET_ADMIN --hostname=pihole",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/admin",
+  "icon": "https://raw.githubusercontent.com/nodiaque/unraid_template/master/nodiaque/images/pihole.png",
+  "project": null,
+  "description": "Pi-Hole - let's block those pesky ads! This is a template for the official PiHole Docker Easiest way to setup is using a custom network for eth, select it in network and enter custom IP on your network. You can also use bridge mode. You cannot use host mode since Unraid is already listening on the DNS ports. Don't forget to change the fixed ip address in the template for your ip and the ServerIP environment variable. Also, if you set you router to give out the PiHole address to clients, make sure that you fix the Unraid servers dns to point to a real DNS Server. Please check https://hub.docker.com/r/pihole/pihole for additional variables that you may need.",
+  "paths": [
+    {
+      "name": "Host Pihole directory",
+      "host": "/mnt/cache/appdata/pihole/pihole/",
+      "container": "/etc/pihole/",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Host dnsmasq directory",
+      "host": "/mnt/cache/appdata/pihole/dnsmasq.d/",
+      "container": "/etc/dnsmasq.d/",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "TCP DNS Port",
+      "host": "53",
+      "container": "53",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP DNS Port",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Required Port",
+      "host": "67",
+      "container": "67",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/Montreal",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBPASSWORD",
+      "key": "WEBPASSWORD",
+      "value": "4tVBg53qM0sxL5IVT4RI",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "INTERFACE",
+      "key": "INTERFACE",
+      "value": "eth0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ServerIP",
+      "key": "ServerIP",
+      "value": "192.168.1.24",
+      "description": "Set to your Pihole containers LAN IP, used by web block modes and lighttpd bind address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ServerIPv6",
+      "key": "ServerIPv6",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IPv6",
+      "key": "IPv6",
+      "value": "false",
+      "description": "For unraid compatibility, strips out all the IPv6 configuration from DNS/Web services when false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNSMASQ_LISTENING",
+      "key": "DNSMASQ_LISTENING",
+      "value": "all",
+      "description": "local listens on all local subnets, all permits listening on internet origin subnets in addition to local, single listens only on the interface specified.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBUI BOXED LAYOUT",
+      "key": "WEBUIBOXEDLAYOUT",
+      "value": "boxed",
+      "description": "Use boxed layout (helpful when working on large screens)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PIHOLE_UID",
+      "key": "PIHOLE_UID",
+      "value": "99",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PIHOLE_GID",
+      "key": "PIHOLE_GID",
+      "value": "100",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

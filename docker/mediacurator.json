@@ -1,0 +1,59 @@
+{
+  "name": "media-curator",
+  "repo": "ghcr.io/asherflynt/media-curator:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/asherflynt/media-curator/pkgs/container/media-curator",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8420]/",
+  "icon": "https://raw.githubusercontent.com/asherflynt/media-curator/main/icon.png",
+  "project": "https://github.com/asherflynt/media-curator",
+  "description": "media-curator audits your Radarr/Sonarr library for files whose size contradicts the quality they claim to be, and reclaims disk space by demoting over-quality files (e.g. 4K remuxes to 4K WEB-DL) using Radarr's native download-verify-replace path \u2014 it NEVER re-encodes. Free space is read from the filesystem (statvfs), not Radarr's per-share numbers, so it works correctly on Unraid/ZFS. Configure Radarr and Sonarr in the WebUI (Connections) \u2014 no environment variables or config files needed. Set a free-space target and the loop holds it. Rule-based profile assignment (by genre, collection, or tag) keeps groups like kids movies on the right archive profile automatically. Protect anything with a blocklist and a keep-tag. Starts in dry-run. IMPORTANT: mount your media share READ-ONLY at /media, pointed at the real dataset/share that holds your movies, so free space and orphan detection are accurate. media-curator never writes to it \u2014 Radarr performs the file operations.",
+  "paths": [
+    {
+      "name": "Appdata (config + database)",
+      "host": "/mnt/cache/appdata/media-curator",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where media-curator stores its SQLite database, settings, and action history.",
+      "required": true
+    },
+    {
+      "name": "Media (read-only)",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Your media share, mounted READ-ONLY. media-curator reads true free space (statvfs) and detects orphan folders here; it never writes. Point this at the real dataset/share that holds your movies (e.g. /mnt/cluster/Media on a ZFS pool) for accurate free-space readings.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8420",
+      "container": "8420",
+      "protocol": "tcp",
+      "description": "Web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone (affects scheduled run times shown in the UI).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

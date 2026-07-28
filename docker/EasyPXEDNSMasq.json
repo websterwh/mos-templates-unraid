@@ -1,0 +1,65 @@
+{
+  "name": "EasyPXE-DNSMasq",
+  "repo": "4km3/dnsmasq:2.90-r3",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/4km3/dnsmasq",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --entrypoint=/bin/sh",
+  "post_parameters": "-c sed -e s|__UNRAID_IP__|${UNRAID_IP}|g -e s|__SUBNET__|${SUBNET}|g -e s|__HTTP_PORT__|${HTTP_PORT}|g /etc/dnsmasq.conf.template &gt; /etc/dnsmasq.conf && exec dnsmasq -k --conf-file=/etc/dnsmasq.conf --log-facility=-",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/OKiU-Network-Europe/EasyPXE-Unraid/main/icon.png",
+  "project": "https://github.com/OKiU-Network-Europe/EasyPXE-Unraid",
+  "description": "EasyPXE DNSMasq provides proxyDHCP and TFTP services for the EasyPXE network boot stack. It works alongside your existing router DHCP server and supplies PXE boot information to Legacy BIOS and UEFI clients. This container requires host networking because it must receive DHCP broadcasts and provide TFTP and proxyDHCP services.",
+  "paths": [
+    {
+      "name": "DNSMasq Configuration Template",
+      "host": "/mnt/cache/appdata/easypxe/dnsmasq/dnsmasq.conf.template",
+      "container": "/etc/dnsmasq.conf.template",
+      "mode": "ro",
+      "description": "Path to the EasyPXE dnsmasq configuration template.",
+      "required": true
+    },
+    {
+      "name": "TFTP Boot Files",
+      "host": "/mnt/cache/appdata/easypxe/tftp",
+      "container": "/tftpboot",
+      "mode": "ro",
+      "description": "Directory containing the Legacy BIOS and UEFI iPXE bootloader files.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Unraid IP",
+      "key": "UNRAID_IP",
+      "value": "192.168.1.10",
+      "description": "Static LAN IP address of the Unraid server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LAN Subnet",
+      "key": "SUBNET",
+      "value": "192.168.1.0",
+      "description": "LAN network address used by proxyDHCP. Enter the network address, not a DHCP range.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "key": "HTTP_PORT",
+      "value": "8080",
+      "description": "HTTP port used by the EasyPXE Nginx container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

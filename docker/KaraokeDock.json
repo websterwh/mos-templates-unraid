@@ -1,0 +1,139 @@
+{
+  "name": "KaraokeDock",
+  "repo": "haggardj2/karaokedock:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/haggardj2/karaokedock",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5173]",
+  "icon": "https://raw.githubusercontent.com/haggardj2/KaraokeDock/refs/heads/main/docs/images/icon.png",
+  "project": "https://github.com/haggardj2/docker-karaoke",
+  "description": "A modern, full-featured web-based karaoke system with support for multiple media formats, real-time queue management, and external karaoke integration. Requires a PostgreSQL database. See the Unraid README: https://github.com/haggardj2/KaraokeDock/blob/main/docs/Unraid_readme.md",
+  "paths": [
+    {
+      "name": "Karaoke Tracks",
+      "host": "/mnt/cache/karaoke/Karaoke Tracks",
+      "container": "/media/karaoke",
+      "mode": "ro",
+      "description": "Path to your karaoke tracks. Mounted read-only.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/karaoke/downloads",
+      "container": "/media/downloads",
+      "mode": "rw",
+      "description": "Path for downloaded/imported tracks.",
+      "required": true
+    },
+    {
+      "name": "Break Music",
+      "host": "/mnt/cache/karaoke/Break Music",
+      "container": "/media/breakmusic",
+      "mode": "ro",
+      "description": "Path to break music. Mounted read-only.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5173",
+      "container": "5173",
+      "protocol": "tcp",
+      "description": "Host port for the KaraokeDock web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Host",
+      "key": "DB_HOST",
+      "value": "postgresql_alpine",
+      "description": "PostgreSQL hostname or container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port. Use 5432 for the shared Postgres container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Name",
+      "key": "DB_NAME",
+      "value": "karaoke",
+      "description": "PostgreSQL database name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database User",
+      "key": "DB_USER",
+      "value": "karaoke",
+      "description": "PostgreSQL database username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL database password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web App URL",
+      "key": "WEB_APP_URL",
+      "value": "http://localhost:5173",
+      "description": "Public URL for the app, such as http://192.168.100.63:5173 or https://karaoke.example.com.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed Origins",
+      "key": "ORIGIN",
+      "value": "http://localhost:5173,http://127.0.0.1:5173",
+      "description": "Comma-separated CORS/WebSocket origins. Include your LAN URL and reverse proxy URL if used.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host Key 8",
+      "key": "MEDIA_PROBE_CONCURRENCY",
+      "value": "",
+      "description": "Use this rule of thumb: **4-core CPU:** 8 to 12, **6-core CPU:** 12 to 16, **8+ cores:** 16 to 24. If your server is otherwise idle and the media lives on fast storage, 20` or 24` is reasonable. If you notice high CPU, disk thrash, or sluggishness during scans, back it down. If you **don\u2019t set it at all**, the app now auto-picks a value based on CPU count, capped between **10** and **24**.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Root",
+      "key": "MEDIA_ROOT",
+      "value": "/media",
+      "description": "Root media path inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "1",
+      "description": "Set to 1 when running behind a reverse proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

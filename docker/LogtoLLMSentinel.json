@@ -1,0 +1,92 @@
+{
+  "name": "Log-to-LLM-Sentinel",
+  "repo": "aschefr/log-to-llm-sentinel:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/aschefr/log-to-llm-sentinel",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:10911]/",
+  "icon": "https://raw.githubusercontent.com/Aschefr/log-to-llm-sentinel/main/static/logo.png",
+  "project": "https://github.com/aschefr/log-to-llm-sentinel",
+  "description": "\ud83c\uddec\ud83c\udde7 English Log-to-LLM Sentinel is an AI-powered log monitoring and analysis tool. It watches your logs and automatically uses local AI (Ollama) to detect, analyze, and alert you of anomalies in real-time. Custom Log Volumes: If you want Sentinel to monitor specific logs not located in /var/log or /var/lib/docker, add a new Path in this template. Map your host directory to a container path (e.g. /custom-logs), and then add that path to the SENTINEL_BROWSE_ROOTS variable separated by a comma. \ud83c\uddeb\ud83c\uddf7 Fran\u00e7ais Log-to-LLM Sentinel est un outil de surveillance et d'analyse de journaux (logs) propuls\u00e9 par l'IA. Il surveille vos logs et utilise automatiquement une IA locale (Ollama) pour d\u00e9tecter, analyser et vous alerter des anomalies en temps r\u00e9el. Volumes de logs personnalis\u00e9s : Si vous souhaitez surveiller des logs sp\u00e9cifiques qui ne sont pas dans /var/log ou /var/lib/docker, ajoutez un nouveau \"Path\" dans ce template pointant vers votre dossier h\u00f4te, puis ajoutez ce chemin conteneur \u00e0 la variable SENTINEL_BROWSE_ROOTS (s\u00e9par\u00e9 par une virgule). \u26a0\ufe0f DISCLAIMER: This application is provided \"as-is\". It is a personal project in active development and \"100% vibe coded\" for my own needs. Use at your own risk. / Cette application est fournie \"telle quelle\". C'est un projet personnel en d\u00e9veloppement actif, \"100% vibe coded\" pour mes propres besoins. \u00c0 utiliser \u00e0 vos risques et p\u00e9rils.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/log-to-llm-sentinel/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database and application settings",
+      "required": true
+    },
+    {
+      "name": "Shared Logs",
+      "host": "/mnt/cache/appdata/log-to-llm-sentinel/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Shared logs folder for temp files",
+      "required": true
+    },
+    {
+      "name": "Docker Logs",
+      "host": "/var/lib/docker/containers",
+      "container": "/docker-logs",
+      "mode": "ro",
+      "description": "Read-only access to Unraid Docker logs",
+      "required": true
+    },
+    {
+      "name": "System Logs",
+      "host": "/var/log",
+      "container": "/system-logs",
+      "mode": "ro",
+      "description": "Read-only access to Unraid system logs",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "10911",
+      "container": "10911",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Syslog Port",
+      "host": "10514",
+      "container": "514",
+      "protocol": "udp",
+      "description": "UDP Syslog receiver port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Browse Roots",
+      "key": "SENTINEL_BROWSE_ROOTS",
+      "value": "/logs,/app/data,/docker-logs,/system-logs",
+      "description": "Directories the UI file browser is allowed to explore",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host IP",
+      "key": "SENTINEL_HOST_IP",
+      "value": "",
+      "description": "Host IP for the Syslog relay / UI display (optional)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,147 @@
+{
+  "name": "torbox-client",
+  "repo": "ghcr.io/devblaze/torbox-client:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/devblaze/torbox-client/pkgs/container/torbox-client",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/devblaze/torbox-client/main/icons/torbox-client.png",
+  "project": "https://github.com/devblaze/torbox-client",
+  "description": "Use TorBox as a download client for Sonarr and Radarr. Emulates qBittorrent: your *arr apps send releases here, this container downloads them via TorBox and pulls the finished files to your downloads share so Sonarr/Radarr import them normally. Works like rdt-client but for TorBox.",
+  "paths": [
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/data/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "MUST be the same downloads share (at the same path) that Sonarr/Radarr use, so imports work.",
+      "required": true
+    },
+    {
+      "name": "Appdata (state)",
+      "host": "/mnt/cache/appdata/torbox-client",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent SQLite state.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port Sonarr/Radarr connect to (the emulated qBittorrent API).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TORBOX_API_KEY",
+      "key": "TORBOX_API_KEY",
+      "value": "",
+      "description": "Your TorBox API key from https://torbox.app/settings",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "QBIT_USER",
+      "key": "QBIT_USER",
+      "value": "admin",
+      "description": "Username you enter in Sonarr/Radarr.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QBIT_PASS",
+      "key": "QBIT_PASS",
+      "value": "adminadmin",
+      "description": "Password you enter in Sonarr/Radarr.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership (Unraid default: 99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership (Unraid default: 100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Umask for created files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SAVE_PATH",
+      "key": "SAVE_PATH",
+      "value": "",
+      "description": "Only set this if Sonarr/Radarr see the downloads at a DIFFERENT internal path than this container (e.g. /data/downloads). Otherwise leave blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POLL_INTERVAL",
+      "key": "POLL_INTERVAL",
+      "value": "15",
+      "description": "Seconds between TorBox status polls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_PARALLEL_DOWNLOADS",
+      "key": "MAX_PARALLEL_DOWNLOADS",
+      "value": "4",
+      "description": "Concurrent file downloads from the TorBox CDN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_PARALLEL_TORRENTS",
+      "key": "MAX_PARALLEL_TORRENTS",
+      "value": "2",
+      "description": "Torrents pulled locally at the same time (0 = unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_DOWNLOAD_SPEED",
+      "key": "MAX_DOWNLOAD_SPEED",
+      "value": "0",
+      "description": "Aggregate download speed cap in MiB/s across all files (0 = unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TORBOX_CLEANUP_HOURS",
+      "key": "TORBOX_CLEANUP_HOURS",
+      "value": "24",
+      "description": "Delete the TorBox cloud copy this long after the local download completes (0 = never). Frees your TorBox active-torrent slots; local files are kept.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

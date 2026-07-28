@@ -1,0 +1,115 @@
+{
+  "name": "poptonium",
+  "repo": "ghcr.io/benjafin/poptonium:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/benjafin/poptonium",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8085]/admin",
+  "icon": "https://raw.githubusercontent.com/Benjafin/poptonium-server/main/icon.png",
+  "project": "https://github.com/Benjafin/poptonium-server",
+  "description": "Companion backend for the Poptonium Plex client. Allows serving custom sections, curations and ratings, integrates with Overseerr and facilitates other extra functionalities on top of Plex.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/poptonium",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data: SQLite cache DB and custom sections.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / API Port",
+      "host": "8085",
+      "container": "8085",
+      "protocol": "tcp",
+      "description": "Container port for the web admin UI and API. Keep the host port at 8085: the app falls back to the Plex host on a hardcoded 8085 when no reverse proxy is in front of it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PLEX_URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "REQUIRED. Internal Plex URL (e.g. http://plex:32400).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "REQUIRED. Plex server token (X-Plex-Token).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MDBLIST_API_KEY",
+      "key": "MDBLIST_API_KEY",
+      "value": "",
+      "description": "Optional. mdblist.com API key: the source for all ratings (IMDb/RT/TMDB/Metacritic/MDbList) plus the Discover feed. Blank disables ratings and the popular feed; the rest still works.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OVERSEERR_URL",
+      "key": "OVERSEERR_URL",
+      "value": "",
+      "description": "Optional. Overseerr base URL (e.g. http://overseerr:5055) for request/search proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OVERSEERR_API_KEY",
+      "key": "OVERSEERR_API_KEY",
+      "value": "",
+      "description": "Optional. Overseerr API key. Blank disables the Overseerr proxy.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENSUBTITLES_API_KEY",
+      "key": "OPENSUBTITLES_API_KEY",
+      "value": "",
+      "description": "Optional. OpenSubtitles app API key (opensubtitles.com, Profile, API Consumers). Required for online subtitle search/download.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENSUBTITLES_USERNAME",
+      "key": "OPENSUBTITLES_USERNAME",
+      "value": "",
+      "description": "Optional. OpenSubtitles account username; its daily download quota (20/day free) is used for downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENSUBTITLES_PASSWORD",
+      "key": "OPENSUBTITLES_PASSWORD",
+      "value": "",
+      "description": "Optional. OpenSubtitles account password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "",
+      "description": "Optional. Container timezone (e.g. Europe/Berlin). Sets the 'server time' used by the nightly ratings-sync schedule.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

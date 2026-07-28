@@ -1,0 +1,187 @@
+{
+  "name": "ralph",
+  "repo": "snarktank/ralph:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://antigravity.google/favicon.ico",
+  "project": "https://github.com/snarktank/ralph",
+  "description": "Ralph is an autonomous AI agent loop that runs AI coding tools (Amp, Claude Code, Antigravity, etc.) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. You can configure which agents are executed by setting the AGENT_ACCOUNTS variable and adding multiple API keys for rotation when limits are reached.",
+  "paths": [
+    {
+      "name": "Project Path",
+      "host": "/mnt/cache/appdata/ralph/project",
+      "container": "/workspace/project",
+      "mode": "rw",
+      "description": "Path to your project codebase directory (source code, tests, etc.) on Unraid",
+      "required": true
+    },
+    {
+      "name": "PRD File",
+      "host": "",
+      "container": "/workspace/project/prd.json",
+      "mode": "rw",
+      "description": "Select the specific prd.json file on your host system to be mounted for this run (like selecting an ISO for a VM)",
+      "required": true
+    },
+    {
+      "name": "Amp Config Path",
+      "host": "/mnt/cache/appdata/ralph/amp-config",
+      "container": "/root/.config/amp",
+      "mode": "rw",
+      "description": "Persistence folder for Amp credentials and settings",
+      "required": false
+    },
+    {
+      "name": "Claude Config Path",
+      "host": "/mnt/cache/appdata/ralph/claude-config",
+      "container": "/root/.claude",
+      "mode": "rw",
+      "description": "Persistence folder for Claude Code credentials",
+      "required": false
+    },
+    {
+      "name": "Antigravity Config Path",
+      "host": "/mnt/cache/appdata/ralph/agy-config",
+      "container": "/root/.config/agy",
+      "mode": "rw",
+      "description": "Persistence folder for agy credentials",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port to map for the Ralph Dashboard Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Active Accounts List",
+      "key": "AGENT_ACCOUNTS",
+      "value": "claude-1,antigravity-1",
+      "description": "Comma-separated list of accounts to use and rotate (e.g. claude-1,antigravity-1,claude-2)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Iterations",
+      "key": "MAX_ITERATIONS",
+      "value": "10",
+      "description": "Maximum loop iterations to run before stopping if stories aren't completed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key 1",
+      "key": "ANTHROPIC_API_KEY_1",
+      "value": "",
+      "description": "Anthropic API Key for claude-1 account",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key 2",
+      "key": "ANTHROPIC_API_KEY_2",
+      "value": "",
+      "description": "Anthropic API Key for claude-2 account",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google API Key 1",
+      "key": "GOOGLE_API_KEY_1",
+      "value": "",
+      "description": "Google API Key for antigravity-1 account",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google API Key 2",
+      "key": "GOOGLE_API_KEY_2",
+      "value": "",
+      "description": "Google API Key for antigravity-2 account",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Antigravity API Key 1",
+      "key": "ANTIGRAVITY_API_KEY_1",
+      "value": "",
+      "description": "Alternative key for antigravity-1 (leave blank if GOOGLE_API_KEY_1 is set)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Antigravity API Key 2",
+      "key": "ANTIGRAVITY_API_KEY_2",
+      "value": "",
+      "description": "Alternative key for antigravity-2 (leave blank if GOOGLE_API_KEY_2 is set)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default AI Agent Tool",
+      "key": "AGENT_TOOL",
+      "value": "amp",
+      "description": "Fallback default agent tool if AGENT_ACCOUNTS is empty (amp or claude)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Anthropic Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Fallback default Anthropic Key if AGENT_ACCOUNTS is empty",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default Google Key",
+      "key": "GOOGLE_API_KEY",
+      "value": "",
+      "description": "Fallback default Google Key if AGENT_ACCOUNTS is empty",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Additional Arguments",
+      "key": "RALPH_ARGS",
+      "value": "",
+      "description": "Any additional command-line parameters to pass to ralph.sh (e.g. --input-method file)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep Container Alive",
+      "key": "KEEP_ALIVE",
+      "value": "false",
+      "description": "Set to true to keep the container running after ralph completes, allowing shell inspection",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

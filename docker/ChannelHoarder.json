@@ -1,0 +1,123 @@
+{
+  "name": "ChannelHoarder",
+  "repo": "ghcr.io/sworcery/channelhoarder:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/sworcery/ChannelHoarder/pkgs/container/channelhoarder",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/sworcery/ChannelHoarder/main/frontend/public/logo.png",
+  "project": "https://github.com/sworcery/ChannelHoarder",
+  "description": "ChannelHoarder is a self-hosted video channel archiver with a modern web UI. Monitor and automatically download videos from YouTube, Rumble, Twitch, Dailymotion, Vimeo, and Odysee. Videos are saved in Plex-compatible TV Show format (Channel / Season Year / S01E01 - Title). Features a built-in PO token server so no YouTube account or cookies are required. Includes real-time download progress, per-channel quality settings, Shorts filtering, Telegram/Pushover notifications, and import support for existing video libraries.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/channelhoarder",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Configuration, database, and settings storage",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/data/media/youtube",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Video download directory. Point your Plex TV Shows library here.",
+      "required": true
+    },
+    {
+      "name": "Cookies Watch Dir",
+      "host": "/mnt/cache/appdata/channelhoarder/cookies",
+      "container": "/cookies",
+      "mode": "rw",
+      "description": "Optional: drop an updated cookies.txt here and it will be picked up automatically",
+      "required": false
+    },
+    {
+      "name": "Extra Media Path",
+      "host": "",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Optional: additional host path for per-channel custom download directories outside /downloads. To download here you must also list the container path (/media) in the 'Extra Download Dirs' variable below.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8587",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Web interface port. Access the UI at http://your-server-ip:8587",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Extra Download Dirs",
+      "key": "EXTRA_DOWNLOAD_DIRS",
+      "value": "/media",
+      "description": "Comma-separated container paths (besides /downloads) that channels are allowed to download into. Each must match the container-side target of an extra path you mapped above - e.g. /media for the Extra Media Path, or add your own like /media,/playlists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions. Use 99 for nobody on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions. Use 100 for users on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone (e.g. America/New_York, America/Chicago, Europe/London)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging level (debug, info, warning, error)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YouTube API Key",
+      "key": "YOUTUBE_API_KEY",
+      "value": "",
+      "description": "Optional: YouTube Data API v3 key for faster and more reliable channel discovery",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PO Token Server",
+      "key": "POT_SERVER_ENABLED",
+      "value": "true",
+      "description": "Enable built-in PO token server for YouTube authentication (recommended)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

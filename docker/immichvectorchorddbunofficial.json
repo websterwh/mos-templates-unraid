@@ -1,0 +1,115 @@
+{
+  "name": "immich-vectorchord-db-unofficial",
+  "repo": "tensorchord/vchord-postgres:pg18-v1.1.1",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/tensorchord/vchord-postgres",
+  "network": "immich_internal",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=128m --health-cmd=pg_isready -U postgres --health-interval=10s --health-retries=5 --health-start-period=30s --health-timeout=5s",
+  "post_parameters": "postgres -c shared_preload_libraries=vchord,vector -c shared_buffers=512MB -c max_wal_size=5GB -c wal_compression=on -c work_mem=16MB -c effective_io_concurrency=200 -c random_page_cost=1.2 -c autovacuum_vacuum_scale_factor=0.1 -c autovacuum_analyze_scale_factor=0.05 -c autovacuum_vacuum_cost_limit=1000",
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/vectorchord-logo.png",
+  "project": "https://github.com/tensorchord/VectorChord",
+  "description": "EXPERIMENTAL: PostgreSQL 18.3 with VectorChord 1.1.1 and pgvector 0.8.2 for Immich. VectorChord is the successor to pgvecto.rs and uses RaBitQ compression for efficient vector search. Immich uses these extensions for face recognition (face_index) and CLIP-based image search (clip_index). This image uses the official TensorChord image with an optimized PostgreSQL configuration (based on Immich defaults: 512MB shared_buffers, SSD-optimized I/O parameters). SSD vs HDD: This template ships with SSD-tuned settings (effective_io_concurrency=200, random_page_cost=1.2). If your database runs on an HDD, edit the Post Arguments and remove these two parameters to use PostgreSQL defaults. Note: The official Immich image is ghcr.io/immich-app/postgres \u2013 this template uses the latest VectorChord version directly from TensorChord instead. Watch the Immich base-images repo for configuration updates: SSD config: https://github.com/immich-app/base-images/blob/main/postgres/postgresql.ssd.conf HDD config: https://github.com/immich-app/base-images/blob/main/postgres/postgresql.hdd.conf Version matrix: https://github.com/immich-app/base-images/blob/main/postgres/versions.yaml",
+  "paths": [
+    {
+      "name": "Path: DB Data",
+      "host": "/mnt/cache/appdata/immich-vectorchord-db/",
+      "container": "/var/lib/postgresql",
+      "mode": "rw",
+      "description": "Persistent database data directory. PG 18+ stores data in a version-specific subdirectory (18/docker). Must be on locally attached storage (SSD/NVMe), not a remote filesystem.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: PostgreSQL",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL database port (5432)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "--- Database ---",
+      "key": "--- Database ---",
+      "value": "",
+      "description": "Core PostgreSQL settings for Immich.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Database username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "postgres",
+      "description": "Database password \u2013 please change! Use only A-Za-z0-9, no special characters. Generate a secure one in the Unraid terminal: openssl rand -base64 32 | tr -dc A-Za-z0-9 | head -c 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "immich",
+      "description": "Database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_INITDB_ARGS",
+      "key": "POSTGRES_INITDB_ARGS",
+      "value": "--data-checksums",
+      "description": "Arguments for initdb. --data-checksums enables checksums for data integrity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- System ---",
+      "key": "--- System ---",
+      "value": "",
+      "description": "Timezone and permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID (default: 99 for nobody)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID (default: 100 for users)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

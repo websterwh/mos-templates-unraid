@@ -1,0 +1,488 @@
+{
+  "name": "qbit-guard",
+  "repo": "ghcr.io/gengines/qbit-guard",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/GEngines/qbit-guard/pkgs/container/qbit-guard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/GEngines/qbit-guard/refs/heads/main/img/qbit-guard-icon.png",
+  "project": "https://github.com/GEngines/qbit-guard",
+  "description": "A zero-dependency Python guard for qBittorrent that blocks pre-air TV episodes (Sonarr), deletes ISO/BDMV-only torrents, and auto-blocklists bad releases in Sonarr/Radarr (with dedupe + queue failover). Runs on \"torrent added\", fetches metadata safely, and logs everything to stdout. Key Features: Pre-air gate (Sonarr): Stops new TV torrents, checks airDateUtc with configurable grace periods TMDB integration (Radarr): Verifies movie digital release dates to prevent pre-release downloads Extension policy: Allow/Block by file extension with configurable strategies Selective file unchecking: Optionally uncheck blocked files instead of deleting entire torrents ISO/BDMV cleaner: Removes disc-image-only torrents that lack keepable video content Smart blocklisting: Blocklists in Sonarr/Radarr before deletion using deduped history Internet cross-verification: Optional TVmaze, TheTVDB, and/or TMDB API integration Zero dependencies: No external libraries, just Python 3.8+ stdlib Container-friendly: All configuration via environment variables, logs to stdout",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Variable: QBIT_HOST",
+      "key": "QBIT_HOST",
+      "value": "http://127.0.0.1:8080",
+      "description": "qBittorrent WebUI URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBIT_USER",
+      "key": "QBIT_USER",
+      "value": "admin",
+      "description": "qBittorrent WebUI username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBIT_PASS",
+      "key": "QBIT_PASS",
+      "value": "adminadmin",
+      "description": "qBittorrent WebUI password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: QBIT_ALLOWED_CATEGORIES",
+      "key": "QBIT_ALLOWED_CATEGORIES",
+      "value": "radarr,tv-sonarr",
+      "description": "Comma-separated list of categories to process",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBIT_DELETE_FILES",
+      "key": "QBIT_DELETE_FILES",
+      "value": "true|false",
+      "description": "Delete files when removing torrents",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBIT_IGNORE_TLS",
+      "key": "QBIT_IGNORE_TLS",
+      "value": "0|1",
+      "description": "Set to 1 to ignore SSL certificate errors",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBIT_DRY_RUN",
+      "key": "QBIT_DRY_RUN",
+      "value": "0|1",
+      "description": "Set to 1 for testing mode (no actual deletions)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WATCH_POLL_SECONDS",
+      "key": "WATCH_POLL_SECONDS",
+      "value": "3.0",
+      "description": "How often to check qBittorrent for new torrents (seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WATCH_PROCESS_EXISTING_AT_START",
+      "key": "WATCH_PROCESS_EXISTING_AT_START",
+      "value": "0|1",
+      "description": "Process existing torrents when container starts (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WATCH_RESCAN_KEYWORD",
+      "key": "WATCH_RESCAN_KEYWORD",
+      "value": "rescan",
+      "description": "Keyword in category/tags to force reprocessing",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_PREAIR_CHECK",
+      "key": "ENABLE_PREAIR_CHECK",
+      "value": "1|0",
+      "description": "Enable pre-air checking for TV shows and movies (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SONARR_URL",
+      "key": "SONARR_URL",
+      "value": "http://127.0.0.1:8989",
+      "description": "Sonarr base URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SONARR_APIKEY",
+      "key": "SONARR_APIKEY",
+      "value": "",
+      "description": "Sonarr API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: SONARR_CATEGORIES",
+      "key": "SONARR_CATEGORIES",
+      "value": "tv-sonarr",
+      "description": "Categories to apply pre-air checks to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: EARLY_GRACE_HOURS",
+      "key": "EARLY_GRACE_HOURS",
+      "value": "6",
+      "description": "Allow releases this many hours before air date",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: EARLY_HARD_LIMIT_HOURS",
+      "key": "EARLY_HARD_LIMIT_HOURS",
+      "value": "72",
+      "description": "Block releases more than this many hours early",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WHITELIST_OVERRIDES_HARD_LIMIT",
+      "key": "WHITELIST_OVERRIDES_HARD_LIMIT",
+      "value": "0|1",
+      "description": "Let whitelisted releases bypass hard limit (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: EARLY_WHITELIST_GROUPS",
+      "key": "EARLY_WHITELIST_GROUPS",
+      "value": "",
+      "description": "Comma-separated list of trusted release groups",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: EARLY_WHITELIST_INDEXERS",
+      "key": "EARLY_WHITELIST_INDEXERS",
+      "value": "",
+      "description": "Comma-separated list of trusted indexers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: EARLY_WHITELIST_TRACKERS",
+      "key": "EARLY_WHITELIST_TRACKERS",
+      "value": "",
+      "description": "Comma-separated list of trusted trackers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RESUME_IF_NO_HISTORY",
+      "key": "RESUME_IF_NO_HISTORY",
+      "value": "1|0",
+      "description": "Proceed if Sonarr history not found (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SONARR_TIMEOUT_SEC",
+      "key": "SONARR_TIMEOUT_SEC",
+      "value": "45",
+      "description": "HTTP timeout for Sonarr API calls",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SONARR_RETRIES",
+      "key": "SONARR_RETRIES",
+      "value": "3",
+      "description": "Retry attempts for Sonarr operations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RADARR_URL",
+      "key": "RADARR_URL",
+      "value": "http://127.0.0.1:7878",
+      "description": "Radarr base URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RADARR_APIKEY",
+      "key": "RADARR_APIKEY",
+      "value": "",
+      "description": "Radarr API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: RADARR_CATEGORIES",
+      "key": "RADARR_CATEGORIES",
+      "value": "radarr",
+      "description": "Categories for Radarr blocklisting and pre-air checks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RADARR_TIMEOUT_SEC",
+      "key": "RADARR_TIMEOUT_SEC",
+      "value": "45",
+      "description": "HTTP timeout for Radarr API calls",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RADARR_RETRIES",
+      "key": "RADARR_RETRIES",
+      "value": "3",
+      "description": "Retry attempts for Radarr operations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: INTERNET_CHECK_PROVIDER",
+      "key": "INTERNET_CHECK_PROVIDER",
+      "value": "tvmaze|tvdb|both|off",
+      "description": "Provider selection: off, tvmaze, tvdb, or both",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVMAZE_BASE",
+      "key": "TVMAZE_BASE",
+      "value": "https://api.tvmaze.com",
+      "description": "TVmaze API base URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVMAZE_TIMEOUT_SEC",
+      "key": "TVMAZE_TIMEOUT_SEC",
+      "value": "8",
+      "description": "HTTP timeout for TVmaze API calls",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVDB_BASE",
+      "key": "TVDB_BASE",
+      "value": "https://api4.thetvdb.com/v4",
+      "description": "TheTVDB API base URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVDB_APIKEY",
+      "key": "TVDB_APIKEY",
+      "value": "",
+      "description": "TheTVDB API key (required for TVDB)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TVDB_PIN",
+      "key": "TVDB_PIN",
+      "value": "",
+      "description": "TheTVDB PIN (optional)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TVDB_LANGUAGE",
+      "key": "TVDB_LANGUAGE",
+      "value": "eng",
+      "description": "Language code for TheTVDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVDB_ORDER",
+      "key": "TVDB_ORDER",
+      "value": "default|official",
+      "description": "Episode order: default or official",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVDB_TIMEOUT_SEC",
+      "key": "TVDB_TIMEOUT_SEC",
+      "value": "8",
+      "description": "HTTP timeout for TheTVDB API calls",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TVDB_BEARER",
+      "key": "TVDB_BEARER",
+      "value": "",
+      "description": "Reuse existing bearer token (optional)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TMDB_APIKEY",
+      "key": "TMDB_APIKEY",
+      "value": "",
+      "description": "TMDB API key (required for movie digital release verification)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TMDB_BASE",
+      "key": "TMDB_BASE",
+      "value": "https://api.themoviedb.org/3",
+      "description": "TMDB API base URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TMDB_TIMEOUT_SEC",
+      "key": "TMDB_TIMEOUT_SEC",
+      "value": "8",
+      "description": "HTTP timeout for TMDB API calls",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TMDB_LANGUAGE",
+      "key": "TMDB_LANGUAGE",
+      "value": "en-US",
+      "description": "Language code for TMDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_ISO_CHECK",
+      "key": "ENABLE_ISO_CHECK",
+      "value": "1|0",
+      "description": "Enable ISO/disc image cleanup (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MIN_KEEPABLE_VIDEO_MB",
+      "key": "MIN_KEEPABLE_VIDEO_MB",
+      "value": "50",
+      "description": "Minimum size for video files to keep (MB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: METADATA_POLL_INTERVAL",
+      "key": "METADATA_POLL_INTERVAL",
+      "value": "1.5",
+      "description": "Seconds between file list checks during metadata fetching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: METADATA_MAX_WAIT_SEC",
+      "key": "METADATA_MAX_WAIT_SEC",
+      "value": "0",
+      "description": "Max wait for metadata resolution (0 = infinite)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: METADATA_DOWNLOAD_BUDGET_BYTES",
+      "key": "METADATA_DOWNLOAD_BUDGET_BYTES",
+      "value": "0",
+      "description": "Max bytes to download during metadata wait (0 = no limit)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_EXT_STRATEGY",
+      "key": "GUARD_EXT_STRATEGY",
+      "value": "block",
+      "description": "Extension strategy: block or allow",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_ALLOWED_EXTS",
+      "key": "GUARD_ALLOWED_EXTS",
+      "value": "",
+      "description": "Comma-separated list of allowed extensions (for allow mode)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_BLOCKED_EXTS",
+      "key": "GUARD_BLOCKED_EXTS",
+      "value": "",
+      "description": "Comma-separated list of blocked extensions (overrides defaults in block mode)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_EXT_DELETE_IF_ALL_BLOCKED",
+      "key": "GUARD_EXT_DELETE_IF_ALL_BLOCKED",
+      "value": "1|0",
+      "description": "Delete only if all files are disallowed (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_EXT_DELETE_IF_ANY_BLOCKED",
+      "key": "GUARD_EXT_DELETE_IF_ANY_BLOCKED",
+      "value": "0|1",
+      "description": "Delete if any file is disallowed (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_UNCHECK_BLOCKED_FILES",
+      "key": "GUARD_UNCHECK_BLOCKED_FILES",
+      "value": "0|1",
+      "description": "Uncheck blocked files instead of deleting torrent (0 or 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_EXT_VIOLATION_TAG",
+      "key": "GUARD_EXT_VIOLATION_TAG",
+      "value": "trash:ext",
+      "description": "Tag applied to torrents deleted for extension violations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_DISC_EXTS",
+      "key": "GUARD_DISC_EXTS",
+      "value": "iso,img,mdf,nrg,cue,bin",
+      "description": "Disc image extensions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GUARD_EXTS_FILE",
+      "key": "GUARD_EXTS_FILE",
+      "value": "",
+      "description": "Path to JSON config file (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO|DEBUG|DETAILED",
+      "description": "Logging verbosity: INFO, DEBUG, or DETAILED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: USER_AGENT",
+      "key": "USER_AGENT",
+      "value": "qbit-guard/2.0",
+      "description": "HTTP User-Agent string for API calls",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

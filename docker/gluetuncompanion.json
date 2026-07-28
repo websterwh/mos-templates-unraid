@@ -1,0 +1,187 @@
+{
+  "name": "gluetun-companion",
+  "repo": "ghcr.io/aerya/gluetun-companion:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/Aerya/Gluetun-Companion/pkgs/container/gluetun-companion",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--add-host=host.docker.internal:host-gateway --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8765]",
+  "icon": "https://raw.githubusercontent.com/Aerya/Gluetun-Companion/main/assets/logo.png",
+  "project": "https://github.com/Aerya/Gluetun-Companion",
+  "description": "Gluetun Companion is a web UI that controls an existing Gluetun container: server catalogue, benchmarks, automatic/manual switches, Docker dependent recreation, VPN port forwarding rules, qBittorrent/rTorrent synchronization and Prometheus metrics. Unraid notes: this template is made for DockerMan-managed Gluetun containers. Companion needs read/write access to /boot/config/plugins/dockerMan/templates-user so server switches persist in the Unraid template XML. It also needs the Docker socket to inspect/recreate Gluetun and its running network dependents. Because DockerMan templates are root-owned and mode 600 on Unraid, the container intentionally runs as root; PUID/PGID are not exposed because they would break template write-back unless the host permissions are changed manually. Before first start, set SECRET_KEY to a long random value and keep it forever. Changing it later makes encrypted VPN credentials unreadable. Example: openssl rand -hex 32",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/gluetun-companion",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Companion database, encrypted VPN profiles, benchmark history and settings.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required to inspect Gluetun, create sidecar test containers, watch Docker events and recreate running containers attached to Gluetun network namespace.",
+      "required": true
+    },
+    {
+      "name": "Unraid DockerMan templates",
+      "host": "/boot/config/plugins/dockerMan/templates-user",
+      "container": "/boot/config/plugins/dockerMan/templates-user",
+      "mode": "rw",
+      "description": "Required in Unraid mode. Companion updates the Gluetun DockerMan XML template so VPN switches persist across Unraid recreates/updates.",
+      "required": true
+    },
+    {
+      "name": "Gluetun appdata",
+      "host": "/mnt/cache/appdata/gluetun",
+      "container": "/gluetun",
+      "mode": "ro",
+      "description": "Read-only access to Gluetun local server catalogues, especially /gluetun/servers.json and /gluetun/servers/*.json. This lets Companion import the exact server list used by the installed Gluetun container instead of falling back to the public GitHub catalogue.",
+      "required": true
+    },
+    {
+      "name": "Custom OpenVPN config folder",
+      "host": "/mnt/cache/appdata/gluetun/openvpn",
+      "container": "/openvpn",
+      "mode": "rw",
+      "description": "Optional. Folder where Companion can store uploaded Custom OpenVPN profiles. It should be the same host folder mounted into Gluetun.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8765",
+      "container": "8765",
+      "protocol": "tcp",
+      "description": "Gluetun Companion web interface. The WebUI entry intentionally references the container port so Unraid follows any host port remap.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Required. Generate once with: openssl rand -hex 32. Keep it stable; changing it makes encrypted VPN credentials unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone used for logs and UI timestamps.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Gluetun container name",
+      "key": "GLUETUN_CONTAINER",
+      "value": "gluetun",
+      "description": "Exact name of the existing Gluetun container managed by Unraid DockerMan.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Gluetun proxy host",
+      "key": "GLUETUN_HOST",
+      "value": "host.docker.internal",
+      "description": "Host used by Companion to reach Gluetun HTTP proxy from inside this container. For the standard Unraid bridge setup, keep host.docker.internal.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Gluetun HTTP proxy host port",
+      "key": "GLUETUN_PROXY_PORT",
+      "value": "8888",
+      "description": "Host port published by Gluetun for its HTTP proxy. Used for proxy quick checks and public IP detection. Match the host port mapped to Gluetun container port 8888.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sidecar image",
+      "key": "SIDECAR_IMAGE",
+      "value": "ghcr.io/aerya/gluetun-companion-sidecar:latest",
+      "description": "Sidecar image used for speed tests and catalogue imports. Keep it aligned with the Companion image tag.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATA_DIR",
+      "key": "DATA_DIR",
+      "value": "/data",
+      "description": "Internal data directory. Do not change unless you also change the Appdata mount target.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "COMPOSE_DIR",
+      "key": "COMPOSE_DIR",
+      "value": "/compose",
+      "description": "Internal compose directory for non-Unraid compose mode. DockerMan-managed Unraid Gluetun containers do not need this mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CONFIG_DIR",
+      "key": "OPENVPN_CONFIG_DIR",
+      "value": "/openvpn",
+      "description": "Internal path where Companion writes uploaded Custom OpenVPN files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CONTAINER_DIR",
+      "key": "OPENVPN_CONTAINER_DIR",
+      "value": "/gluetun/openvpn",
+      "description": "Path where the same OpenVPN folder is visible from inside the Gluetun container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNRAID_TEMPLATE_DIR",
+      "key": "UNRAID_TEMPLATE_DIR",
+      "value": "/boot/config/plugins/dockerMan/templates-user",
+      "description": "Internal path to Unraid DockerMan user templates. Keep aligned with the DockerMan templates mount target.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "METRICS_TOKEN",
+      "key": "METRICS_TOKEN",
+      "value": "",
+      "description": "Optional Bearer token for /metrics. Leave empty for LAN-only Prometheus scraping or set a strong token if exposed through a reverse proxy.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging verbosity: INFO for normal use, DEBUG while troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_JSON",
+      "key": "LOG_JSON",
+      "value": "0",
+      "description": "Set to 1 to emit structured JSON logs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,91 @@
+{
+  "name": "channelsdvr_nvidia",
+  "repo": "fancybits/channels-dvr:nvidia",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/fancybits/channels-dvr",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8089]",
+  "icon": "https://github.com/timstephens24/docker-templates/raw/master/img/channels-logo.png",
+  "project": "https://getchannels.com/dvr",
+  "description": "The Channels DVR backend engine with NVIDIA HW transcoding. Here is an explanation of the default mappings: Port 8089 : This is the default port that ChannelsDVR listens on. Changing the port is not recommended. /shares/DVR : This is where the ChannelsDVR folder exists for recordings to be stored. The DVR folder in the Channels Settings would then be: /shares/DVR and you enter the location on your server where the data will be. Recommend: /mnt/user/data/Media/ChannelsDVR /channels-dvr : This is where the DVR application and configuration is stored. Recommend having this locally at /mnt/user/appdata/channels-dvr --runtime=nvidia : This is in \"extra parameters\" (switch on advanced view) and allows passing through the NVIDIA graphics card to the container. Environmental Variables for NVIDIA_VISIBLE_DEVICES and NVIDIA_DRIVER_CAPABILITIES are already in the template, but you can change the 'all' variable for the device to match the UUID of a specific device if you have more than one. Optional : Add in a mapping for your personal media, i.e. Host Directory of '/mnt/user/data/Media/Movies' with a Container Directory of '/shares/Movies' and then add that as a Movie Source for Local Content in the server settings.",
+  "paths": [
+    {
+      "name": "DVR",
+      "host": "/mnt/cache/data/Media/ChannelsDVR",
+      "container": "/shares/DVR",
+      "mode": "rw",
+      "description": "DVR Folder",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/channels-dvr",
+      "container": "/channels-dvr",
+      "mode": "rw",
+      "description": "Appdata",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8089",
+      "container": "8089",
+      "protocol": "tcp",
+      "description": "Admin Port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility,video",
+      "description": "Container Variable: NVIDIA_DRIVER_CAPABILITIES",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Container Variable: NVIDIA_VISIBLE_DEVICES",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

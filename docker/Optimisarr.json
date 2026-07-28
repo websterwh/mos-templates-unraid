@@ -1,0 +1,115 @@
+{
+  "name": "Optimisarr",
+  "repo": "ghcr.io/jellman86/optimisarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Jellman86/optimisarr/pkgs/container/optimisarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]/",
+  "icon": "https://raw.githubusercontent.com/Jellman86/optimisarr/main/web/public/favicon-192.png",
+  "project": "https://github.com/Jellman86/optimisarr",
+  "description": "Optimisarr is a safe media-library optimiser: it transcodes your movies and TV to save space and never deletes or replaces an original until the converted file has passed explicit verification gates. It probes each file, decides whether re-encoding is worthwhile, transcodes to a work directory, verifies the output (decodes cleanly, duration/stream policy match, size actually reduced), then atomically replaces the original and keeps the untouched original in quarantine so any replacement can be rolled back. Supports CPU, Intel QSV/VA-API and NVIDIA NVENC hardware transcoding, integrates with a Sonarr/Radarr media stack, and shows a real-time dashboard with a live queue, per-job logs, and savings stats. Set the media library you want it to watch under /data.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/optimisarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent application state: SQLite database and configuration. Keep on fast storage.",
+      "required": true
+    },
+    {
+      "name": "Storage root",
+      "host": "/mnt/cache/media",
+      "container": "/data",
+      "mode": "rw",
+      "description": "One read-write root for your media, temporary output, and quarantine. Keeping them below one container mapping preserves atomic moves.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Host port for the Optimisarr web interface (container listens on 8787).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Work directory",
+      "key": "OPTIMISARR_WORK_DIR",
+      "value": "/data/.optimisarr/work",
+      "description": "Temporary transcode output inside the storage root. A separate fast-scratch mount requires the verified cross-filesystem fallback.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Quarantine directory",
+      "key": "OPTIMISARR_TRASH_DIR",
+      "value": "/data/.optimisarr/trash",
+      "description": "Rollback originals inside the storage root so replacements can use atomic moves.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Token",
+      "key": "OPTIMISARR_ADMIN_TOKEN",
+      "value": "",
+      "description": "Optional. When set, the administrative API and UI require this bearer token. Leave blank to rely on your network/reverse-proxy for access control.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Container timezone, e.g. Europe/London.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as (Unraid 'nobody' is 99). Files it creates use this owner.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as (Unraid 'users' is 100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Permissions mask for files Optimisarr creates.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel/AMD GPU (/dev/dri)",
+      "host": "/dev/dri",
+      "container": "/dev/dri",
+      "description": "Optional. Map the render node for Intel QSV/VA-API or AMD VA-API hardware transcoding. Remove if the host has no /dev/dri. For NVIDIA NVENC, add '--runtime=nvidia' and the NVIDIA_* variables via Extra Parameters instead (see the setup guide).",
+      "required": false
+    }
+  ],
+  "labels": []
+}

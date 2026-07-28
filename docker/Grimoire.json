@@ -1,0 +1,99 @@
+{
+  "name": "Grimoire",
+  "repo": "hunterreadca/grimoire:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/hunterreadca/grimoire",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9481]",
+  "icon": "https://raw.githubusercontent.com/Fontler/grimoire-unraid-ca/refs/heads/main/icon.png",
+  "project": "https://github.com/hunter-read/grimoire",
+  "description": "Grimoire is a self-hosted TTRPG library manager. Browse, search, and read PDFs, maps, tokens, and audio with full-text search and campaign tools.",
+  "paths": [
+    {
+      "name": "Library Path",
+      "host": "/mnt/cache/data/media/ttrpg",
+      "container": "/library",
+      "mode": "ro",
+      "description": "Path to your TTRPG library (must contain books/, maps/, etc.)",
+      "required": true
+    },
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/grimoire",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data (DB, thumbnails, cache). Backup this folder!",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "9481",
+      "container": "9481",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LIBRARY_PATH",
+      "key": "LIBRARY_PATH",
+      "value": "/library",
+      "description": "Internal library path - do not change",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATA_PATH",
+      "key": "DATA_PATH",
+      "value": "/data",
+      "description": "Internal data path - do not change",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED: Generate with openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Workers",
+      "key": "WORKERS",
+      "value": "2",
+      "description": "Uvicorn workers (2-4 recommended)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Public base URL (e.g. https://grimoire.example.com) for absolute links like OPDS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPDS Enabled",
+      "key": "OPDS_ENABLED",
+      "value": "true",
+      "description": "Enable OPDS catalog. true/false",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

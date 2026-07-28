@@ -1,0 +1,172 @@
+{
+  "name": "Mumble",
+  "repo": "mumblevoip/mumble-server:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/mumblevoip/mumble-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=SYS_NICE",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:64738]",
+  "icon": "https://avatars.githubusercontent.com/u/639008?s=256",
+  "project": "https://github.com/mumble-voip/mumble-docker",
+  "description": "Mumble is a low-latency, high-quality voice chat server (Discord-style voice rooms / channels). This template uses the official mumblevoip/mumble-server image. Private by default: - This template does NOT enable public directory registration. - Optional Server Password (join password) can be used for friends-only access. If you want public listing (advanced): - Edit /data/mumble_server_config.ini and configure the public registration keys (e.g. registerurl/registerpassword). - Public registration requires an empty join password and allowping enabled. Most users should keep the server private.",
+  "paths": [
+    {
+      "name": "Localtime",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Container localtime (recommended)",
+      "required": false
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/mumble",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data (DB + generated config). Must be mapped for persistence.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Mumble Port (TCP)",
+      "host": "64738",
+      "container": "64738",
+      "protocol": "tcp",
+      "description": "Mumble TCP port (default 64738)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mumble Port (UDP)",
+      "host": "64738",
+      "container": "64738",
+      "protocol": "udp",
+      "description": "Mumble UDP port (default 64738)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user id (optional). Default image uses UID 10000 if unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group id (optional). Default image uses GID 10000 if unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "",
+      "description": "Timezone (optional). Example: Europe/London, America/New_York",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SuperUser Password",
+      "key": "MUMBLE_SUPERUSER_PASSWORD",
+      "value": "",
+      "description": "Set SuperUser (admin) password. If blank, a random password is generated on first startup (check logs).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Welcome Message (welcometext)",
+      "key": "MUMBLE_CONFIG_welcometext",
+      "value": "Welcome! Please be nice.",
+      "description": "Message shown to users when they connect (welcometext)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Users (users)",
+      "key": "MUMBLE_CONFIG_users",
+      "value": "25",
+      "description": "Max concurrent users (users). Example: 25",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Per-User Bandwidth bps (bandwidth)",
+      "key": "MUMBLE_CONFIG_bandwidth",
+      "value": "96000",
+      "description": "Max per-user Opus bitrate in bits/sec. 96000 = excellent quality. 128000 = near-transparent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Password (serverpassword)",
+      "key": "MUMBLE_CONFIG_serverpassword",
+      "value": "",
+      "description": "Optional join password for users (serverpassword). Leave blank for open access.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Bind Address (host)",
+      "key": "MUMBLE_CONFIG_host",
+      "value": "",
+      "description": "Optional bind address (host). Leave blank to bind all interfaces.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Ping Details (allowping)",
+      "key": "MUMBLE_CONFIG_allowping",
+      "value": "true",
+      "description": "Expose basic server status (user count/max). Does not allow joining.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autoban Attempts",
+      "key": "MUMBLE_CONFIG_autobanAttempts",
+      "value": "10",
+      "description": "Failed auth attempts before banning (autobanAttempts)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autoban Timeframe (sec)",
+      "key": "MUMBLE_CONFIG_autobanTimeframe",
+      "value": "120",
+      "description": "Time window for failed attempts (autobanTimeframe, seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autoban Time (sec)",
+      "key": "MUMBLE_CONFIG_autobanTime",
+      "value": "300",
+      "description": "Ban duration (autobanTime, seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verbose Logging",
+      "key": "MUMBLE_VERBOSE",
+      "value": "false",
+      "description": "Enable verbose server logs (true/false)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

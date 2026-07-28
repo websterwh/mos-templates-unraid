@@ -1,0 +1,227 @@
+{
+  "name": "Home-Information",
+  "repo": "ghcr.io/cassandra/home-information:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/cassandra/home-information/pkgs/container/home-information",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/cassandra/home-information/master/src/hi/static/img/hi-icon-128x128.png",
+  "project": "https://github.com/cassandra/home-information",
+  "description": "Home Information transforms how you manage your property by creating a visual, spatial, centralized hub for everything about your home. Instead of hunting through drawers, email attachments, and scattered notes, you'll have manuals, maintenance records, device controls, and security monitoring all organized exactly where they belong - visually positioned on a map of your home. Key Features: - Spatial organization by location (click on kitchen to see everything kitchen-related) - Document and information management (manuals, warranties, maintenance records) - Home Assistant integration for device control - ZoneMinder integration for security cameras - Visual security zone monitoring - Local-first architecture (your data stays on your network) Perfect for homeowners who want to stay organized and maintain their property effectively, especially those with home automation or security systems.",
+  "paths": [
+    {
+      "name": "Database Storage",
+      "host": "/mnt/cache/appdata/home-information/database",
+      "container": "/data/database",
+      "mode": "rw",
+      "description": "Directory where the SQLite database is stored",
+      "required": true
+    },
+    {
+      "name": "Media Storage",
+      "host": "/mnt/cache/appdata/home-information/media",
+      "container": "/data/media",
+      "mode": "rw",
+      "description": "Directory where uploaded files (manuals, images, etc.) are stored",
+      "required": true
+    },
+    {
+      "name": "Environment Config",
+      "host": "/mnt/cache/appdata/home-information/env",
+      "container": "/env",
+      "mode": "ro",
+      "description": "Directory containing environment configuration files (optional)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9411",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Django Secret Key",
+      "key": "DJANGO_SECRET_KEY",
+      "value": "",
+      "description": "Django secret key - Set to a random string for security",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Email",
+      "key": "DJANGO_SUPERUSER_EMAIL",
+      "value": "admin@example.com",
+      "description": "Email address for the admin user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "DJANGO_SUPERUSER_PASSWORD",
+      "value": "",
+      "description": "Password for the admin user",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Django Settings Module",
+      "key": "DJANGO_SETTINGS_MODULE",
+      "value": "hi.settings.local",
+      "description": "Django settings module (do not change unless you know what you're doing)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Path (Container)",
+      "key": "HI_DB_PATH",
+      "value": "/data/database",
+      "description": "Database path inside container (do not change)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media Path (Container)",
+      "key": "HI_MEDIA_PATH",
+      "value": "/data/media",
+      "description": "Media path inside container (do not change)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Suppress Authentication",
+      "key": "HI_SUPPRESS_AUTHENTICATION",
+      "value": "true|false",
+      "description": "Skip login screen for local network use (set to false for multi-user setup)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Host",
+      "key": "HI_REDIS_HOST",
+      "value": "127.0.0.1",
+      "description": "Redis hostname (use 127.0.0.1 for internal Redis)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "HI_REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Key Prefix",
+      "key": "HI_REDIS_KEY_PREFIX",
+      "value": "",
+      "description": "Prefix for Redis keys (leave empty unless running multiple instances)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Host URLs",
+      "key": "HI_EXTRA_HOST_URLS",
+      "value": "",
+      "description": "Additional URLs (ALLOWED_HOSTS) for network access (e.g., http://192.168.1.100:9411 http://nas.local:9411)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra CSP URLs",
+      "key": "HI_EXTRA_CSP_URLS",
+      "value": "",
+      "description": "Additional URLs for Content Security Policy (usually same as Extra Host URLs)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Subject Prefix",
+      "key": "HI_EMAIL_SUBJECT_PREFIX",
+      "value": "",
+      "description": "Prefix for email subjects (e.g., [Home Info])",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default From Email",
+      "key": "HI_DEFAULT_FROM_EMAIL",
+      "value": "",
+      "description": "Default sender email address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Email",
+      "key": "HI_SERVER_EMAIL",
+      "value": "",
+      "description": "Email address for server error messages",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Host",
+      "key": "HI_EMAIL_HOST",
+      "value": "",
+      "description": "SMTP server hostname (e.g., smtp.gmail.com)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Port",
+      "key": "HI_EMAIL_PORT",
+      "value": "587",
+      "description": "SMTP server port (587 for TLS, 465 for SSL, 25 for unencrypted)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Host User",
+      "key": "HI_EMAIL_HOST_USER",
+      "value": "",
+      "description": "SMTP username/email for authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Host Password",
+      "key": "HI_EMAIL_HOST_PASSWORD",
+      "value": "",
+      "description": "SMTP password for authentication",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email Use TLS",
+      "key": "HI_EMAIL_USE_TLS",
+      "value": "false",
+      "description": "Use TLS for email (typically with port 587)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Use SSL",
+      "key": "HI_EMAIL_USE_SSL",
+      "value": "false",
+      "description": "Use SSL for email (typically with port 465)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

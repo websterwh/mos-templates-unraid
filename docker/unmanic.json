@@ -1,0 +1,115 @@
+{
+  "name": "unmanic",
+  "repo": "josh5/unmanic:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/josh5/unmanic/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8888]/",
+  "icon": "https://raw.githubusercontent.com/Unmanic/unmanic/master/icon.png",
+  "project": "https://github.com/Unmanic/unmanic",
+  "description": "Unmanic is a simple tool for optimising your file library with a highly customisable plugin system. Remove the complexity of automatically converting your file library. Simply point Unmanic at your library and let it manage it for you. --- ## Features: - Manage multiple independent libraries of any media file type with a large range of plugins. - Simple to configure - don't waste your time with hours of setup. Just get the job done with Unmanic. - Support for VAAPI/QSV/NVIDIA NVENC for hardware accelerated encoding. - Schedule file scans at set intervals. - Configure inotify file monitors for your libraries. - Link with other installations to share in distributed processing of tasks. These other installations may be on: - This same Unraid server - A LAN connected PC (including across subnets) - A Internet connected PC behind a basic auth proxy - Linux, MacOS, Windows - x86, Armv7, Arm64 --- ## Advanced Configuration: ### LIMIT CPU USE: 1) Toggle this Docker Container template editor to \"Advanced View\". 2) In the \"Extra Parameters\" field, add \"--cpus='1'\". This value depends on the number of cores available to the container. To limit to 50%, set this value to 0.5 * n cores. If you have 2 cores available to this container, \"--cpus='.5'\" will equal 25% of that available CPU resources. To limit the CPU cores available to the continer, use \"CPU Pinning\" ### LIMIT RAM ALLOCATION: 1) Toggle this Docker Container template editor to \"Advanced View\". 2) In the \"Extra Parameters\" field, add \"--memory='1g'\". Unmanic can use on average around 100Mib - 500 Mib of RAM for various Disk IO tasks. Even though limiting RAM is unnecessary as Unmanic should not ever need more that 1GB RAM it is good practice to do so. **Note:** If you set your *Cache Directory* path to a tmpfs or RAM, limiting your memory allocation will affect the available RAM for the cache volume. ### NVIDIA GPU USE (NVDEC/NVENC): 1) Install the **Nvidia-Driver** plugin. 2) Toggle this Docker Container template editor to \"Advanced View\". 3) In the \"Extra Parameters\" field, add \"--runtime=nvidia\". 4) Expand the template \"Show more settings...\" section. 5) In the \"NVIDIA_VISIBLE_DEVICES\" variable, copy your GPU UUID (can be found in the Unraid Nvidia Plugin) ### INTEL GPU USE (QSV/VAAPI): 1) Install the **Intel-GPU-TOP** plugin. 2) Toggle this Docker Container template editor to \"Advanced View\". 3) In the \"Extra Parameters\" field, add \"--device=/dev/dri\". ### AMD GPU USE (VAAPI): 1) Install the **Radeon-TOP** plugin. 2) Toggle this Docker Container template editor to \"Advanced View\". 3) In the \"Extra Parameters\" field, add \"--device=/dev/dri\".",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/unmanic",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Location where all container configuration is stored.",
+      "required": true
+    },
+    {
+      "name": "Cache Directory",
+      "host": "",
+      "container": "/tmp/unmanic",
+      "mode": "rw",
+      "description": "Location where task files are temporarily stored while workers are carrying out jobs on them.",
+      "required": true
+    },
+    {
+      "name": "Library Movies",
+      "host": "",
+      "container": "/library/movies",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "Library TV",
+      "host": "",
+      "container": "/library/tv",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "Library Music",
+      "host": "",
+      "container": "/library/music",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "Library Pictures",
+      "host": "",
+      "container": "/library/pictures",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia GPU UUID",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "The UUID of the NVIDIA GPU that you wish to use within this container. Set to 'all' to use all available NVIDIA GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia GPU Patch Version",
+      "key": "NVIDIA_PATCH_VERSION",
+      "value": "",
+      "description": "For description, join the conversation at https://streamingtech.co.nz/discord",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

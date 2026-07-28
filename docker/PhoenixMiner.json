@@ -1,0 +1,122 @@
+{
+  "name": "PhoenixMiner",
+  "repo": "lnxd/phoenixminer",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/lnxd/phoenixminer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5450]",
+  "icon": "https://raw.githubusercontent.com/lnxd/docker-phoenixminer/main/phoenixminer-logo.png",
+  "project": null,
+  "description": "Containerised version of PhoenixMiner. Helps turn your Unraid server into an Ethereum / cryptocurrency mining rig. Contains AMD drivers. Not affected by the AMD reset bug as it doesn't rely on vfio. Works with most Nvidia GPUs as well via Open Source drivers. Check the support link for detailed installation instructions.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "5450",
+      "container": "5450",
+      "protocol": "tcp",
+      "description": "Used for basic monitoring over http/https built into PhoenixMiner",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Wallet Address",
+      "key": "WALLET",
+      "value": "0xe037C6245910EbBbA720514835d31B385D76927f",
+      "description": "Wallet address for receiving mined coin",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pool Address",
+      "key": "POOL",
+      "value": "asia1.ethermine.org:4444",
+      "description": "Address for your mining pool",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pool Password",
+      "key": "PASSWORD",
+      "value": "x",
+      "description": "Most pools just use 'x' as password, some pools treat this variable as a worker ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Safety: Target Temperature",
+      "key": "TT",
+      "value": "75",
+      "description": "Target temperature for fans (only works if privileged mode is enabled)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Safety: Stop Temperature",
+      "key": "TSTOP",
+      "value": "85",
+      "description": "PhoenixMiner will pause mining on a GPU if it hits this temperature (only works if privileged mode is enabled)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Safety: Resume Temperature",
+      "key": "TSTART",
+      "value": "80",
+      "description": "PhoenixMiner will resume mining on a GPU if it hits this temperature after being paused (only works if privileged mode is enabled)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Additional PhoenixMiner Arguments",
+      "key": "ADDITIONAL",
+      "value": "",
+      "description": "Additional PhoenixMiner arguments",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMD Driver Version",
+      "key": "DRIVERV",
+      "value": "20.20",
+      "description": "Leave this variable alone unless you have a reason to change to a different driver version. Options for AMD are '18.20', '20.20', '20.45', '20.50'; '20.20' is recommended for everyone unless you have a 6800XT or 6900XT in which case choose '20.45'. The other options are for testing purposes only. Nvidia cards should work regardless of the option chosen here, but you can enter '0' to remove the default AMD drivers on launch if you really want to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Nvidia Only: Enter your GPU UUID here (only required if you plan to mine with an Nvidia GPU otherwise leave this empty. Don't forget to add '--runtime=nvidia' to your 'Extra Parameters' in the Advanced View).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Please leave this set to the default option of 'all' if you aren't sure what to put here. This value can be left in the template even if you don't want to mine with an Nvidia GPU.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "GPU Device",
+      "host": "/dev/dri:/dev/dri",
+      "container": "",
+      "description": "GPU passthrough from host to container. This Isn't necessary if privileged mode is enabled, but won't hurt.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

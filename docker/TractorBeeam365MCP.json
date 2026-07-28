@@ -1,0 +1,122 @@
+{
+  "name": "TractorBeeam365-MCP",
+  "repo": "ghcr.io/ringosystems/tractorbeeam-mcp:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/Ringosystems/TractorBeeam-MCP/pkgs/container/tractorbeeam-mcp",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8766]",
+  "icon": "https://github.com/Ringosystems.png?raw=1",
+  "project": "https://github.com/Ringosystems/TractorBeeam-MCP",
+  "description": "Independent Model Context Protocol (MCP) server for Veeam Backup for Microsoft 365 (VB365). It talks directly to the VB365 REST API so an MCP client (Claude Code, Claude Desktop) can review your backup configuration, find protection gaps, spot trends, and verify cloud immutability. Read-only by default; an opt-in, confirm-token-gated, audited action/restore tier can be enabled with the TB_* variables. Not affiliated with, endorsed by, or supported by Veeam Software. After starting, attach a client to http:// :[PORT:8766]/mcp with the Authorization: Bearer header set to your MCP_AUTH_TOKEN.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "MCP HTTP Port",
+      "host": "8766",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Host port for the MCP streamable-http endpoint (served at /mcp).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "VB365_HOST",
+      "key": "VB365_HOST",
+      "value": "",
+      "description": "IP or hostname of the VB365 (Veeam Backup Server) host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VB365_USERNAME",
+      "key": "VB365_USERNAME",
+      "value": ".\\svc-vb365-review",
+      "description": "VB365 account used to obtain a REST API token (DOMAIN\\user, .\\localuser, or user@domain).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VB365_PASSWORD",
+      "key": "VB365_PASSWORD",
+      "value": "",
+      "description": "Password for VB365_USERNAME.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MCP_AUTH_TOKEN",
+      "key": "MCP_AUTH_TOKEN",
+      "value": "",
+      "description": "A long random secret. The HTTP transport refuses to start without it. Clients must send the header Authorization: Bearer this value.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MCP_TRANSPORT",
+      "key": "MCP_TRANSPORT",
+      "value": "streamable-http",
+      "description": "Leave as streamable-http for the persistent HTTP service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MCP_HOST",
+      "key": "MCP_HOST",
+      "value": "0.0.0.0",
+      "description": "Bind address inside the container. Keep 0.0.0.0 so the published port is reachable; the Unraid port publish is the real network boundary.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MCP_PORT",
+      "key": "MCP_PORT",
+      "value": "8000",
+      "description": "Container-internal port the server listens on. Match the container side of the port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VB365_PORT",
+      "key": "VB365_PORT",
+      "value": "4443",
+      "description": "VB365 RESTful API port (console default is 4443).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VB365_API_VERSION",
+      "key": "VB365_API_VERSION",
+      "value": "v8",
+      "description": "VB365 REST API version (v8 for VB365 8.x, v7 for 7.x).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VB365_VERIFY_SSL",
+      "key": "VB365_VERIFY_SSL",
+      "value": "false",
+      "description": "Verify the VB365 TLS certificate. false accepts the default self-signed cert. Prefer setting VB365_CA_BUNDLE to the server certificate instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TB_ENABLE_ACTIONS",
+      "key": "TB_ENABLE_ACTIONS",
+      "value": "false",
+      "description": "Master switch for the write/restore tools. Leave false for read-only. If enabled, also set the per-category TB_ALLOW_* flags and TB_ALLOW_WRITE_OVER_HTTP=true to expose them over HTTP. See the project SECURITY docs before enabling.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

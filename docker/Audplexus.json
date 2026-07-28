@@ -1,0 +1,131 @@
+{
+  "name": "Audplexus",
+  "repo": "ghcr.io/mstrhakr/audplexus",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/orgs/mstrhakr/packages/container/package/audplexus",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/mstrhakr/audplexus/master/logo.png",
+  "project": null,
+  "description": "Download Audible titles, remove DRM with FFmpeg, enrich metadata from Audnexus, and organize audiobooks for Plex from a web UI.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/audplexus/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent config, auth, and database files.",
+      "required": true
+    },
+    {
+      "name": "Audiobooks",
+      "host": "/mnt/cache/media/audiobooks",
+      "container": "/audiobooks",
+      "mode": "rw",
+      "description": "Final organized audiobook library path (Plex root).",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/appdata/audplexus/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Temporary download and processing workspace.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port for the WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TAKE_OWNERSHIP",
+      "key": "TAKE_OWNERSHIP",
+      "value": "false",
+      "description": "Container Variable: TAKE_OWNERSHIP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_TYPE",
+      "key": "DATABASE_TYPE",
+      "value": "sqlite",
+      "description": "Container Variable: DATABASE_TYPE (sqlite or postgres).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Container Variable: PLEX_URL (optional Plex server URL).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Container Variable: PLEX_TOKEN (optional Plex token).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PLEX_SECTION_ID",
+      "key": "PLEX_SECTION_ID",
+      "value": "",
+      "description": "Container Variable: PLEX_SECTION_ID (optional Plex library section ID).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_SCHEDULE",
+      "key": "SYNC_SCHEDULE",
+      "value": "0 */6 * * *",
+      "description": "Container Variable: SYNC_SCHEDULE (cron expression).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_MODE",
+      "key": "SYNC_MODE",
+      "value": "full",
+      "description": "Container Variable: SYNC_MODE (quick or full).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

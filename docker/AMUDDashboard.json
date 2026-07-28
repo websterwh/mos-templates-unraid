@@ -1,0 +1,115 @@
+{
+  "name": "AMUD-Dashboard",
+  "repo": "tradmss/amud-dashboard:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/tradmss/amud-dashboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-drop=ALL --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://boubli.github.io/AMUD-Dashboard/img/amud-logo-github.png",
+  "project": "https://boubli.github.io/AMUD-Dashboard/",
+  "description": "Compiled Rust homelab dashboard \u2014 app launcher, live Docker telemetry, Plex/Jellyfin/HA badges. Zero YAML; config in SQLite via the web UI. ~35\u2013100MB RAM for server + agent combined. **Also install the companion template: AMUD Agent** (search Community Apps for \"AMUD Agent\"). Both containers must use the same Agent Secret and the same Socket Path. Unraid appdata is owned by `nobody` (UID 99) by default \u2014 the dashboard runs as PUID 99 so first boot works without SSH `chown`. Docs: https://boubli.github.io/AMUD-Dashboard/docs/installation/Unraid",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/amud-dashboard/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "SQLite database and encrypted secrets (backup this folder).",
+      "required": true
+    },
+    {
+      "name": "Agent Socket Dir",
+      "host": "/mnt/cache/appdata/amud-dashboard/run",
+      "container": "/var/run/amud",
+      "mode": "rw",
+      "description": "Shared directory for the Unix socket. Must match the AMUD Agent container exactly.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port for the AMUD Dashboard web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Agent Secret",
+      "key": "AMUD_AGENT_SECRET",
+      "value": "",
+      "description": "Long random string shared with the AMUD Agent container. Required \u2014 server will not start without it.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for dashboard writes to App Data (Unraid default: 99 / nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for dashboard writes to App Data (Unraid default: 100 / users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Socket Permissions",
+      "key": "AMUD_SOCKET_MODE",
+      "value": "666",
+      "description": "Unix socket file mode (octal). 666 lets the root agent connect when dashboard runs as PUID 99.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_PATH",
+      "key": "DB_PATH",
+      "value": "/app/data/amud.db",
+      "description": "SQLite file path inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMUD_SOCKET_PATH",
+      "key": "AMUD_SOCKET_PATH",
+      "value": "/var/run/amud/amud.sock",
+      "description": "Unix socket path inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BIND_ADDR",
+      "key": "BIND_ADDR",
+      "value": "0.0.0.0",
+      "description": "Address the web server binds to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "8000",
+      "description": "Internal HTTP port (must match Web UI Port mapping).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

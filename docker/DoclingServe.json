@@ -1,0 +1,147 @@
+{
+  "name": "Docling-Serve",
+  "repo": "quay.io/docling-project/docling-serve",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://quay.io/repository/docling-project/docling-serve",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5001]/ui",
+  "icon": "https://raw.githubusercontent.com/docling-project/docling/refs/heads/main/docs/assets/logo.png",
+  "project": "https://github.com/docling-project/docling-serve",
+  "description": "### What is Docling? Docling is an open-source toolkit (from IBM Research) that converts documents (PDF, DOCX, images, HTML, etc.) into structured Markdown or JSON. It's great for RAG and local document processing. **Highlights** - Multi-format parsing with layout understanding and table extraction. - Simple API + optional Web UI. - Runs locally on your Unraid box; keep your data private. **Default Endpoints** - API: `http:// :[PORT:5001]` - Docs: `http:// :[PORT:5001]/docs` - Web UI: `http:// :[PORT:5001]/ui` (set `DOCLING_SERVE_ENABLE_UI=1`) **First-Run Model Download** - On a fresh install the models directory will be empty. Docling must download RapidOCR and other artifacts on first boot. - Make sure `DOCLING_SERVE_ENABLE_REMOTE_SERVICES` is set to `true` for the very first start so downloads can reach upstream model hosts (e.g. modelscope.cn). - After the first successful start and model cache is populated, you may set `DOCLING_SERVE_ENABLE_REMOTE_SERVICES` back to `false` if you prefer a fully local-only deployment. - Keep `DOCLING_SERVE_LOAD_MODELS_AT_BOOT=true` so any download failures show up immediately in startup logs rather than at first OCR request. **Persistent Paths** - Models/artifacts are persisted in appdata so restarts do not re-download everything. - If logs show `artifacts_path is set to an invalid directory`, verify the models path exists and matches `DOCLING_SERVE_ARTIFACTS_PATH`.",
+  "paths": [
+    {
+      "name": "Docling Models Path",
+      "host": "/mnt/cache/appdata/docling/models",
+      "container": "/opt/app-root/src/.cache/docling/models",
+      "mode": "rw",
+      "description": "Persistent Docling model artifacts (required; must exist and be writable; must match DOCLING_SERVE_ARTIFACTS_PATH)",
+      "required": true
+    },
+    {
+      "name": "HuggingFace Cache",
+      "host": "/mnt/cache/appdata/docling/huggingface_cache",
+      "container": "/opt/app-root/src/.cache/huggingface",
+      "mode": "rw",
+      "description": "Persistent HuggingFace cache",
+      "required": false
+    },
+    {
+      "name": "EasyOCR Cache",
+      "host": "/mnt/cache/appdata/docling/easyocr_cache",
+      "container": "/opt/app-root/.EasyOCR",
+      "mode": "rw",
+      "description": "Caches OCR models",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5001",
+      "container": "5001",
+      "protocol": "tcp",
+      "description": "Docling Serve API/UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Enable UI",
+      "key": "DOCLING_SERVE_ENABLE_UI",
+      "value": "1",
+      "description": "Enable the /ui playground (1/0)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Load Models At Boot",
+      "key": "DOCLING_SERVE_LOAD_MODELS_AT_BOOT",
+      "value": "true",
+      "description": "Preload/download models at startup (recommended for easier first-run diagnostics).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Remote Services",
+      "key": "DOCLING_SERVE_ENABLE_REMOTE_SERVICES",
+      "value": "true",
+      "description": "Allow remote model/service calls. Enabled by default so first-run model downloads work automatically. Set to false after initial setup if you prefer fully offline operation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Artifacts Path (env)",
+      "key": "DOCLING_SERVE_ARTIFACTS_PATH",
+      "value": "/opt/app-root/src/.cache/docling/models",
+      "description": "Directory used by Docling to load/store model artifacts",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Device",
+      "key": "DOCLING_DEVICE",
+      "value": "auto",
+      "description": "Runtime device: auto, cpu, cuda, cuda:0, mps. Use 'auto' to let Docling decide. For CPU-only, select the cpu image branch above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image-to-Text Model",
+      "key": "DOCLING_SERVE_IMAGE_TO_TEXT_MODEL",
+      "value": "HuggingFaceTB/SmolVLM-256M-Instruct",
+      "description": "VLM used for image-to-text",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Picture Classification Model",
+      "key": "DOCLING_SERVE_PICTURE_CLASSIFICATION_MODEL",
+      "value": "ds4sd/DocumentFigureClassifier",
+      "description": "Figure/diagram classifier",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,180 @@
+{
+  "name": "ROMVault",
+  "repo": "laromicas/romvault",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/laromicas/romvault/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]",
+  "icon": "https://raw.githubusercontent.com/laromicas/docker-romvault/master/media/romvault-icon.jpg",
+  "project": "https://www.romvault.com/",
+  "description": "RomVault will take one or more DAT files and your set of ROM (zip) files, and clean up your files to match your DAT files. If you find more ROMs to add to your collection RomVault will scan and merge in these files, and if new DATs are released you can easily scan in these new DATs and update your ROM collections to match, all of this can be done with just a few button clicks in the UI. The GUI of the application is accessed through a modern web browser (no installation or configuration needed on the client side) or via any VNC client. Based on Ubuntu, size is big, but text is displayed correctly. Known Issues: - Accessing several items in the help menu crashes the application. For a complete documentation of this container, see https://github.com/laromicas/docker-romvault/blob/master/README.md For documentation about using ROMVault see https://www.romvault.com/",
+  "paths": [
+    {
+      "name": "DatRoot Directory",
+      "host": "/mnt/cache/appdata/ROMVault/DatRoot",
+      "container": "/config/DatRoot",
+      "mode": "rw,slave",
+      "description": "This is where dats will be placed. Container path: /output/DatRoot",
+      "required": true
+    },
+    {
+      "name": "RomRoot Directory",
+      "host": "/mnt/cache/appdata/ROMVault/RomRoot",
+      "container": "/config/RomRoot",
+      "mode": "rw,slave",
+      "description": "This is the where sorted roms will be placed. Container path: /output/RomRoot",
+      "required": true
+    },
+    {
+      "name": "ToSort Directory",
+      "host": "/mnt/cache/appdata/ROMVault/ToSort",
+      "container": "/config/ToSort",
+      "mode": "rw",
+      "description": "This is the where unknown roms will be placed. Container path: /output/ToSort",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/ROMVault",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is where the application stores its configuration, cache file, log and any files needing persistency.Container path: /config",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEB Port for GUI",
+      "host": "8801",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port used to access the application's GUI via the web interface.NOTE: This applies only when Network Type is set to Bridge. For other network types, port 5800 should be used instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC Port for GUI",
+      "host": "8901",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port used to access the application's GUI via the VNC protocol. Optional if no VNC client is used.NOTE: This applies only when Network Type is set to Bridge. For other network types, port 5900 should be used instead.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "ID of the user the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "ID of the group the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Niceness (priority)",
+      "key": "APP_NICENESS",
+      "value": "",
+      "description": "Priority at which the application should run. A niceness value of -20 is the highest priority and 19 is the lowest priority.NOTE: Setting a negative value requires additional permissions. Thus, --cap-add=SYS_NICE must be added in Extra Parameters (shown when Advanced View is enabled).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Width",
+      "key": "DISPLAY_WIDTH",
+      "value": "1280",
+      "description": "Width (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "768",
+      "description": "Height (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "Whether or not an encrypted connection should be used to access the application's GUI. Set to 1 to encrypt the connection.Note: When enabling the secure connection, security parameters needs to be generated. This one-time operation is done during container startup. Depending on your system, this could take a few minutes. GUI of the application won't be available until the operation completes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra x11vnc Options",
+      "key": "X11VNC_EXTRA_OPTS",
+      "value": "",
+      "description": "Extra options to pass to the x11vnc server running in the Docker container.Warning: For advanced users. Do not use unless you know what you are doing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install Packages",
+      "key": "INSTALL_EXTRA_PKGS",
+      "value": "",
+      "description": "Space-separated list of Alpine Linux packages to install. See https://pkgs.alpinelinux.org for the list of available Alpine Linux packages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dark Mode",
+      "key": "DARK_MODE",
+      "value": "0",
+      "description": "Step to enable DarkMode, please reffer to Docker README for further details.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Take Config Ownership",
+      "key": "TAKE_CONFIG_OWNERSHIP",
+      "value": "0",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ionice Class",
+      "key": "IONICE_CLASS",
+      "value": "0",
+      "description": "I/O scheduling class: 0=None (default behavior), 1=Realtime (highest priority, requires root), 2=Best-effort (standard priority), 3=Idle (lowest priority, only gets disk time when no other program requests I/O).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ionice Level",
+      "key": "IONICE_LEVEL",
+      "value": "4",
+      "description": "I/O scheduling priority level (0-7). 0 is the highest priority and 7 is the lowest priority. Only applicable when Ionice Class is set to 1 or 2.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

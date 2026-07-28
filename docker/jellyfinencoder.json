@@ -1,0 +1,89 @@
+{
+  "name": "jellyfin-encoder",
+  "repo": "drumsergio/jellyfin-encoder:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/jellyfin-encoder",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/jellyfin-encoder.png",
+  "project": "https://github.com/GeiserX/jellyfin-encoder",
+  "description": "Monitors a media library and automatically transcodes videos to 720p in HEVC or AV1 codec with hardware acceleration (NVIDIA NVENC or Intel QSV). Creates symlinks for Jellyfin version management with configurable filename suffixes. Includes periodic cleanup of orphaned symlinks. For NVIDIA GPU: Pass through the GPU runtime. For Intel QSV: Map /dev/dri. More info: https://github.com/GeiserX/jellyfin-encoder",
+  "paths": [
+    {
+      "name": "Source Media",
+      "host": "/mnt/cache/Multimedia/Movies",
+      "container": "/app/source",
+      "mode": "ro",
+      "description": "Original video files (read-only)",
+      "required": true
+    },
+    {
+      "name": "Encoded Output",
+      "host": "/mnt/cache/Multimedia/Movies-720p",
+      "container": "/app/destination",
+      "mode": "rw",
+      "description": "Encoded output directory",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "HW Acceleration",
+      "key": "ENABLE_HW_ACCEL",
+      "value": "true",
+      "description": "Enable hardware-accelerated encoding",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HW Type",
+      "key": "HW_ENCODING_TYPE",
+      "value": "nvidia",
+      "description": "Hardware encoder type: nvidia or intel",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Codec",
+      "key": "ENCODING_CODEC",
+      "value": "hevc",
+      "description": "Output codec: hevc or av1",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Quality",
+      "key": "ENCODING_QUALITY",
+      "value": "LOW",
+      "description": "Encoding quality: LOW, MEDIUM, or HIGH",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Symlink Suffix",
+      "key": "SYMLINK_VERSION_SUFFIX",
+      "value": "- 720p",
+      "description": "Filename suffix for Jellyfin version detection",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cleanup Interval",
+      "key": "CLEANUP_INTERVAL_HOURS",
+      "value": "6",
+      "description": "Hours between orphaned symlink cleanup",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

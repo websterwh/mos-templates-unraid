@@ -1,0 +1,204 @@
+{
+  "name": "AskaDedicatedServer",
+  "repo": "jimbit0/aska-dedicated-server:experimental",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/jimbit0/aska-dedicated-server/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:27015]",
+  "icon": "https://github.com/natcoso9955/unRAID-docker/raw/refs/heads/master/icons/aska-dedicated-server.png",
+  "project": "https://store.steampowered.com/app/1898300/ASKA/",
+  "description": "ASKA is a multiplayer survival game set in a mythical Viking Age world. This container runs a dedicated server for ASKA using Proton-GE for compatibility. REQUIREMENTS: - Authentication token from https://steamcommunity.com/dev/managegameservers for App ID: 1898300 - UDP ports 27015 and 27016 must be forwarded in your router SAVE MANAGEMENT: - Leave ASKA_SAVE_ID empty for new servers (auto-generated after first save) - For existing saves: place savegame_* folder in /aska-saves volume and delete server.properties.docker.txt - Save ID format: characters after 'savegame_' (e.g., bbdb7_1801262114211) CUSTOM MODE: - Set ASKA_MODE to 'custom' to enable advanced settings (terrain, seasons, difficulty, etc.) - Advanced settings must be configured in server.properties.docker.txt file For more information, visit the Docker Hub page.",
+  "paths": [
+    {
+      "name": "Server Data",
+      "host": "/mnt/cache/appdata/aska/server",
+      "container": "/home/steam/aska_server",
+      "mode": "rw",
+      "description": "Server installation and data directory (contains server.properties.docker.txt for advanced customization)",
+      "required": true
+    },
+    {
+      "name": "Save Files",
+      "host": "/mnt/cache/appdata/aska/saves",
+      "container": "/aska-saves",
+      "mode": "rw",
+      "description": "Directory for world saves and backups (savegame_* folders go here)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port (UDP)",
+      "host": "27015",
+      "container": "27015",
+      "protocol": "udp",
+      "description": "Steam game port - clients connect here for gameplay (must be forwarded in router)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port (UDP)",
+      "host": "27016",
+      "container": "27016",
+      "protocol": "udp",
+      "description": "Steam query port - manages server browser and client pings (must be forwarded in router)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server Display Name",
+      "key": "ASKA_DISPLAY_NAME",
+      "value": "My ASKA Server",
+      "description": "Name displayed in the session/server browser",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Internal Name",
+      "key": "ASKA_SERVER_NAME",
+      "value": "my-aska-server",
+      "description": "Internal server identifier/hostname (use lowercase, hyphens allowed, no spaces)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication Token",
+      "key": "ASKA_AUTH_TOKEN",
+      "value": "",
+      "description": "Steam GSL authentication token from https://steamcommunity.com/dev/managegameservers (App ID: 1898300). REQUIRED.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Save ID",
+      "key": "ASKA_SAVE_ID",
+      "value": "",
+      "description": "Save ID from savegame folder name (e.g., bbdb7_1801262114211). Leave empty for new world or auto-detection. Auto-populated after first save.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Password",
+      "key": "ASKA_PASSWORD",
+      "value": "",
+      "description": "Password required to join the server (leave empty for no password)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Region",
+      "key": "ASKA_REGION",
+      "value": "default",
+      "description": "Server region: default (auto-ping best), asia, japan, europe, south america, south korea, usa east, usa west, australia, canada east, hong kong, india, turkey, united arab emirates, usa south central",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Mode",
+      "key": "ASKA_MODE",
+      "value": "normal",
+      "description": "normal = standard gameplay | custom = enables terrain, season, difficulty customization (edit server.properties.docker.txt for custom settings)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Players",
+      "key": "ASKA_MAX_PLAYERS",
+      "value": "4",
+      "description": "Maximum number of players allowed on the server (1-4)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "World Seed",
+      "key": "ASKA_SEED",
+      "value": "",
+      "description": "World generation seed (leave empty for random)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep World Alive",
+      "key": "ASKA_KEEP_WORLD_ALIVE",
+      "value": "false",
+      "description": "true = world updates even with no players | false = world loads/unloads with players",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autosave Style",
+      "key": "ASKA_AUTOSAVE_STYLE",
+      "value": "every morning",
+      "description": "Options: every morning, disabled, every 5 minutes, every 10 minutes, every 15 minutes, every 20 minutes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Worker Threads",
+      "key": "ASKA_WORKER_THREADS",
+      "value": "",
+      "description": "Unity worker threads - leave empty for auto (CPU cores - 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Steam Update",
+      "key": "ASKA_SKIP_STEAM_UPDATE",
+      "value": "0",
+      "description": "Skip Steam updates on container start: 0 = update (recommended), 1 = skip updates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Validate",
+      "key": "ASKA_STEAM_VALIDATE",
+      "value": "0",
+      "description": "Validate game files on start: 0 = no validation (faster), 1 = validate files (slower, fixes corruption)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (e.g., America/New_York, Europe/London, Asia/Kuala_Lumpur)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Save Backup",
+      "key": "ASKA_SAVE_BACKUP",
+      "value": "0",
+      "description": "Enable automatic backup on container start: 0 = disabled, 1 = enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep Backups",
+      "key": "ASKA_KEEP_SAVES",
+      "value": "3",
+      "description": "Number of backup saves to retain (only applies when ASKA_SAVE_BACKUP=1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Crash Pattern",
+      "key": "ASKA_CRASH_PATTERN",
+      "value": "",
+      "description": "Custom log pattern for crash detection (advanced users only - leave empty for default)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

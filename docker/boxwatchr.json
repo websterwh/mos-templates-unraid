@@ -1,0 +1,91 @@
+{
+  "name": "boxwatchr",
+  "repo": "ghcr.io/nulcraft/boxwatchr:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/nulcraft/boxwatchr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8143]",
+  "icon": "https://raw.githubusercontent.com/nulcraft/boxwatchr/refs/heads/main/images/logo/128px_with_bg.png",
+  "project": "https://github.com/nulcraft/boxwatchr",
+  "description": "A self-hosted email filtering daemon that watches your IMAP mailbox, scores every incoming message with a spam engine, runs it through your custom rules, and takes action automatically. No cloud, no subscriptions, just your server doing exactly what you tell it to.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/boxwatchr/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "The directory to store your boxwatchr configuration files.",
+      "required": true
+    },
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/boxwatchr/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "The directory to store your boxwatchr data persistence.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Interface Port",
+      "host": "8143",
+      "container": "8143",
+      "protocol": "tcp",
+      "description": "Internal port the web dashboard listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run as inside the container. Match this to your host user to avoid permission issues on mounted volumes. Run id on your server to find your value.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run as inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Denver",
+      "description": "Timezone used for log timestamps. Logs are stored in UTC and converted at display time, so you can change this at any time without affecting existing data.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "rspamd Web Interface Password",
+      "key": "RSPAMD_PASSWORD",
+      "value": "j$$8Dy4$@r#V$8564489",
+      "description": "Password for the rspamd web interface on port 11334. A random password is generated at every startup if not set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Reverse Proxy Secure Cookies",
+      "key": "SECURE_COOKIES",
+      "value": "true",
+      "description": "Set to true if you are running boxwatchr behind an HTTPS reverse proxy. Marks the session cookie as Secure so it is only sent over encrypted connections. Leave unset for plain HTTP deployments.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

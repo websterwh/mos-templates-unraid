@@ -1,0 +1,99 @@
+{
+  "name": "PiGallery2-Plus",
+  "repo": "railline/pigallery2plus:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/railline/pigallery2plus",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/Railline/unraid-community-apps/main/assets/pigallery2plus.png",
+  "project": "https://github.com/Railline/pigallery2plus",
+  "description": "PiGallery2 Plus is a performance and metadata focused fork of PiGallery2 for large self-hosted photo and video archives. It keeps the fast directory-first gallery experience while adding smoother infinite browsing, richer Gallery Grabber metadata display, share-link and random-link improvements, activity audit logs, public direct image links, safer video fallback handling, and a more ergonomic lightbox player. Mount your media library read-only for safer public exposure.",
+  "paths": [
+    {
+      "name": "Paths - Config",
+      "host": "/mnt/cache/appdata/pigallery2plus/config",
+      "container": "/app/data/config",
+      "mode": "rw",
+      "description": "Persistent PiGallery2 Plus configuration, including config.json and extension configuration.",
+      "required": true
+    },
+    {
+      "name": "Paths - Database",
+      "host": "/mnt/cache/appdata/pigallery2plus/db",
+      "container": "/app/data/db",
+      "mode": "rw",
+      "description": "Persistent database folder for PiGallery2 Plus index data, job history, share links and audit data.",
+      "required": true
+    },
+    {
+      "name": "Paths - Temp and cache",
+      "host": "/mnt/cache/appdata/pigallery2plus/tmp",
+      "container": "/app/data/tmp",
+      "mode": "rw",
+      "description": "Temporary files, thumbnails, transcoding cache and generated assets. Put this on SSD/cache for best performance.",
+      "required": true
+    },
+    {
+      "name": "Paths - Media library",
+      "host": "/mnt/cache/photos",
+      "container": "/app/data/images",
+      "mode": "ro",
+      "description": "Your photo and video archive. The default mapping is read-only and recommended for public galleries.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI - HTTP host port",
+      "host": "8089",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the PiGallery2 Plus web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Core - TZ",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone used by the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Core - NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Runtime mode. Use production for normal deployments; debug is only for troubleshooting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sharp Input Pixel Limit",
+      "key": "PIGALLERY_SHARP_LIMIT_INPUT_PIXELS",
+      "value": "268435456",
+      "description": "Maximum source pixel count accepted by Sharp for thumbnails. 268435456 is about 16384x16384 and avoids Input image exceeds pixel limit errors on large GIF/images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "default-Server-publicUrl",
+      "value": "",
+      "description": "Optional public base URL, for example https://gallery.example.com. Set this when generating share links or random-image URLs behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,312 @@
+{
+  "name": "AppFlowy-Cloud",
+  "repo": "appflowyinc/appflowy_cloud:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/appflowyinc/appflowy_cloud",
+  "network": "custom:appflowy",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://avatars.githubusercontent.com/u/81710027?s=200&v=4",
+  "project": "https://github.com/vmalinics0/unraid-appflowy",
+  "description": "Step 5/7: AppFlowy Cloud \u2014 the core Rust backend providing REST API, WebSocket real-time collaboration, file management, and AI integration. Part of the AppFlowy Cloud stack.",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "APPFLOWY_BASE_URL",
+      "value": "http://YOUR_SERVER_IP",
+      "description": "Public-facing base URL of your AppFlowy instance (e.g. http://192.168.1.100 or https://appflowy.yourdomain.com). No trailing slash.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "APPFLOWY_GOTRUE_JWT_SECRET",
+      "value": "changeme_jwt_secret_min32chars!!",
+      "description": "Shared JWT secret. MUST be identical to GOTRUE_JWT_SECRET in AppFlowy-GoTrue. Keep private.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web URL",
+      "key": "APPFLOWY_WEB_URL",
+      "value": "http://YOUR_SERVER_IP",
+      "description": "URL where AppFlowy Web is served. Usually the same as Base URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "APPFLOWY_DATABASE_URL",
+      "value": "postgres://postgres:changeme_strong_password@AppFlowy-Postgres:5432/postgres",
+      "description": "PostgreSQL connection string. Update password and host if changed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis URI",
+      "key": "APPFLOWY_REDIS_URI",
+      "value": "redis://AppFlowy-Redis:6379",
+      "description": "Redis connection URI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GoTrue Base URL",
+      "key": "APPFLOWY_GOTRUE_BASE_URL",
+      "value": "http://AppFlowy-GoTrue:9999",
+      "description": "Internal URL of the AppFlowy-GoTrue container on the appflowy network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use MinIO",
+      "key": "APPFLOWY_S3_USE_MINIO",
+      "value": "true",
+      "description": "Set true to use MinIO (recommended for self-hosted). Set false to use AWS S3.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Access Key",
+      "key": "APPFLOWY_S3_ACCESS_KEY",
+      "value": "minioadmin",
+      "description": "S3/MinIO access key. Must match AppFlowy-MinIO MINIO_ROOT_USER.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Secret Key",
+      "key": "APPFLOWY_S3_SECRET_KEY",
+      "value": "changeme_minio_secret",
+      "description": "S3/MinIO secret key. Must match AppFlowy-MinIO MINIO_ROOT_PASSWORD.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "S3 Bucket",
+      "key": "APPFLOWY_S3_BUCKET",
+      "value": "appflowy",
+      "description": "S3/MinIO bucket name. Created automatically on first start if APPFLOWY_S3_CREATE_BUCKET=true.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MinIO URL (internal)",
+      "key": "APPFLOWY_S3_MINIO_URL",
+      "value": "http://AppFlowy-MinIO:9000",
+      "description": "Internal MinIO API URL for container-to-container communication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Presigned URL Endpoint",
+      "key": "APPFLOWY_S3_PRESIGNED_URL_ENDPOINT",
+      "value": "http://YOUR_SERVER_IP/minio-api",
+      "description": "Public-facing URL for MinIO presigned file access. Clients use this to upload/download files directly.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auto-create S3 Bucket",
+      "key": "APPFLOWY_S3_CREATE_BUCKET",
+      "value": "true",
+      "description": "Automatically create the S3 bucket on startup if it does not exist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Region",
+      "key": "APPFLOWY_S3_REGION",
+      "value": "",
+      "description": "AWS S3 region (e.g. us-east-1). Required only when APPFLOWY_S3_USE_MINIO=false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access Control",
+      "key": "APPFLOWY_ACCESS_CONTROL",
+      "value": "true",
+      "description": "Enable permission-based workspace access control. Recommended: true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB Max Connections",
+      "key": "APPFLOWY_DATABASE_MAX_CONNECTIONS",
+      "value": "40",
+      "description": "PostgreSQL connection pool size. Reduce if your Postgres hits connection limits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebSocket Mailbox Size",
+      "key": "APPFLOWY_WEBSOCKET_MAILBOX_SIZE",
+      "value": "6000",
+      "description": "Max queued WebSocket messages per actor. Higher = more memory; lower may drop messages under load.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Whitelist Signup",
+      "key": "SIGNUP_WHITELIST_ENABLED",
+      "value": "false",
+      "description": "Restrict signup to whitelisted emails. Requires GOTRUE_DISABLE_SIGNUP=false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guest Invite Approval",
+      "key": "GUEST_INVITES_REQUIRE_ADMIN_APPROVAL",
+      "value": "false",
+      "description": "Require admin approval for guest invitations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search Service URL",
+      "key": "APPFLOWY_SEARCH_SERVICE_URL",
+      "value": "http://AppFlowy-Search:4002",
+      "description": "Internal URL for the AppFlowy-Search container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search Request Timeout (s)",
+      "key": "APPFLOWY_SEARCH_REQUEST_TIMEOUT_SECS",
+      "value": "10",
+      "description": "Timeout in seconds for requests to the search service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Enabled",
+      "key": "AI_ENABLED",
+      "value": "true",
+      "description": "Enable AI features. Set false to disable entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Server Host",
+      "key": "AI_SERVER_HOST",
+      "value": "AppFlowy-AI",
+      "description": "Hostname of the AppFlowy-AI container on the appflowy network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Server Port",
+      "key": "AI_SERVER_PORT",
+      "value": "5001",
+      "description": "Port of the AI service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "AI_OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key. Required for AI-powered search summaries and document embeddings. Leave empty to disable AI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Host",
+      "key": "APPFLOWY_MAILER_SMTP_HOST",
+      "value": "",
+      "description": "SMTP host for AppFlowy Cloud mailer (e.g. smtp.gmail.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "APPFLOWY_MAILER_SMTP_PORT",
+      "value": "465",
+      "description": "SMTP port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "APPFLOWY_MAILER_SMTP_USERNAME",
+      "value": "",
+      "description": "SMTP authentication username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Email",
+      "key": "APPFLOWY_MAILER_SMTP_EMAIL",
+      "value": "",
+      "description": "Sender email address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "APPFLOWY_MAILER_SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP TLS Kind",
+      "key": "APPFLOWY_MAILER_SMTP_TLS_KIND",
+      "value": "wrapper",
+      "description": "TLS mode: wrapper (port 465), required, opportunistic, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AssemblyAI API Key",
+      "key": "ASSEMBLYAI_API_KEY",
+      "value": "",
+      "description": "AssemblyAI API key for voice transcription features. Optional.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AssemblyAI API Base",
+      "key": "ASSEMBLYAI_API_BASE",
+      "value": "https://api.assemblyai.com/v2",
+      "description": "AssemblyAI REST API base URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AssemblyAI Streaming Base",
+      "key": "ASSEMBLYAI_STREAMING_API_BASE",
+      "value": "https://streaming.assemblyai.com/v3",
+      "description": "AssemblyAI streaming API base URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "RUST_LOG",
+      "value": "info",
+      "description": "Rust log level: error, warn, info, debug, trace.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Environment",
+      "key": "APPFLOWY_ENVIRONMENT",
+      "value": "production",
+      "description": "Deployment environment. Keep as production.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

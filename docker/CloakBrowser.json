@@ -1,0 +1,123 @@
+{
+  "name": "CloakBrowser",
+  "repo": "cloakhq/cloakbrowser:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/cloakhq/cloakbrowser",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=2g --device=/dev/dri:/dev/dri --group-add 44 --group-add 109 --pids-limit=0",
+  "post_parameters": "cloakserve --headless=false --use-gl=angle --use-angle=default --enable-gpu",
+  "web_ui_url": "http://[IP]:[PORT:9222]",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/cloakbrowser-icon.png",
+  "project": "https://github.com/CloakHQ/cloakbrowser",
+  "description": "Stealth Chromium browser with 58 source-level C++ fingerprint patches. Runs as a CDP (Chrome DevTools Protocol) server with Xvfb headed mode for maximum stealth. Passes Cloudflare Turnstile, reCAPTCHA v3 (0.9 score), FingerprintJS, BrowserScan and 30+ detection sites. Per-connection fingerprint seeds allow multiple browser identities from a single container. Connect via Playwright API (Python/Node.js). Note: do not use Puppeteer to connect as it leaks detectable automation signals. WARNING: CDP gives full browser control - never expose port 9222 to the internet without authentication. ~190MB RAM idle, ~30MB per additional tab. Binary is free to use but not redistributable.",
+  "paths": [
+    {
+      "name": "Browser Cache",
+      "host": "/mnt/cache/appdata/cloakbrowser/cache",
+      "container": "/root/.cloakbrowser",
+      "mode": "rw",
+      "description": "CloakBrowser binary and profile cache directory. First run downloads ~200MB Chromium binary.",
+      "required": true
+    },
+    {
+      "name": "Persistent Profile",
+      "host": "/mnt/cache/appdata/cloakbrowser/profile",
+      "container": "/profile",
+      "mode": "rw",
+      "description": "Browser profile data (cookies, localStorage, etc). Mount for persistent sessions across restarts.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "CDP Port",
+      "host": "9222",
+      "container": "9222",
+      "protocol": "tcp",
+      "description": "Chrome DevTools Protocol port. Connect via ws:// :9222. SECURITY: Do not expose to the internet without additional authentication.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GPU Acceleration",
+      "key": "GPU Acceleration",
+      "value": "intel",
+      "description": "GPU for hardware-accelerated rendering. 'intel' = passthrough /dev/dri (iGPU, default). 'nvidia' = use NVIDIA GPU (change Extra Parameters to: --shm-size=2g --gpus all --runtime=nvidia, and remove --device=/dev/dri:/dev/dri). 'none' = software rendering only (remove --device=/dev/dri:/dev/dri from Extra Parameters).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Update",
+      "key": "CLOAKBROWSER_AUTO_UPDATE",
+      "value": "true",
+      "description": "Enable automatic background update checks for the stealth Chromium binary.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Idle Timeout",
+      "key": "CLOAKSERVE_IDLE_TIMEOUT",
+      "value": "180",
+      "description": "Seconds before idle browser processes are reaped. Prevents resource exhaustion from too many Chrome instances.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy Server",
+      "key": "CLOAKBROWSER_PROXY",
+      "value": "",
+      "description": "HTTP/SOCKS5 proxy for browser connections (e.g. http://user:pass@proxy:8080 or socks5://proxy:1080).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Only for NVIDIA GPU mode. Set to 'all' or specific GPU ID (0, 1, etc). Leave empty if using Intel iGPU.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility,graphics",
+      "description": "Only for NVIDIA GPU mode. Driver capabilities to expose.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Binary Path Override",
+      "key": "CLOAKBROWSER_BINARY_PATH",
+      "value": "",
+      "description": "Skip download - use a custom local Chromium binary path inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download URL",
+      "key": "CLOAKBROWSER_DOWNLOAD_URL",
+      "value": "https://cloakbrowser.dev",
+      "description": "Download server for the stealth Chromium binary. Must include https:// prefix.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip Checksum",
+      "key": "CLOAKBROWSER_SKIP_CHECKSUM",
+      "value": "false",
+      "description": "Skip SHA-256 verification of downloaded binary. Not recommended.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,92 @@
+{
+  "name": "jitstreamer-eb",
+  "repo": "jkcoxson/jitstreamer-eb:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://registry.hub.docker.com/r/jkcoxson/jitstreamer-eb",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --cpus=1 --memory=500m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9172]",
+  "icon": "https://raw.githubusercontent.com/Unlearned6688/unraid-templates/refs/heads/main/icons/Jitstreamer.png",
+  "project": "https://github.com/jkcoxson/JitStreamer-EB",
+  "description": "WARNING WARNING SETUP IS REQUIRED BEFORE RUNNING THIS TEMPLATE WARNING WARNING THIS PROJECT IS NOW EOL!!! YOU CAN USE StikJIT! A server is no longer needed! Follow instructions or this container will not work!!! You MUST place your pairing file(s) in your /lockdown directory You MUST setup the shortcut on your Apple Device. You MUST create a database and enter your Apple Devices into it. I wrote a guide for installing this container on Debian. Here is a revised version I made for Unraid. See here: https://github.com/Unlearned6688/Unraid-templates/blob/main/template-readmes/jitstreamer-eb-readme.md Questions? Join the Discord. My username is Justice on there. Message me in the self-host section with a specific question and, as always, provide logs and errors along with \"what you did so far\" if you want help. This is an Unraid template for JitStreamer-EB -- created by jkcoxson The GitHub repository: https://github.com/jkcoxson/JitStreamer-EB This Docker container enables Just-in-Time (JIT) compiling in sideloaded apps on Apple iDevices.",
+  "paths": [
+    {
+      "name": "Database dir",
+      "host": "/mnt/cache/appdata/jitstreamer-eb/app/jitstreamer.db",
+      "container": "/app/jitstreamer.db",
+      "mode": "rw",
+      "description": "This is where you must create your sqlite database containing information for your iDevices. Follow the instructions linked in the description.",
+      "required": true
+    },
+    {
+      "name": "Wireguard dir",
+      "host": "/mnt/cache/appdata/jitstreamer-eb/etc/wireguard",
+      "container": "/etc/wireguard",
+      "mode": "rw",
+      "description": "A wireguard .conf file will be created here. This can be ignored for a basic setup. More info in the future.",
+      "required": true
+    },
+    {
+      "name": "Pair file dir",
+      "host": "/mnt/cache/appdata/jitstreamer-eb/var/lib/lockdown",
+      "container": "/var/lib/lockdown",
+      "mode": "rw",
+      "description": "This is where you must place your pairing files (.plist) for your iDevices. Follow the instructions linked in the description.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port 1",
+      "host": "9172",
+      "container": "9172",
+      "protocol": "tcp",
+      "description": "This port is used during JIT acquisition. You should be able to change the HOST port if you need to. Don't change the container port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 2",
+      "host": "51870",
+      "container": "51869",
+      "protocol": "udp",
+      "description": "Another port used during JIT acquisition. I was unsuccessful getting it to work when host and container ports were the same. That's why they are different. You change the HOST port if you need to. Do not change the container port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Log level",
+      "key": "RUST_BACKTRACE",
+      "value": "info",
+      "description": "Log level. Info gives enough info if you're not having issues. Set to full if you want way too much stuff.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Runner count",
+      "key": "RUNNER_COUNT",
+      "value": "1",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Tunnel device",
+      "host": "/dev/net/tun:/dev/net/tun",
+      "container": "/dev/net/tun:/dev/net/tun",
+      "description": "Require in order to run.",
+      "required": true
+    }
+  ],
+  "labels": []
+}

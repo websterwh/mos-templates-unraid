@@ -1,0 +1,1909 @@
+{
+  "name": "infisical-aio",
+  "repo": "jsonbored/infisical-aio:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/infisical-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/infisical.png",
+  "project": "https://github.com/JSONbored/infisical-aio",
+  "description": "Infisical is an open-source secrets management platform for teams, infrastructure, and application credentials. All-In-One Unraid Edition `infisical-aio` wraps the official Infisical container and bundles the required PostgreSQL and Redis services into one Unraid-first install path. It also includes a bundled Mailpit inbox so default startup and local email-dependent flows work without forcing a real SMTP relay on day one. That keeps the beginner setup small while still exposing the wider upstream configuration surface in Advanced View. Quick Install (Beginners) 1. Install the template and keep the default `/config` and `/data` paths unless you have a reason to move them. 2. Set [code]SITE_URL[/code] to the real URL users will visit, such as [code]https://secrets.example.com[/code] or [code]http://tower.local:8080[/code]. 3. Start the container. The wrapper will auto-generate and persist [code]ENCRYPTION_KEY[/code] and [code]AUTH_SECRET[/code] if you leave them blank, and bundled Mailpit inbox UI credentials will be stored in [code]/config/aio/generated.env[/code]. Publish [code]Local Mail Inbox Port[/code] only when you intentionally need host-network inbox access. 4. Either create the first account in the UI, or fill the optional [code]AIO_BOOTSTRAP_*[/code] fields in Advanced View to bootstrap the first admin and organization automatically. Power Users (Advanced View) - Advanced View exposes the broader Infisical self-hosting environment surface, including SMTP, SSO, audit logging, telemetry, secret scanning, app connections, gateway/PAM controls, and expert network/security knobs. - Leave [code]DB_CONNECTION_URI[/code] and [code]REDIS_URL[/code] blank for the easiest bundled path. Set them only if you want to use external PostgreSQL or Redis instead of the embedded services. - Leave [code]SMTP_HOST[/code] blank for the bundled local Mailpit inbox, or point it at a real external SMTP server if you do not want the bundled inbox. - If you enable Prometheus metrics export, publish the optional [code]9464[/code] metrics port in Advanced View so your scraper can reach it. Important Notes - The default AIO path embeds PostgreSQL and Redis for convenience. That is simpler for first boot, but it is not the same as a highly available production deployment. - Infisical itself recommends external high-availability PostgreSQL and Redis for more serious production deployments. - The bundled Mailpit inbox is for local or lab use. It is not a production mail relay and should not be confused with real deliverability infrastructure. - [code]SITE_URL[/code] matters. If you set it wrong, browser flows, links, email behavior, and some integrations will break in subtle ways. - If you enable automatic bootstrap, you are creating a highly privileged instance-admin identity during first boot. Treat those credentials carefully.",
+  "paths": [
+    {
+      "name": "AppData - Config",
+      "host": "/mnt/cache/appdata/infisical-aio/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent wrapper state, generated first-run secrets, and optional bootstrap artifacts.",
+      "required": true
+    },
+    {
+      "name": "AppData - Data",
+      "host": "/mnt/cache/appdata/infisical-aio/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent bundled PostgreSQL and Redis data for the default AIO path.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Main Infisical web and API port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local Mail Inbox Port",
+      "host": "8025",
+      "container": "8025",
+      "protocol": "tcp",
+      "description": "Optional host port for the bundled Mailpit inbox UI used in local or lab email capture. Leave blank unless you intentionally need inbox UI access from the host network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Metrics Port",
+      "host": "9464",
+      "container": "9464",
+      "protocol": "tcp",
+      "description": "Optional host port for OTEL Prometheus metrics. Leave blank unless you enable OTEL_TELEMETRY_COLLECTION_ENABLED=true and OTEL_EXPORT_TYPE=prometheus.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Site URL",
+      "key": "SITE_URL",
+      "value": "http://tower.local:8080",
+      "description": "Canonical public URL for your instance, including http or https. This should match the real URL users and reverse proxies will use.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Encryption Key",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "Optional manual override for the platform encryption key. Leave blank to let the wrapper generate and persist it automatically.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auth Secret",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Optional manual override for the JWT auth secret. Leave blank to let the wrapper generate and persist it automatically.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Initial Organization Name",
+      "key": "INITIAL_ORGANIZATION_NAME",
+      "value": "",
+      "description": "Optional default organization name shown during initial signup when you are not using API bootstrap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External PostgreSQL DB_CONNECTION_URI",
+      "key": "DB_CONNECTION_URI",
+      "value": "",
+      "description": "Leave blank for the bundled PostgreSQL database. Set this to use an external Postgres instance instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "External Redis REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Leave blank for the bundled Redis instance. Set this to use an external Redis instance instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Network/Security] NODE_EXTRA_CA_CERTS",
+      "key": "NODE_EXTRA_CA_CERTS",
+      "value": "",
+      "description": "Optional path to a PEM CA bundle inside the container for private or self-signed upstream certificates, such as external Redis over rediss://. Because /config is persistent, a typical path is /config/aio/certs/custom-ca.pem.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Bootstrap Admin Email",
+      "key": "AIO_BOOTSTRAP_EMAIL",
+      "value": "",
+      "description": "Optional first admin email for automatic instance bootstrap. Leave blank to bootstrap manually in the UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Bootstrap Admin Password",
+      "key": "AIO_BOOTSTRAP_PASSWORD",
+      "value": "",
+      "description": "Optional first admin password for automatic instance bootstrap.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auto Bootstrap Organization",
+      "key": "AIO_BOOTSTRAP_ORGANIZATION",
+      "value": "",
+      "description": "Optional organization name used by the automatic bootstrap flow.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Bootstrap Save Response",
+      "key": "AIO_BOOTSTRAP_SAVE_RESPONSE",
+      "value": "false",
+      "description": "When true, the bootstrap API response is persisted to /config/aio/bootstrap-response.json. Treat that file like a root credential.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bundled Local Mail Inbox",
+      "key": "AIO_ENABLE_BUNDLED_MAILPIT",
+      "value": "true",
+      "description": "When true and SMTP_HOST is left blank, the wrapper runs a bundled Mailpit inbox so Infisical can send local or lab mail without requiring a real SMTP relay. Set false only if you intentionally want SMTP to stay unset until you configure an external server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bundled Local Mail UI Username",
+      "key": "AIO_MAILPIT_UI_USERNAME",
+      "value": "",
+      "description": "Optional manual username for the bundled Mailpit inbox UI. Leave blank to let the wrapper generate and persist one in /config/aio/generated.env.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bundled Local Mail UI Password",
+      "key": "AIO_MAILPIT_UI_PASSWORD",
+      "value": "",
+      "description": "Optional manual password for the bundled Mailpit inbox UI. Leave blank to let the wrapper generate and persist one in /config/aio/generated.env.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SMTP] SMTP_HOST",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "Optional external SMTP server hostname for transactional email features. Leave blank to use the bundled local Mailpit inbox for local or lab mail capture.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_PORT",
+      "key": "SMTP_PORT",
+      "value": "",
+      "description": "External SMTP server port. If SMTP_HOST is blank, the wrapper uses bundled Mailpit on internal port 1025 instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_USERNAME",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "Optional external SMTP username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_PASSWORD",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "Optional external SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SMTP] SMTP_FROM_ADDRESS",
+      "key": "SMTP_FROM_ADDRESS",
+      "value": "",
+      "description": "Optional sender email address used for Infisical emails. When bundled Mailpit is active and this is blank, the wrapper defaults it to no-reply@infisical.local.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_FROM_NAME",
+      "key": "SMTP_FROM_NAME",
+      "value": "",
+      "description": "Optional sender display name. Default is Infisical.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] TELEMETRY_ENABLED",
+      "key": "TELEMETRY_ENABLED",
+      "value": "false",
+      "description": "Usage telemetry toggle. The AIO wrapper defaults this to false for privacy-first self-hosting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] KUBERNETES_AUTO_FETCH_SERVICE_ACCOUNT_TOKEN",
+      "key": "KUBERNETES_AUTO_FETCH_SERVICE_ACCOUNT_TOKEN",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `KUBERNETES_AUTO_FETCH_SERVICE_ACCOUNT_TOKEN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] DISABLE_SECRET_SCANNING",
+      "key": "DISABLE_SECRET_SCANNING",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `DISABLE_SECRET_SCANNING`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] DISABLE_PUBLIC_SECRET_SHARING",
+      "key": "DISABLE_PUBLIC_SECRET_SHARING",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DISABLE_PUBLIC_SECRET_SHARING`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Redis] REDIS_USERNAME",
+      "key": "REDIS_USERNAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_USERNAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_PASSWORD",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_PASSWORD`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Redis] REDIS_SENTINEL_HOSTS",
+      "key": "REDIS_SENTINEL_HOSTS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_SENTINEL_HOSTS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_SENTINEL_MASTER_NAME",
+      "key": "REDIS_SENTINEL_MASTER_NAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_SENTINEL_MASTER_NAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_SENTINEL_ENABLE_TLS",
+      "key": "REDIS_SENTINEL_ENABLE_TLS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_SENTINEL_ENABLE_TLS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_SENTINEL_USERNAME",
+      "key": "REDIS_SENTINEL_USERNAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_SENTINEL_USERNAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_SENTINEL_PASSWORD",
+      "key": "REDIS_SENTINEL_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_SENTINEL_PASSWORD`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Redis] REDIS_CLUSTER_HOSTS",
+      "key": "REDIS_CLUSTER_HOSTS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_CLUSTER_HOSTS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_READ_REPLICAS",
+      "key": "REDIS_READ_REPLICAS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_READ_REPLICAS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_CLUSTER_ENABLE_TLS",
+      "key": "REDIS_CLUSTER_ENABLE_TLS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_CLUSTER_ENABLE_TLS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Redis] REDIS_CLUSTER_AWS_ELASTICACHE_DNS_LOOKUP_MODE",
+      "key": "REDIS_CLUSTER_AWS_ELASTICACHE_DNS_LOOKUP_MODE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `REDIS_CLUSTER_AWS_ELASTICACHE_DNS_LOOKUP_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] AUDIT_LOGS_DB_CONNECTION_URI",
+      "key": "AUDIT_LOGS_DB_CONNECTION_URI",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `AUDIT_LOGS_DB_CONNECTION_URI`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] AUDIT_LOGS_DB_ROOT_CERT",
+      "key": "AUDIT_LOGS_DB_ROOT_CERT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `AUDIT_LOGS_DB_ROOT_CERT`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Audit Logs] CLICKHOUSE_URL",
+      "key": "CLICKHOUSE_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLICKHOUSE_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] CLICKHOUSE_AUDIT_LOG_INSERT_SETTINGS",
+      "key": "CLICKHOUSE_AUDIT_LOG_INSERT_SETTINGS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLICKHOUSE_AUDIT_LOG_INSERT_SETTINGS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] CLICKHOUSE_AUDIT_LOG_ENGINE",
+      "key": "CLICKHOUSE_AUDIT_LOG_ENGINE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLICKHOUSE_AUDIT_LOG_ENGINE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] CLICKHOUSE_AUDIT_LOG_TABLE_NAME",
+      "key": "CLICKHOUSE_AUDIT_LOG_TABLE_NAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLICKHOUSE_AUDIT_LOG_TABLE_NAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] CLICKHOUSE_AUDIT_LOG_ENABLED",
+      "key": "CLICKHOUSE_AUDIT_LOG_ENABLED",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `CLICKHOUSE_AUDIT_LOG_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] AUDIT_LOG_STREAMS_ENABLED",
+      "key": "AUDIT_LOG_STREAMS_ENABLED",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `AUDIT_LOG_STREAMS_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] DISABLE_AUDIT_LOG_STORAGE",
+      "key": "DISABLE_AUDIT_LOG_STORAGE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DISABLE_AUDIT_LOG_STORAGE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Audit Logs] DISABLE_POSTGRES_AUDIT_LOG_STORAGE",
+      "key": "DISABLE_POSTGRES_AUDIT_LOG_STORAGE",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `DISABLE_POSTGRES_AUDIT_LOG_STORAGE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] GENERATE_SANITIZED_SCHEMA",
+      "key": "GENERATE_SANITIZED_SCHEMA",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GENERATE_SANITIZED_SCHEMA`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] FAIL_ON_SANITIZED_SCHEMA_ERROR",
+      "key": "FAIL_ON_SANITIZED_SCHEMA_ERROR",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `FAIL_ON_SANITIZED_SCHEMA_ERROR`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] SANITIZED_SCHEMA_ROLE",
+      "key": "SANITIZED_SCHEMA_ROLE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SANITIZED_SCHEMA_ROLE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] MAX_LEASE_LIMIT",
+      "key": "MAX_LEASE_LIMIT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `MAX_LEASE_LIMIT`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] DB_ROOT_CERT",
+      "key": "DB_ROOT_CERT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_ROOT_CERT`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Database] DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_HOST`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] DB_PORT",
+      "key": "DB_PORT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_PORT`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] DB_USER",
+      "key": "DB_USER",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_USER`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_PASSWORD`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Database] DB_NAME",
+      "key": "DB_NAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_NAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] DB_READ_REPLICAS",
+      "key": "DB_READ_REPLICAS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DB_READ_REPLICAS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] SALT_ROUNDS",
+      "key": "SALT_ROUNDS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SALT_ROUNDS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] ROOT_ENCRYPTION_KEY",
+      "key": "ROOT_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ROOT_ENCRYPTION_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] QUEUE_WORKERS_ENABLED",
+      "key": "QUEUE_WORKERS_ENABLED",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `QUEUE_WORKERS_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] QUEUE_WORKER_PROFILE",
+      "key": "QUEUE_WORKER_PROFILE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `QUEUE_WORKER_PROFILE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] HTTPS_ENABLED",
+      "key": "HTTPS_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HTTPS_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] ROTATION_DEVELOPMENT_MODE",
+      "key": "ROTATION_DEVELOPMENT_MODE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ROTATION_DEVELOPMENT_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] DAILY_RESOURCE_CLEAN_UP_DEVELOPMENT_MODE",
+      "key": "DAILY_RESOURCE_CLEAN_UP_DEVELOPMENT_MODE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DAILY_RESOURCE_CLEAN_UP_DEVELOPMENT_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] BDD_NOCK_API_ENABLED",
+      "key": "BDD_NOCK_API_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `BDD_NOCK_API_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ACME] ACME_DEVELOPMENT_MODE",
+      "key": "ACME_DEVELOPMENT_MODE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ACME_DEVELOPMENT_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ACME] ACME_SKIP_UPSTREAM_VALIDATION",
+      "key": "ACME_SKIP_UPSTREAM_VALIDATION",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ACME_SKIP_UPSTREAM_VALIDATION`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ACME] ACME_DEVELOPMENT_HTTP01_CHALLENGE_HOST_OVERRIDES",
+      "key": "ACME_DEVELOPMENT_HTTP01_CHALLENGE_HOST_OVERRIDES",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ACME_DEVELOPMENT_HTTP01_CHALLENGE_HOST_OVERRIDES`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ACME] ACME_DNS_RESOLVER_SERVERS",
+      "key": "ACME_DNS_RESOLVER_SERVERS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ACME_DNS_RESOLVER_SERVERS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ACME] ACME_DNS_RESOLVE_RESOLVER_SERVERS_HOST_ENABLED",
+      "key": "ACME_DNS_RESOLVE_RESOLVER_SERVERS_HOST_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ACME_DNS_RESOLVE_RESOLVER_SERVERS_HOST_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] DNS_MADE_EASY_SANDBOX_ENABLED",
+      "key": "DNS_MADE_EASY_SANDBOX_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DNS_MADE_EASY_SANDBOX_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_IGNORE_TLS",
+      "key": "SMTP_IGNORE_TLS",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `SMTP_IGNORE_TLS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_REQUIRE_TLS",
+      "key": "SMTP_REQUIRE_TLS",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `SMTP_REQUIRE_TLS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_TLS_REJECT_UNAUTHORIZED",
+      "key": "SMTP_TLS_REJECT_UNAUTHORIZED",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `SMTP_TLS_REJECT_UNAUTHORIZED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_HELO_HOST",
+      "key": "SMTP_HELO_HOST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SMTP_HELO_HOST`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP_CUSTOM_CA_CERT",
+      "key": "SMTP_CUSTOM_CA_CERT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SMTP_CUSTOM_CA_CERT`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] COOKIE_SECRET_SIGN_KEY",
+      "key": "COOKIE_SECRET_SIGN_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `COOKIE_SECRET_SIGN_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] POSTHOG_HOST",
+      "key": "POSTHOG_HOST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `POSTHOG_HOST`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] POSTHOG_PROJECT_API_KEY",
+      "key": "POSTHOG_PROJECT_API_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `POSTHOG_PROJECT_API_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] LOOPS_API_KEY",
+      "key": "LOOPS_API_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LOOPS_API_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] HUBSPOT_PORTAL_ID",
+      "key": "HUBSPOT_PORTAL_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HUBSPOT_PORTAL_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] HUBSPOT_SIGNUP_FORM_ID",
+      "key": "HUBSPOT_SIGNUP_FORM_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HUBSPOT_SIGNUP_FORM_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] ANNOUNCEMENTS_ENABLED",
+      "key": "ANNOUNCEMENTS_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `ANNOUNCEMENTS_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] CONTENTFUL_SPACE_ID",
+      "key": "CONTENTFUL_SPACE_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CONTENTFUL_SPACE_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] CONTENTFUL_DELIVERY_TOKEN",
+      "key": "CONTENTFUL_DELIVERY_TOKEN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CONTENTFUL_DELIVERY_TOKEN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] CONTENTFUL_ENVIRONMENT",
+      "key": "CONTENTFUL_ENVIRONMENT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CONTENTFUL_ENVIRONMENT`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GITHUB_API_TOKEN",
+      "key": "GITHUB_API_TOKEN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GITHUB_API_TOKEN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] JWT_AUTH_LIFETIME",
+      "key": "JWT_AUTH_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_AUTH_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] JWT_SIGNUP_LIFETIME",
+      "key": "JWT_SIGNUP_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_SIGNUP_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] JWT_REFRESH_LIFETIME",
+      "key": "JWT_REFRESH_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_REFRESH_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] JWT_INVITE_LIFETIME",
+      "key": "JWT_INVITE_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_INVITE_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] JWT_MFA_LIFETIME",
+      "key": "JWT_MFA_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_MFA_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] JWT_PROVIDER_AUTH_LIFETIME",
+      "key": "JWT_PROVIDER_AUTH_LIFETIME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `JWT_PROVIDER_AUTH_LIFETIME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] MAX_MACHINE_IDENTITY_TOKEN_AGE",
+      "key": "MAX_MACHINE_IDENTITY_TOKEN_AGE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `MAX_MACHINE_IDENTITY_TOKEN_AGE`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] LEGACY_IDENTITY_ACCESS_TOKEN_EXPIRATION_ENFORCED_AT",
+      "key": "LEGACY_IDENTITY_ACCESS_TOKEN_EXPIRATION_ENFORCED_AT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LEGACY_IDENTITY_ACCESS_TOKEN_EXPIRATION_ENFORCED_AT`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GOOGLE_LOGIN",
+      "key": "CLIENT_ID_GOOGLE_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GOOGLE_LOGIN`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GOOGLE_LOGIN",
+      "key": "CLIENT_SECRET_GOOGLE_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GOOGLE_LOGIN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GITHUB_LOGIN",
+      "key": "CLIENT_ID_GITHUB_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GITHUB_LOGIN`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GITHUB_LOGIN",
+      "key": "CLIENT_SECRET_GITHUB_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GITHUB_LOGIN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GITLAB_LOGIN",
+      "key": "CLIENT_ID_GITLAB_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GITLAB_LOGIN`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GITLAB_LOGIN",
+      "key": "CLIENT_SECRET_GITLAB_LOGIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GITLAB_LOGIN`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_GITLAB_LOGIN_URL",
+      "key": "CLIENT_GITLAB_LOGIN_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_GITLAB_LOGIN_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] DEFAULT_SAML_ORG_SLUG",
+      "key": "DEFAULT_SAML_ORG_SLUG",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DEFAULT_SAML_ORG_SLUG`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_HEROKU",
+      "key": "CLIENT_ID_HEROKU",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_HEROKU`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_HEROKU",
+      "key": "CLIENT_SECRET_HEROKU",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_HEROKU`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_VERCEL",
+      "key": "CLIENT_ID_VERCEL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_VERCEL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_VERCEL",
+      "key": "CLIENT_SECRET_VERCEL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_VERCEL`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SLUG_VERCEL",
+      "key": "CLIENT_SLUG_VERCEL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SLUG_VERCEL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_NETLIFY",
+      "key": "CLIENT_ID_NETLIFY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_NETLIFY`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_NETLIFY",
+      "key": "CLIENT_SECRET_NETLIFY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_NETLIFY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_BITBUCKET",
+      "key": "CLIENT_ID_BITBUCKET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_BITBUCKET`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_BITBUCKET",
+      "key": "CLIENT_SECRET_BITBUCKET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_BITBUCKET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GCP_SECRET_MANAGER",
+      "key": "CLIENT_ID_GCP_SECRET_MANAGER",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GCP_SECRET_MANAGER`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GCP_SECRET_MANAGER",
+      "key": "CLIENT_SECRET_GCP_SECRET_MANAGER",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GCP_SECRET_MANAGER`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GITHUB",
+      "key": "CLIENT_ID_GITHUB",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GITHUB`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GITHUB",
+      "key": "CLIENT_SECRET_GITHUB",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GITHUB`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GITHUB_APP",
+      "key": "CLIENT_ID_GITHUB_APP",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GITHUB_APP`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GITHUB_APP",
+      "key": "CLIENT_SECRET_GITHUB_APP",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GITHUB_APP`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_PRIVATE_KEY_GITHUB_APP",
+      "key": "CLIENT_PRIVATE_KEY_GITHUB_APP",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_PRIVATE_KEY_GITHUB_APP`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_APP_ID_GITHUB_APP",
+      "key": "CLIENT_APP_ID_GITHUB_APP",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_APP_ID_GITHUB_APP`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SLUG_GITHUB_APP",
+      "key": "CLIENT_SLUG_GITHUB_APP",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SLUG_GITHUB_APP`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_AZURE",
+      "key": "CLIENT_ID_AZURE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_AZURE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_AZURE",
+      "key": "CLIENT_SECRET_AZURE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_AZURE`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_AWS_INTEGRATION",
+      "key": "CLIENT_ID_AWS_INTEGRATION",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_AWS_INTEGRATION`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_AWS_INTEGRATION",
+      "key": "CLIENT_SECRET_AWS_INTEGRATION",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_AWS_INTEGRATION`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_ID_GITLAB",
+      "key": "CLIENT_ID_GITLAB",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_ID_GITLAB`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSO/Auth] CLIENT_SECRET_GITLAB",
+      "key": "CLIENT_SECRET_GITLAB",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CLIENT_SECRET_GITLAB`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] URL_GITLAB_URL",
+      "key": "URL_GITLAB_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `URL_GITLAB_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_WEBHOOK_PROXY",
+      "key": "SECRET_SCANNING_WEBHOOK_PROXY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_WEBHOOK_PROXY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_WEBHOOK_SECRET",
+      "key": "SECRET_SCANNING_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_WEBHOOK_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_GIT_APP_ID",
+      "key": "SECRET_SCANNING_GIT_APP_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_GIT_APP_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_PRIVATE_KEY",
+      "key": "SECRET_SCANNING_PRIVATE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_PRIVATE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_ORG_WHITELIST",
+      "key": "SECRET_SCANNING_ORG_WHITELIST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_ORG_WHITELIST`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Secret Scanning] SECRET_SCANNING_GIT_APP_SLUG",
+      "key": "SECRET_SCANNING_GIT_APP_SLUG",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SECRET_SCANNING_GIT_APP_SLUG`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Platform] LICENSE_SERVER_URL",
+      "key": "LICENSE_SERVER_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_SERVER_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Platform] LICENSE_SERVER_KEY",
+      "key": "LICENSE_SERVER_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_SERVER_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Platform] LICENSE_KEY",
+      "key": "LICENSE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Platform] LICENSE_KEY_OFFLINE",
+      "key": "LICENSE_KEY_OFFLINE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_KEY_OFFLINE`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Platform] LICENSE_SERVER_V2_ENABLED",
+      "key": "LICENSE_SERVER_V2_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_SERVER_V2_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Platform] LICENSE_SERVER_V2_URL",
+      "key": "LICENSE_SERVER_V2_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_SERVER_V2_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Platform] LICENSE_SERVER_V2_SERVICE_KEY",
+      "key": "LICENSE_SERVER_V2_SERVICE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `LICENSE_SERVER_V2_SERVICE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] STANDALONE_MODE",
+      "key": "STANDALONE_MODE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `STANDALONE_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Platform] INFISICAL_CLOUD",
+      "key": "INFISICAL_CLOUD",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INFISICAL_CLOUD`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Platform] INFISICAL_DEDICATED",
+      "key": "INFISICAL_DEDICATED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INFISICAL_DEDICATED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] MAINTENANCE_MODE",
+      "key": "MAINTENANCE_MODE",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `MAINTENANCE_MODE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] CAPTCHA_SECRET",
+      "key": "CAPTCHA_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CAPTCHA_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] CAPTCHA_SITE_KEY",
+      "key": "CAPTCHA_SITE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CAPTCHA_SITE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] INTERCOM_ID",
+      "key": "INTERCOM_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INTERCOM_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] CDN_HOST",
+      "key": "CDN_HOST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CDN_HOST`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_TELEMETRY_COLLECTION_ENABLED",
+      "key": "OTEL_TELEMETRY_COLLECTION_ENABLED",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `OTEL_TELEMETRY_COLLECTION_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_EXPORT_OTLP_ENDPOINT",
+      "key": "OTEL_EXPORT_OTLP_ENDPOINT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_EXPORT_OTLP_ENDPOINT`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_OTLP_PUSH_INTERVAL",
+      "key": "OTEL_OTLP_PUSH_INTERVAL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_OTLP_PUSH_INTERVAL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_COLLECTOR_BASIC_AUTH_USERNAME",
+      "key": "OTEL_COLLECTOR_BASIC_AUTH_USERNAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_COLLECTOR_BASIC_AUTH_USERNAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_COLLECTOR_BASIC_AUTH_PASSWORD",
+      "key": "OTEL_COLLECTOR_BASIC_AUTH_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_COLLECTOR_BASIC_AUTH_PASSWORD`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] OTEL_EXPORT_TYPE",
+      "key": "OTEL_EXPORT_TYPE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_EXPORT_TYPE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] OTEL_DROP_HIGH_CARDINALITY_METERS",
+      "key": "OTEL_DROP_HIGH_CARDINALITY_METERS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `OTEL_DROP_HIGH_CARDINALITY_METERS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] PYLON_API_KEY",
+      "key": "PYLON_API_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PYLON_API_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] DISABLE_AUDIT_LOG_GENERATION",
+      "key": "DISABLE_AUDIT_LOG_GENERATION",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DISABLE_AUDIT_LOG_GENERATION`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Network/Security] SSL_CLIENT_CERTIFICATE_HEADER_KEY",
+      "key": "SSL_CLIENT_CERTIFICATE_HEADER_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `SSL_CLIENT_CERTIFICATE_HEADER_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Network/Security] IDENTITY_TLS_CERT_AUTH_CLIENT_CERTIFICATE_HEADER_KEY",
+      "key": "IDENTITY_TLS_CERT_AUTH_CLIENT_CERTIFICATE_HEADER_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `IDENTITY_TLS_CERT_AUTH_CLIENT_CERTIFICATE_HEADER_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] WORKFLOW_SLACK_CLIENT_ID",
+      "key": "WORKFLOW_SLACK_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `WORKFLOW_SLACK_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] WORKFLOW_SLACK_CLIENT_SECRET",
+      "key": "WORKFLOW_SLACK_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `WORKFLOW_SLACK_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] ENABLE_MSSQL_SECRET_ROTATION_ENCRYPT",
+      "key": "ENABLE_MSSQL_SECRET_ROTATION_ENCRYPT",
+      "value": "true",
+      "description": "Advanced upstream Infisical environment variable `ENABLE_MSSQL_SECRET_ROTATION_ENCRYPT`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] PARAMS_FOLDER_SECRET_DETECTION_PATHS",
+      "key": "PARAMS_FOLDER_SECRET_DETECTION_PATHS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PARAMS_FOLDER_SECRET_DETECTION_PATHS`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] PARAMS_FOLDER_SECRET_DETECTION_ENTROPY",
+      "key": "PARAMS_FOLDER_SECRET_DETECTION_ENTROPY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PARAMS_FOLDER_SECRET_DETECTION_ENTROPY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Platform] INFISICAL_PRIMARY_INSTANCE_URL",
+      "key": "INFISICAL_PRIMARY_INSTANCE_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INFISICAL_PRIMARY_INSTANCE_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[HSM] HSM_LIB_PATH",
+      "key": "HSM_LIB_PATH",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HSM_LIB_PATH`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[HSM] HSM_PIN",
+      "key": "HSM_PIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HSM_PIN`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[HSM] HSM_KEY_LABEL",
+      "key": "HSM_KEY_LABEL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HSM_KEY_LABEL`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[HSM] HSM_SLOT",
+      "key": "HSM_SLOT",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `HSM_SLOT`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] USE_PG_QUEUE",
+      "key": "USE_PG_QUEUE",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `USE_PG_QUEUE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] SHOULD_INIT_PG_QUEUE",
+      "key": "SHOULD_INIT_PG_QUEUE",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `SHOULD_INIT_PG_QUEUE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Gateway/PAM] GATEWAY_INFISICAL_STATIC_IP_ADDRESS",
+      "key": "GATEWAY_INFISICAL_STATIC_IP_ADDRESS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GATEWAY_INFISICAL_STATIC_IP_ADDRESS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Gateway/PAM] GATEWAY_RELAY_ADDRESS",
+      "key": "GATEWAY_RELAY_ADDRESS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GATEWAY_RELAY_ADDRESS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Gateway/PAM] GATEWAY_RELAY_REALM",
+      "key": "GATEWAY_RELAY_REALM",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GATEWAY_RELAY_REALM`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Gateway/PAM] GATEWAY_RELAY_AUTH_SECRET",
+      "key": "GATEWAY_RELAY_AUTH_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GATEWAY_RELAY_AUTH_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Gateway/PAM] RELAY_AUTH_SECRET",
+      "key": "RELAY_AUTH_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `RELAY_AUTH_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] DYNAMIC_SECRET_ALLOW_INTERNAL_IP",
+      "key": "DYNAMIC_SECRET_ALLOW_INTERNAL_IP",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `DYNAMIC_SECRET_ALLOW_INTERNAL_IP`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] DYNAMIC_SECRET_AWS_ACCESS_KEY_ID",
+      "key": "DYNAMIC_SECRET_AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DYNAMIC_SECRET_AWS_ACCESS_KEY_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] DYNAMIC_SECRET_AWS_SECRET_ACCESS_KEY",
+      "key": "DYNAMIC_SECRET_AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DYNAMIC_SECRET_AWS_SECRET_ACCESS_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Gateway/PAM] PAM_AWS_ACCESS_KEY_ID",
+      "key": "PAM_AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PAM_AWS_ACCESS_KEY_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Gateway/PAM] PAM_AWS_SECRET_ACCESS_KEY",
+      "key": "PAM_AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PAM_AWS_SECRET_ACCESS_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] ALLOW_INTERNAL_IP_CONNECTIONS",
+      "key": "ALLOW_INTERNAL_IP_CONNECTIONS",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `ALLOW_INTERNAL_IP_CONNECTIONS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AWS_ACCESS_KEY_ID",
+      "key": "INF_APP_CONNECTION_AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AWS_ACCESS_KEY_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AWS_SECRET_ACCESS_KEY",
+      "key": "INF_APP_CONNECTION_AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AWS_SECRET_ACCESS_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_OAUTH_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_PRIVATE_KEY",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_PRIVATE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_PRIVATE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_SLUG",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_SLUG",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_SLUG`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_ID",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_APP_HOST",
+      "key": "INF_APP_CONNECTION_GITHUB_APP_HOST",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_APP_HOST`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_PRIVATE_KEY",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_PRIVATE_KEY",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_PRIVATE_KEY`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_SLUG",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_SLUG",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_SLUG`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_ID",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITHUB_RADAR_APP_WEBHOOK_SECRET",
+      "key": "INF_APP_CONNECTION_GITHUB_RADAR_APP_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITHUB_RADAR_APP_WEBHOOK_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GITLAB_OAUTH_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_GCP_SERVICE_ACCOUNT_CREDENTIAL",
+      "key": "INF_APP_CONNECTION_GCP_SERVICE_ACCOUNT_CREDENTIAL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_GCP_SERVICE_ACCOUNT_CREDENTIAL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_AZURE_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_AZURE_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_APP_CONFIGURATION_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_KEY_VAULT_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_ID`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_CLIENT_SECRETS_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_AZURE_DEVOPS_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_ID",
+      "key": "INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_ID`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[App Connections] INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_SECRET",
+      "key": "INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INF_APP_CONNECTION_HEROKU_OAUTH_CLIENT_SECRET`.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced] SHOULD_USE_DATADOG_TRACER",
+      "key": "SHOULD_USE_DATADOG_TRACER",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `SHOULD_USE_DATADOG_TRACER`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] DATADOG_PROFILING_ENABLED",
+      "key": "DATADOG_PROFILING_ENABLED",
+      "value": "false",
+      "description": "Advanced upstream Infisical environment variable `DATADOG_PROFILING_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] DATADOG_ENV",
+      "key": "DATADOG_ENV",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DATADOG_ENV`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] DATADOG_SERVICE",
+      "key": "DATADOG_SERVICE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DATADOG_SERVICE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] DATADOG_HOSTNAME",
+      "key": "DATADOG_HOSTNAME",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `DATADOG_HOSTNAME`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] PIT_CHECKPOINT_WINDOW",
+      "key": "PIT_CHECKPOINT_WINDOW",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PIT_CHECKPOINT_WINDOW`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] PIT_TREE_CHECKPOINT_WINDOW",
+      "key": "PIT_TREE_CHECKPOINT_WINDOW",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `PIT_TREE_CHECKPOINT_WINDOW`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Network/Security] CORS_ALLOWED_ORIGINS",
+      "key": "CORS_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CORS_ALLOWED_ORIGINS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Network/Security] CORS_ALLOWED_HEADERS",
+      "key": "CORS_ALLOWED_HEADERS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `CORS_ALLOWED_HEADERS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] TRUSTED_PROXY_CIDRS",
+      "key": "TRUSTED_PROXY_CIDRS",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `TRUSTED_PROXY_CIDRS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] TNS_ADMIN",
+      "key": "TNS_ADMIN",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `TNS_ADMIN`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GOLANG_SIDECAR_URL",
+      "key": "GOLANG_SIDECAR_URL",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GOLANG_SIDECAR_URL`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GO_SIDECAR_SHADOW_ENABLED",
+      "key": "GO_SIDECAR_SHADOW_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GO_SIDECAR_SHADOW_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GO_SIDECAR_SHADOW_SAMPLE_RATE",
+      "key": "GO_SIDECAR_SHADOW_SAMPLE_RATE",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GO_SIDECAR_SHADOW_SAMPLE_RATE`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GO_SIDECAR_BINARY_PATH",
+      "key": "GO_SIDECAR_BINARY_PATH",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GO_SIDECAR_BINARY_PATH`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] GO_SIDECAR_SPAWN_ENABLED",
+      "key": "GO_SIDECAR_SPAWN_ENABLED",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `GO_SIDECAR_SPAWN_ENABLED`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced] INTERNAL_REGION",
+      "key": "INTERNAL_REGION",
+      "value": "",
+      "description": "Advanced upstream Infisical environment variable `INTERNAL_REGION`.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

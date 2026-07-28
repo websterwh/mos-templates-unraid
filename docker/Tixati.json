@@ -1,0 +1,262 @@
+{
+  "name": "Tixati",
+  "repo": "jlesage/tixati",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://registry.hub.docker.com/r/jlesage/tixati",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]",
+  "icon": "https://raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/tixati-icon.png",
+  "project": "https://www.tixati.com",
+  "description": "Tixati is a peer-to-peer file sharing program that uses the popular BitTorrent protocol. The graphical user interface (GUI) of the application can be accessed through a modern web browser, requiring no installation or configuration on the client side, or via any VNC client. The container is built against Alpine Linux to provide an efficient image in terms of size and resource usage. For a complete documentation of this container, see https://github.com/jlesage/docker-tixati#readme",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/tixati",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the application's configuration, state, logs, and any files requiring persistency.",
+      "required": true
+    },
+    {
+      "name": "Output Directory",
+      "host": "",
+      "container": "/output",
+      "mode": "rw",
+      "description": "This is where downloaded files are stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEB Port for GUI (Bridge Network Type)",
+      "host": "7824",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port to access the application's GUI via the web interface. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC Port for GUI (Bridge Network Type)",
+      "host": "7924",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port to access the application's GUI via VNC protocol. Optional if no VNC client is used. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Incoming Peer Connections Port",
+      "host": "17844",
+      "container": "17844",
+      "protocol": "tcp",
+      "description": "Port used for incoming peer connections. NOTE: Your router should be configured to forward this port to this container. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Incoming DHT Messages Port",
+      "host": "17844",
+      "container": "17844",
+      "protocol": "udp",
+      "description": "Port used for incoming DHT messages. NOTE: Your router should be configured to forward this port to this container. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "ID of the user the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "ID of the group the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "0000",
+      "description": "Mask controlling permissions for newly created files and folders, specified in octal notation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Niceness (priority)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "Priority at which the application should run. A niceness value of `-20` is the highest, `19` is the lowest and `0` the default. NOTE: Setting a negative value requires additional permissions. Thus, `--cap-add=SYS_NICE` must be added to Extra Parameters (shown when Advanced View is enabled).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Width",
+      "key": "DISPLAY_WIDTH",
+      "value": "1920",
+      "description": "Width (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "1080",
+      "description": "Height (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dark Mode",
+      "key": "DARK_MODE",
+      "value": "0",
+      "description": "When set to `1`, enables dark mode for the application.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Audio",
+      "key": "WEB_AUDIO",
+      "value": "0",
+      "description": "When set to `1`, enables audio support, allowing audio produced by the application to play through the browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web File Manager",
+      "key": "WEB_FILE_MANAGER",
+      "value": "0",
+      "description": "When set to `1`, enables the web file manager, allowing interaction with files inside the container through a web browser, supporting operations like renaming, deleting, uploading, and downloading.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web File Manager Allowed Paths",
+      "key": "WEB_FILE_MANAGER_ALLOWED_PATHS",
+      "value": "AUTO",
+      "description": "Comma-separated list of paths within the container that the file manager can access. By default, the container's entire filesystem is not accessible, and this variable specifies allowed paths. If set to `AUTO`, commonly used folders and those mapped to the container are automatically allowed. The value `ALL` allows access to all paths (no restrictions).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web File Manager Denied Paths",
+      "key": "WEB_FILE_MANAGER_DENIED_PATHS",
+      "value": "None",
+      "description": "Comma-separated list of paths within the container that the file manager cannot access. A denied path takes precedence over an allowed path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Desktop Notifications",
+      "key": "WEB_NOTIFICATION",
+      "value": "0",
+      "description": "When set to `1`, enables the web notification service, allowing the browser to display desktop notifications from the application.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Terminal",
+      "key": "WEB_TERMINAL",
+      "value": "0",
+      "description": "When set to `1`, enables access to a terminal from the web interface. It is strongly recommended to configure the container with secure web access (HTTPS).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Terminal",
+      "key": "WEB_TERMINAL_SHELL_PATH",
+      "value": "/bin/sh",
+      "description": "The shell used by the web terminal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication",
+      "key": "WEB_AUTHENTICATION",
+      "value": "0",
+      "description": "When set to `1`, protects the application's GUI with a login page when accessed via a web browser. Access is granted only with valid credentials.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication Token Validity Time",
+      "key": "WEB_AUTHENTICATION_TOKEN_VALIDITY_TIME",
+      "value": "24",
+      "description": "Lifetime of a token, in hours. A token is assigned to the user after successful login. As long as the token is valid, the user can access the application's GUI without logging in again. Once the token expires, the login page is displayed again.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication Username",
+      "key": "WEB_AUTHENTICATION_USERNAME",
+      "value": "",
+      "description": "Optional username for web authentication. Provides a quick and easy way to configure credentials for a single user. For more secure configuration or multiple users, see the documentation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication Password",
+      "key": "WEB_AUTHENTICATION_PASSWORD",
+      "value": "",
+      "description": "Optional password for web authentication. Provides a quick and easy way to configure credentials for a single user. For more secure configuration or multiple users, see the documentation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "When set to `1`, uses an encrypted connection to access the application's GUI (via web browser or VNC client).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection VNC Method",
+      "key": "SECURE_CONNECTION_VNC_METHOD",
+      "value": "SSL",
+      "description": "Method used for encrypted VNC connection. Possible values are `SSL` or `TLS`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection Certificate Check Interval",
+      "key": "SECURE_CONNECTION_CERTS_CHECK_INTERVAL",
+      "value": "60",
+      "description": "Interval, in seconds, at which the system checks if web or VNC certificates have changed. When a change is detected, affected services are automatically restarted. A value of `0` disables the check.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Listening Port (Non-Bridge Network Type)",
+      "key": "WEB_LISTENING_PORT",
+      "value": "5800",
+      "description": "Port used by the web server to serve the application's GUI. This port is internal to the container and typically does not need to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC Listening Port (Non-Bridge Network Type)",
+      "key": "VNC_LISTENING_PORT",
+      "value": "5900",
+      "description": "Port used by the VNC server to serve the application's GUI. This port is internal to the container and typically does not need to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

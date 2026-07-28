@@ -1,0 +1,275 @@
+{
+  "name": "SupabaseStudio",
+  "repo": "supabase/studio:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/supabase/studio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/supabase/supabase/master/packages/common/assets/images/supabase-logo-icon.png",
+  "project": "https://github.com/supabase/supabase",
+  "description": "Supabase Studio is the browser dashboard for managing a self-hosted Supabase project, including database tables, SQL, Auth, Storage, Edge Functions, logs, project settings, and API credentials.",
+  "paths": [
+    {
+      "name": "Snippets",
+      "host": "/mnt/cache/appdata/supabase-studio/snippets",
+      "container": "/app/snippets",
+      "mode": "rw",
+      "description": "Persistent SQL snippets folder used by Studio.",
+      "required": true
+    },
+    {
+      "name": "Edge Functions",
+      "host": "/mnt/cache/appdata/supabase-studio/edge-functions",
+      "container": "/app/edge-functions",
+      "mode": "rw",
+      "description": "Folder where Studio manages Edge Functions source files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Supabase Studio web interface port. Container port: 3000. The official full stack normally exposes Studio through Kong on port 8000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Hostname",
+      "key": "HOSTNAME",
+      "value": "0.0.0.0",
+      "description": "Interface Studio listens on inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Meta URL",
+      "key": "STUDIO_PG_META_URL",
+      "value": "http://meta:8080",
+      "description": "Internal URL for the Supabase postgres-meta service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Supabase Internal URL",
+      "key": "SUPABASE_URL",
+      "value": "http://kong:8000",
+      "description": "Internal URL for the Supabase API gateway service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Supabase Public URL",
+      "key": "SUPABASE_PUBLIC_URL",
+      "value": "http://localhost:8000",
+      "description": "Public URL clients use to reach the Supabase API gateway, for example http://UNRAID-IP:8000 or https://supabase.example.com.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Host",
+      "key": "POSTGRES_HOST",
+      "value": "db",
+      "description": "Hostname for the Supabase Postgres service as seen from Studio.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Supabase Postgres or Supavisor session port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Database",
+      "key": "POSTGRES_DB",
+      "value": "postgres",
+      "description": "Supabase Postgres database name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Database password generated for the Supabase stack.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PG Meta Crypto Key",
+      "key": "PG_META_CRYPTO_KEY",
+      "value": "",
+      "description": "Studio postgres-meta encryption key. Generate a unique value before production use.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "REST Schemas",
+      "key": "PGRST_DB_SCHEMAS",
+      "value": "public,storage,graphql_public",
+      "description": "Comma-separated Postgres schemas exposed through PostgREST.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REST Max Rows",
+      "key": "PGRST_DB_MAX_ROWS",
+      "value": "1000",
+      "description": "Maximum rows returned by REST API requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REST Search Path",
+      "key": "PGRST_DB_EXTRA_SEARCH_PATH",
+      "value": "public",
+      "description": "Extra schemas added to the PostgREST search path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Organization",
+      "key": "DEFAULT_ORGANIZATION_NAME",
+      "value": "Default Organization",
+      "description": "Default organization name shown in Studio.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Project",
+      "key": "DEFAULT_PROJECT_NAME",
+      "value": "Default Project",
+      "description": "Default project name shown in Studio.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "AUTH_JWT_SECRET",
+      "value": "",
+      "description": "JWT secret generated for the Supabase stack.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Anon Key",
+      "key": "SUPABASE_ANON_KEY",
+      "value": "",
+      "description": "Legacy anon API key generated by the Supabase key script.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Service Role Key",
+      "key": "SUPABASE_SERVICE_KEY",
+      "value": "",
+      "description": "Legacy service role API key. Never expose this key to client-side code.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Publishable Key",
+      "key": "SUPABASE_PUBLISHABLE_KEY",
+      "value": "",
+      "description": "Opaque publishable API key for newer self-hosted Supabase setups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SUPABASE_SECRET_KEY",
+      "value": "",
+      "description": "Opaque secret API key for newer self-hosted Supabase setups. Never expose this key to client-side code.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Logflare URL",
+      "key": "LOGFLARE_URL",
+      "value": "http://analytics:4000",
+      "description": "Internal URL for the Supabase analytics service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logflare API Key",
+      "key": "LOGFLARE_API_KEY",
+      "value": "",
+      "description": "Deprecated compatibility variable. Set to the same value as Logflare Public Token when the Studio image expects it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Logflare Public Token",
+      "key": "LOGFLARE_PUBLIC_ACCESS_TOKEN",
+      "value": "",
+      "description": "Logflare public access token generated for the Supabase stack.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Logflare Private Token",
+      "key": "LOGFLARE_PRIVATE_ACCESS_TOKEN",
+      "value": "",
+      "description": "Logflare private access token generated for the Supabase stack.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable Logs",
+      "key": "NEXT_PUBLIC_ENABLE_LOGS",
+      "value": "true",
+      "description": "Enable the Studio logs interface. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Analytics Backend",
+      "key": "NEXT_ANALYTICS_BACKEND_PROVIDER",
+      "value": "postgres",
+      "description": "Analytics backend provider used by Studio. The official Docker stack defaults to postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Snippets Folder",
+      "key": "SNIPPETS_MANAGEMENT_FOLDER",
+      "value": "/app/snippets",
+      "description": "Path inside the container where Studio manages SQL snippets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Edge Functions Folder",
+      "key": "EDGE_FUNCTIONS_MANAGEMENT_FOLDER",
+      "value": "/app/edge-functions",
+      "description": "Path inside the container where Studio manages Edge Functions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional OpenAI API key used by the Supabase Studio AI assistant.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

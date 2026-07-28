@@ -1,0 +1,115 @@
+{
+  "name": "tubesync",
+  "repo": "ghcr.io/meeb/tubesync:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/meeb/tubesync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4848]/",
+  "icon": "https://raw.githubusercontent.com/meeb/tubesync/main/tubesync/common/static/images/tubesync.png",
+  "project": "https://github.com/meeb/tubesync",
+  "description": "TubeSync is a PVR (personal video recorder) for YouTube. Or, like Sonarr but for YouTube (with a built-in download client). It is designed to synchronize channels and playlists from YouTube to local directories and update your media server once media is downloaded. _This is a preview release of TubeSync, it may contain bugs but should be usable._ *I am not the creator or maintainer of this container I am merely providing the Unraid template.",
+  "paths": [
+    {
+      "name": "AppData Config",
+      "host": "/mnt/cache/appdata/tubesync",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Config storage path. Default is /mnt/user/appdata/tubesync.",
+      "required": false
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Path to store downloaded content. Default is none.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "TubeSync WebUI",
+      "host": "4848",
+      "container": "4848",
+      "protocol": "tcp",
+      "description": "TubeSync WebUI port. Default is 4848.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TubeSync Workers",
+      "key": "TUBESYNC_WORKERS",
+      "value": "2",
+      "description": "If you add a significant amount of work due to adding many large channels you may need to increase the number of background workers. Try around ~4 at most, although the absolute maximum allowed is 8. Default is 2.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TubeSync WebUI Username",
+      "key": "HTTP_USER",
+      "value": "",
+      "description": "Sets the username for HTTP basic authentication. Default is none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TubeSync WebUI Password",
+      "key": "HTTP_PASS",
+      "value": "",
+      "description": "Sets the password for HTTP basic authentication. Default is none.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database",
+      "key": "DATABASE_CONNECTION",
+      "value": "",
+      "description": "Optional external database connection details. Ex: mysql://user:pass@host:port/database. Default is none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hosts",
+      "key": "TUBESYNC_HOSTS",
+      "value": "",
+      "description": "Django's ALLOWED_HOSTS. Ex: tubesync.example.com,otherhost.com. Default is none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TubeSync Debugging",
+      "key": "TUBESYNC_DEBUG",
+      "value": "False",
+      "description": "Enable debugging. Default is False.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

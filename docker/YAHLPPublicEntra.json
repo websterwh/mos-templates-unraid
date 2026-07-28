@@ -1,0 +1,564 @@
+{
+  "name": "YAHLP-Public-Entra",
+  "repo": "ghcr.io/auskento/yahlp",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://yourdomain.com",
+  "icon": "https://raw.githubusercontent.com/auskento/YAHLP/main/html/icons/yahlp.png",
+  "project": "https://github.com/auskento/YAHLP",
+  "description": "YAHLP - Yet Another HomeLab Portal - Public Mode with Microsoft Entra ID Configured for public internet deployment with: - HTTPS with automatic Let&apos;s Encrypt certificates - Microsoft Entra ID (Azure AD) OAuth 2.0 authentication - Requires domain name and email address - Requires Entra ID credentials from Azure Portal - Ports 80 and 443 must be port-forwarded Setup Requirements: 1. Create Azure App Registration in Entra ID 2. Configure OAuth 2.0 with Redirect URI: https://your-domain.com/auth/oauth2/callback 3. Generate Client Secret 4. Add DNS A record pointing your domain to your server IP 5. Ensure ports 80 and 443 are port-forwarded from router 6. Set TEST_MODE=false once ready for production to avoid Let&apos;s Encrypt rate limiting",
+  "paths": [
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/yahlp",
+      "container": "/etc/yahlp",
+      "mode": "rw",
+      "description": "Configuration folder - store the yahlp and sites JSON5 files here - ENV Variables override config settings, remove the variable settings from the form. Custom templates in the templates folder",
+      "required": true
+    },
+    {
+      "name": "Timezone",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Read Timezone from host",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Let&apos;s Encrypt Test Mode",
+      "key": "DASHBOARD_TEST",
+      "value": "true",
+      "description": "Let&apos;s Encrypt --dry-run mode (test without rate limits). WARNING: Certificates will NOT be issued. Set to false when ready for production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Domain (Public)",
+      "key": "DOMAIN",
+      "value": "",
+      "description": "Your domain for public mode (e.g., yahlp.yourdomain.com)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email (Public)",
+      "key": "EMAIL",
+      "value": "",
+      "description": "Email for Let&apos;s Encrypt notifications (public mode only)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dashboard Name",
+      "key": "DASHBOARD_NAME",
+      "value": "YAHLP",
+      "description": "Displayed in browser title and dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dashboard Layout",
+      "key": "DASHBOARD_STYLE",
+      "value": "modern",
+      "description": "Choose: classic, modern, sleek, minimal (If you have added custom templates you can add them here)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Accent Color",
+      "key": "DASHBOARD_COLOR",
+      "value": "",
+      "description": "Hex color for dashboard UI accents and highlights for default templates (e.g., #00A99D, #FF5733). Leave blank for default theme color",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dashboard Landing",
+      "key": "DASHBOARD_LANDING",
+      "value": "",
+      "description": "Set the default landing page when accessing dashboard (e.g., sonarr, radarr, radarr/upcoming, seerr). Leave blank to show service grid",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Service Display Order",
+      "key": "DASHBOARD_ORDER",
+      "value": "SAB,GET,HYD,TRA,QBI,DEL,PRO,JAC,SON,RAD,LID,WHI,SEE,BAZ,TAU,MNT,JEL,PLX,EMB",
+      "description": "SAB - SABnzbd, GET - NZBGet, HYD - NZBHydra, TRA - Transmission, QBI - qBittorrent, DEL - Deluge, PRO - Prowlarr, JAC - Jackett, SON - Sonarr, RAD - Radarr, LID - Lidarr, WHI - Whisparr, SEE - Seerr, BAZ - Bazarr, TAU - Tautulli, MNT - Maintainerr, JEL - Jellyfin, PLX - Plex, EMB - Emby",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sites Display Order",
+      "key": "DASHBOARD_SITES",
+      "value": "",
+      "description": "TPB - The Pirate Bay, FIL - FileList.io, HDB - HDBits, IPT - IP Torrents, 1337 - 1337x, YTS - YTS, LAT - LimeTorrents, NYA - Nyaa, PTP - PassThePopcorn, DOG - DOGnzb, DRS - DrunkenSlug, NLF - nzb.life, NFW - NZBFinder.ws, NGK - NZBgeek, PLA - nzbplanet.net, TAB - Tabula Rasa (Additional sites enabled in the sites.json5 file)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Window Behaviour",
+      "key": "DASHBOARD_WINDOWS",
+      "value": "popout",
+      "description": "Jackett, Seerr, Emby and Plex do not play nice in frames, they&apos;ll either open in a new tab or popout window based on this setting",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication Type",
+      "key": "AUTHTYPE",
+      "value": "entra",
+      "description": "Choose: none, basic, google, entra",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Entra Client Secret",
+      "key": "ENTRA_CLIENT_SECRET",
+      "value": "",
+      "description": "From Entra App",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Entra Tenant ID",
+      "key": "ENTRA_TENANT_ID",
+      "value": "",
+      "description": "Your Azure Tenant ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Entra Crypto Passphrase",
+      "key": "ENTRA_CRYPTO_PASSPHRASE",
+      "value": "",
+      "description": "Encryption passphrase for Entra",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Entra Metadata URL",
+      "key": "ENTRA_PROVIDER_METADATA_URL",
+      "value": "https://login.microsoftonline.com/&lt;YOUR TENANT ID&gt;/v2.0/.well-known/openid-configuration",
+      "description": "Entra OpenID metadata URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Entra Client ID",
+      "key": "ENTRA_CLIENT_ID",
+      "value": "",
+      "description": "From Entra App",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SABnzbd",
+      "key": "SABNZBD_ENABLED",
+      "value": "false",
+      "description": "SABnzbd - Usenet Client (Config - Special - url_base() to /sabnzbd)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SABnzbd URL",
+      "key": "SABNZBD_URL",
+      "value": "http://sabnzbd:8080",
+      "description": "Local internal URL for SABnzbd service (usually http://sabnzbd:8080)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable NZBGet",
+      "key": "NZBGET_ENABLED",
+      "value": "false",
+      "description": "NZBGet - Usenet Client (Set User and Pass below to bypass NZBGet auth",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NZBGet URL",
+      "key": "NZBGET_URL",
+      "value": "http://nzbget:6789",
+      "description": "Local internal URL for NZBGet service (usually http://nzbget:6789)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable NZBHydra",
+      "key": "NZBHYDRA_ENABLED",
+      "value": "false",
+      "description": "NZBHydra - Usenet Meta Indexer (Config - Main - URLBase to /nzbhydra)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NZBHydra URL",
+      "key": "NZBHYDRA_URL",
+      "value": "http://nzbhydra:5076",
+      "description": "Local internal URL for NZBHydra service (usually http://nzbhydra:5076)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Transmission",
+      "key": "TRANSMISSION_ENABLED",
+      "value": "false",
+      "description": "Transmission - Torrent Client",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transmission URL",
+      "key": "TRANSMISSION_URL",
+      "value": "http://transmission:9091",
+      "description": "Local internal URL for Transmission service (usually http://transmission:9091)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable qBittorrent",
+      "key": "QBITTORRENT_ENABLED",
+      "value": "false",
+      "description": "qBittorrent - Torrent Client",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent URL",
+      "key": "QBITTORRENT_URL",
+      "value": "http://qbittorrent:8080",
+      "description": "Local internal URL for qBittorrent service (check for port conflicts; default is http://qbittorrent:8080)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Deluge",
+      "key": "DELUGE_ENABLED",
+      "value": "false",
+      "description": "Deluge - Torrent Client",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deluge URL",
+      "key": "DELUGE_URL",
+      "value": "http://deluge:8112",
+      "description": "Local internal URL for Deluge service (usually http://deluge:8112)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Sonarr",
+      "key": "SONARR_ENABLED",
+      "value": "false",
+      "description": "Sonarr - TV Show Automation (Settings - General - URL Base to /sonarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr URL",
+      "key": "SONARR_URL",
+      "value": "http://sonarr:8989",
+      "description": "Local internal URL for Sonarr service (usually http://sonarr:8989)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr Landing",
+      "key": "SONARR_LANDING",
+      "value": "sonarr",
+      "description": "Landing page (e.g., sonarr, sonarr/calendar)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Radarr",
+      "key": "RADARR_ENABLED",
+      "value": "false",
+      "description": "Radarr - Movie Automation ((Settings - General - URL Base to /radarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr URL",
+      "key": "RADARR_URL",
+      "value": "http://radarr:7878",
+      "description": "Local internal URL for Radarr service (usually http://radarr:7878)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr Landing",
+      "key": "RADARR_LANDING",
+      "value": "radarr",
+      "description": "Landing page (e.g., radarr, radarr/calendar)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Whisparr",
+      "key": "WHISPARR_ENABLED",
+      "value": "false",
+      "description": "Whisparr - Adult Content Automation (Settings - General - URL Base to /whisparr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Whisparr URL",
+      "key": "WHISPARR_URL",
+      "value": "http://whisparr:6969",
+      "description": "Local internal URL for Whisparr service (usually http://whisparr:6969)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Whisparr Landing",
+      "key": "WHISPARR_LANDING",
+      "value": "whisparr",
+      "description": "Landing page for Whisparr (e.g., whisparr, whisparr/calendar). Leave blank for default",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Lidarr",
+      "key": "LIDARR_ENABLED",
+      "value": "false",
+      "description": "Lidarr - Music Automation (Settings - General - URL Base to to /lidarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr URL",
+      "key": "LIDARR_URL",
+      "value": "http://lidarr:8686",
+      "description": "Local internal URL for Lidarr service (usually http://lidarr:8686)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr Landing",
+      "key": "LIDARR_LANDING",
+      "value": "lidarr",
+      "description": "Landing page for Lidarr (e.g., lidarr, lidarr/library). Leave blank for default",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Prowlarr",
+      "key": "PROWLARR_ENABLED",
+      "value": "false",
+      "description": "Prowlarr - Indexer Manager (Settings - General - URL Base to /prowlarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prowlarr URL",
+      "key": "PROWLARR_URL",
+      "value": "http://prowlarr:9696",
+      "description": "Local internal URL for Prowlarr service (usually http://prowlarr:9696)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Jackett",
+      "key": "JACKETT_ENABLED",
+      "value": "false",
+      "description": "Jackett - Indexer Aggregator (Config - Admin - url_base() to /jackett). For public mode with OAuth, configure JACKETT_OAUTH_URI in advanced settings",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jackett URL",
+      "key": "JACKETT_URL",
+      "value": "http://jackett:9117",
+      "description": "Local internal URL for Jackett service (usually http://jackett:9117)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Seerr",
+      "key": "SEERR_ENABLED",
+      "value": "false",
+      "description": "Seerr - Request Manager (In public mode, uses subdomain routing). For public mode with OAuth, also set SEERR_DOMAIN and SEERR_REDIRECT_URI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Seerr URL",
+      "key": "SEERR_URL",
+      "value": "http://seerr:5055",
+      "description": "Local internal URL for Seerr service",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Seerr Domain",
+      "key": "SEERR_DOMAIN",
+      "value": "",
+      "description": "Subdomain for Seerr (e.g., seerr.yourdomain.com). For public mode with OAuth, also set SEERR_REDIRECT_URI to https://[SEERR_DOMAIN]/oauth2callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Bazarr",
+      "key": "BAZARR_ENABLED",
+      "value": "false",
+      "description": "Bazarr - Subtitle Manager (Settings - General - Base URL to /bazarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bazarr URL",
+      "key": "BAZARR_URL",
+      "value": "http://bazarr:6767",
+      "description": "Local internal URL for Bazarr service (usually http://bazarr:6767)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Jellyfin",
+      "key": "JELLYFIN_ENABLED",
+      "value": "false",
+      "description": "Jellyfin - Media Server (Settings -Admin Dash - Networking - Base URL /jellyfin)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "http://jellyfin:8096",
+      "description": "Local internal URL for Jellyfin service (usually http://jellyfin:8096)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Emby",
+      "key": "EMBY_ENABLED",
+      "value": "false",
+      "description": "Emby - Media Server (In public mode, uses subdomain routing). For public mode with OAuth, also set EMBY_DOMAIN and EMBY_REDIRECT_URI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "http://emby:8096",
+      "description": "Local internal URL for Emby service",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby Domain",
+      "key": "EMBY_DOMAIN",
+      "value": "",
+      "description": "Subdomain for Emby (e.g., emby.yourdomain.com). For public mode with OAuth, also set EMBY_REDIRECT_URI to https://[EMBY_DOMAIN]/oauth2callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Plex",
+      "key": "PLEX_ENABLED",
+      "value": "false",
+      "description": "Plex - Media Server (in public mode, uses subdomain routing). For public mode with OAuth, also set PLEX_DOMAIN and PLEX_REDIRECT_URI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "http://plex:32400",
+      "description": "Local internal URL for Plex service (usually http://plex:32400)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Domain",
+      "key": "PLEX_DOMAIN",
+      "value": "",
+      "description": "Subdomain for Plex (e.g., plex.yourdomain.com). For public mode with OAuth, also set PLEX_REDIRECT_URI to https://[PLEX_DOMAIN]/oauth2callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Tautulli",
+      "key": "TAUTULLI_ENABLED",
+      "value": "false",
+      "description": "Tautulli - Plex Analytics (Settings - Show Advanced - Web Interface - Enable Proxy, Set Public Domain to https://yahlp.yourdomain.com/tautulli and HTTP root to /tautulli)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tautulli URL",
+      "key": "TAUTULLI_URL",
+      "value": "http://tautulli:8181",
+      "description": "Local internal URL for Tautulli service (usually http://tautulli:8181/tautulli)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Maintainerr",
+      "key": "MAINTAINERR_ENABLED",
+      "value": "false",
+      "description": "Maintainerr - Media Server Maintenance (Enable BASE_URL environment variable on its docker and set to /maintainerr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Maintainerr URL",
+      "key": "MAINTAINERR_URL",
+      "value": "http://maintainerr:6246",
+      "description": "Local internal URL for Maintainerr service (usually http://maintainerr:6246)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

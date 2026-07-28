@@ -1,0 +1,67 @@
+{
+  "name": "copyparty",
+  "repo": "copyparty/ac:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/copyparty/ac",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 099:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3923]/",
+  "icon": "https://raw.githubusercontent.com/9001/copyparty/hovudstraum/docs/logo.svg",
+  "project": "https://github.com/9001/copyparty",
+  "description": "Portable file server with accelerated resumable uploads, dedup, WebDAV, FTP, TFTP, zeroconf, media indexer, thumbnails++ all in one file",
+  "paths": [
+    {
+      "name": "File Storage",
+      "host": "/mnt/cache/appdata/copyparty/files",
+      "container": "/w",
+      "mode": "rw",
+      "description": "Path to file storage",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/copyparty/config",
+      "container": "/cfg",
+      "mode": "rw",
+      "description": "Path to config files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3923",
+      "container": "3923",
+      "protocol": "tcp",
+      "description": "Container Port: 3923",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Mimalloc",
+      "key": "LD_PRELOAD",
+      "value": "/usr/lib/libmimalloc-secure.so.NOPE|/usr/lib/libmimalloc-secure.so.2",
+      "description": "Enable mimalloc for higher performance, at the expense of 2x RAM usage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Python Buffer",
+      "key": "PYTHONUNBUFFERED",
+      "value": "1",
+      "description": "Enable unbuffered output for Python.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

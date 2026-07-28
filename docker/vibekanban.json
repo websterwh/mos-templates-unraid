@@ -1,0 +1,251 @@
+{
+  "name": "vibe-kanban",
+  "repo": "ghcr.io/rorar/vibe-kanban-docker:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/rorar/vibe-kanban-docker/pkgs/container/vibe-kanban-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --hostname=vibe-kanban",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8085]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/vibe-kanban-logo.png",
+  "project": "https://vibekanban.com",
+  "description": "Vibe Kanban is an AI-first software development project management tool. It uses AI agents to help manage and track software development tasks. This container includes GitHub CLI, Docker CLI, and OpenAI Codex for a complete development environment. Always available: Codex, SVGO, imagemagick, libvips, librsvg, ripgrep, jq, tree, bat, fd, tmux, nano, python3, pip, pipx. For detailed setup instructions, see: https://vibekanban.com/docs",
+  "paths": [
+    {
+      "name": "Path: Project Data",
+      "host": "/mnt/cache/appdata/vibe-kanban/data",
+      "container": "/home/node/.local/share/vibe-kanban",
+      "mode": "rw",
+      "description": "Persistent storage for Vibe Kanban data (config, database).",
+      "required": true
+    },
+    {
+      "name": "Path: Cache",
+      "host": "/mnt/cache/appdata/vibe-kanban/cache",
+      "container": "/home/node/.cache",
+      "mode": "rw",
+      "description": "Cache directory for Vibe Kanban and agent tools.",
+      "required": false
+    },
+    {
+      "name": "Path: Worktrees",
+      "host": "/mnt/cache/appdata/vibe-kanban/worktrees",
+      "container": "/var/tmp/vibe-kanban",
+      "mode": "rw",
+      "description": "Temporary git worktree storage.",
+      "required": false
+    },
+    {
+      "name": "Path: Workspace",
+      "host": "/mnt/cache/appdata/vibe-kanban/work",
+      "container": "/work",
+      "mode": "rw",
+      "description": "Main workspace directory for your projects.",
+      "required": true
+    },
+    {
+      "name": "Path: SSH Keys",
+      "host": "/mnt/cache/appdata/vibe-kanban/ssh",
+      "container": "/home/node/.ssh",
+      "mode": "rw",
+      "description": "SSH keys for git operations.",
+      "required": false
+    },
+    {
+      "name": "Path: GitConfig",
+      "host": "/mnt/cache/appdata/vibe-kanban/gitconfig",
+      "container": "/home/node/.gitconfig",
+      "mode": "rw",
+      "description": "Git configuration file.",
+      "required": false
+    },
+    {
+      "name": "Path: Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for Docker-in-Docker support.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web UI",
+      "host": "8085",
+      "container": "8085",
+      "protocol": "tcp",
+      "description": "HTTP port for the Vibe Kanban web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for the container. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Server Configuration ---",
+      "key": "--- Server Configuration ---",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PORT",
+      "key": "PORT",
+      "value": "8085",
+      "description": "Port for Vibe Kanban to listen on (should match Container Port above).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: HOST",
+      "key": "HOST",
+      "value": "0.0.0.0",
+      "description": "Host address to bind to (0.0.0.0 for all interfaces).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "--- Git Configuration ---",
+      "key": "--- Git Configuration ---",
+      "value": "",
+      "description": "Git author information used for commits. Docs: https://vibekanban.com/docs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GIT_AUTHOR_NAME",
+      "key": "GIT_AUTHOR_NAME",
+      "value": "Vibe Kanban User",
+      "description": "Git author name for commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GIT_AUTHOR_EMAIL",
+      "key": "GIT_AUTHOR_EMAIL",
+      "value": "vibe@example.com",
+      "description": "Git author email for commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GIT_COMMITTER_NAME",
+      "key": "GIT_COMMITTER_NAME",
+      "value": "Vibe Kanban User",
+      "description": "Git committer name for commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GIT_COMMITTER_EMAIL",
+      "key": "GIT_COMMITTER_EMAIL",
+      "value": "vibe@example.com",
+      "description": "Git committer email for commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- API Keys (Advanced) ---",
+      "key": "--- API Keys (Advanced) ---",
+      "value": "",
+      "description": "Optional API keys. For security, use secrets or environment files in production. Docs: https://vibekanban.com/docs/self-hosting/environment-variables",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GH_TOKEN",
+      "key": "GH_TOKEN",
+      "value": "",
+      "description": "GitHub personal access token (alternative to GitHub CLI auth).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key for Codex and AI features.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- Runtime Tools ---",
+      "key": "--- Runtime Tools ---",
+      "value": "",
+      "description": "Install additional tools at container startup. Always available: Codex, SVGO, imagemagick, libvips, librsvg, ripgrep, jq, tree, bat, fd, tmux, nano, python3, pip, pipx",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RUNTIME_AGENTS",
+      "key": "RUNTIME_AGENTS",
+      "value": "claude gemini copilot amp cursor opencode droid clauderouter qwen",
+      "description": "Coding agents to install (space-separated). Options: claude, gemini, copilot, amp, cursor, opencode, droid, clauderouter, qwen",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RUNTIME_PLAYWRIGHT_BROWSERS",
+      "key": "RUNTIME_PLAYWRIGHT_BROWSERS",
+      "value": "chromium firefox webkit",
+      "description": "Playwright browsers to install (space-separated). Options: chromium, firefox, webkit",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RUNTIME_TESTING_TOOLS",
+      "key": "RUNTIME_TESTING_TOOLS",
+      "value": "vitest jest msw",
+      "description": "Testing tools to install (space-separated). Options: vitest, jest, msw",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RUNTIME_PYTHON_TOOLS",
+      "key": "RUNTIME_PYTHON_TOOLS",
+      "value": "httpie black ruff mypy pytest",
+      "description": "Python tools to install via pipx (space-separated). Options: httpie, black, ruff, mypy, pytest, isort, autoflake, pip-audit, safety",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- User &amp; Permissions (Advanced) ---",
+      "key": "--- User &amp; Permissions (Advanced) ---",
+      "value": "",
+      "description": "Advanced user and permission settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: LOCAL_UID",
+      "key": "LOCAL_UID",
+      "value": "99",
+      "description": "UID to run the container process as (default: 99 for nobody user).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: LOCAL_GID",
+      "key": "LOCAL_GID",
+      "value": "100",
+      "description": "GID to run the container process as (default: 100 for users group).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

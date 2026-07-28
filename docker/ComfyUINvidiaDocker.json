@@ -1,0 +1,155 @@
+{
+  "name": "ComfyUI-Nvidia-Docker",
+  "repo": "mmartial/comfyui-nvidia-docker",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/mmartial/comfyui-nvidia-docker",
+  "network": "docker",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime nvidia --gpus all",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8188]",
+  "icon": "https://raw.githubusercontent.com/mmartial/unraid-templates/main/templates/img/ComfyUI-Nvidia-Docker.png",
+  "project": "https://github.com/mmartial/ComfyUI-Nvidia-Docker",
+  "description": "ComfyUI WebUI Dockerfile with Nvidia support, installing ComfyUI from GitHub. Also installs ComfyUI Manager to simplify integration of additional custom nodes. The \"run directory\" contains HF, ComfyUI and venv. The \"basedir\" contains input, output and custom_nodes. The ComfyUI \"Manager\" is installed to simplify integration of additional custom nodes and their updates. The \"Manager\" is also used to update ComfyUI to more recent versions. All those folders will be created with the WANTED_UID and WANTED_GID parameters (by default using Unraid's default of 99:100) allowing the end-user to place directly into the folders their checkpoints, unet, lora and other required models. The container comes with no weights/models; you need to obtain those and install them in the proper directories under the mount you have selected for the \"run directory\". Output files will be placed into the basedir/output folder within the \"basedir\" directory. Please see https://github.com/mmartial/ComfyUI-Nvidia-Docker for further details. - Recommending setting USE_UV to true to use uv instead of pip - See details about \"latest\" tag - See details about \"First time use\" (and the \"bottle\" workflow), noting that Unraid's default YOUR_BASE_DIRECTORY should be /mnt/user/appdata/comfyui-nvidia/basedir - GTX 10xx users should use the ubuntu22_cuda12.6.3-latest tag and check the README.md for recommendations on how to run the container. - RTX 50xx (Blackwell) users should use at minimum ubuntu24_cuda12.8-latest tag. Note: - The container requires the Nvidia Driver plugin to be installed on your Unraid server. Usually that plugin will get you access to a CUDA driver with support for the latest tag available for this container. - This is a WebUI for the ComfyUI Stable Diffusion tool with a Docker image of usually over 4GB. - The container will take a while to start up, as it needs to download the ComfyUI Stable Diffusion tool and install its dependencies, usually adding another 5GB of downloaded content in the venv folder - The original Docker image is from Nvidia, as such it is governed by the NVIDIA Deep Learning Container License. - There are multiple version of the base image available, please select the one that fits your needs best. The name of the tag is the Ubuntu version followed by the CUDA version. Latest is set to point to the most recent combination as it should include the most recent software updates. For the complete list of supported versions, please see the GitHub repository",
+  "paths": [
+    {
+      "name": "run directory (venv, ComfyUI from git, ...)",
+      "host": "/mnt/cache/appdata/comfyui-nvidia/mnt",
+      "container": "/comfy/mnt",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "basedir directory (models, input, output, custom_nodes)",
+      "host": "/mnt/cache/appdata/comfyui-nvidia/basedir",
+      "container": "/basedir",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8188",
+      "container": "8188",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WANTED_UID",
+      "key": "WANTED_UID",
+      "value": "99",
+      "description": "UID to use for content in run directory",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WANTED_GID",
+      "key": "WANTED_GID",
+      "value": "100",
+      "description": "GID to use for content in run directory",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USE_UV",
+      "key": "USE_UV",
+      "value": "false",
+      "description": "Use uv instead of pip",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USE_NEW_MANAGER",
+      "key": "USE_NEW_MANAGER",
+      "value": "true",
+      "description": "Use new ComfyUI Manager",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_MANAGER_LEGACY_UI",
+      "key": "ENABLE_MANAGER_LEGACY_UI",
+      "value": "false",
+      "description": "Enable legacy UI for ComfyUI Manager",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "COMFY_CMDLINE_EXTRA",
+      "key": "COMFY_CMDLINE_EXTRA",
+      "value": "",
+      "description": "Extra command-line options for ComfyUI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASE_DIRECTORY",
+      "key": "BASE_DIRECTORY",
+      "value": "/basedir",
+      "description": "Base directory for ComfyUI user directories such as models, input, output and custom_nodes",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECURITY_LEVEL",
+      "key": "SECURITY_LEVEL",
+      "value": "normal",
+      "description": "Modify the security level for the WebUI, see https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#security-policy for authorized values",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "FORCE_CHOWN",
+      "key": "FORCE_CHOWN",
+      "value": "true",
+      "description": "Force change directory ownership as the comfy user during script startup (this process might be slow). This option was added to support users who mount the run and basedir folders onto other hosts which might not respect the UID/GID of the comfy user. Enabled by default on Unraid. To disable, set to an empty value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_UPGRADES",
+      "key": "DISABLE_UPGRADES",
+      "value": "false",
+      "description": "Disable container start upgrades of python pacakges (also disables USE_PIPUPGRADE). All updates must be performed using ComfyUI Manager.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_PIPUPGRADE",
+      "key": "USE_PIPUPGRADE",
+      "value": "true",
+      "description": "new default is to use pip install --upgrade, set to false to use pip install.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_SOCAT",
+      "key": "USE_SOCAT",
+      "value": "false",
+      "description": "Use socat to listen on port 8188 and forward to 127.0.0.1:8181 (ie use an alternate port for Comfy to run)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NETWORK_MODE",
+      "key": "NETWORK_MODE",
+      "value": "personal_cloud",
+      "description": "Required to be set to personal_cloud to allow custom nodes installation",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,59 @@
+{
+  "name": "GoRetro",
+  "repo": "lowess/goretro",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/lowess/goretro/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "serve",
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Lowess/docker-templates-unraid/main/Lowess/images/goretro.png",
+  "project": "https://github.com/Lowess/goretro",
+  "description": "GoRetro - REST API server for managing retro gaming ROM collections. Generate gamelist XML files, scrape metadata from ScreenScraper, download media, and manage favorites via HTTP API endpoints.",
+  "paths": [
+    {
+      "name": "ROM Directory",
+      "host": "/mnt/cache/data/media/roms",
+      "container": "/roms",
+      "mode": "rw",
+      "description": "Base ROM directory containing system subdirectories (snes/, nes/, etc.). GoRetro reads ROMs from /roms/{system}/ and writes gamelist.xml and media to the same location.",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/goretro",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Configuration directory. Contains config.yaml (edit this!), favorites.yaml, and .cache/ subdirectory. Copy config.yaml.example to config.yaml on first run.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Server Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the GoRetro HTTP API server. Access API at http:// :[PORT]",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "API Key",
+      "key": "GORETRO_API_KEY",
+      "value": "",
+      "description": "Optional API key for authentication. When set, all API requests must include this key via X-API-Key header or Authorization: Bearer header. Generate with: openssl rand -hex 32. Leave empty to disable authentication.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

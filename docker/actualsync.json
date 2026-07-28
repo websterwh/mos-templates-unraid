@@ -1,0 +1,155 @@
+{
+  "name": "actual-sync",
+  "repo": "ghcr.io/agigante80/actual-sync:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/agigante80/Actual-sync/pkgs/container/actual-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/dashboard",
+  "icon": "https://raw.githubusercontent.com/agigante80/Actual-sync/main/unraid/actual-sync-icon.png",
+  "project": "https://github.com/agigante80/Actual-sync",
+  "description": "Automated bank transaction synchronization for Actual Budget. Runs scheduled syncs across one or many budgets (including encrypted budgets), with a web dashboard, Prometheus metrics, multi-channel notifications (Email/Telegram/Slack/Discord), retry logic, and health monitoring. Two ways to configure: (1) for a SINGLE budget, just fill in the \"Actual server URL / password / Sync ID\" variables below - no config file needed. (2) For MULTIPLE budgets, leave those blank and put a config.json in the Config path (on first start a config.example.json template is seeded there). See the project README.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/actual-sync/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Directory containing config.json. config.json is validated against the project schema at startup: an INVALID config.json STOPS the container from starting (it will fail/restart in the logs), so fill in the seeded config.example.json correctly before renaming it to config.json. Wrong types, out-of-range values, and missing required fields are fatal; unknown or typo'd keys only warn. Check the container logs (or run 'npm run validate-config') if it will not start. Not needed for the single-budget env-var setup.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/actual-sync/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent data: SQLite sync history and per-server Actual Budget data directories.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/actual-sync/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Rotated application log files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / Health Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Health, dashboard and Prometheus endpoint (/health, /ready, /metrics, /dashboard).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the service runs as. On Unraid use 99 (nobody) so it can write the appdata directories.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the service runs as. On Unraid use 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Madrid",
+      "description": "Container timezone used for scheduling and log timestamps, e.g. America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js runtime environment. Leave as production unless debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config strict",
+      "key": "CONFIG_STRICT",
+      "value": "",
+      "description": "Migration escape hatch: leave blank for normal operation (an invalid config.json stops the container). Set to false (or 0/no/off) to TEMPORARILY downgrade schema validation errors to warnings so the container starts while you fix config.json. Remove it once fixed - it does not relax the business-logic checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Actual server URL",
+      "key": "ACTUAL_SYNC_SERVER_URL",
+      "value": "",
+      "description": "SINGLE-budget setup: your Actual Budget server URL, e.g. https://actual.example.com. Leave blank if you use a config.json for multiple budgets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Actual server password",
+      "key": "ACTUAL_SYNC_SERVER_PASSWORD",
+      "value": "",
+      "description": "SINGLE-budget setup: your Actual Budget server password. Leave blank if you use a config.json.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Actual server Sync ID",
+      "key": "ACTUAL_SYNC_SERVER_SYNC_ID",
+      "value": "",
+      "description": "SINGLE-budget setup: the budget Sync ID (Actual Budget \u2192 open the budget \u2192 Settings \u2192 Advanced \u2192 Sync ID). Leave blank if you use a config.json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Actual server name",
+      "key": "ACTUAL_SYNC_SERVER_NAME",
+      "value": "",
+      "description": "Optional display name for the single-budget setup (default: Default).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Actual server encryption password",
+      "key": "ACTUAL_SYNC_SERVER_ENCRYPTION_PASSWORD",
+      "value": "",
+      "description": "Optional: end-to-end encryption password, only if the budget is E2EE-encrypted.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Actual server schedule",
+      "key": "ACTUAL_SYNC_SERVER_SCHEDULE",
+      "value": "",
+      "description": "Optional cron schedule for the single-budget setup, e.g. 0 2 * * *. Defaults to the global schedule.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Actual server data dir",
+      "key": "ACTUAL_SYNC_SERVER_DATA_DIR",
+      "value": "",
+      "description": "Optional: data directory for the single-budget setup (default: data/name-slug, which lands in the mounted Data volume). Keep it under data/ so it persists; a bare path like 'foo' resolves to /app/foo and is NOT in the Data volume. Leave blank unless you need a specific path.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

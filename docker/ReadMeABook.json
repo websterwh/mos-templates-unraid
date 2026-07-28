@@ -1,0 +1,107 @@
+{
+  "name": "ReadMeABook",
+  "repo": "ghcr.io/kikootwo/readmeabook:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/kikootwo/ReadMeABook/pkgs/container/readmeabook",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3030]/",
+  "icon": "https://raw.githubusercontent.com/kikootwo/ReadMeABook/main/public/RMAB_1024x1024_APPICON.png",
+  "project": "https://github.com/kikootwo/ReadMeABook",
+  "description": "ReadMeABook is an audiobook library management and automation system, purpose-built for audiobooks. Request a book, and it handles the rest: searches indexers, downloads, organizes files, and triggers a library scan.",
+  "paths": [
+    {
+      "name": "Config Location",
+      "host": "/mnt/cache/appdata/readmeabook/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent config files",
+      "required": true
+    },
+    {
+      "name": "Download Location",
+      "host": "/mnt/cache/data/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Both your download client and RMAB must see files at the SAME path. See: https://github.com/kikootwo/ReadMeABook/blob/main/documentation/deployment/volume-mapping.md",
+      "required": true
+    },
+    {
+      "name": "Media Library",
+      "host": "/mnt/cache/data/media/audiobooks",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your audiobook/ebook library",
+      "required": true
+    },
+    {
+      "name": "Postgres Storage Location",
+      "host": "/mnt/cache/appdata/readmeabook/pgdata",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Redis Storage Location",
+      "host": "/mnt/cache/appdata/readmeabook/redis",
+      "container": "/var/lib/redis",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "App Cache",
+      "host": "/mnt/cache/appdata/readmeabook/cache",
+      "container": "/app/cache",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Host Port",
+      "host": "3030",
+      "container": "3030",
+      "protocol": "tcp",
+      "description": "Port for ReadMeABook's web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUBLIC_URL",
+      "key": "PUBLIC_URL",
+      "value": "https://audiobooks.example.com",
+      "description": "Public URL if accessing from outside localhost. Required for OAuth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

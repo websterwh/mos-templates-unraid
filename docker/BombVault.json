@@ -1,0 +1,132 @@
+{
+  "name": "BombVault",
+  "repo": "junkerderprovinz/bombvault:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/bombvault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --hostname=bombvault --add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3443]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/bombvault/main/.github/assets/icon.png?v=5",
+  "project": "https://github.com/junkerderprovinz/bombvault",
+  "description": "The best and only backup tool you'll ever need for Unraid. One-click backup and full disaster recovery for your Docker containers, VMs, the flash USB and any folders you point it at, powered by restic. The restore is the star: a backed-up container or VM reappears in the Docker or VM tab exactly as before, with no reinstall and no reconfiguration. Incremental, deduplicated and always encrypted, with off-site repos (including immutable, ransomware-resistant append-only copies with tamper verification), retention, file-level restore, restore from another BombVault server, live restore progress and cancel, integrity checks and off-site DR drills, scheduling and pre/post-backup hooks, all configured in the WebUI.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/bombvault",
+      "container": "/config",
+      "mode": "rw",
+      "description": "BombVault's own state (SQLite DB, TLS cert, restic cache).",
+      "required": true
+    },
+    {
+      "name": "Host Data",
+      "host": "/mnt",
+      "container": "/host/user",
+      "mode": "rw,rslave",
+      "description": "Your Unraid storage root /mnt \u2014 covers the user share AND cache/pool mounts, so any container's appdata (wherever it lives) is reachable. Backup SOURCES (container appdata) and DESTINATIONS both live here; pick the exact subpaths in the WebUI under Settings. Read for backup, written on restore. Mounted rslave (Read/Write - Slave) so a remote backup share that mounts AFTER the container starts (e.g. /mnt/remotes at boot) still becomes visible without restarting BombVault.",
+      "required": true
+    },
+    {
+      "name": "Unraid Flash (/boot)",
+      "host": "/boot",
+      "container": "/host/boot",
+      "mode": "rw",
+      "description": "The Unraid USB flash, mounted whole. Powers two things: (1) Flash backup (Settings - Domains - Flash) of the entire /boot - Unraid OS, license, array config, shares, network and plugin config; and (2) capturing/restoring a container's Unraid template (under /boot/config/plugins/dockerMan/templates-user) so a restored container reappears as a NORMAL, editable Unraid app instead of a 'third-party' container. Leave at the default. Flash RESTORE never overwrites the live flash - it streams the snapshot to your browser as a ready-to-use .zip for the Unraid USB creator (or any fresh USB).",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Root-equivalent host control: stop/start/recreate containers around backup/restore. Together with the broad /mnt mount this gives BombVault root-equivalent access to your host, so run it only on a trusted, non-exposed network.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port (HTTPS)",
+      "host": "3443",
+      "container": "3443",
+      "protocol": "tcp",
+      "description": "The BombVault WebUI (HTTPS, self-signed cert out of the box). This is the port you open.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port (HTTP)",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Plain-HTTP port. Only used when HTTP_ONLY is set to true (i.e. behind a TLS-terminating reverse proxy). Leave at the default otherwise.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HTTP_ONLY",
+      "key": "HTTP_ONLY",
+      "value": "false",
+      "description": "Serve plain HTTP instead of HTTPS \u2014 only for use behind a TLS-terminating reverse proxy. false = HTTPS (recommended); true = plain HTTP on the HTTP port above. NOTE: when true, the WebUI link still points to HTTPS \u2014 open http:// :[PORT:3000]/ instead (or set the container's WebUI to it).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_KEY",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "REQUIRED. 64 lowercase hex chars: openssl rand -hex 32. Master key for secrets and the derived restic password; losing it makes encrypted backups unrecoverable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "HOST_SOURCE_ROOT",
+      "key": "HOST_SOURCE_ROOT",
+      "value": "/mnt",
+      "description": "The HOST path mounted as 'Host Data' (default /mnt). BombVault translates the bind-mount sources Docker reports (e.g. /mnt/user/appdata/x) into paths under this mount. Change only if you mounted a different host root than /mnt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BOMBVAULT_SELF_CONTAINER",
+      "key": "BOMBVAULT_SELF_CONTAINER",
+      "value": "BombVault",
+      "description": "The name of THIS container, so BombVault never backs up (and thus stops) itself. Defaults to BombVault and normally needs no change \u2014 this value is used directly. The container hostname is pinned to 'bombvault' (for stable restic repo locks), so if you CLEAR this variable or run with host networking, set it to the exact container name (hostname-based auto-detection no longer applies).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VM Backup: Host",
+      "key": "LIBVIRT_HOST",
+      "value": "192.168.x.x",
+      "description": "VM backup only. Set this to your Unraid host's LAN IP (the IP you open the web UI on, e.g. 192.168.x.x) \u2014 replace the placeholder. On simple bridge networking you may instead use host.docker.internal. Leave the placeholder if you don't use VM backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VM Backup: SSH Port",
+      "key": "LIBVIRT_SSH_PORT",
+      "value": "22",
+      "description": "VM backup only. Unraid's SSH port. Change only if you changed it from 22.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VM Backup: SSH User",
+      "key": "LIBVIRT_SSH_USER",
+      "value": "root",
+      "description": "VM backup only. SSH user on the host. Leave as root.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

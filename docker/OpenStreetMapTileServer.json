@@ -1,0 +1,99 @@
+{
+  "name": "OpenStreetMap-Tile-Server",
+  "repo": "overv/openstreetmap-tile-server",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/overv/openstreetmap-tile-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "run",
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/YOUR_USERNAME/unraid-templates/main/images/openstreetmap-icon.png",
+  "project": "https://github.com/overv/openstreetmap-tile-server",
+  "description": "A production-ready OpenStreetMap tile server running inside a single Docker container. Includes PostgreSQL, osm2pgsql, renderd, and Apache. FIRST RUN: Set Post Arguments to and place your .osm.pbf file in the OSM Data path before starting. After import completes, change Post Arguments to [run] and restart. Download map data (PBF files) from https://download.geofabrik.de/",
+  "paths": [
+    {
+      "name": "Database Storage",
+      "host": "/mnt/cache/appdata/osm-tile-server/database",
+      "container": "/data/database/",
+      "mode": "rw",
+      "description": "PostgreSQL database storage. Requires significant disk space depending on region size.",
+      "required": true
+    },
+    {
+      "name": "Tile Cache",
+      "host": "/mnt/cache/appdata/osm-tile-server/tiles",
+      "container": "/data/tiles/",
+      "mode": "rw",
+      "description": "Rendered map tile cache storage.",
+      "required": true
+    },
+    {
+      "name": "OSM Data (PBF Import)",
+      "host": "/mnt/cache/appdata/osm-tile-server/data/region.osm.pbf",
+      "container": "/data/region.osm.pbf",
+      "mode": "ro",
+      "description": "Path to your .osm.pbf file downloaded from Geofabrik. Only needed on first run (import mode).",
+      "required": false
+    },
+    {
+      "name": "Custom Style",
+      "host": "/mnt/cache/appdata/osm-tile-server/style",
+      "container": "/data/style/",
+      "mode": "rw",
+      "description": "Optional: Mount a custom CartoCSS/Mapnik style directory.",
+      "required": false
+    },
+    {
+      "name": "Osmosis State (Live Updates)",
+      "host": "/mnt/cache/appdata/osm-tile-server/osmosis",
+      "container": "/data/osmosis/",
+      "mode": "rw",
+      "description": "Required only if UPDATES is set to enabled.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP port for tile server and slippy map demo.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Render Threads",
+      "key": "THREADS",
+      "value": "4",
+      "description": "Number of threads used for rendering tiles. Match to your CPU core count.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live OSM Updates",
+      "key": "UPDATES",
+      "value": "disabled",
+      "description": "Set to [enabled] to keep the map updated via OSM diffs. Requires the Osmosis path to be set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Cors",
+      "key": "ALLOW_CORS",
+      "value": "1",
+      "description": "Set to 1 to enable CORS headers (useful when embedding tiles in web apps).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

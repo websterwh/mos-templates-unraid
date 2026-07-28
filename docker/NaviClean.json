@@ -1,0 +1,107 @@
+{
+  "name": "NaviClean",
+  "repo": "ghcr.io/thedinz/naviclean:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/thedinz/NaviClean/pkgs/container/naviclean",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/thedinz/unraid-templates/main/appdata/naviclean.png",
+  "project": "https://github.com/thedinz/NaviClean",
+  "description": "NaviClean scans and cleans mounted Navidrome music libraries with guided organization previews, duplicate review, unindexed and non-music cleanup, Spotify-backed discovery, and audio conversion.",
+  "paths": [
+    {
+      "name": "Config Folder",
+      "host": "/mnt/cache/appdata/naviclean",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stores NaviClean settings, auth configuration, and the latest scan catalog",
+      "required": true
+    },
+    {
+      "name": "Navidrome Music Library",
+      "host": "/mnt/cache/music",
+      "container": "/music",
+      "mode": "rw",
+      "description": "Host music folder that Navidrome scans. NaviClean needs read/write access to organize, convert, trash cleanup candidates, and place removed files in /music/.naviclean-trash by default.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container 8080 - Host port for the NaviClean web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid user ID used by NaviClean for /data and /music access. Keep 99 for the default nobody user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid group ID used by NaviClean for /data and /music access. Keep 100 for the default users group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "NAVICLEAN_TRUST_PROXY",
+      "value": "1",
+      "description": "Express trust-proxy setting. Keep 1 when NaviClean is behind Unraid, Nginx Proxy Manager, SWAG, authentik, or another reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "NAVICLEAN_SECURE_COOKIES",
+      "value": "auto",
+      "description": "Cookie secure mode: auto follows HTTPS/proxy headers, true always requires HTTPS, and false allows direct HTTP/LAN testing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie SameSite",
+      "key": "NAVICLEAN_COOKIE_SAMESITE",
+      "value": "lax",
+      "description": "Session cookie SameSite mode. Use lax for normal installs, none for cross-site reverse-proxy flows that require it, or strict for tighter same-site access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Advanced Diagnostics",
+      "key": "NAVICLEAN_ADVANCED_DIAGNOSTICS",
+      "value": "0",
+      "description": "Set to 1 to show the internal Diagnostics page and matching-inspection API routes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

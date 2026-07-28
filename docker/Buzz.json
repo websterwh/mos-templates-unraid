@@ -1,0 +1,197 @@
+{
+  "name": "Buzz",
+  "repo": "ghcr.io/block/buzz:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/block/buzz/pkgs/container/buzz",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/maybegrim/unraid-templates/main/Buzz/icon.png",
+  "project": "https://github.com/block/buzz",
+  "description": "Buzz is a self-hosted workspace where humans and AI agents collaborate in shared rooms. It combines a Nostr relay, channels, threads, direct messages, canvases, media, search, workflows, and Git events in one signed event log. This template installs the official stable Buzz relay and bundled web interface. Buzz is not a standalone one-container application: a running PostgreSQL database, Redis server, and S3-compatible object store (such as MinIO) are required. Create the S3 bucket before starting Buzz. For a production-style deployment, use a public wss:// relay URL, a stable 64-character relay private key, your 64-character lowercase Nostr public key, authentication, and relay membership enforcement. Back up the relay private key, PostgreSQL database, S3 bucket, and Git data path. The official stable image supports both amd64 and arm64. Buzz automatically runs its PostgreSQL migrations at startup by default. Optional Unraid Tailscale integration is included for private tailnet-only access; when enabled, set the Public Relay URL and Public Media URL to the HTTPS/WSS Tailscale hostname shown by Unraid.",
+  "paths": [
+    {
+      "name": "Git Data Path",
+      "host": "/mnt/cache/appdata/buzz/git",
+      "container": "/var/lib/buzz/repos",
+      "mode": "rw",
+      "description": "Persistent local Git working data. Back this path up together with PostgreSQL and object storage.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI / Relay Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Buzz web interface, REST API, and WebSocket relay port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Health Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Optional host port for /_liveness and /_readiness health endpoints.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics Port",
+      "host": "9102",
+      "container": "9102",
+      "protocol": "tcp",
+      "description": "Optional Prometheus metrics port. Restrict access to trusted monitoring systems.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public Relay URL",
+      "key": "RELAY_URL",
+      "value": "ws://[IP]:3000",
+      "description": "Public ws:// or wss:// URL used by Buzz clients and authentication challenges. Use your reverse-proxy wss:// URL for remote access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Media URL",
+      "key": "BUZZ_MEDIA_BASE_URL",
+      "value": "http://[IP]:3000/media",
+      "description": "Public HTTP(S) base URL used for media. When reverse proxied, use https://your-buzz-host/media.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Required PostgreSQL connection URL, for example postgres://buzz:password@192.168.1.10:5432/buzz. PostgreSQL 17 is recommended.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Required Redis connection URL, for example redis://:password@192.168.1.10:6379.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "S3 Endpoint",
+      "key": "BUZZ_S3_ENDPOINT",
+      "value": "",
+      "description": "Required S3-compatible endpoint, for example http://192.168.1.10:9000 for MinIO.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Access Key",
+      "key": "BUZZ_S3_ACCESS_KEY",
+      "value": "",
+      "description": "Access key for the S3-compatible object store.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "S3 Secret Key",
+      "key": "BUZZ_S3_SECRET_KEY",
+      "value": "",
+      "description": "Secret key for the S3-compatible object store.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "S3 Bucket",
+      "key": "BUZZ_S3_BUCKET",
+      "value": "buzz-media",
+      "description": "Existing S3 bucket used for Buzz object storage. Create it before starting Buzz.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Region",
+      "key": "BUZZ_S3_REGION",
+      "value": "us-east-1",
+      "description": "S3 region. The default works for a typical local MinIO installation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Relay Private Key",
+      "key": "BUZZ_RELAY_PRIVATE_KEY",
+      "value": "",
+      "description": "Required stable 32-byte (64-character) hex Nostr private key for the relay identity. Generate one with: openssl rand -hex 32. Back it up; rotating it changes the relay identity.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Relay Owner Public Key",
+      "key": "RELAY_OWNER_PUBKEY",
+      "value": "",
+      "description": "Required 64-character lowercase hex Nostr public key of the relay owner.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Require Authentication Token",
+      "key": "BUZZ_REQUIRE_AUTH_TOKEN",
+      "value": "true",
+      "description": "Keep true for production. When true, REST API requests require token authentication and a stable relay private key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Relay Membership",
+      "key": "BUZZ_REQUIRE_RELAY_MEMBERSHIP",
+      "value": "true",
+      "description": "Keep true for a private production workspace. Requires valid Relay Private Key and Relay Owner Public Key values.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow NIP-OA Authentication",
+      "key": "BUZZ_ALLOW_NIP_OA_AUTH",
+      "value": "true",
+      "description": "Allows owner-attested authentication used by Buzz Git collaboration features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Hook HMAC Secret",
+      "key": "BUZZ_GIT_HOOK_HMAC_SECRET",
+      "value": "",
+      "description": "Optional stable secret of at least 32 characters for Git hooks. Recommended for production; generate and back it up with the relay key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Run Database Migrations",
+      "key": "BUZZ_AUTO_MIGRATE",
+      "value": "true",
+      "description": "Run embedded PostgreSQL schema migrations at container startup. Keep enabled unless migrations are managed separately.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "BUZZ_CORS_ORIGINS",
+      "value": "",
+      "description": "Optional comma-separated allowed browser origins, including scheme and port.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

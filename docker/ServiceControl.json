@@ -1,0 +1,83 @@
+{
+  "name": "ServiceControl",
+  "repo": "particular/servicecontrol:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/particular/servicecontrol",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "--setup-and-run",
+  "web_ui_url": "http://[IP]:[PORT:33333]",
+  "icon": "https://www.gravatar.com/avatar/4160e88ff57936ccec0dbaabc67b02f7?s=120&r=g&d=404",
+  "project": "https://github.com/Particular/ServiceControl",
+  "description": "Particular Software ServiceControl The 'particular/servicecontrol' image is part of the Particular Service Platform, which includes the following images: - particular/servicecontrol-ravendb | The database used by the error/audit instances (https://docs.particular.net/servicecontrol/ravendb/containers) - particular/servicecontrol | The primary/error instance, which includes error handling and recoverability (https://docs.particular.net/servicecontrol/servicecontrol-instances/) - particular/servicecontrol-audit | The audit instance, which stores audit data, and can be scaled out to multiple audit instances (https://docs.particular.net/servicecontrol/audit-instances/) - particular/servicecontrol-monitoring | The monitoring instance, which tracks runtime information like throughput, queue length, and other metrics (https://docs.particular.net/servicecontrol/monitoring-instances/) - particular/servicepulse | The web application that provides a front end for recoverability and monitoring features (https://docs.particular.net/servicepulse/) Additional optional environment variables can be configured. See \"https://docs.particular.net/servicecontrol/servicecontrol-instances/configuration\".",
+  "paths": [
+    {
+      "name": "ParticularPlatformFiles",
+      "host": "/mnt/cache/appdata/ParticularPlatform/",
+      "container": "/usr/share/ParticularSoftware/",
+      "mode": "rw",
+      "description": "An optionally shared folder used by all Particular Service Platform containers. The license file can be saved here and shared among all containers.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Canonical Port",
+      "host": "33333",
+      "container": "33333",
+      "protocol": "tcp",
+      "description": "33333 is the canonical port exposed by the error instance API within the container, though this port can be mapped to any desired external port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "RAVENDB_CONNECTIONSTRING",
+      "key": "RAVENDB_CONNECTIONSTRING",
+      "value": "http://servicecontrol-ravendb:8080",
+      "description": "Provides the URL to connect to the database container that stores the instance's data. The database container should be exclusive to the instance, and not shared by any other ServiceControl instances.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REMOTEINSTANCES",
+      "key": "REMOTEINSTANCES",
+      "value": "[{&quot;api_uri&quot;:&quot;http://servicecontrol-audit:44444/api&quot;}]",
+      "description": "A JSON structure that provides URLs for the Error instance to access any remote audit instances (https://docs.particular.net/servicecontrol/servicecontrol-instances/remotes). When requesting audit data via the ServiceControl API, the Error instance will communicate to each of the remote audit instances in a scatter-gather pattern and then return the combined results. The URLs must be accessible by the Error instance directly, not constructed to be accessible from an external browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRANSPORTTYPE",
+      "key": "TRANSPORTTYPE",
+      "value": "",
+      "description": "Determines the message transport used to communicate with message endpoints. See",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CONNECTIONSTRING",
+      "key": "CONNECTIONSTRING",
+      "value": "",
+      "description": "Provides the connection information to connect to the chosen transport. The form of this connection string is different for every message transport. See",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PARTICULARSOFTWARE_LICENSE",
+      "key": "PARTICULARSOFTWARE_LICENSE",
+      "value": "",
+      "description": "The Particular Software license, which is most easily provided to a container as an environment variable (https://docs.particular.net/nservicebus/licensing/#license-management-environment-variable). The environment variable should contain the full multi-line contents of the license file. A license file can also be volume-mounted to the container. e.g. (/usr/share/ParticularSoftware/license.xml). If no license file is provided, a trial license will be automatically enabled.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

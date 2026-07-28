@@ -1,0 +1,163 @@
+{
+  "name": "NextExplorer",
+  "repo": "nxzai/explorer:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/nxzai/explorer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/maybegrim/unraid-templates/main/NextExplorer/icon.png",
+  "project": "https://github.com/nxzai/NextExplorer",
+  "description": "NextExplorer is a modern, self-hosted web-based file explorer with secure access control and a polished UI. Features include fast previews for images, videos, and PDFs, a built-in code/text editor with syntax highlighting, link-based file sharing (read-only or read-write), ripgrep-powered search across filenames and content, and multiple view modes (grid, list, column). Security is built in with local users and groups, optional OIDC/SSO integration, account lockout policies, and session management. Toggle \"Show more settings\" for advanced options including OIDC single sign-on, reverse proxy trust, and account lockout configuration.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/nextexplorer/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for database, settings, and session data. Do not delete.",
+      "required": true
+    },
+    {
+      "name": "Cache Path",
+      "host": "/mnt/cache/appdata/nextexplorer/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "Thumbnail cache and search indexes. Safe to clear if troubleshooting.",
+      "required": false
+    },
+    {
+      "name": "Data Path",
+      "host": "/mnt/user",
+      "container": "/mnt/Data",
+      "mode": "rw",
+      "description": "Root directory to browse. Mounted paths appear as top-level volumes in the UI. Add more by clicking 'Add another Path'.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the NextExplorer web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUBLIC_URL",
+      "key": "PUBLIC_URL",
+      "value": "http://[IP]:3000",
+      "description": "External URL used for cookies, CORS, and callback URLs. Set this to your reverse proxy URL if using one (no trailing slash).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "AUTH_ADMIN_EMAIL",
+      "value": "",
+      "description": "Email for the admin account created on first launch. Only used during initial setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "AUTH_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the admin account created on first launch. Only used during initial setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Session Secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Random string (32+ chars) used to sign session cookies. Set a stable value to keep sessions valid across container restarts. Leave blank to auto-generate (sessions reset on restart).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Runtime environment. Leave as production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal container port. Should match the Web UI Port mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable OIDC",
+      "key": "OIDC_ENABLED",
+      "value": "false",
+      "description": "Set to 'true' to enable OpenID Connect single sign-on. Requires OIDC provider configuration below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client ID from your OIDC identity provider (e.g. Authentik, Authelia, Keycloak).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret from your OIDC identity provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Issuer URL",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "OIDC issuer/discovery URL from your identity provider (e.g. https://auth.example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "",
+      "description": "Express trust proxy setting for running behind a reverse proxy. Usually auto-derived from PUBLIC_URL. Set to 'true', a number of hops, or a CIDR range if needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Failed Logins",
+      "key": "AUTH_MAX_FAILED",
+      "value": "5",
+      "description": "Number of failed login attempts before the account is temporarily locked.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lockout Duration (minutes)",
+      "key": "AUTH_LOCK_MINUTES",
+      "value": "15",
+      "description": "Duration in minutes that an account stays locked after exceeding failed login attempts.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

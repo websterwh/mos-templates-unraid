@@ -1,0 +1,91 @@
+{
+  "name": "Borgitory",
+  "repo": "mlapaglia/borgitory",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/mlapaglia/borgitory",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add SYS_ADMIN",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://i.imgur.com/0rqIQ95.png",
+  "project": "https://github.com/mlapaglia/Borgitory",
+  "description": "A comprehensive web-based management interface for BorgBackup repositories with real-time monitoring, automated scheduling, and cloud synchronization capabilities.",
+  "paths": [
+    {
+      "name": "Borg Repositories",
+      "host": "",
+      "container": "/mnt/repos",
+      "mode": "rw",
+      "description": "For a single Borg repository this can be the root of that repository. As many repositories can be mounted as additional volumes also. Every repository must be mounted inside of /mnt/",
+      "required": false
+    },
+    {
+      "name": "Data Sources",
+      "host": "",
+      "container": "/mnt/data",
+      "mode": "ro",
+      "description": "The location of the data to back up. Can be pointed at a particular folder, or mount any source volumes wherever you want. Every data source must be mounted inside of /mnt/",
+      "required": false
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/borgitory",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "The persistent storage location for the borgitory database.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Controls default permissions for new files and folders created by the container (022 = owner can read/write, others read-only).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Sets the group ID the container runs as, controlling group ownership of created files (100 = Unraid's",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Sets the user ID the container runs as, controlling who owns created files (99 = Unraid's",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "FUSE",
+      "host": "/dev/fuse:/dev/fuse:rwm",
+      "container": "/dev/fuse:/dev/fuse:rwm",
+      "description": "Used for mounting borg repositories inside the container.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

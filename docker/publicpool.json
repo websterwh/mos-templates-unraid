@@ -1,0 +1,149 @@
+{
+  "name": "public-pool",
+  "repo": "animai/public-pool",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://github.com/animai/unraid-templates/tree/master/public-pool",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/animai/unraid-templates/master/public-pool/img/public-pool.png",
+  "project": "https://github.com/benjamin-wilson/public-pool",
+  "description": "Run your own solo MINING POOL with web UI using public-pool & public-pool-ui. This Unraid template supports custom IP, ports, and direct Bitcoin node integration. ***** IMPORTANT NETWORK INFORMATION: ***** The External IP Address field must be set to the IP address where miners will connect to your pool. - If using bridge network (default): This should be your Unraid server's IP address - If using host network: This should be your Unraid server's IP address - If using custom network: This should be the IP you assigned to the container The ports shown below (3333, 3334, 8080) are used internally and can be mapped to different ports on your host if needed. Standard web UI access will be http://YOUR-Unraid-IP:8080",
+  "paths": [
+    {
+      "name": "AppData Path (persistent data)",
+      "host": "/mnt/cache/appdata/public-pool",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Directory where Public Pool stores shares, stats and worker data.",
+      "required": true
+    },
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/public-pool/mainnet-DB",
+      "container": "/app/mainnet-DB",
+      "mode": "rw",
+      "description": "Directory where the SQLite database is stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Stratum Port",
+      "host": "3333",
+      "container": "3333",
+      "protocol": "tcp",
+      "description": "Mining port for stratum connections. Miners will connect to YOUR-EXTERNAL-IP:3333 (or the port you map this to)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API Port",
+      "host": "3334",
+      "container": "3334",
+      "protocol": "tcp",
+      "description": "API port for backend services",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web UI. Access via http://YOUR-EXTERNAL-IP:8080 (or the port you map this to)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Bitcoin RPC URL",
+      "key": "BITCOIN_RPC_URL",
+      "value": "http://192.168.1.100",
+      "description": "RPC URL of your Bitcoin node (e.g. http://192.168.1.100)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitcoin RPC Port",
+      "key": "BITCOIN_RPC_PORT",
+      "value": "8332",
+      "description": "RPC port of your Bitcoin node (default: 8332)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitcoin RPC User",
+      "key": "BITCOIN_RPC_USER",
+      "value": "rpcuser",
+      "description": "Username defined in your bitcoin.conf",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitcoin RPC Password",
+      "key": "BITCOIN_RPC_PASSWORD",
+      "value": "rpcpassword",
+      "description": "Password defined in your bitcoin.conf",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Bitcoin ZMQ Host",
+      "key": "BITCOIN_ZMQ_HOST",
+      "value": "tcp://192.168.1.100:28334",
+      "description": "ZMQ address of your Bitcoin node (e.g. tcp://192.168.1.100:28334)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitcoin RPC Timeout",
+      "key": "BITCOIN_RPC_TIMEOUT",
+      "value": "10000",
+      "description": "RPC timeout in ms (default: 10000)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External IP Address",
+      "key": "EXTERNAL_IP",
+      "value": "192.168.1.100",
+      "description": "IMPORTANT: Set this to YOUR unRAID server's IP address (or the IP where miners will connect). Required for UI to display miners correctly.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pool Identifier",
+      "key": "POOL_IDENTIFIER",
+      "value": "public-pool",
+      "description": "Custom name for your pool (e.g. Home-Pool, Unraid-Pool)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bitcoin Network",
+      "key": "NETWORK",
+      "value": "mainnet",
+      "description": "Bitcoin network to use (mainnet or testnet)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable HTTPS for API",
+      "key": "API_SECURE",
+      "value": "false",
+      "description": "Set to 'true' to enable HTTPS. Default is 'false' (HTTP only). Enable only if you have a proper reverse proxy or certificate setup. Only enable HTTPS if you know what you're doing.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "IdPVault",
+  "repo": "ghcr.io/keltech-services/idpvault:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/KelTech-Services/IdPVault/pkgs/container/idpvault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/idpvault.png",
+  "project": "https://github.com/KelTech-Services/IdPVault",
+  "description": "Self-hosted backup, drift detection, and restore for identity providers (Authentik, Okta, and Auth0). Encrypted configuration snapshots on a schedule, a diff of every change, selective restore with dry-run preview, and Users and Access backup/restore on paid tiers. No telemetry, no phone-home; license keys verify offline. Free Community tier included (1 tenant). Requires a PostgreSQL database - install any PostgreSQL container from CA and point the Database URL below at it. The encryption master key generates itself on first boot in the Secrets path: back that folder up and never delete it, or existing snapshots become unreadable. The container runs as a non-root user (uid 10001). If it fails to start with permission errors, run: chown -R 10001:10001 /mnt/user/appdata/idpvault",
+  "paths": [
+    {
+      "name": "Snapshot Data",
+      "host": "/mnt/cache/appdata/idpvault/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Encrypted configuration snapshots",
+      "required": true
+    },
+    {
+      "name": "Secrets",
+      "host": "/mnt/cache/appdata/idpvault/secrets",
+      "container": "/secrets",
+      "mode": "rw",
+      "description": "Holds the auto-generated encryption master key. BACK THIS FOLDER UP and never delete it - snapshots cannot be decrypted without it.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8480",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "IDPVAULT_DATABASE_URL",
+      "value": "",
+      "description": "PostgreSQL connection string, e.g. postgresql+psycopg://idpvault:PASSWORD@SERVER-IP:5432/idpvault",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Dir",
+      "key": "IDPVAULT_DATA_DIR",
+      "value": "/data",
+      "description": "Internal data path - do not change",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Master Key File",
+      "key": "IDPVAULT_MASTER_KEY_FILE",
+      "value": "/secrets/master.key",
+      "description": "Internal key path - do not change",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

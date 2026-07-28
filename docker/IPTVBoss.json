@@ -1,0 +1,141 @@
+{
+  "name": "IPTVBoss",
+  "repo": "ghcr.io/groenator/iptvboss-docker:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/groenator/iptvboss-docker/pkgs/container/iptvboss-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6901]/vnc.html?autoconnect=true&password=iptvboss&resize=scale",
+  "icon": "https://raw.githubusercontent.com/crywolf203/unraid-templates/main/iptvboss-icon.png",
+  "project": "https://github.com/groenator/iptvboss-docker",
+  "description": "IPTVBoss is an IPTV playlist and EPG management application. This Unraid template uses the upstream groenator IPTVBoss Docker image and opens the full noVNC browser client so copy and paste work from the browser window. The browser WebUI uses port 6901. XC Server uses port 8001. Native VNC on port 5901 is included as an optional fallback. The upstream image now sets Mozilla Firefox as the default browser for authorization links when no user preference exists.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/iptvboss",
+      "container": "/headless/IPTVBoss",
+      "mode": "rw",
+      "description": "Persistent IPTVBoss app data. This path is required.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Browser WebUI Port",
+      "host": "6901",
+      "container": "6901",
+      "protocol": "tcp",
+      "description": "Browser noVNC WebUI port. The template opens the full noVNC client at /vnc.html so copy and paste work from the browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Native VNC Port",
+      "host": "5901",
+      "container": "5901",
+      "protocol": "tcp",
+      "description": "Optional native VNC port. Browser WebUI is recommended, but this can be used as a fallback with a VNC client.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "XC Server Port",
+      "host": "8001",
+      "container": "8001",
+      "protocol": "tcp",
+      "description": "XC Server port. Only used when XC_SERVER is set to true.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership. 99 is the default Unraid nobody user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership. 100 is the default Unraid users group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone. Change this to your timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC_PW",
+      "key": "VNC_PW",
+      "value": "iptvboss",
+      "description": "Browser noVNC password. If you change this value, update the WebUI URL password or enter the password manually at the noVNC login screen.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC_RESOLUTION",
+      "key": "VNC_RESOLUTION",
+      "value": "1920x1080",
+      "description": "VNC desktop resolution.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC_COL_DEPTH",
+      "key": "VNC_COL_DEPTH",
+      "value": "24",
+      "description": "VNC color depth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CRON_SCHEDULE",
+      "key": "CRON_SCHEDULE",
+      "value": "0 3,15 * * *",
+      "description": "Cron schedule for automated IPTVBoss no-GUI runs. Default runs daily at 3 AM and 3 PM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "XC_SERVER",
+      "key": "XC_SERVER",
+      "value": "true",
+      "description": "Enable IPTVBoss XC Server on port 8001.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CRONITOR_API_KEY",
+      "key": "CRONITOR_API_KEY",
+      "value": "",
+      "description": "Optional Cronitor API key. Leave blank if not using Cronitor.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CRONITOR_SCHEDULE_NAME",
+      "key": "CRONITOR_SCHEDULE_NAME",
+      "value": "",
+      "description": "Optional Cronitor schedule name. Leave blank if not using Cronitor.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,275 @@
+{
+  "name": "documenso",
+  "repo": "ghcr.io/documenso/documenso:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/documenso/documenso/pkgs/container/documenso",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/Eurotimmy/unraid-templates/main/documenso/documenso.png",
+  "project": "https://github.com/documenso/documenso",
+  "description": "Documenso \u2014 open-source e-signature platform (self-hosted DocuSign alternative). Exposes a web UI on the configured port (default 3000). Requires PostgreSQL and SMTP settings. If you use a reverse proxy, set NEXT_PUBLIC_WEBAPP_URL and NEXTAUTH_URL to your public HTTPS URL (no trailing slash).",
+  "paths": [
+    {
+      "name": "Signing Cert (.p12) Path",
+      "host": "/mnt/cache/appdata/documenso/cert.p12",
+      "container": "/opt/documenso/signing",
+      "mode": "ro",
+      "description": "Host path to PKCS#12 certificate",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web UI / API port (container 3000 \u2192 host)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NEXT_PUBLIC_WEBAPP_URL",
+      "key": "NEXT_PUBLIC_WEBAPP_URL",
+      "value": "https://documenso.example.com",
+      "description": "Public base URL used in links/emails (no trailing slash)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXTAUTH_URL",
+      "key": "NEXTAUTH_URL",
+      "value": "",
+      "description": "Canonical public URL for Auth.js/NextAuth (no trailing slash)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTH_TRUST_HOST",
+      "key": "AUTH_TRUST_HOST",
+      "value": "true",
+      "description": "Trust reverse proxy headers for Auth.js (true when behind NPM)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_DISABLE_SIGNUP",
+      "key": "NEXT_PUBLIC_DISABLE_SIGNUP",
+      "value": "false",
+      "description": "Disable self-service /signup (true = staff invite/guest signing only)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXTAUTH_SECRET",
+      "key": "NEXTAUTH_SECRET",
+      "value": "",
+      "description": "Long random secret for Auth.js/NextAuth (\u226532 chars)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PRIVATE_ENCRYPTION_KEY",
+      "key": "NEXT_PRIVATE_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Primary encryption key for stored secrets (\u226532 chars)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PRIVATE_DATABASE_URL",
+      "key": "NEXT_PRIVATE_DATABASE_URL",
+      "value": "postgresql://user:pass@host:5432/db?sslmode=prefer",
+      "description": "Primary DB URL (with pooling)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_DIRECT_DATABASE_URL",
+      "key": "NEXT_PRIVATE_DIRECT_DATABASE_URL",
+      "value": "postgresql://user:pass@host:5432/db?sslmode=prefer",
+      "description": "Direct DB URL (no pooling; migrations/long queries)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_TRANSPORT",
+      "key": "NEXT_PRIVATE_SMTP_TRANSPORT",
+      "value": "smtp-auth",
+      "description": "Email transport (smtp-auth | smtp-api | resend | mailchannels)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_HOST",
+      "key": "NEXT_PRIVATE_SMTP_HOST",
+      "value": "smtp.example.com",
+      "description": "SMTP host (smtp-auth)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_PORT",
+      "key": "NEXT_PRIVATE_SMTP_PORT",
+      "value": "587",
+      "description": "SMTP port (smtp-auth; 587 STARTTLS or 465 SSL/TLS)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_USERNAME",
+      "key": "NEXT_PRIVATE_SMTP_USERNAME",
+      "value": "",
+      "description": "SMTP username (smtp-auth)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_PASSWORD",
+      "key": "NEXT_PRIVATE_SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password/app password (smtp-auth)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_FROM_NAME",
+      "key": "NEXT_PRIVATE_SMTP_FROM_NAME",
+      "value": "Documenso",
+      "description": "Email 'From' display name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_FROM_ADDRESS",
+      "key": "NEXT_PRIVATE_SMTP_FROM_ADDRESS",
+      "value": "no-reply@example.com",
+      "description": "Email 'From' address",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SIGNING_TRANSPORT",
+      "key": "NEXT_PRIVATE_SIGNING_TRANSPORT",
+      "value": "local",
+      "description": "Signing transport (local or cloud provider)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY",
+      "key": "NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY",
+      "value": "",
+      "description": "Secondary encryption key (for key rotation; optional)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PRIVATE_SMTP_SECURE",
+      "key": "NEXT_PRIVATE_SMTP_SECURE",
+      "value": "false",
+      "description": "true = SSL/TLS (465), false = STARTTLS (587)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_SIGNING_PASSPHRASE",
+      "key": "NEXT_PRIVATE_SIGNING_PASSPHRASE",
+      "value": "",
+      "description": "Passphrase for the .p12 signing certificate (if set)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH",
+      "key": "NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH",
+      "value": "/opt/documenso/cert.p12",
+      "description": "Override signing cert path inside container (default /opt/documenso/cert.p12)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_UPLOAD_TRANSPORT",
+      "key": "NEXT_PUBLIC_UPLOAD_TRANSPORT",
+      "value": "database",
+      "description": "Upload backend: database or s3",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_ENDPOINT",
+      "key": "NEXT_PRIVATE_UPLOAD_ENDPOINT",
+      "value": "",
+      "description": "S3 endpoint URL (if using S3/compatible)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_FORCE_PATH_STYLE",
+      "key": "NEXT_PRIVATE_UPLOAD_FORCE_PATH_STYLE",
+      "value": "false",
+      "description": "Force path-style S3 URLs (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_REGION",
+      "key": "NEXT_PRIVATE_UPLOAD_REGION",
+      "value": "us-east-1",
+      "description": "S3 region",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_BUCKET",
+      "key": "NEXT_PRIVATE_UPLOAD_BUCKET",
+      "value": "",
+      "description": "S3 bucket name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_ACCESS_KEY_ID",
+      "key": "NEXT_PRIVATE_UPLOAD_ACCESS_KEY_ID",
+      "value": "",
+      "description": "S3 access key ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PRIVATE_UPLOAD_SECRET_ACCESS_KEY",
+      "key": "NEXT_PRIVATE_UPLOAD_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "S3 secret access key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal listening port (normally 3000; don\u2019t change)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_DOCUMENT_SIZE_UPLOAD_LIMIT",
+      "key": "NEXT_PUBLIC_DOCUMENT_SIZE_UPLOAD_LIMIT",
+      "value": "25",
+      "description": "Max document upload size shown in UI (MB)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

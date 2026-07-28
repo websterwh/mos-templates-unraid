@@ -1,0 +1,130 @@
+{
+  "name": "youtube-transcript-to-article",
+  "repo": "patrickstigler/youtube-transcript-to-article",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/r/patrickstigler/youtube-transcript-to-article",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]/",
+  "icon": "https://raw.githubusercontent.com/patrickstigler/youtube-transcript-to-article/main/img/favicon.ico",
+  "project": "https://github.com/patrickstigler/youtube-transcript-to-article",
+  "description": "YouTube Transcript to Article Turn YouTube captions into structured Markdown via an OpenAI-compatible model (OpenAI or LocalAI). Web UI and HTTP API; optional MCP mode returns transcript and video metadata only (no LLM in the container). Features Transcripts from URL or ID; depth levels (brief through comprehensive); optional word-target summaries; default or per-request model; OpenAI or LocalAI; simple web UI. For the web/API container you need an OpenAI API key (or LocalAI with optional key). MCP mode does not require OPENAI_API_KEY in the container. Image: Docker Hub patrickstigler/youtube-transcript-to-article \u2014 or GHCR ghcr.io/patrickstigler/youtube-transcript-to-article (set Repository to that and Registry to https://ghcr.io if you use GitHub Container Registry).",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Flask web UI and API (APP_MODE=flask)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Required when APP_MODE=flask and using OpenAI (DEFAULT_MODEL_HOST=openai). Optional for LocalAI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "APP_MODE",
+      "key": "APP_MODE",
+      "value": "flask",
+      "description": "flask = web UI + API (port 5000). mcp = Model Context Protocol server (use MCP port mapping when using streamable-http).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_MODEL_HOST",
+      "key": "DEFAULT_MODEL_HOST",
+      "value": "openai",
+      "description": "openai or localai",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_MODEL",
+      "key": "DEFAULT_MODEL",
+      "value": "gpt-4o-mini",
+      "description": "Default model id when the client omits model",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENAI_BASE_URL",
+      "key": "OPENAI_BASE_URL",
+      "value": "",
+      "description": "Optional OpenAI-compatible API base (must resolve to /v1). Leave empty for default OpenAI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCALAI_BASE_URL",
+      "key": "LOCALAI_BASE_URL",
+      "value": "http://host.docker.internal:8080/v1",
+      "description": "LocalAI base URL when DEFAULT_MODEL_HOST=localai",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCALAI_API_KEY",
+      "key": "LOCALAI_API_KEY",
+      "value": "",
+      "description": "Optional; falls back to OPENAI_API_KEY",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENAI_TIMEOUT",
+      "key": "OPENAI_TIMEOUT",
+      "value": "180",
+      "description": "Seconds for model requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_REQUEST_TIMEOUT",
+      "key": "HTTP_REQUEST_TIMEOUT",
+      "value": "30",
+      "description": "Seconds for YouTube metadata requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_TRANSCRIPT_CHARS",
+      "key": "MAX_TRANSCRIPT_CHARS",
+      "value": "120000",
+      "description": "Max transcript length sent to the model",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP_TRANSPORT",
+      "key": "MCP_TRANSPORT",
+      "value": "streamable-http",
+      "description": "When APP_MODE=mcp: streamable-http (default in image) or stdio",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FASTMCP_PORT",
+      "key": "FASTMCP_PORT",
+      "value": "8000",
+      "description": "Container listen port for MCP streamable-http; add a Port mapping 8000\u21928000 in Unraid when APP_MODE=mcp",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

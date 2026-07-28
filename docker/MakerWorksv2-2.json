@@ -1,0 +1,739 @@
+{
+  "name": "MakerWorks-v2",
+  "repo": "ghcr.io/schartrand77/mkw2:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/schartrand77/mkw2",
+  "network": "makerworks-net",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/schartrand77/mkw2/main/public/favicon.jpg",
+  "project": "https://github.com/schartrand77/mkw2",
+  "description": "MakerWorks v2 is a self-hosted 3D model hub with STL previews, price estimation, optional Stripe checkout, and an admin dashboard for site settings, pricing, backups, and OrderWorks job monitoring. Point it at any reachable Postgres 15+ instance and map a persistent storage share for uploaded models, covers, avatars, and backups. On Unraid, this primary container also runs the image/preview processing worker by default so uploads use the same database and storage settings as the web app. Unraid note: \"Autostart\" starts the container when the array/Docker service starts, but crash recovery still depends on Docker restart policy. If the container stops, check its logs: the image startup sequence runs restore, Prisma migrations, admin bootstrap, then the Next.js server and integrated processing worker.",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/makerworks/storage",
+      "container": "/app/storage",
+      "mode": "rw",
+      "description": "Persistent directory for uploaded models, covers, and avatars",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/makerworks/storage/backups",
+      "container": "/app/backups",
+      "mode": "rw",
+      "description": "Persistent backup destination (set BACKUP_DIR to this container path)",
+      "required": false
+    },
+    {
+      "name": "Bulk Import Folder",
+      "host": "/mnt/cache/makerworks/imports",
+      "container": "/app/imports",
+      "mode": "rw",
+      "description": "Optional mapped folder used by the bulk upload script. Put source STL/OBJ/3MF/AMF/PLY/WRL/VRML/GLB/GLTF/USD/USDZ/USDA/USDC/ZIP files here and run the importer against /app/imports.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port the MakerWorks Next.js server listens on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://postgres:postgres@postgres:5432/makerworks?schema=public",
+      "description": "Postgres connection string (must be reachable from the container)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "redis://makerworks-redis:6379",
+      "description": "Redis connection string used for BullMQ processing queues",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASE_URL",
+      "key": "BASE_URL",
+      "value": "https://makerworks.example.com",
+      "description": "Public URL users access (used for redirects/cookies)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret used to sign user sessions (set to a long random string)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ADMIN_EMAIL",
+      "key": "ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Email for the bootstrap administrator account",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the bootstrap administrator (rotated on change)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ADMIN_NAME",
+      "key": "ADMIN_NAME",
+      "value": "Admin",
+      "description": "Display name for the bootstrap administrator account",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STORAGE_DIR",
+      "key": "STORAGE_DIR",
+      "value": "/app/storage",
+      "description": "Internal storage path (leave at /app/storage unless customizing)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DIRECT_UPLOAD_URL",
+      "key": "DIRECT_UPLOAD_URL",
+      "value": "",
+      "description": "Optional direct hostname (e.g., https://upload.example.com) used only for uploads to bypass Cloudflare/Tunnel size limits",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BULK_UPLOAD_DIR",
+      "key": "BULK_UPLOAD_DIR",
+      "value": "/app/imports",
+      "description": "Default in-container folder scanned by the bulk upload importer",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BULK_UPLOAD_BASE_URL",
+      "key": "BULK_UPLOAD_BASE_URL",
+      "value": "http://127.0.0.1:3000",
+      "description": "URL used by the bulk upload importer when run inside the container. Leave at http://127.0.0.1:3000 for Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_BUCKET",
+      "key": "S3_BUCKET",
+      "value": "",
+      "description": "Optional S3 bucket (leave blank to store uploads locally on STORAGE_DIR)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_REGION",
+      "key": "S3_REGION",
+      "value": "",
+      "description": "Region/endpoint for the S3 bucket (e.g., us-east-1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_ACCESS_KEY_ID",
+      "key": "S3_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Access key for the configured S3-compatible storage",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_SECRET_ACCESS_KEY",
+      "key": "S3_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Secret key for the configured S3-compatible storage",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "COOKIE_SECURE",
+      "key": "COOKIE_SECURE",
+      "value": "true",
+      "description": "Set to true when BASE_URL is HTTPS so auth cookies are secure",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SKIP_DOCKER",
+      "key": "SKIP_DOCKER",
+      "value": "1",
+      "description": "Set to 1 on Unraid/non-compose runtimes so backups/restores use local client tools instead of docker compose exec",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "/app/backups",
+      "description": "Backup destination inside the container. Must point to a mapped path (recommended: /app/backups).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PG_DUMP_BIN",
+      "key": "PG_DUMP_BIN",
+      "value": "/usr/bin/pg_dump",
+      "description": "Path to pg_dump binary used by backup when SKIP_DOCKER=1 (or docker compose path fails)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PSQL_BIN",
+      "key": "PSQL_BIN",
+      "value": "/usr/bin/psql",
+      "description": "Path to psql binary used by restore when SKIP_DOCKER=1 (or docker compose path fails)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DOCKER_SERVICE",
+      "key": "BACKUP_DOCKER_SERVICE",
+      "value": "db",
+      "description": "Docker Compose DB service name used for pg_dump/psql when compose mode is enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_SCHEDULE_ENABLED",
+      "key": "BACKUP_SCHEDULE_ENABLED",
+      "value": "1",
+      "description": "Enable daily scheduled backups (1=true, 0=false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_SCHEDULE_TIME_UTC",
+      "key": "BACKUP_SCHEDULE_TIME_UTC",
+      "value": "03:00",
+      "description": "Daily backup time in UTC (HH:mm)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_RUN_ON_START",
+      "key": "BACKUP_RUN_ON_START",
+      "value": "0",
+      "description": "Run one backup when scheduler starts (1=true, 0=false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_PRUNE_ON_BACKUP",
+      "key": "BACKUP_PRUNE_ON_BACKUP",
+      "value": "1",
+      "description": "Prune old backups immediately after each successful backup",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_RETENTION_DAYS",
+      "key": "BACKUP_RETENTION_DAYS",
+      "value": "14",
+      "description": "Keep backups newer than this many days (0 disables age-based retention)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_RETENTION_MAX_COUNT",
+      "key": "BACKUP_RETENTION_MAX_COUNT",
+      "value": "30",
+      "description": "Always keep at least this many newest backups (0 disables count-based retention)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PROCESSING_QUEUE_ATTEMPTS",
+      "key": "PROCESSING_QUEUE_ATTEMPTS",
+      "value": "5",
+      "description": "Queue retry attempts before moving a failed job to dead-letter handling",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PROCESSING_QUEUE_BACKOFF_MS",
+      "key": "PROCESSING_QUEUE_BACKOFF_MS",
+      "value": "5000",
+      "description": "Exponential backoff delay (ms) between queue retries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "START_PROCESSING_WORKER",
+      "key": "START_PROCESSING_WORKER",
+      "value": "1",
+      "description": "Run the image/preview processor inside this MakerWorks container so it uses the same DATABASE_URL and STORAGE_DIR settings",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAGE_WORKER_CONCURRENCY",
+      "key": "IMAGE_WORKER_CONCURRENCY",
+      "value": "2",
+      "description": "Concurrency for image processing inside this container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREVIEW_WORKER_CONCURRENCY",
+      "key": "PREVIEW_WORKER_CONCURRENCY",
+      "value": "1",
+      "description": "Concurrency for preview processing inside this container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRINTER_PROFILE",
+      "key": "PRINTER_PROFILE",
+      "value": "BAMBU_X1C",
+      "description": "Printer preset for speed/energy math (BAMBU_X1C, BAMBU_P1S, PRUSA_MK4, PRUSA_MK3S, CREALITY_K1_MAX, CREALITY_ENDER3_V2, ANYCUBIC_KOBRA2, GENERIC_FDM)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRINTER_ELECTRIC_RATE_PER_KWH",
+      "key": "PRINTER_ELECTRIC_RATE_PER_KWH",
+      "value": "0.14",
+      "description": "Electricity rate (per kWh) used for energy estimates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLA_PRICE_PER_KG_USD",
+      "key": "PLA_PRICE_PER_KG_USD",
+      "value": "25.00",
+      "description": "Price of a 1kg PLA spool (USD) used for estimator",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PETG_PRICE_PER_KG_USD",
+      "key": "PETG_PRICE_PER_KG_USD",
+      "value": "28.00",
+      "description": "Price of a 1kg PETG spool (USD) used for estimator",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_PLA_PRICE_PER_KG",
+      "key": "NEXT_PUBLIC_PLA_PRICE_PER_KG",
+      "value": "25.00",
+      "description": "Expose PLA per-kg cost to the client (used for cart price previews)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_PETG_PRICE_PER_KG",
+      "key": "NEXT_PUBLIC_PETG_PRICE_PER_KG",
+      "value": "28.00",
+      "description": "Expose PETG per-kg cost to the client",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COLOR_SURCHARGE_RATE",
+      "key": "COLOR_SURCHARGE_RATE",
+      "value": "0.05",
+      "description": "Extra cost rate per additional color beyond the first (server-side)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_COLOR_SURCHARGE_RATE",
+      "key": "NEXT_PUBLIC_COLOR_SURCHARGE_RATE",
+      "value": "0.05",
+      "description": "Expose the color surcharge rate to the client UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_MAX_CART_COLORS",
+      "key": "NEXT_PUBLIC_MAX_CART_COLORS",
+      "value": "4",
+      "description": "How many color slots the cart exposes (raise to 8+ if you have multiple AMS units)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CURRENCY",
+      "key": "CURRENCY",
+      "value": "USD",
+      "description": "Back-end currency (USD or CAD)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_CURRENCY",
+      "key": "NEXT_PUBLIC_CURRENCY",
+      "value": "USD",
+      "description": "Client-facing currency label (must match CURRENCY)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLA_PRICE_PER_KG_CAD",
+      "key": "PLA_PRICE_PER_KG_CAD",
+      "value": "",
+      "description": "Optional CAD override for PLA per-kg cost",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PETG_PRICE_PER_KG_CAD",
+      "key": "PETG_PRICE_PER_KG_CAD",
+      "value": "",
+      "description": "Optional CAD override for PETG per-kg cost",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENERGY_CAD_PER_HOUR",
+      "key": "ENERGY_CAD_PER_HOUR",
+      "value": "",
+      "description": "Optional CAD override for energy rate per hour",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MINIMUM_PRICE_CAD",
+      "key": "MINIMUM_PRICE_CAD",
+      "value": "",
+      "description": "Optional CAD minimum price override",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXTRA_HOURLY_AFTER_FIRST_USD",
+      "key": "EXTRA_HOURLY_AFTER_FIRST_USD",
+      "value": "",
+      "description": "Extra hourly surcharge after first hour (USD context)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXTRA_HOURLY_AFTER_FIRST_CAD",
+      "key": "EXTRA_HOURLY_AFTER_FIRST_CAD",
+      "value": "",
+      "description": "Extra hourly surcharge after first hour (CAD context)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "key": "STRIPE_SECRET_KEY",
+      "value": "",
+      "description": "Stripe secret key (starts with sk_live_ or sk_test_)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "key": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "value": "",
+      "description": "Stripe publishable key used by the in-app checkout UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STRIPE_WEBHOOK_SECRET",
+      "key": "STRIPE_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Stripe webhook signing secret for /api/stripe/webhook",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STRIPE_SHIPPING_RATE_ID",
+      "key": "STRIPE_SHIPPING_RATE_ID",
+      "value": "",
+      "description": "Stripe shipping rate ID required when shipped checkout is enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STRIPE_INVOICE_DAYS_UNTIL_DUE",
+      "key": "STRIPE_INVOICE_DAYS_UNTIL_DUE",
+      "value": "14",
+      "description": "Days until due for Stripe invoices sent from invoice checkout",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STRIPE_TAX_ENABLED",
+      "key": "STRIPE_TAX_ENABLED",
+      "value": "0",
+      "description": "Set to 1 after Stripe Tax registrations and product tax settings are configured",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRINTLAB_BASE_URL",
+      "key": "PRINTLAB_BASE_URL",
+      "value": "http://PrintLab:8080",
+      "description": "Internal PrintLab URL reachable from the MakerWorks container on the shared Docker network",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRINTLAB_AUTH_HEADER",
+      "key": "PRINTLAB_AUTH_HEADER",
+      "value": "",
+      "description": "Optional Authorization header for MakerWorks-to-PrintLab admin API calls, for example a Basic or Bearer value",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PRINTLAB_SESSION_COOKIE",
+      "key": "PRINTLAB_SESSION_COOKIE",
+      "value": "",
+      "description": "Optional PrintLab session cookie for MakerWorks-to-PrintLab admin API calls",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PRINTLAB_API_KEY",
+      "key": "PRINTLAB_API_KEY",
+      "value": "",
+      "description": "Optional PrintLab API key for MakerWorks-to-PrintLab API calls when PrintLab is configured to accept one",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PRINTLAB_API_KEY_HEADER",
+      "key": "PRINTLAB_API_KEY_HEADER",
+      "value": "X-API-Key",
+      "description": "Header name used with PRINTLAB_API_KEY",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAKERWORKS_INBOUND_SECRET",
+      "key": "MAKERWORKS_INBOUND_SECRET",
+      "value": "",
+      "description": "Shared secret MakerWorks expects for inbound job updates to /api/makerworks/jobs (send via Authorization Bearer token or MakerWorks signature header)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PRINTLAB_WEBHOOK_SECRET",
+      "key": "PRINTLAB_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Shared secret expected on PrintLab callbacks into MakerWorks",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STOCKWORKS_BASE_URL",
+      "key": "STOCKWORKS_BASE_URL",
+      "value": "http://StockWorks:8000",
+      "description": "Internal StockWorks URL reachable from the MakerWorks container on the shared Docker network",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STOCKWORKS_ADMIN_USERNAME",
+      "key": "STOCKWORKS_ADMIN_USERNAME",
+      "value": "",
+      "description": "Optional StockWorks admin username for MakerWorks-to-StockWorks inventory checks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STOCKWORKS_ADMIN_PASSWORD",
+      "key": "STOCKWORKS_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional StockWorks admin password for MakerWorks-to-StockWorks inventory checks",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STOCKWORKS_USERNAME",
+      "key": "STOCKWORKS_USERNAME",
+      "value": "",
+      "description": "Optional StockWorks username fallback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STOCKWORKS_PASSWORD",
+      "key": "STOCKWORKS_PASSWORD",
+      "value": "",
+      "description": "Optional StockWorks password fallback",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STOCKWORKS_COLOR_OVERRIDES",
+      "key": "STOCKWORKS_COLOR_OVERRIDES",
+      "value": "",
+      "description": "Optional JSON color override map for StockWorks filament availability",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HOLIDAY_THEME",
+      "key": "HOLIDAY_THEME",
+      "value": "",
+      "description": "Optional seasonal theme: christmas, halloween, easter, valentines, or maythefourth",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_CONTACT_EMAIL",
+      "key": "NEXT_PUBLIC_CONTACT_EMAIL",
+      "value": "info@makerworks.app",
+      "description": "Contact email shown on the site",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_BRAND_NAME",
+      "key": "NEXT_PUBLIC_BRAND_NAME",
+      "value": "MakerWorks",
+      "description": "Display name shown across the storefront and emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_BRAND_VERSION",
+      "key": "NEXT_PUBLIC_BRAND_VERSION",
+      "value": "v2",
+      "description": "Optional suffix shown next to the logo (leave blank to hide)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_BRAND_LAB_NAME",
+      "key": "NEXT_PUBLIC_BRAND_LAB_NAME",
+      "value": "MakerWorks lab",
+      "description": "Label used for the pickup location in checkout copy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_BRAND_HANDLE",
+      "key": "NEXT_PUBLIC_BRAND_HANDLE",
+      "value": "@makerworks",
+      "description": "Default handle placeholder for social profile fields",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_HOST",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "SMTP host for verification emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_PORT",
+      "key": "SMTP_PORT",
+      "value": "",
+      "description": "SMTP port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_USER",
+      "key": "SMTP_USER",
+      "value": "",
+      "description": "SMTP username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP_SECURE",
+      "key": "SMTP_SECURE",
+      "value": "",
+      "description": "Use TLS/SSL (true/false) depending on your SMTP provider",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RECEIPT_FROM_EMAIL",
+      "key": "RECEIPT_FROM_EMAIL",
+      "value": "MakerWorks Receipts &lt;receipts@makerworks.app&gt;",
+      "description": "From address for verification/receipt emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RECEIPT_REPLY_TO_EMAIL",
+      "key": "RECEIPT_REPLY_TO_EMAIL",
+      "value": "MakerWorks &lt;info@makerworks.app&gt;",
+      "description": "Reply-to address for outgoing emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "Optional bot token used for Discord announcements",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCORD_CHANNEL_ID",
+      "key": "DISCORD_CHANNEL_ID",
+      "value": "",
+      "description": "Discord channel ID used for announcements",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISCORD_ADMIN_BOT_TOKEN",
+      "key": "DISCORD_ADMIN_BOT_TOKEN",
+      "value": "",
+      "description": "Bot token used for admin notifications (falls back to DISCORD_BOT_TOKEN when unset)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCORD_ADMIN_CHANNEL_ID",
+      "key": "DISCORD_ADMIN_CHANNEL_ID",
+      "value": "",
+      "description": "Discord channel ID for admin-only alerts (new users/uploads)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

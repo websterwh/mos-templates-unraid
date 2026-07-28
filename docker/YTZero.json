@@ -1,0 +1,107 @@
+{
+  "name": "YT-Zero",
+  "repo": "ghcr.io/pelski/ytzero:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Pelski/ytzero/pkgs/container/ytzero",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/Pelski/ytzero/main/docs/assets/icon.png",
+  "project": "https://github.com/Pelski/ytzero",
+  "description": "A self-hosted YouTube inbox for people who want subscriptions, not recommendations. YT Zero reads public YouTube RSS feeds, stores everything locally in SQLite, and provides a calm place to sort, schedule, watch, archive and revisit videos from chosen creators. No Google account, API key or algorithmic home feed is required. The app starts empty; add channels from Settings, then Channels.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/ytzero",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, image cache, avatars, logs and downloaded videos. Back up this directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Port exposed for the YT Zero web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Feed refresh (minutes)",
+      "key": "REFRESH_INTERVAL_MINUTES",
+      "value": "5",
+      "description": "How often to poll channel RSS feeds for new videos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Adaptive refresh minimum (minutes)",
+      "key": "ADAPTIVE_REFRESH_MIN_MINUTES",
+      "value": "10",
+      "description": "Hard per-channel cooldown for automatic feed polling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Adaptive refresh maximum (minutes)",
+      "key": "ADAPTIVE_REFRESH_MAX_MINUTES",
+      "value": "720",
+      "description": "Longest automatic interval before an infrequent channel becomes due.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Adaptive refresh unknown cadence (minutes)",
+      "key": "ADAPTIVE_REFRESH_UNKNOWN_MINUTES",
+      "value": "120",
+      "description": "Polling interval until a channel has enough upload history.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metadata maintenance age (days)",
+      "key": "VIDEO_MAINTENANCE_MAX_AGE_DAYS",
+      "value": "90",
+      "description": "Maximum video age considered by automatic Shorts and duration metadata backfills.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Idle timeout (seconds)",
+      "key": "IDLE_TIMEOUT_SECONDS",
+      "value": "120",
+      "description": "HTTP idle timeout. Manual synchronization can take longer than Bun's default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "yt-dlp auto-update",
+      "key": "YTDLP_AUTO_UPDATE",
+      "value": "1",
+      "description": "Keep the bundled yt-dlp binary updated daily. Only matters when the Downloads plugin is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "External URL, for example https://ytzero.example.com. Needed for OIDC and passkeys behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

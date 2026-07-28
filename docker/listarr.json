@@ -1,0 +1,83 @@
+{
+  "name": "listarr",
+  "repo": "fisherd91/listarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/fisherd91/listarr/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/fisherd80/Listarr/develop/.github/assets/logo/logo-icon.png",
+  "project": "https://github.com/fisherd80/Listarr",
+  "description": "Listarr is a self-hosted web application that automates discovery and bulk import of movies and TV shows from TMDB into Radarr and Sonarr. Configure scheduled lists based on genres, keywords, or popular/trending content and let Listarr handle the imports automatically.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/listarr",
+      "container": "/app/instance",
+      "mode": "rw",
+      "description": "Stores the database, encryption key, and generated config. Must be a persistent path.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for the Listarr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Server timezone used for cron schedule interpretation. Example: Europe/London, America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO|DEBUG|WARNING|ERROR",
+      "description": "Python logging verbosity. INFO is recommended for normal use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key Override",
+      "key": "LISTARR_SECRET_KEY",
+      "value": "",
+      "description": "Optional: override the auto-generated Flask secret key. Leave blank to use the auto-generated key stored in the instance directory.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "SECURE_COOKIES",
+      "value": "false",
+      "description": "Set to true when Listarr is served behind an HTTPS reverse proxy. Enables the Secure flag on session cookies.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Flask Debug",
+      "key": "FLASK_DEBUG",
+      "value": "false",
+      "description": "Enable Flask debug mode. Never enable in production.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

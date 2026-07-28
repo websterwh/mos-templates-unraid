@@ -1,0 +1,97 @@
+{
+  "name": "Traefik-Kop",
+  "repo": "ghcr.io/jittering/traefik-kop:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/jittering/traefik-kop/pkgs/container/traefik-kop",
+  "network": "docker",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://avatars.githubusercontent.com/u/74472772?s=48",
+  "project": "https://github.com/jittering/traefik-kop",
+  "description": "A dynamic docker to redis to traefik discovery agent. Solves the problem of running a non-Swarm/Kubernetes multi-host cluster with a single public-facing traefik instance. traefik-kop solves this problem by using the same traefik docker-provider logic. It reads the container labels from the local docker node and publishes them to a given redis instance. Simply configure your traefik node with a redis provider and point it to the same instance, as in the diagram in the project's README. This is just an Unraid template for the traefik-kop docker image published by the author on GitHub. The project has no WebUI. See the \"Propagating labels from Docker instances not on the Traefik host\" section of https://www.gkr.one/blg-20240831-traefik for an example of usage (some default values are the same as the example). Extra environment variables added to reflect the project README's \"Configuration\" section. Feel free to delete environment variables you don't need in the template below. Recommended to keep at minimum: KOP_HOSTNAME, REDIS_ADDR, BIND_IP.",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker Socket (read-only) access to find the docker containers and labels automatically..",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "KOP_HOSTNAME",
+      "key": "KOP_HOSTNAME",
+      "value": "foo",
+      "description": "Hostname to identify this node in redis",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_ADDR",
+      "key": "REDIS_ADDR",
+      "value": "192.168.222.11:6379",
+      "description": "Redis address",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BIND_IP",
+      "key": "BIND_IP",
+      "value": "192.168.222.99",
+      "description": "IP address to bind services to",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_USER",
+      "key": "REDIS_USER",
+      "value": "default",
+      "description": "Redis user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PASS",
+      "key": "REDIS_PASS",
+      "value": "",
+      "description": "Redis password (if needed, delete if not)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_DB",
+      "key": "REDIS_DB",
+      "value": "0",
+      "description": "Redis DB number",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_TTL",
+      "key": "REDIS_TTL",
+      "value": "0",
+      "description": "Redis TTL (in seconds)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "KOP_POLL_INTERVAL",
+      "key": "KOP_POLL_INTERVAL",
+      "value": "60",
+      "description": "Poll interval for refreshing container list",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

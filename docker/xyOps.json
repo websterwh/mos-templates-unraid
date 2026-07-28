@@ -1,0 +1,124 @@
+{
+  "name": "xyOps",
+  "repo": "ghcr.io/pixlcore/xyops:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/pixlcore/xyops/pkgs/container/xyops",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname xyops",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5522]",
+  "icon": "https://raw.githubusercontent.com/pixlcore/xyops-unraid/main/icon.png",
+  "project": "https://github.com/pixlcore/xyops",
+  "description": "xyOps is a self-hosted operations automation platform for job scheduling, visual workflows, server monitoring, alerting, tickets, and incident response.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/xyops/data",
+      "container": "/opt/xyops/data",
+      "mode": "rw",
+      "description": "Persistent xyOps database and file storage.",
+      "required": true
+    },
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/xyops/conf",
+      "container": "/opt/xyops/conf",
+      "mode": "rw",
+      "description": "Persistent xyOps configuration, including config.json, overrides.json, masters.json, and the generated secret key.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/xyops/logs",
+      "container": "/opt/xyops/logs",
+      "mode": "rw",
+      "description": "Persistent xyOps logs and startup hostname tracking.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Allows xyOps to launch and manage containers for the Docker Plugin and Plugin Marketplace.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "5522",
+      "container": "5522",
+      "protocol": "tcp",
+      "description": "HTTP port for the xyOps web UI, API, and default satellite communication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "5523",
+      "container": "5523",
+      "protocol": "tcp",
+      "description": "Built-in HTTPS/TLS port for the xyOps web UI. xyOps ships with a snakeoil certificate, so generate and configure a real certificate before relying on this for production.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Conductor Hostname",
+      "key": "XYOPS_hostname",
+      "value": "xyops",
+      "description": "Stable hostname xyOps uses as its conductor identity. Change this to a DNS name reachable by xyOps workers and job containers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Conductor Masters",
+      "key": "XYOPS_masters",
+      "value": "xyops",
+      "description": "Comma-separated conductor hostnames. For a single Unraid install, keep this the same as Conductor Hostname.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Base App URL",
+      "key": "XYOPS_base_app_url",
+      "value": "http://xyops:5522",
+      "description": "User-facing URL used in email links, tickets, alerts, and web hooks. Set this to the address people use to open xyOps.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local xySat",
+      "key": "XYOPS_xysat_local",
+      "value": "true",
+      "description": "Starts a local xySat worker inside the conductor container for home labs and first-run testing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone used for daily log rotation and statistics resets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Max Memory",
+      "key": "NODE_MAX_MEMORY",
+      "value": "4096",
+      "description": "Maximum Node.js old-space heap size in MB for the xyOps conductor process.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

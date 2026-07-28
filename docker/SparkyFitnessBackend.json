@@ -1,0 +1,235 @@
+{
+  "name": "SparkyFitness---Backend",
+  "repo": "codewithcj/sparkyfitness_server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/codewithcj/sparkyfitness_server",
+  "network": "sparkyfitness",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3010]",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/sparky-fitness-icon.png",
+  "project": "https://github.com/CodeWithCJ/SparkyFitness",
+  "description": "SparkyFitness is a comprehensive fitness tracking and management application designed to help users monitor their nutrition, exercise, and body measurements. It provides tools for daily progress tracking, goal setting, and insightful reports to support a healthy lifestyle. This is the backend container.",
+  "paths": [
+    {
+      "name": "Backup Storage",
+      "host": "/mnt/cache/appdata/sparkyfitness/backup",
+      "container": "/app/SparkyFitnessServer/backup",
+      "mode": "rw",
+      "description": "Path to the backup storage folder",
+      "required": true
+    },
+    {
+      "name": "Uploads Storage",
+      "host": "/mnt/cache/appdata/sparkyfitness/uploads",
+      "container": "/app/SparkyFitnessServer/uploads",
+      "mode": "rw",
+      "description": "Path to the uploads storage folder",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "3010",
+      "container": "3010",
+      "protocol": "tcp",
+      "description": "Container Port: 3010",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Postgres - Host",
+      "key": "SPARKY_FITNESS_DB_HOST",
+      "value": "http://IP_ADDRESS",
+      "description": "Hostname or IP address of the Postgres server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Port",
+      "key": "SPARKY_FITNESS_DB_PORT",
+      "value": "5432",
+      "description": "Port number for the Postgres server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Database Name",
+      "key": "SPARKY_FITNESS_DB_NAME",
+      "value": "sparkyfitness_db",
+      "description": "Name of the Postgres database",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Username",
+      "key": "SPARKY_FITNESS_DB_USER",
+      "value": "",
+      "description": "Username for the Postgres database",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Password",
+      "key": "SPARKY_FITNESS_DB_PASSWORD",
+      "value": "",
+      "description": "Password for the Postgres database",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres - Username",
+      "key": "SPARKY_FITNESS_APP_DB_USER",
+      "value": "",
+      "description": "Username for the Postgres database",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Password",
+      "key": "SPARKY_FITNESS_APP_DB_PASSWORD",
+      "value": "",
+      "description": "Password for the Postgres database",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Garmin Microservice URL",
+      "key": "GARMIN_MICROSERVICE_URL",
+      "value": "http://IP_ADDRESS:8000",
+      "description": "URL of the Garmin microservice (e.g., http://IP_ADDRESS:8000)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frontend URL",
+      "key": "SPARKY_FITNESS_FRONTEND_URL",
+      "value": "http://IP_ADDRESS:3004",
+      "description": "URL where the frontend is accessible (e.g., http://IP_ADDRESS:3004)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Security - Encryption Key",
+      "key": "SPARKY_FITNESS_API_ENCRYPTION_KEY",
+      "value": "",
+      "description": "A 64-character hex string used to encrypt data. Generate with 'openssl rand -hex 32'",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Security - Secret",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "A secret key. Generate with 'openssl rand -base64 32'",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Disable User Signups",
+      "key": "SPARKY_FITNESS_DISABLE_SIGNUP",
+      "value": "false|true",
+      "description": "Set to true to disable new user registrations",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Force Email Logins",
+      "key": "SPARKY_FITNESS_FORCE_EMAIL_LOGIN",
+      "value": "false|true",
+      "description": "Force email/password login to be enabled, overriding any in-app settings. This is a fail-safe to prevent being locked out if OIDC is misconfigured.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "SPARKY_FITNESS_ADMIN_EMAIL",
+      "value": "",
+      "description": "Automatically grant admin rights to this email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Host",
+      "key": "SPARKY_FITNESS_EMAIL_HOST",
+      "value": "",
+      "description": "SMTP server hostname for sending emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Port",
+      "key": "SPARKY_FITNESS_EMAIL_PORT",
+      "value": "587",
+      "description": "SMTP server port (default: 587)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Secure",
+      "key": "SPARKY_FITNESS_EMAIL_SECURE",
+      "value": "false|true",
+      "description": "Set to true if the SMTP server requires a secure connection (TLS)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP User",
+      "key": "SPARKY_FITNESS_EMAIL_USER",
+      "value": "",
+      "description": "SMTP server username for authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Password",
+      "key": "SPARKY_FITNESS_EMAIL_PASS",
+      "value": "",
+      "description": "SMTP server password for authentication",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email - From Address",
+      "key": "SPARKY_FITNESS_EMAIL_FROM",
+      "value": "",
+      "description": "Email address that emails will be sent from",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "SPARKY_FITNESS_LOG_LEVEL",
+      "value": "INFO|DEBUG|WARN|ERROR",
+      "description": "Logging level",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production|development",
+      "description": "Node environment setting",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal API Port",
+      "key": "SPARKY_FITNESS_SERVER_PORT",
+      "value": "3010",
+      "description": "Internal ort for API communication. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

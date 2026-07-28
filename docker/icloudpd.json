@@ -1,0 +1,929 @@
+{
+  "name": "icloudpd",
+  "repo": "boredazfcuk/icloudpd",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/boredazfcuk/icloudpd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Womabre/-unraid-docker-templates/master/images/photos_icon_large.png",
+  "project": "https://github.com/Womabre/-unraid-docker-templates",
+  "description": "An Alpine Linux Docker container for ndbroadbent's iCloud Photos Downloader. I use it for syncing the photo streams of all the iDevices in my house back to my server because it's the only way of backing up multiple devices to a single location. It uses the system keyring to securely store credentials, has HEIC to JPG conversion capability, and can send Telegram, Prowl, Pushover, WebHook, DingTalk, Discord, openhab, IYUU and WeCom notifications. It is recommended to use the keyring to securely store credentials. Please connect to the container and run `sync-icloud.sh --Initialise` command manually to start the process of saving your password to the keyring and Apple sends a confirmation code via text or 2FA code to your device which needs to be entered into the console. You can also run this command from the Unraid console to start the authentication process. `docker exec -it icloudpd sync-icloud.sh --Initialise` Create a `.mounted` file inside `iCloud` folder in the photos directory for the container to start syncing photos. This file MUST be created manually and sync will not start without it.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/icloudpd",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores configuration, cookies, and keyring.",
+      "required": true
+    },
+    {
+      "name": "Download Path",
+      "host": "/mnt/cache/iCloud",
+      "container": "/home/user/iCloud",
+      "mode": "rw,slave",
+      "description": "Where downloaded photos and videos will be stored. A .mounted file must exist inside this folder before syncing will start.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Apple ID",
+      "key": "apple_id",
+      "value": "your@appleid.com",
+      "description": "Apple ID used to access iCloud.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Sets container timezone. Example: Europe/Amsterdam",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Download Path",
+      "key": "download_path",
+      "value": "/home/user/iCloud",
+      "description": "Internal destination used by icloudpd. This must match the container side of the Download Path mapping. Required so first-run configuration does not leave download_path blank.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Download Interval",
+      "key": "download_interval",
+      "value": "86400",
+      "description": "Seconds between downloads. Valid values: 21600 (6h), 43200 (12h), 86400 (24h), 129600 (36h), 172800 (48h), 604800 (7d). Defaults to 86400 if an invalid value is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Delay",
+      "key": "download_delay",
+      "value": "0",
+      "description": "Delay first download in minutes (0-60). Use to stagger multiple containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Folder Structure",
+      "key": "folder_structure",
+      "value": "{:%Y/%m/%d}",
+      "description": "Folder structure for downloaded files. Use 'none' for a flat structure. Default: {:%Y/%m/%d}",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Albums With Dates",
+      "key": "albums_with_dates",
+      "value": "false",
+      "description": "Organize albums into subfolders by date (uses folder_structure). Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Libraries With Dates",
+      "key": "libraries_with_dates",
+      "value": "false",
+      "description": "Organize libraries into subfolders by date (uses folder_structure). Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication Type",
+      "key": "authentication_type",
+      "value": "MFA",
+      "description": "Type of authentication on your iCloud account. Use 'MFA' or 'Web' (if no MFA). Default: MFA",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification Days",
+      "key": "notification_days",
+      "value": "7",
+      "description": "Notify n days before MFA cookie expires. A single notification is sent per day. Default: 7",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Single Pass",
+      "key": "single_pass",
+      "value": "false",
+      "description": "Set to true to exit after a single sync instead of looping. If used, set container restart policy to 'no'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Check",
+      "key": "skip_check",
+      "value": "false",
+      "description": "Skip the check for new files. Recommended for libraries with more than a few thousand photos. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Photo Size",
+      "key": "photo_size",
+      "value": "original",
+      "description": "Size to download: original, medium, thumb, adjusted, alternative. Can be comma-separated for multiple sizes. Default: original",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Live Photos",
+      "key": "skip_live_photos",
+      "value": "false",
+      "description": "Skip downloading Live Photos. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live Photo Size",
+      "key": "live_photo_size",
+      "value": "original",
+      "description": "Live photo size: original, medium, or thumb. Ignored if skip_live_photos is true. Default: original",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Videos",
+      "key": "skip_videos",
+      "value": "false",
+      "description": "Skip downloading videos. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recent Only",
+      "key": "recent_only",
+      "value": "",
+      "description": "Only download this number of recently added photos. Leave empty to download all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Until Found",
+      "key": "until_found",
+      "value": "",
+      "description": "Download recent photos until n previously downloaded consecutive photos are found. Leave empty to download all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Photo Album",
+      "key": "photo_album",
+      "value": "",
+      "description": "Download only from specific album(s). Comma-separated. Use 'all albums' to download all albums.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Album",
+      "key": "skip_album",
+      "value": "",
+      "description": "Skip specific albums when using photo_album. Example: All Photos,Videos,Screenshots",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Photo Library",
+      "key": "photo_library",
+      "value": "",
+      "description": "Download only from specific shared library/libraries. Comma-separated. Use 'all libraries' to download all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Library",
+      "key": "skip_library",
+      "value": "",
+      "description": "Skip specific libraries when using photo_library. Example: PrimarySync",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Align RAW",
+      "key": "align_raw",
+      "value": "as-is",
+      "description": "For assets with RAW and JPEG, treat RAW in specified size: original, alternative, or as-is. Default: as-is",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Match Policy",
+      "key": "file_match_policy",
+      "value": "name-size-dedup-with-suffix",
+      "description": "Policy to identify and de-duplicate files. Options: name-size-dedup-with-suffix, name-id7. Default: name-size-dedup-with-suffix",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Convert HEIC to JPEG",
+      "key": "convert_heic_to_jpeg",
+      "value": "false",
+      "description": "Convert downloaded HEIC files to JPEG, retaining the original. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JPEG Quality",
+      "key": "jpeg_quality",
+      "value": "90",
+      "description": "JPEG conversion quality (0-100). Default: 90",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JPEG Path",
+      "key": "jpeg_path",
+      "value": "",
+      "description": "Custom path for converted JPEGs. Defaults to download path if not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Delete",
+      "key": "auto_delete",
+      "value": "false",
+      "description": "Scan 'Recently Deleted' folder and delete those files locally. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Delete After Download",
+      "key": "delete_after_download",
+      "value": "false",
+      "description": "Move file to Recently Deleted after download. Cannot be combined with auto_delete. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Delete Accompanying Files",
+      "key": "delete_accompanying",
+      "value": "false",
+      "description": "Delete generated JPG and MOV files that accompany HEICs (live photo MOVs, converted JPEGs). Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Delete Empty Directories",
+      "key": "delete_empty_directories",
+      "value": "false",
+      "description": "Delete empty directories after sync. Only runs if folder_structure is not 'none'. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Set Exif DateTime",
+      "key": "set_exif_datetime",
+      "value": "false",
+      "description": "Write DateTimeOriginal EXIF tag from file creation date. Warning: alters local file and causes re-download with dedup suffix. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep Unicode",
+      "key": "keep_unicode",
+      "value": "false",
+      "description": "Keep unicode characters in file names. Set to false to strip non-ASCII chars. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live Photo MOV Filename Policy",
+      "key": "live_photo_mov_filename_policy",
+      "value": "suffix",
+      "description": "Filename policy for Live Photo MOV files: suffix (adds _HEVC) or original (same name as photo). Default: suffix",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sideways Copy Videos",
+      "key": "sideways_copy_videos",
+      "value": "false",
+      "description": "Copy or move downloaded videos to a separate directory (video_path). Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sideways Copy Videos Mode",
+      "key": "sideways_copy_videos_mode",
+      "value": "copy",
+      "description": "How to handle sideways video copy: 'copy' (leave original) or 'move' (requires delete_after_download=true). Default: copy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Video Path",
+      "key": "video_path",
+      "value": "",
+      "description": "Destination directory for sideways video copy/move. Required when sideways_copy_videos is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud Upload",
+      "key": "nextcloud_upload",
+      "value": "false",
+      "description": "Enable upload to Nextcloud after download. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud URL",
+      "key": "nextcloud_url",
+      "value": "",
+      "description": "Nextcloud server URL. Example: https://my.server.local/nextcloud/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud Username",
+      "key": "nextcloud_username",
+      "value": "",
+      "description": "Username of the Nextcloud account to upload to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud Password",
+      "key": "nextcloud_password",
+      "value": "",
+      "description": "Password for the Nextcloud account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Nextcloud Target Dir",
+      "key": "nextcloud_target_dir",
+      "value": "",
+      "description": "Root folder in Nextcloud to place files in. Cannot be the root of the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud Delete",
+      "key": "nextcloud_delete",
+      "value": "false",
+      "description": "Delete file from Nextcloud when removed locally. Requires auto_delete=true. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification Type",
+      "key": "notification_type",
+      "value": "",
+      "description": "Notification provider to use. Options: Prowl, Pushover, Telegram, Webhook, openhab, Dingtalk, Discord, IYUU, WeCom, Gotify, Bark, msmtp, signal. Leave empty to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification Title",
+      "key": "notification_title",
+      "value": "boredazfcuk/iCloudPD",
+      "description": "Title used in notifications. Default: boredazfcuk/iCloudPD",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Notifications",
+      "key": "download_notifications",
+      "value": "true",
+      "description": "Send notifications with a summary after file downloads. Default: true",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Delete Notifications",
+      "key": "delete_notifications",
+      "value": "true",
+      "description": "Send notifications with a summary after file deletions. Default: true",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Startup Notification",
+      "key": "startup_notification",
+      "value": "true",
+      "description": "Send a notification when the container starts. Default: true",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Silent File Notifications",
+      "key": "silent_file_notifications",
+      "value": "false",
+      "description": "Send low-priority (silent) notifications for file downloads and deletions. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Host",
+      "key": "msmtp_host",
+      "value": "",
+      "description": "[msmtp] SMTP server hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Port",
+      "key": "msmtp_port",
+      "value": "587",
+      "description": "[msmtp] SMTP server port. Normally 465 or 587. Default: 587",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Username",
+      "key": "msmtp_user",
+      "value": "",
+      "description": "[msmtp] SMTP login username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Password",
+      "key": "msmtp_pass",
+      "value": "",
+      "description": "[msmtp] SMTP login password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "msmtp From Address",
+      "key": "msmtp_from",
+      "value": "",
+      "description": "[msmtp] Sender email address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp TLS",
+      "key": "msmtp_tls",
+      "value": "on",
+      "description": "[msmtp] Enable TLS encryption: on or off. Default: on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Auth",
+      "key": "msmtp_auth",
+      "value": "on",
+      "description": "[msmtp] Enable SMTP authentication: on or off. Default: on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "msmtp Extra Args",
+      "key": "msmtp_args",
+      "value": "",
+      "description": "[msmtp] Optional extra arguments for msmtp. Example: --tls-starttls=off",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gotify Server URL",
+      "key": "gotify_server_url",
+      "value": "",
+      "description": "[Gotify] Server hostname. Example: server.domain.tld (no port, no protocol). Use gotify_https to toggle HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gotify App Token",
+      "key": "gotify_app_token",
+      "value": "",
+      "description": "[Gotify] Application token for Gotify.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gotify HTTPS",
+      "key": "gotify_https",
+      "value": "false",
+      "description": "[Gotify] Use HTTPS for Gotify server URL. Default: false (HTTP)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gotify Priority",
+      "key": "gotify_priority",
+      "value": "0",
+      "description": "[Gotify] Message priority (0-10). Default: 0",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal Host",
+      "key": "signal_host",
+      "value": "",
+      "description": "[Signal] Hostname of the bbernhard/signal-cli-rest-api container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal Port",
+      "key": "signal_port",
+      "value": "",
+      "description": "[Signal] Port the signal-cli-rest-api container listens on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal Number",
+      "key": "signal_number",
+      "value": "",
+      "description": "[Signal] Phone number of the Signal device to send from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal Recipient",
+      "key": "signal_recipient",
+      "value": "",
+      "description": "[Signal] Recipient phone number for Signal messages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bark URL",
+      "key": "bark_url",
+      "value": "",
+      "description": "Full Bark push URL. For the official server use: api.day.app",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover Token",
+      "key": "pushover_token",
+      "value": "",
+      "description": "[Pushover] Application API token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover User Key",
+      "key": "pushover_user",
+      "value": "",
+      "description": "[Pushover] Pushover user key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover Priority",
+      "key": "pushover_priority",
+      "value": "0",
+      "description": "[Pushover] Priority: -1, 0, 1, or 2. Default: 0",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover Retry",
+      "key": "pushover_retry",
+      "value": "60",
+      "description": "[Pushover] Retry interval in seconds (priority 2 only). Default: 60",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover Expire",
+      "key": "pushover_expire",
+      "value": "3600",
+      "description": "[Pushover] Notification expiration in seconds (priority 2 only). Default: 3600",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pushover Sound",
+      "key": "pushover_sound",
+      "value": "",
+      "description": "[Pushover] Custom notification sound. See https://pushover.net/api#sounds for values.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Healthchecks URL",
+      "key": "healthchecks_url",
+      "value": "",
+      "description": "[Healthchecks] Full ping URL for Healthchecks.io.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Server",
+      "key": "webhook_server",
+      "value": "",
+      "description": "[Webhook/openhab] Hostname of the webhook server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Port",
+      "key": "webhook_port",
+      "value": "8123",
+      "description": "[Webhook/openhab] Port for the webhook server. Default: 8123",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Path",
+      "key": "webhook_path",
+      "value": "/api/webhook/",
+      "description": "[Webhook/openhab] Path on the webhook server. Must start and end with /. Default: /api/webhook/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook ID",
+      "key": "webhook_id",
+      "value": "",
+      "description": "[Webhook/openhab] Webhook ID. For openhab use 'state'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook HTTPS",
+      "key": "webhook_https",
+      "value": "false",
+      "description": "[Webhook/openhab] Use HTTPS. Default: false (HTTP)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Body",
+      "key": "webhook_body",
+      "value": "data",
+      "description": "[Webhook] Body key for the webhook request. HA=data, Discord=content, IFTTT=value1. Default: data",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Insecure",
+      "key": "webhook_insecure",
+      "value": "false",
+      "description": "[Webhook] Allow insecure HTTPS certificates (e.g. self-signed). Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram Token",
+      "key": "telegram_token",
+      "value": "",
+      "description": "[Telegram] Bot token from BotFather.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram Chat ID",
+      "key": "telegram_chat_id",
+      "value": "",
+      "description": "[Telegram] Chat ID for the bot. Prefix with - for group chats.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram Polling",
+      "key": "telegram_polling",
+      "value": "false",
+      "description": "[Telegram] Enable polling to allow remote sync/auth via chat messages. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram Silent Notifications",
+      "key": "telegram_silent_file_notifications",
+      "value": "false",
+      "description": "[Telegram] Send file download notifications silently. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram Server",
+      "key": "telegram_server",
+      "value": "",
+      "description": "[Telegram] Proxy server FQDN if Telegram is blocked in your country.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram HTTP",
+      "key": "telegram_http",
+      "value": "false",
+      "description": "[Telegram] Use HTTP instead of HTTPS if Telegram is restricted to HTTP only. Default: false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prowl API Key",
+      "key": "prowl_api_key",
+      "value": "",
+      "description": "[Prowl] API key from the Prowl website.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DingTalk Token",
+      "key": "dingtalk_token",
+      "value": "",
+      "description": "[DingTalk] Access token from DingTalk app Security Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discord ID",
+      "key": "discord_id",
+      "value": "",
+      "description": "[Discord] First part of the Discord webhook URL (numbers only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discord Token",
+      "key": "discord_token",
+      "value": "",
+      "description": "[Discord] Second part of the Discord webhook URL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "IYUU Token",
+      "key": "iyuu_token",
+      "value": "",
+      "description": "Access token for IYUU notifications.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Initialise Keyring",
+      "key": "initialise",
+      "value": "false",
+      "description": "Run password/keyring setup and create MFA cookie on next start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Convert All HEICs",
+      "key": "convert_all_heics",
+      "value": "false",
+      "description": "Convert HEICs that do not have a corresponding JPEG.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Convert All HEICs",
+      "key": "force_convert_all_heics",
+      "value": "false",
+      "description": "Convert all HEICs regardless of existing JPEG presence. 2-minute delay before running.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Convert All HEICs in /mnt",
+      "key": "force_convert_all_mnt_heics",
+      "value": "false",
+      "description": "Convert all HEICs in /mnt path. 2-minute delay before running.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remove All JPGs",
+      "key": "remove_all_jpgs",
+      "value": "false",
+      "description": "Remove all JPEGs that have a matching HEIC source file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Correct JPEG Time Stamps",
+      "key": "correct_jpeg_time_stamps",
+      "value": "false",
+      "description": "Correct JPEG timestamps to match their accompanying HEIC files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remove Keyring",
+      "key": "remove_keyring",
+      "value": "false",
+      "description": "Delete stored password and keyring data. Use when changing Apple ID password.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Debugging",
+      "key": "enable_debugging",
+      "value": "false",
+      "description": "Enable verbose debug output.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Debugging",
+      "key": "disable_debugging",
+      "value": "false",
+      "description": "Disable debug logging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upload Library to Nextcloud",
+      "key": "upload_library_to_nextcloud",
+      "value": "false",
+      "description": "Force upload entire local library to Nextcloud.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sideways Copy All Videos",
+      "key": "sideways_copy_all_videos",
+      "value": "false",
+      "description": "Copy or move all videos in download path to video_path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "List Albums",
+      "key": "list_albums",
+      "value": "false",
+      "description": "List all albums available in the iCloud account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "List Libraries",
+      "key": "list_libraries",
+      "value": "false",
+      "description": "List all shared libraries available in the iCloud account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User",
+      "key": "user",
+      "value": "user",
+      "description": "Container user name (e.g. 'nobody'). Also used as the Telegram remote-sync trigger word.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "user_id",
+      "value": "500",
+      "description": "User ID to match permissions on host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group",
+      "key": "group",
+      "value": "group",
+      "description": "Group name for file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID (PGID)",
+      "key": "group_id",
+      "value": "500",
+      "description": "Group ID to match host group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force GID",
+      "key": "force_gid",
+      "value": "",
+      "description": "Allow creation of a group with a pre-existing group ID. Use with caution.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Directory Permissions",
+      "key": "directory_permissions",
+      "value": "750",
+      "description": "Permissions to set on directories in the download destination. Default: 750",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Permissions",
+      "key": "file_permissions",
+      "value": "640",
+      "description": "Permissions to set on downloaded files. Default: 640",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

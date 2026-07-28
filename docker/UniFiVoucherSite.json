@@ -1,0 +1,379 @@
+{
+  "name": "UniFi-Voucher-Site",
+  "repo": "glenndehaan/unifi-voucher-site:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/glenndehaan/unifi-voucher-site",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/glenndehaan/unifi-voucher-site/refs/heads/master/public/images/kiosk/logo.png",
+  "project": "https://github.com/glenndehaan/unifi-voucher-site",
+  "description": "UniFi Voucher Site is a web-based platform for generating and managing UniFi network guest vouchers.",
+  "paths": [
+    {
+      "name": "Config File",
+      "host": "/mnt/cache/appdata/unifi_voucher_site/options.json",
+      "container": "/data/options.json",
+      "mode": "rw",
+      "description": "Config file. Remove to use environmental variables instead.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Container Port: 3000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "UniFi OS Console - IP Address",
+      "key": "UNIFI_IP",
+      "value": "",
+      "description": "IP address of the UniFi OS Console",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - Port",
+      "key": "UNIFI_PORT",
+      "value": "443",
+      "description": "Port of the UniFi OS Console",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - Token",
+      "key": "UNIFI_TOKEN",
+      "value": "",
+      "description": "The API Key created on the integrations tab within UniFi OS",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UniFi OS Console - Site ID",
+      "key": "UNIFI_SITE_ID",
+      "value": "default",
+      "description": "Site ID for the UniFi OS Console",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - Site Manager",
+      "key": "UNIFI_SITE_MANAGER",
+      "value": "false|true",
+      "description": "Use remote site manager",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - Site Manager Console ID",
+      "key": "UNIFI_SITE_MANAGER_CONSOLE_ID",
+      "value": "",
+      "description": "Use remote site manager console ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - SSID",
+      "key": "UNIFI_SSID",
+      "value": "",
+      "description": "The UniFi SSID where guests need to connect to (Used within templating and 'Scan to Connect')",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi OS Console - SSID Password",
+      "key": "UNIFI_SSID_PASSWORD",
+      "value": "",
+      "description": "The UniFi SSID WPA/WPA2/WPA3 Password (Can be ignored for 'Open' networks) (Used within templating and 'Scan to Connect')",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication - Web UI - Enable",
+      "key": "AUTH_INTERNAL_ENABLED",
+      "value": "true|false",
+      "description": "Enable internal authentication for the voucher portal web UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication - Web UI - Password",
+      "key": "AUTH_INTERNAL_PASSWORD",
+      "value": "",
+      "description": "Password for internal authentication for the voucher portal web UI",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication - OIDC - Enable",
+      "key": "AUTH_OIDC_ENABLED",
+      "value": "false|true",
+      "description": "Enable OpenID Connect authentication for the voucher portal web UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication - OIDC - Issuer Base URL",
+      "key": "AUTH_OIDC_ISSUER_BASE_URL",
+      "value": "",
+      "description": "OIDC issuer base url provided by oauth provider. Example: https://auth.example.com/.well-known/openid-configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication - OIDC - App Base URL",
+      "key": "AUTH_OIDC_APP_BASE_URL",
+      "value": "",
+      "description": "OIDC UniFi Voucher base url (This application). Example: https://voucher.example.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication - OIDC - Client ID",
+      "key": "AUTH_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client id provided by oauth provider",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication - OIDC - Client Secret",
+      "key": "AUTH_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret provided by oauth provider",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication - API - Bearer Token",
+      "key": "AUTH_INTERNAL_BEARER_TOKEN",
+      "value": "",
+      "description": "The bearer token used for the API",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication - Limit Admins to Own Organization",
+      "key": "PIN_OIDC_USER_TO_OWN_DOMAIN",
+      "value": "false|true",
+      "description": "Limit voucher administrators to managing only vouchers associated with their own organization. If enabled, system automatically assigns the administrator\u2019s email domain as a note to each created voucher.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Voucher Types",
+      "key": "VOUCHER_TYPES",
+      "value": "480,1,,,;",
+      "description": "A semi-colon-separated list of voucher types in the following format: expiration in minutes (required),single-use or multi-use vouchers value - '0' is for multi-use (unlimited) - '1' is for single-use - 'N' is for multi-use (Nx) (optional),upload speed limit in kbps (optional),download speed limit in kbps (optional),data transfer limit in MB (optional)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow Custom Voucher Types",
+      "key": "VOUCHER_CUSTOM",
+      "value": "false|true",
+      "description": "Allow users to create custom vouchers types within the UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Printers",
+      "key": "PRINTERS",
+      "value": "",
+      "description": "A comma-separated list of printer formats and IPs. Example: 'pdf,192.168.1.10'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - From Address",
+      "key": "SMTP_FROM",
+      "value": "",
+      "description": "The email address that will be used as the sender of the emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Host",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "The SMTP host to use for sending emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "587",
+      "description": "The SMTP port to use for sending emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - Use TLS",
+      "key": "SMTP_SECURE",
+      "value": "false|true",
+      "description": "Use TLS for the SMTP connection",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Username",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "The SMTP username to use for sending emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "The SMTP password to use for sending emails",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Kiosk - Enable",
+      "key": "KIOSK_ENABLED",
+      "value": "false|true",
+      "description": "Enable/disable the kiosk page on /kiosk",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Voucher Types",
+      "key": "KIOSK_VOUCHER_TYPES",
+      "value": "480,1,,,;",
+      "description": "A semi-colon-separated list of voucher types in the following format: expiration in minutes (required),single-use or multi-use vouchers value - '0' is for multi-use (unlimited) - '1' is for single-use - 'N' is for multi-use (Nx) (optional),upload speed limit in kbps (optional),download speed limit in kbps (optional),data transfer limit in MB (optional)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Guest Name Required",
+      "key": "KIOSK_NAME_REQUIRED",
+      "value": "false|true",
+      "description": "Require the guest to enter their name on the kiosk page",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Timeout",
+      "key": "KIOSK_TIMEOUT",
+      "value": "60",
+      "description": "Sets the Kiosk timeout in seconds (Returns the user back to the starting page after inactivity)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Homepage",
+      "key": "KIOSK_HOMEPAGE",
+      "value": "false|true",
+      "description": "Enable/disable an override to redirect to the Kiosk on the / url (Also enables a link from the Kiosk back to the Admin UI)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Email",
+      "key": "KIOSK_EMAIL",
+      "value": "false|true",
+      "description": "Enable/disable the email voucher button (Requires SMTP to be setup)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Kiosk - Printer IP",
+      "key": "KIOSK_PRINTER",
+      "value": "",
+      "description": "Enable a printer for Kiosk Vouchers (this automatically prints vouchers), e.g. an ESC/POS-compatible printer",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tasks - Cleanup Expired Vouchers",
+      "key": "TASK_CLEANUP_EXPIRED",
+      "value": "false|true",
+      "description": "Enable/disable automatic cleanup of expired vouchers",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tasks - Cleanup Unused Vouchers",
+      "key": "TASK_CLEANUP_UNUSED",
+      "value": "false|true",
+      "description": "Enable/disable automatic cleanup of unused (> 1 day) vouchers",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info|error|debug",
+      "description": "Log level for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication - Disable",
+      "key": "AUTH_DISABLE",
+      "value": "false|true",
+      "description": "Disable all authentication methods",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Web UI",
+      "key": "SERVICE_WEB",
+      "value": "true|false",
+      "description": "Enable the web UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable API",
+      "key": "SERVICE_API",
+      "value": "true|false",
+      "description": "Enable the API",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Translation - Default Language",
+      "key": "TRANSLATION_DEFAULT",
+      "value": "en",
+      "description": "Sets the default translation for dropdowns",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Translation - Hidden Languages",
+      "key": "TRANSLATION_HIDDEN_LANGUAGES",
+      "value": "",
+      "description": "A comma-separated list of language codes to hide from the language selection dropdown",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Translation - Debug",
+      "key": "TRANSLATION_DEBUG",
+      "value": "false|true",
+      "description": "Enables/disables translation debugging, when enabled only translation keys are shown",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

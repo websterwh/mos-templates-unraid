@@ -1,0 +1,73 @@
+{
+  "name": "HugoMods",
+  "repo": "hugomods/hugo:exts",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/hugomods/hugo/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--entrypoint=/bin/sh",
+  "post_parameters": "-c set -e; echo \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501; echo \ud83d\udd79\ufe0f  Hugo Website Boot; echo \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501; cd /src; if [ ! -f package.json ]; then echo \ud83d\udcc1 First boot - cloning repository; GR=`printenv GIT_REPO 2>/dev/null || true`; if [ -z $GR ]; then echo \u274c ERROR: GIT_REPO is not set; exit 1; fi; echo \ud83d\udd04 Cloning: $GR; rm -rf /tmp/repo; git clone -b main $GR /tmp/repo; mv /tmp/repo/* /tmp/repo/.[!.]* /src/ 2>/dev/null || true; rm -rf /tmp/repo; echo \u2705 Repository cloned; elif [ -d .git ]; then echo \ud83d\udd04 Updating repository; git pull || echo \u26a0\ufe0f  Git pull failed, continuing with existing code; else echo \u2705 Source code exists (not a git repo); fi; echo \ud83d\udce6 Installing dependencies\u2026; npm install; echo \ud83c\udfd7\ufe0f  Building site\u2026; exec npm run build",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Lowess/docker-templates-unraid/main/Lowess/images/hugomods.png",
+  "project": "https://github.com/Lowess/docker-templates-unraid",
+  "description": "Build and deploy Hugo static websites on Unraid. Automatically clones your Git repository, installs dependencies, and builds your Hugo site. Perfect for generating static sites for blogs, documentation, landing pages, and more with Hugo's blazing-fast static site generation. Features persistent storage for source code and node_modules, automatic dependency management, and support for custom Hugo configurations. Simply provide your Git repository URL and the site will be built in the /src/public directory.",
+  "paths": [
+    {
+      "name": "Website Source Code",
+      "host": "/mnt/cache/appdata/hugomods/src",
+      "container": "/src",
+      "mode": "rw",
+      "description": "Persistent Hugo source directory. Repo is cloned here on first start.",
+      "required": true
+    },
+    {
+      "name": "Hugo Config Directory",
+      "host": "/mnt/cache/appdata/hugomods/config",
+      "container": "/src/config",
+      "mode": "rw",
+      "description": "Hugo configuration directory. Create config/_default/hugo.toml to override settings. See https://gohugo.io/configuration/introduction/#configuration-directory",
+      "required": false
+    },
+    {
+      "name": "node_modules Cache",
+      "host": "/mnt/cache/appdata/hugomods/node_modules",
+      "container": "/src/node_modules",
+      "mode": "rw",
+      "description": "Persist node_modules to avoid reinstalling on every restart.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Git Repository URL",
+      "key": "GIT_REPO",
+      "value": "",
+      "description": "Public git repository containing your Hugo website (required).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "/",
+      "description": "Base URL for Hugo site (used in build). Example: / or /mysite/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "development",
+      "description": "Node environment.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

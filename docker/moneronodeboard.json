@@ -1,0 +1,109 @@
+{
+  "name": "monero-nodeboard",
+  "repo": "jnbarlow/monero-nodeboard:main",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/jnbarlow/monero-nodeboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/jnbarlow/unraid_templates/main/images/monero-symbol-480.png",
+  "project": "https://github.com/jnbarlow/monero-nodeboard",
+  "description": "Combines a monero node and the monero-dashboard project. The local node will be running on port 18081 (this is what you will connect a local wallet to). If you choose to make this a public node, it will start a service listening on port 18089, which you will need to route to the container.",
+  "paths": [
+    {
+      "name": "Path: /app/blockchain",
+      "host": "/mnt/cache/monero/blockchain/",
+      "container": "/app/blockchain",
+      "mode": "rw",
+      "description": "Location where you want the blockchain to go. This WILL be a large file that grows, but is also best to live on a SSD.",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/monero-nodeboard",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database and Radarr configs",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The port for the monero-dashboard interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Unrestricted RPC Server",
+      "host": "18081",
+      "container": "18081",
+      "protocol": "tcp",
+      "description": "Local node",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restricted RPC Server",
+      "host": "18089",
+      "container": "18089",
+      "protocol": "tcp",
+      "description": "Public node port - needs to be routed to from the outside.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUBLIC_NODE",
+      "key": "PUBLIC_NODE",
+      "value": "true",
+      "description": "Whether or not to expose your node as a public node on the Monero network. You will need to route port 18089 to this container. Values are true or false (lowercase)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ticker",
+      "key": "TICKER",
+      "value": "false",
+      "description": "Whether or not to show the XMR ticker",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

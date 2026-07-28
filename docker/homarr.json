@@ -1,0 +1,347 @@
+{
+  "name": "homarr",
+  "repo": "ghcr.io/homarr-labs/homarr:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/homarr-labs/homarr/pkgs/container/homarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7575]/",
+  "icon": "https://raw.githubusercontent.com/manuel-rw/unraid-templates/master/templates/homarr/icon.png",
+  "project": "https://homarr.dev",
+  "description": "DESCRIPTION A sleek, modern dashboard that puts all of your apps and services at your fingertips. Control everything in one convenient location. Seamlessly integrates with the apps you've added, providing you with valuable information. Live demo: https://demo.homarr.dev NOTES \u2022 We release using semantic releases (https://semver.org/). Consult changelog before updating to major versions. The available tags to be used for this image, are: 'latest' (recommended) and 'dev'. Fixed tags (e.g. 1.2.6) are also available.",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/appdata/homarr/appdata",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Homarr will write application data into a database and the filesystem. This mount is required to persist data when the container is re-created.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Gives Homarr the ability to restart, stop, start, refresh and remove containers as well as add them to the dashboard. Set to read-only actions by default - can be a potential security risk.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "10004",
+      "container": "7575",
+      "protocol": "tcp",
+      "description": "Homarr is running on port 7575 inside the container. Choose the external port for the container. Access Homarr using the external port or forward requests using a reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Encryption Key",
+      "key": "SECRET_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Homarr needs API keys, usernames, passwords and other confidential data to access data in your integrations. To safely store this data, we use AES-256-CBC, which prevents third parties from extracting these credentials. For this, you must provide a randomly generated encryption key. Open a shell and copy the output of 'openssl rand -hex 32' to this field.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Docker TCP Hosts",
+      "key": "DOCKER_HOSTNAMES",
+      "value": "",
+      "description": "Alternative to mounting via path. Comma separated list of hostnames to connect to. Example: localhost,docker.example.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker TCP Host Ports",
+      "key": "DOCKER_PORTS",
+      "value": "",
+      "description": "Alternative to mounting via path. Comma separated list of ports to connect to. Must be the same length as DOCKER_HOSTNAMES. Example: 2375,2376",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Single Sign on authentication providers",
+      "key": "AUTH_PROVIDERS",
+      "value": "credentials",
+      "description": "Select Which provider to use between credentials, ldap and oidc. Multiple providers can be enabled with by separating them with commas (ex. 'AUTH_PROVIDERS=credentials,oidc'). It is highly recommended to just enable one provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Single Sign on logout redirect URL",
+      "key": "AUTH_LOGOUT_REDIRECT_URL",
+      "value": "",
+      "description": "URL to redirect to after clicking logging out. Can be left empty in most cases.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Single Sign on session expiry time",
+      "key": "AUTH_SESSION_EXPIRY_TIME",
+      "value": "30d",
+      "description": "Time for the session to time out. Can be set as pure number, which will automatically be used in seconds, or followed by s, m, h or d for seconds, minutes, hours or days. (ex: '30m')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP server URI",
+      "key": "AUTH_LDAP_URI",
+      "value": "",
+      "description": "URI of your LDAP server. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Base DN of your LDAP server",
+      "key": "AUTH_LDAP_BASE",
+      "value": "",
+      "description": "Base DN (aka. distinguished name) of your LDAP server. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP server bind DN",
+      "key": "AUTH_LDAP_BIND_DN",
+      "value": "",
+      "description": "User used for finding users and groups. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP server bind password",
+      "key": "AUTH_LDAP_BIND_PASSWORD",
+      "value": "",
+      "description": "Password for bind user. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication: LDAP username attribute",
+      "key": "AUTH_LDAP_USERNAME_ATTRIBUTE",
+      "value": "",
+      "description": "Attribute used for username. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP mail attribute",
+      "key": "AUTH_LDAP_USER_MAIL_ATTRIBUTE",
+      "value": "",
+      "description": "Attribute used for mail field. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP group class",
+      "key": "AUTH_LDAP_GROUP_CLASS",
+      "value": "",
+      "description": "Class used for querying groups. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP group member attribute",
+      "key": "AUTH_LDAP_GROUP_MEMBER_ATTRIBUTE",
+      "value": "",
+      "description": "Attribute used for querying group member. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP group member user attribute",
+      "key": "AUTH_LDAP_GROUP_MEMBER_USER_ATTRIBUTE",
+      "value": "",
+      "description": "User attribute used for comparing with group member. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP search scope",
+      "key": "AUTH_LDAP_SEARCH_SCOPE",
+      "value": "",
+      "description": "Search scopes between base, one and sub. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP username extra filter arguments",
+      "key": "AUTH_LDAP_USERNAME_FILTER_EXTRA_ARG",
+      "value": "",
+      "description": "Extra arguments for user search filter (and based). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: LDAP group extra filter arguments",
+      "key": "AUTH_LDAP_GROUP_FILTER_EXTRA_ARG",
+      "value": "",
+      "description": "Extra arguments for user's groups search filter (and based). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: OIDC issuer URI",
+      "key": "AUTH_OIDC_ISSUER",
+      "value": "",
+      "description": "Issuer URI of OIDC provider without trailing slash (/). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: OIDC client ID",
+      "key": "AUTH_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "ID of OIDC client (application). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: OIDC client secret",
+      "key": "AUTH_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Secret of OIDC client (application). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication: OIDC client name",
+      "key": "AUTH_OIDC_CLIENT_NAME",
+      "value": "",
+      "description": "Display name of provider (in login screen). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: OIDC auto login",
+      "key": "AUTH_OIDC_AUTO_LOGIN",
+      "value": "",
+      "description": "Automatically redirect to OIDC login. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: OIDC scope overwrite",
+      "key": "AUTH_OIDC_SCOPE_OVERWRITE",
+      "value": "",
+      "description": "Overwrite default scopes (openid, profile, email). See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Groups attribute",
+      "key": "AUTH_OIDC_GROUPS_ATTRIBUTE",
+      "value": "",
+      "description": "Attribute used for groups (roles) claim. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication: Name attribute",
+      "key": "AUTH_OIDC_NAME_ATTRIBUTE_OVERWRITE",
+      "value": "",
+      "description": "Attribute used for name (preferred_username or name) claim. See https://homarr.dev/docs/advanced/single-sign-on/ for more information.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Driver",
+      "key": "DB_DRIVER",
+      "value": "better-sqlite3",
+      "description": "Database driver to use. Currently better-sqlite3 is used for sqlite and mysql2 for mysql. better-sqlite3 is easier to use and requires to additional containers but may not scale as well. Default is 'better-sqlite3'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Dialect",
+      "key": "DB_DIALECT",
+      "value": "sqlite",
+      "description": "Database dialect to use. Either choose 'sqlite' or 'mysql'. Default is 'sqlite'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: URL",
+      "key": "DB_URL",
+      "value": "",
+      "description": "Database URL to connect to. Default is '/appdata/db/db.sqlite'. The URL is a combination of all DB fields below. The URL will be prioritized over the other values if both are present.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Hostname",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Database host to connect to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Port",
+      "key": "DB_PORT",
+      "value": "",
+      "description": "Database port to connect to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Database Name",
+      "key": "DB_NAME",
+      "value": "",
+      "description": "Database name to connect to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: User",
+      "key": "DB_USER",
+      "value": "",
+      "description": "Database user to connect with.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database: Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Database password to connect with.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable automatic database migrations",
+      "key": "DB_MIGRATIONS_DISABLED",
+      "value": "false",
+      "description": "Disable any automatic database migrations. Can be useful, when you manually migrate your database or if you want to restore data. Only set this to true if you know what you're doing!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "By default, the container is running as root and the application is running as a lower user. Using this variable, you can override the container user - this comes at the cost of some additional complexity. See https://homarr.dev/docs/advanced/running-as-different-user/. Only set this if you know what you're doing!",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "By default, the container is running as root and the application is running as a lower user. Using this variable, you can override the container group - this comes at the cost of some additional complexity. See https://homarr.dev/docs/advanced/running-as-different-user/. Only set this if you know what you're doing!",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

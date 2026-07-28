@@ -1,0 +1,2054 @@
+{
+  "name": "penpot-aio",
+  "repo": "jsonbored/penpot-aio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/penpot-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/penpot.png",
+  "project": "https://github.com/JSONbored/penpot-aio",
+  "description": "Penpot is an open-source design and prototyping platform for product teams, designers, and developers. All-In-One Unraid Edition `penpot-aio` packages Penpot frontend, backend, exporter, MCP server, PostgreSQL, Redis-compatible cache, Nginx, and Mailpit into one practical Unraid-first container. Quick Install (Beginners) 1. Install this template and leave [code]Web UI Port[/code] and [code]AppData[/code] at their defaults unless you have a port or path conflict. 2. Set [code]Public URL[/code] to the URL users will actually visit, such as [code]http://tower.local:9001[/code] or your reverse-proxy HTTPS URL. 3. Start the container and give first boot a few minutes. The wrapper initializes bundled PostgreSQL, Redis-compatible cache, filesystem assets, Mailpit, MCP, and generated secrets. 4. Open the Web UI and create your first account. The default lab path disables email verification and uses local Mailpit; change the flags and SMTP settings before public production use. Power Users (Advanced View) - Advanced View exposes upstream Penpot configuration, Penpot flags, external PostgreSQL, external Redis/Valkey, SMTP, S3-compatible object storage, OAuth/OIDC/LDAP, telemetry, MCP, SSRF controls, rate/limit/performance tuning, and AIO runtime controls. - Leave database, cache, SMTP, and storage fields blank/defaulted for the bundled one-container path. Set the matching external fields only when intentionally moving that service out of the AIO container. - Blank secret fields generate and persist values in [code]/appdata/config/generated.env[/code]. Explicit template values override generated values. - [code]/appdata/config/extra.env[/code] is loaded as a final sanitized key/value escape hatch, not a substitute for the exposed template options. Only [code]PENPOT_[/code], [code]AWS_[/code], and core runtime keys are accepted; shell syntax is not executed. Important Notes - Penpot is a real multi-service stack. Plan for at least 2 CPU cores and 4 GiB RAM, with more for active teams or large files. - Public exposure should sit behind a trusted HTTPS reverse proxy. Remove [code]disable-secure-session-cookies[/code] and [code]disable-email-verification[/code] for production. - The bundled Mailpit inbox is for local/lab capture, not real mail deliverability.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/penpot-aio",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Persistent Penpot data, PostgreSQL data, cache data, generated secrets, assets, Mailpit data, logs, and optional extra.env.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "9001",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Penpot frontend, API gateway, exporter routes, and MCP proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailpit UI Port",
+      "host": "8026",
+      "container": "8025",
+      "protocol": "tcp",
+      "description": "Bundled Mailpit inbox UI for local/lab mail capture. Advanced because normal Penpot use starts through the Web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP HTTP Port",
+      "host": "4401",
+      "container": "4401",
+      "protocol": "tcp",
+      "description": "Optional direct host port for the Penpot MCP HTTP endpoint. Leave blank unless you need direct MCP access outside the frontend /mcp route.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP WebSocket Port",
+      "host": "4402",
+      "container": "4402",
+      "protocol": "tcp",
+      "description": "Optional direct host port for the Penpot MCP WebSocket endpoint. Leave blank unless you need direct MCP access outside the frontend /mcp route.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "PENPOT_PUBLIC_URI",
+      "value": "http://localhost:9001",
+      "description": "Canonical URL users will visit, including http or https. For LAN installs use your Unraid host and mapped port; for public installs use the reverse-proxy HTTPS URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Enable Internal Postgres",
+      "key": "PENPOT_AIO_ENABLE_INTERNAL_POSTGRES",
+      "value": "true",
+      "description": "Use the bundled PostgreSQL database. Set false only when PENPOT_DATABASE_URI points at an external PostgreSQL server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Enable Internal Redis",
+      "key": "PENPOT_AIO_ENABLE_INTERNAL_REDIS",
+      "value": "true",
+      "description": "Use the bundled Redis-compatible cache. Set false only when PENPOT_REDIS_URI points at an external Redis or Valkey service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Enable Mailpit",
+      "key": "PENPOT_AIO_ENABLE_MAILPIT",
+      "value": "true",
+      "description": "Use bundled Mailpit when SMTP_HOST is blank so local email-dependent flows work on first boot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Enable MCP",
+      "key": "PENPOT_AIO_ENABLE_MCP",
+      "value": "true",
+      "description": "Run Penpot MCP inside the AIO container and expose it through the frontend /mcp routes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Default Flags",
+      "key": "PENPOT_AIO_DEFAULT_FLAGS",
+      "value": "disable-email-verification enable-smtp disable-secure-session-cookies enable-mcp",
+      "description": "Default flags used when PENPOT_FLAGS is blank. Remove disable-* entries before public HTTPS production use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Extra Env File",
+      "key": "PENPOT_AIO_EXTRA_ENV_FILE",
+      "value": "/appdata/config/extra.env",
+      "description": "Optional dotenv-style escape hatch loaded after generated defaults. Only PENPOT_, AWS_, and core runtime keys are accepted; shell syntax is not executed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Wait Timeout Seconds",
+      "key": "PENPOT_AIO_WAIT_TIMEOUT_SECONDS",
+      "value": "360",
+      "description": "Startup wait timeout for internal PostgreSQL, Redis, and Mailpit readiness checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Database Name",
+      "key": "PENPOT_AIO_DATABASE_NAME",
+      "value": "penpot",
+      "description": "Database name used by the bundled PostgreSQL cluster.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Redis Password",
+      "key": "PENPOT_AIO_REDIS_PASSWORD",
+      "value": "",
+      "description": "Optional manual password for bundled Redis. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AIO Runtime] Redis Maxmemory",
+      "key": "PENPOT_AIO_REDIS_MAXMEMORY",
+      "value": "256mb",
+      "description": "Bundled Redis maxmemory setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Redis Maxmemory Policy",
+      "key": "PENPOT_AIO_REDIS_MAXMEMORY_POLICY",
+      "value": "volatile-lfu",
+      "description": "Bundled Redis memory eviction policy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Mailpit Ui Username",
+      "key": "PENPOT_AIO_MAILPIT_UI_USERNAME",
+      "value": "",
+      "description": "Optional Mailpit UI username. Leave blank to persist the default penpot username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Mailpit Ui Password",
+      "key": "PENPOT_AIO_MAILPIT_UI_PASSWORD",
+      "value": "",
+      "description": "Optional Mailpit UI password. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AIO Runtime] Mailpit Max Messages",
+      "key": "PENPOT_AIO_MAILPIT_MAX_MESSAGES",
+      "value": "500",
+      "description": "Maximum messages retained by the bundled Mailpit inbox.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Mailpit Max Age",
+      "key": "PENPOT_AIO_MAILPIT_MAX_AGE",
+      "value": "14d",
+      "description": "Maximum age for messages retained by bundled Mailpit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO Runtime] Log Level",
+      "key": "PENPOT_AIO_LOG_LEVEL",
+      "value": "info",
+      "description": "Wrapper log level. This does not replace upstream Penpot logging controls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] AWS Access Key Id",
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable AWS_ACCESS_KEY_ID.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage] AWS Secret Access Key",
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable AWS_SECRET_ACCESS_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced Upstream] Admins",
+      "key": "PENPOT_ADMINS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_ADMINS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Allow Demo Users",
+      "key": "PENPOT_ALLOW_DEMO_USERS",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_ALLOW_DEMO_USERS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Assets Path",
+      "key": "PENPOT_ASSETS_PATH",
+      "value": "/internal/assets/",
+      "description": "Advanced upstream Penpot environment variable PENPOT_ASSETS_PATH.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Assets Storage Backend",
+      "key": "PENPOT_ASSETS_STORAGE_BACKEND",
+      "value": "fs",
+      "description": "Advanced upstream Penpot environment variable PENPOT_ASSETS_STORAGE_BACKEND.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Audit Log Archive URI",
+      "key": "PENPOT_AUDIT_LOG_ARCHIVE_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUDIT_LOG_ARCHIVE_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Audit Log Http Handler Concurrency",
+      "key": "PENPOT_AUDIT_LOG_HTTP_HANDLER_CONCURRENCY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUDIT_LOG_HTTP_HANDLER_CONCURRENCY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Auth Token Cookie Max Age",
+      "key": "PENPOT_AUTH_TOKEN_COOKIE_MAX_AGE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUTH_TOKEN_COOKIE_MAX_AGE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Auth Token Cookie Name",
+      "key": "PENPOT_AUTH_TOKEN_COOKIE_NAME",
+      "value": "auth-token",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUTH_TOKEN_COOKIE_NAME.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Auto File Snapshot Every",
+      "key": "PENPOT_AUTO_FILE_SNAPSHOT_EVERY",
+      "value": "5",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUTO_FILE_SNAPSHOT_EVERY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Auto File Snapshot Timeout",
+      "key": "PENPOT_AUTO_FILE_SNAPSHOT_TIMEOUT",
+      "value": "3h",
+      "description": "Advanced upstream Penpot environment variable PENPOT_AUTO_FILE_SNAPSHOT_TIMEOUT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Backend URI",
+      "key": "PENPOT_BACKEND_URI",
+      "value": "http://127.0.0.1:6060",
+      "description": "Advanced upstream Penpot environment variable PENPOT_BACKEND_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] Database Max Pool Size",
+      "key": "PENPOT_DATABASE_MAX_POOL_SIZE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DATABASE_MAX_POOL_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] Database Min Pool Size",
+      "key": "PENPOT_DATABASE_MIN_POOL_SIZE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DATABASE_MIN_POOL_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] Database Password",
+      "key": "PENPOT_DATABASE_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password. Leave blank to generate and persist one for the bundled database.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Database] Database Readonly",
+      "key": "PENPOT_DATABASE_READONLY",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DATABASE_READONLY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Database] Database URI",
+      "key": "PENPOT_DATABASE_URI",
+      "value": "",
+      "description": "Leave blank for bundled PostgreSQL. Set a PostgreSQL URI only when using an external database.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Database] Database Username",
+      "key": "PENPOT_DATABASE_USERNAME",
+      "value": "penpot",
+      "description": "PostgreSQL username. The bundled database uses penpot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Default Blob Version",
+      "key": "PENPOT_DEFAULT_BLOB_VERSION",
+      "value": "4",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DEFAULT_BLOB_VERSION.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Default Executor Parallelism",
+      "key": "PENPOT_DEFAULT_EXECUTOR_PARALLELISM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DEFAULT_EXECUTOR_PARALLELISM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Default Internal Resolver",
+      "key": "PENPOT_DEFAULT_INTERNAL_RESOLVER",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DEFAULT_INTERNAL_RESOLVER.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Default Rpc Rlimit",
+      "key": "PENPOT_DEFAULT_RPC_RLIMIT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DEFAULT_RPC_RLIMIT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Deletion Delay",
+      "key": "PENPOT_DELETION_DELAY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_DELETION_DELAY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] Email Domain Blacklist",
+      "key": "PENPOT_EMAIL_DOMAIN_BLACKLIST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EMAIL_DOMAIN_BLACKLIST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] Email Domain Whitelist",
+      "key": "PENPOT_EMAIL_DOMAIN_WHITELIST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EMAIL_DOMAIN_WHITELIST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] Email Verify Threshold",
+      "key": "PENPOT_EMAIL_VERIFY_THRESHOLD",
+      "value": "15m",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EMAIL_VERIFY_THRESHOLD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Error Report Webhook",
+      "key": "PENPOT_ERROR_REPORT_WEBHOOK",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_ERROR_REPORT_WEBHOOK.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Executor Threads",
+      "key": "PENPOT_EXECUTOR_THREADS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EXECUTOR_THREADS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Exporter Shared Key",
+      "key": "PENPOT_EXPORTER_SHARED_KEY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EXPORTER_SHARED_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Access] Exporter URI",
+      "key": "PENPOT_EXPORTER_URI",
+      "value": "http://127.0.0.1:6061",
+      "description": "Advanced upstream Penpot environment variable PENPOT_EXPORTER_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] File Clean Delay",
+      "key": "PENPOT_FILE_CLEAN_DELAY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_FILE_CLEAN_DELAY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] File Data Backend",
+      "key": "PENPOT_FILE_DATA_BACKEND",
+      "value": "storage",
+      "description": "Advanced upstream Penpot environment variable PENPOT_FILE_DATA_BACKEND.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Core] Flags",
+      "key": "PENPOT_FLAGS",
+      "value": "",
+      "description": "Raw upstream Penpot flags. Leave blank to use AIO defaults plus per-flag dropdown controls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Font Max File Size",
+      "key": "PENPOT_FONT_MAX_FILE_SIZE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_FONT_MAX_FILE_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Github Client Id",
+      "key": "PENPOT_GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GITHUB_CLIENT_ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Github Client Secret",
+      "key": "PENPOT_GITHUB_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GITHUB_CLIENT_SECRET.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Gitlab Base URI",
+      "key": "PENPOT_GITLAB_BASE_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GITLAB_BASE_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Gitlab Client Id",
+      "key": "PENPOT_GITLAB_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GITLAB_CLIENT_ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Gitlab Client Secret",
+      "key": "PENPOT_GITLAB_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GITLAB_CLIENT_SECRET.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Google Client Id",
+      "key": "PENPOT_GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GOOGLE_CLIENT_ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google Client Secret",
+      "key": "PENPOT_GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_GOOGLE_CLIENT_SECRET.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Access] Host",
+      "key": "PENPOT_HOST",
+      "value": "localhost",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Http Server Host",
+      "key": "PENPOT_HTTP_SERVER_HOST",
+      "value": "127.0.0.1",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Http Server Io Threads",
+      "key": "PENPOT_HTTP_SERVER_IO_THREADS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_IO_THREADS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Http Server Max Body Size",
+      "key": "PENPOT_HTTP_SERVER_MAX_BODY_SIZE",
+      "value": "367001600",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_MAX_BODY_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Http Server Max Multipart Body Size",
+      "key": "PENPOT_HTTP_SERVER_MAX_MULTIPART_BODY_SIZE",
+      "value": "367001600",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_MAX_MULTIPART_BODY_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Http Server Max Worker Threads",
+      "key": "PENPOT_HTTP_SERVER_MAX_WORKER_THREADS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_MAX_WORKER_THREADS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Http Server Port",
+      "key": "PENPOT_HTTP_SERVER_PORT",
+      "value": "6060",
+      "description": "Advanced upstream Penpot environment variable PENPOT_HTTP_SERVER_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Initial Project Skey",
+      "key": "PENPOT_INITIAL_PROJECT_SKEY",
+      "value": "initial-project",
+      "description": "Advanced upstream Penpot environment variable PENPOT_INITIAL_PROJECT_SKEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Access] Internal Resolver",
+      "key": "PENPOT_INTERNAL_RESOLVER",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_INTERNAL_RESOLVER.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Attrs Email",
+      "key": "PENPOT_LDAP_ATTRS_EMAIL",
+      "value": "mail",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_ATTRS_EMAIL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Attrs Fullname",
+      "key": "PENPOT_LDAP_ATTRS_FULLNAME",
+      "value": "cn",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_ATTRS_FULLNAME.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Attrs Photo",
+      "key": "PENPOT_LDAP_ATTRS_PHOTO",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_ATTRS_PHOTO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Attrs Username",
+      "key": "PENPOT_LDAP_ATTRS_USERNAME",
+      "value": "uid",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_ATTRS_USERNAME.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Base Dn",
+      "key": "PENPOT_LDAP_BASE_DN",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_BASE_DN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Bind Dn",
+      "key": "PENPOT_LDAP_BIND_DN",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_BIND_DN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Bind Password",
+      "key": "PENPOT_LDAP_BIND_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_BIND_PASSWORD.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] LDAP Host",
+      "key": "PENPOT_LDAP_HOST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Port",
+      "key": "PENPOT_LDAP_PORT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Ssl",
+      "key": "PENPOT_LDAP_SSL",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_SSL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP Starttls",
+      "key": "PENPOT_LDAP_STARTTLS",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_STARTTLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] LDAP User Query",
+      "key": "PENPOT_LDAP_USER_QUERY",
+      "value": "(|(uid=:username)(mail=:username))",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LDAP_USER_QUERY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Loggers Loki Environment",
+      "key": "PENPOT_LOGGERS_LOKI_ENVIRONMENT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LOGGERS_LOKI_ENVIRONMENT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Loggers Loki Instance",
+      "key": "PENPOT_LOGGERS_LOKI_INSTANCE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LOGGERS_LOKI_INSTANCE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Loggers Loki Job",
+      "key": "PENPOT_LOGGERS_LOKI_JOB",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LOGGERS_LOKI_JOB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Loggers Loki URI",
+      "key": "PENPOT_LOGGERS_LOKI_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_LOGGERS_LOKI_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Management Api Key",
+      "key": "PENPOT_MANAGEMENT_API_KEY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MANAGEMENT_API_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[MCP] MCP Log Dir",
+      "key": "PENPOT_MCP_LOG_DIR",
+      "value": "/appdata/logs/mcp",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_LOG_DIR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Log Level",
+      "key": "PENPOT_MCP_LOG_LEVEL",
+      "value": "info",
+      "description": "MCP log verbosity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Remote Mode",
+      "key": "PENPOT_MCP_REMOTE_MODE",
+      "value": "true",
+      "description": "MCP remote mode. Keep true for the bundled HTTP/WebSocket MCP server path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Repl Port",
+      "key": "PENPOT_MCP_REPL_PORT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_REPL_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Server Host",
+      "key": "PENPOT_MCP_SERVER_HOST",
+      "value": "127.0.0.1",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_SERVER_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Server Port",
+      "key": "PENPOT_MCP_SERVER_PORT",
+      "value": "4401",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_SERVER_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP URI",
+      "key": "PENPOT_MCP_URI",
+      "value": "http://127.0.0.1:4401",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP URI Ws",
+      "key": "PENPOT_MCP_URI_WS",
+      "value": "http://127.0.0.1:4402",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_URI_WS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[MCP] MCP Websocket Port",
+      "key": "PENPOT_MCP_WEBSOCKET_PORT",
+      "value": "4402",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MCP_WEBSOCKET_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Media Directory",
+      "key": "PENPOT_MEDIA_DIRECTORY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MEDIA_DIRECTORY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Media Max File Size",
+      "key": "PENPOT_MEDIA_MAX_FILE_SIZE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MEDIA_MAX_FILE_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Media URI",
+      "key": "PENPOT_MEDIA_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_MEDIA_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Netty Io Threads",
+      "key": "PENPOT_NETTY_IO_THREADS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_NETTY_IO_THREADS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Nexus Shared Key",
+      "key": "PENPOT_NEXUS_SHARED_KEY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_NEXUS_SHARED_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Advanced Upstream] Nitrate Backend URI",
+      "key": "PENPOT_NITRATE_BACKEND_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_NITRATE_BACKEND_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Nitrate Shared Key",
+      "key": "PENPOT_NITRATE_SHARED_KEY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_NITRATE_SHARED_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Access] Nitrate URI",
+      "key": "PENPOT_NITRATE_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_NITRATE_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage",
+      "key": "PENPOT_OBJECTS_STORAGE_",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OBJECTS_STORAGE_.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage Backend",
+      "key": "PENPOT_OBJECTS_STORAGE_BACKEND",
+      "value": "fs",
+      "description": "Object storage backend. The AIO default stores assets on the AppData filesystem; S3 requires the matching S3 fields.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage Fs Directory",
+      "key": "PENPOT_OBJECTS_STORAGE_FS_DIRECTORY",
+      "value": "/appdata/assets",
+      "description": "Filesystem asset directory for the bundled storage path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage S3 Bucket",
+      "key": "PENPOT_OBJECTS_STORAGE_S3_BUCKET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OBJECTS_STORAGE_S3_BUCKET.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage S3 Endpoint",
+      "key": "PENPOT_OBJECTS_STORAGE_S3_ENDPOINT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OBJECTS_STORAGE_S3_ENDPOINT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Objects Storage S3 Region",
+      "key": "PENPOT_OBJECTS_STORAGE_S3_REGION",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OBJECTS_STORAGE_S3_REGION.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Auth URI",
+      "key": "PENPOT_OIDC_AUTH_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_AUTH_URI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] OIDC Base URI",
+      "key": "PENPOT_OIDC_BASE_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_BASE_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Client Id",
+      "key": "PENPOT_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_CLIENT_ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Client Secret",
+      "key": "PENPOT_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_CLIENT_SECRET.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] OIDC Email Attr",
+      "key": "PENPOT_OIDC_EMAIL_ATTR",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_EMAIL_ATTR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Jwks URI",
+      "key": "PENPOT_OIDC_JWKS_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_JWKS_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Name Attr",
+      "key": "PENPOT_OIDC_NAME_ATTR",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_NAME_ATTR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Roles",
+      "key": "PENPOT_OIDC_ROLES",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_ROLES.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Roles Attr",
+      "key": "PENPOT_OIDC_ROLES_ATTR",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_ROLES_ATTR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Scopes",
+      "key": "PENPOT_OIDC_SCOPES",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_SCOPES.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Token URI",
+      "key": "PENPOT_OIDC_TOKEN_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_TOKEN_URI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] OIDC User Info Source",
+      "key": "PENPOT_OIDC_USER_INFO_SOURCE",
+      "value": "auto",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_USER_INFO_SOURCE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC User URI",
+      "key": "PENPOT_OIDC_USER_URI",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_OIDC_USER_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Prepl Host",
+      "key": "PENPOT_PREPL_HOST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PREPL_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Prepl Port",
+      "key": "PENPOT_PREPL_PORT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PREPL_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Profile Bounce Max Age",
+      "key": "PENPOT_PROFILE_BOUNCE_MAX_AGE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PROFILE_BOUNCE_MAX_AGE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Profile Bounce Threshold",
+      "key": "PENPOT_PROFILE_BOUNCE_THRESHOLD",
+      "value": "10",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PROFILE_BOUNCE_THRESHOLD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Profile Complaint Max Age",
+      "key": "PENPOT_PROFILE_COMPLAINT_MAX_AGE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PROFILE_COMPLAINT_MAX_AGE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Profile Complaint Threshold",
+      "key": "PENPOT_PROFILE_COMPLAINT_THRESHOLD",
+      "value": "2",
+      "description": "Advanced upstream Penpot environment variable PENPOT_PROFILE_COMPLAINT_THRESHOLD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Access Tokens Per Profile",
+      "key": "PENPOT_QUOTES_ACCESS_TOKENS_PER_PROFILE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_ACCESS_TOKENS_PER_PROFILE.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Limits/Performance] Quotes Comments Per File",
+      "key": "PENPOT_QUOTES_COMMENTS_PER_FILE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_COMMENTS_PER_FILE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Comment Threads Per File",
+      "key": "PENPOT_QUOTES_COMMENT_THREADS_PER_FILE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_COMMENT_THREADS_PER_FILE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Files Per Project",
+      "key": "PENPOT_QUOTES_FILES_PER_PROJECT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_FILES_PER_PROJECT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Files Per Team",
+      "key": "PENPOT_QUOTES_FILES_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_FILES_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Font Variants Per Team",
+      "key": "PENPOT_QUOTES_FONT_VARIANTS_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_FONT_VARIANTS_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Invitations Per Team",
+      "key": "PENPOT_QUOTES_INVITATIONS_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_INVITATIONS_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Profiles Per Team",
+      "key": "PENPOT_QUOTES_PROFILES_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_PROFILES_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Projects Per Team",
+      "key": "PENPOT_QUOTES_PROJECTS_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_PROJECTS_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Snapshots Per File",
+      "key": "PENPOT_QUOTES_SNAPSHOTS_PER_FILE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_SNAPSHOTS_PER_FILE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Snapshots Per Team",
+      "key": "PENPOT_QUOTES_SNAPSHOTS_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_SNAPSHOTS_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Teams Per Profile",
+      "key": "PENPOT_QUOTES_TEAMS_PER_PROFILE",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_TEAMS_PER_PROFILE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Team Access Requests Per Requester",
+      "key": "PENPOT_QUOTES_TEAM_ACCESS_REQUESTS_PER_REQUESTER",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_TEAM_ACCESS_REQUESTS_PER_REQUESTER.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Team Access Requests Per Team",
+      "key": "PENPOT_QUOTES_TEAM_ACCESS_REQUESTS_PER_TEAM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_TEAM_ACCESS_REQUESTS_PER_TEAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Upload Chunks Per Session",
+      "key": "PENPOT_QUOTES_UPLOAD_CHUNKS_PER_SESSION",
+      "value": "20",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_UPLOAD_CHUNKS_PER_SESSION.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Quotes Upload Sessions Per Profile",
+      "key": "PENPOT_QUOTES_UPLOAD_SESSIONS_PER_PROFILE",
+      "value": "5",
+      "description": "Advanced upstream Penpot environment variable PENPOT_QUOTES_UPLOAD_SESSIONS_PER_PROFILE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Redis URI",
+      "key": "PENPOT_REDIS_URI",
+      "value": "",
+      "description": "Leave blank for bundled Redis-compatible cache. Set an external Redis or Valkey URI only when disabling the internal cache.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Registration Domain Whitelist",
+      "key": "PENPOT_REGISTRATION_DOMAIN_WHITELIST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_REGISTRATION_DOMAIN_WHITELIST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Rpc Climit Config",
+      "key": "PENPOT_RPC_CLIMIT_CONFIG",
+      "value": "resources/climit.edn",
+      "description": "Advanced upstream Penpot environment variable PENPOT_RPC_CLIMIT_CONFIG.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Rpc Rlimit Config",
+      "key": "PENPOT_RPC_RLIMIT_CONFIG",
+      "value": "resources/rlimit.edn",
+      "description": "Advanced upstream Penpot environment variable PENPOT_RPC_RLIMIT_CONFIG.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Scheduled Executor Parallelism",
+      "key": "PENPOT_SCHEDULED_EXECUTOR_PARALLELISM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SCHEDULED_EXECUTOR_PARALLELISM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Core] Secret Key",
+      "key": "PENPOT_SECRET_KEY",
+      "value": "",
+      "description": "Penpot master secret key. Leave blank to generate and persist a strong value on first boot. Changing this later can invalidate sessions and encrypted data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SMTP] SMTP Default From",
+      "key": "PENPOT_SMTP_DEFAULT_FROM",
+      "value": "Penpot &lt;no-reply@penpot.local&gt;",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_DEFAULT_FROM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Default Reply To",
+      "key": "PENPOT_SMTP_DEFAULT_REPLY_TO",
+      "value": "Penpot &lt;no-reply@penpot.local&gt;",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_DEFAULT_REPLY_TO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Host",
+      "key": "PENPOT_SMTP_HOST",
+      "value": "",
+      "description": "External SMTP hostname. Leave blank to use bundled Mailpit for local/lab email capture.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Password",
+      "key": "PENPOT_SMTP_PASSWORD",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_PASSWORD.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SMTP] SMTP Port",
+      "key": "PENPOT_SMTP_PORT",
+      "value": "",
+      "description": "External SMTP port. Leave blank with SMTP Host to use bundled Mailpit on internal port 1025.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Ssl",
+      "key": "PENPOT_SMTP_SSL",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_SSL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Tls",
+      "key": "PENPOT_SMTP_TLS",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SMTP] SMTP Username",
+      "key": "PENPOT_SMTP_USERNAME",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SMTP_USERNAME.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Security/SSRF] SSRF Allowed Hosts",
+      "key": "PENPOT_SSRF_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SSRF_ALLOWED_HOSTS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Security/SSRF] SSRF Extra Blocked Cidrs",
+      "key": "PENPOT_SSRF_EXTRA_BLOCKED_CIDRS",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_SSRF_EXTRA_BLOCKED_CIDRS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Storage Assets",
+      "key": "PENPOT_STORAGE_ASSETS_",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_STORAGE_ASSETS_.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Storage Assets Fs Directory",
+      "key": "PENPOT_STORAGE_ASSETS_FS_DIRECTORY",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_STORAGE_ASSETS_FS_DIRECTORY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Storage Assets S3 Bucket",
+      "key": "PENPOT_STORAGE_ASSETS_S3_BUCKET",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_STORAGE_ASSETS_S3_BUCKET.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Storage Assets S3 Endpoint",
+      "key": "PENPOT_STORAGE_ASSETS_S3_ENDPOINT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_STORAGE_ASSETS_S3_ENDPOINT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Storage Assets S3 Region",
+      "key": "PENPOT_STORAGE_ASSETS_S3_REGION",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_STORAGE_ASSETS_S3_REGION.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Telemetry Enabled",
+      "key": "PENPOT_TELEMETRY_ENABLED",
+      "value": "false",
+      "description": "Usage telemetry toggle. The AIO default is false for privacy-first self-hosting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Telemetry Referer",
+      "key": "PENPOT_TELEMETRY_REFERER",
+      "value": "unraid-aio",
+      "description": "Advanced upstream Penpot environment variable PENPOT_TELEMETRY_REFERER.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Telemetry URI",
+      "key": "PENPOT_TELEMETRY_URI",
+      "value": "https://telemetry.penpot.app/",
+      "description": "Advanced upstream Penpot environment variable PENPOT_TELEMETRY_URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Telemetry With Taiga",
+      "key": "PENPOT_TELEMETRY_WITH_TAIGA",
+      "value": "false",
+      "description": "Advanced upstream Penpot environment variable PENPOT_TELEMETRY_WITH_TAIGA.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Core] Tenant",
+      "key": "PENPOT_TENANT",
+      "value": "default",
+      "description": "Advanced upstream Penpot environment variable PENPOT_TENANT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Urepl Host",
+      "key": "PENPOT_UREPL_HOST",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_UREPL_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Advanced Upstream] Urepl Port",
+      "key": "PENPOT_UREPL_PORT",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_UREPL_PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] User Feedback Destination",
+      "key": "PENPOT_USER_FEEDBACK_DESTINATION",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_USER_FEEDBACK_DESTINATION.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Limits/Performance] Worker Default Parallelism",
+      "key": "PENPOT_WORKER_DEFAULT_PARALLELISM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_WORKER_DEFAULT_PARALLELISM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Worker Webhook Parallelism",
+      "key": "PENPOT_WORKER_WEBHOOK_PARALLELISM",
+      "value": "",
+      "description": "Advanced upstream Penpot environment variable PENPOT_WORKER_WEBHOOK_PARALLELISM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] access-tokens",
+      "key": "PENPOT_AIO_FLAG_ACCESS_TOKENS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag access-tokens. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] audit-log",
+      "key": "PENPOT_AIO_FLAG_AUDIT_LOG",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag audit-log. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] audit-log-archive",
+      "key": "PENPOT_AIO_FLAG_AUDIT_LOG_ARCHIVE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag audit-log-archive. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] audit-log-gc",
+      "key": "PENPOT_AIO_FLAG_AUDIT_LOG_GC",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag audit-log-gc. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] audit-log-logger",
+      "key": "PENPOT_AIO_FLAG_AUDIT_LOG_LOGGER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag audit-log-logger. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] auto-file-snapshot",
+      "key": "PENPOT_AIO_FLAG_AUTO_FILE_SNAPSHOT",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag auto-file-snapshot. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] backend-api-doc",
+      "key": "PENPOT_AIO_FLAG_BACKEND_API_DOC",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag backend-api-doc. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] backend-openapi-doc",
+      "key": "PENPOT_AIO_FLAG_BACKEND_OPENAPI_DOC",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag backend-openapi-doc. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] backend-svgo",
+      "key": "PENPOT_AIO_FLAG_BACKEND_SVGO",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag backend-svgo. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] backend-worker",
+      "key": "PENPOT_AIO_FLAG_BACKEND_WORKER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag backend-worker. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] client-header-check-middleware",
+      "key": "PENPOT_AIO_FLAG_CLIENT_HEADER_CHECK_MIDDLEWARE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag client-header-check-middleware. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] component-thumbnails",
+      "key": "PENPOT_AIO_FLAG_COMPONENT_THUMBNAILS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag component-thumbnails. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] cors",
+      "key": "PENPOT_AIO_FLAG_CORS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag cors. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] dashboard-templates-section",
+      "key": "PENPOT_AIO_FLAG_DASHBOARD_TEMPLATES_SECTION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag dashboard-templates-section. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] demo-users",
+      "key": "PENPOT_AIO_FLAG_DEMO_USERS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag demo-users. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] demo-warning",
+      "key": "PENPOT_AIO_FLAG_DEMO_WARNING",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag demo-warning. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] email-blacklist",
+      "key": "PENPOT_AIO_FLAG_EMAIL_BLACKLIST",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag email-blacklist. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] email-verification",
+      "key": "PENPOT_AIO_FLAG_EMAIL_VERIFICATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag email-verification. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] email-whitelist",
+      "key": "PENPOT_AIO_FLAG_EMAIL_WHITELIST",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag email-whitelist. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] export-file-v3",
+      "key": "PENPOT_AIO_FLAG_EXPORT_FILE_V3",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag export-file-v3. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] exporter-svgo",
+      "key": "PENPOT_AIO_FLAG_EXPORTER_SVGO",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag exporter-svgo. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] feature-fdata-objects-map",
+      "key": "PENPOT_AIO_FLAG_FEATURE_FDATA_OBJECTS_MAP",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag feature-fdata-objects-map. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] file-schema-validation",
+      "key": "PENPOT_AIO_FLAG_FILE_SCHEMA_VALIDATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag file-schema-validation. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] file-validation",
+      "key": "PENPOT_AIO_FLAG_FILE_VALIDATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag file-validation. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] frontend-svgo",
+      "key": "PENPOT_AIO_FLAG_FRONTEND_SVGO",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag frontend-svgo. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] google-fonts-provider",
+      "key": "PENPOT_AIO_FLAG_GOOGLE_FONTS_PROVIDER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag google-fonts-provider. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] hide-release-modal",
+      "key": "PENPOT_AIO_FLAG_HIDE_RELEASE_MODAL",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag hide-release-modal. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] inspect-styles",
+      "key": "PENPOT_AIO_FLAG_INSPECT_STYLES",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag inspect-styles. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] log-emails",
+      "key": "PENPOT_AIO_FLAG_LOG_EMAILS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag log-emails. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] log-invitation-tokens",
+      "key": "PENPOT_AIO_FLAG_LOG_INVITATION_TOKENS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag log-invitation-tokens. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login",
+      "key": "PENPOT_AIO_FLAG_LOGIN",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-custom-sso",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_CUSTOM_SSO",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-custom-sso. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-github",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_GITHUB",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-github. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-gitlab",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_GITLAB",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-gitlab. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-google",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_GOOGLE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-google. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-ldap",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_LDAP",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-ldap. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-oidc",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_OIDC",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-oidc. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] login-with-password",
+      "key": "PENPOT_AIO_FLAG_LOGIN_WITH_PASSWORD",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag login-with-password. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] mcp",
+      "key": "PENPOT_AIO_FLAG_MCP",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag mcp. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] nitrate",
+      "key": "PENPOT_AIO_FLAG_NITRATE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag nitrate. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] nrepl-server",
+      "key": "PENPOT_AIO_FLAG_NREPL_SERVER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag nrepl-server. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] oidc-registration",
+      "key": "PENPOT_AIO_FLAG_OIDC_REGISTRATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag oidc-registration. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] onboarding",
+      "key": "PENPOT_AIO_FLAG_ONBOARDING",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag onboarding. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] perf-logs",
+      "key": "PENPOT_AIO_FLAG_PERF_LOGS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag perf-logs. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] prepl-server",
+      "key": "PENPOT_AIO_FLAG_PREPL_SERVER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag prepl-server. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] quotes",
+      "key": "PENPOT_AIO_FLAG_QUOTES",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag quotes. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] redis-cache",
+      "key": "PENPOT_AIO_FLAG_REDIS_CACHE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag redis-cache. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] registration",
+      "key": "PENPOT_AIO_FLAG_REGISTRATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag registration. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] render-wasm-dpr",
+      "key": "PENPOT_AIO_FLAG_RENDER_WASM_DPR",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag render-wasm-dpr. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] rpc-climit",
+      "key": "PENPOT_AIO_FLAG_RPC_CLIMIT",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag rpc-climit. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] rpc-rlimit",
+      "key": "PENPOT_AIO_FLAG_RPC_RLIMIT",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag rpc-rlimit. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] sec-fetch-metadata-middleware",
+      "key": "PENPOT_AIO_FLAG_SEC_FETCH_METADATA_MIDDLEWARE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag sec-fetch-metadata-middleware. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] secure-session-cookies",
+      "key": "PENPOT_AIO_FLAG_SECURE_SESSION_COOKIES",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag secure-session-cookies. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] smtp",
+      "key": "PENPOT_AIO_FLAG_SMTP",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag smtp. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] smtp-debug",
+      "key": "PENPOT_AIO_FLAG_SMTP_DEBUG",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag smtp-debug. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] soft-file-schema-validation",
+      "key": "PENPOT_AIO_FLAG_SOFT_FILE_SCHEMA_VALIDATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag soft-file-schema-validation. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] soft-file-validation",
+      "key": "PENPOT_AIO_FLAG_SOFT_FILE_VALIDATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag soft-file-validation. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] soft-quotes",
+      "key": "PENPOT_AIO_FLAG_SOFT_QUOTES",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag soft-quotes. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] soft-rpc-rlimit",
+      "key": "PENPOT_AIO_FLAG_SOFT_RPC_RLIMIT",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag soft-rpc-rlimit. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] strict-session-cookies",
+      "key": "PENPOT_AIO_FLAG_STRICT_SESSION_COOKIES",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag strict-session-cookies. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] subscriptions",
+      "key": "PENPOT_AIO_FLAG_SUBSCRIPTIONS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag subscriptions. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] subscriptions-old",
+      "key": "PENPOT_AIO_FLAG_SUBSCRIPTIONS_OLD",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag subscriptions-old. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] telemetry",
+      "key": "PENPOT_AIO_FLAG_TELEMETRY",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag telemetry. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] terms-and-privacy-checkbox",
+      "key": "PENPOT_AIO_FLAG_TERMS_AND_PRIVACY_CHECKBOX",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag terms-and-privacy-checkbox. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] tiered-file-data-storage",
+      "key": "PENPOT_AIO_FLAG_TIERED_FILE_DATA_STORAGE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag tiered-file-data-storage. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] token-base-font-size",
+      "key": "PENPOT_AIO_FLAG_TOKEN_BASE_FONT_SIZE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag token-base-font-size. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] token-color",
+      "key": "PENPOT_AIO_FLAG_TOKEN_COLOR",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag token-color. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] token-shadow",
+      "key": "PENPOT_AIO_FLAG_TOKEN_SHADOW",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag token-shadow. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] token-tokenscript",
+      "key": "PENPOT_AIO_FLAG_TOKEN_TOKENSCRIPT",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag token-tokenscript. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] transit-readable-response",
+      "key": "PENPOT_AIO_FLAG_TRANSIT_READABLE_RESPONSE",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag transit-readable-response. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] urepl-server",
+      "key": "PENPOT_AIO_FLAG_UREPL_SERVER",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag urepl-server. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] user-feedback",
+      "key": "PENPOT_AIO_FLAG_USER_FEEDBACK",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag user-feedback. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] v2-migration",
+      "key": "PENPOT_AIO_FLAG_V2_MIGRATION",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag v2-migration. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Flags] webhooks",
+      "key": "PENPOT_AIO_FLAG_WEBHOOKS",
+      "value": "default",
+      "description": "Per-flag control for Penpot flag webhooks. default leaves upstream/AIO defaults alone; enable or disable appends the matching flag token when PENPOT_FLAGS is blank.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

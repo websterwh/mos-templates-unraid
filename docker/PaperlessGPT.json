@@ -1,0 +1,323 @@
+{
+  "name": "Paperless-GPT",
+  "repo": "icereed/paperless-gpt:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/icereed/paperless-gpt",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/MorgothRB/Unraid-Templates/refs/heads/main/paperless-gpt/paperless-gpt.png",
+  "project": "https://github.com/icereed/paperless-gpt",
+  "description": "paperless-gpt seamlessly pairs with paperless-ngx to generate AI-powered document titles and tags, saving you hours of manual sorting. While other tools may offer AI chat features, paperless-gpt stands out by supercharging OCR with LLMs-ensuring high accuracy, even with tricky scans. If you\u2019re craving next-level text extraction and effortless document organization, this is your solution. Description of container variables: https://github.com/icereed/paperless-gpt?tab=readme-ov-file#configuration",
+  "paths": [
+    {
+      "name": "Prompt Templates",
+      "host": "/mnt/cache/appdata/paperless-gpt/prompts",
+      "container": "/app/prompts",
+      "mode": "rw",
+      "description": "Custom Prompt Templates https://github.com/icereed/paperless-gpt?tab=readme-ov-file#custom-prompt-templates",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PAPERLESS_BASE_URL",
+      "key": "PAPERLESS_BASE_URL",
+      "value": "http://localhost:8000",
+      "description": "URL of your paperless-ngx instance (e.g. http://paperless-ngx:8000).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_API_TOKEN",
+      "key": "PAPERLESS_API_TOKEN",
+      "value": "",
+      "description": "API token for paperless-ngx. Generate one in paperless-ngx admin.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_PUBLIC_URL",
+      "key": "PAPERLESS_PUBLIC_URL",
+      "value": "",
+      "description": "Public URL for Paperless (if different from PAPERLESS_BASE_URL).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the container as. See Documentation (Running as a Non-Root User).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the container as. See Documentation (Running as a Non-Root User).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MANUAL_TAG",
+      "key": "MANUAL_TAG",
+      "value": "paperless-gpt",
+      "description": "Tag for manual processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_TAG",
+      "key": "AUTO_TAG",
+      "value": "paperless-gpt-auto",
+      "description": "Tag for auto processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_TAG_COMPLETE",
+      "key": "AUTO_TAG_COMPLETE",
+      "value": "",
+      "description": "Tag added to documents after auto-processing is complete. Only applied during auto-processing, not manual review. Set to an empty string to disable. When the variable is unset, the default tag (paperless-gpt-auto-complete) is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM_PROVIDER",
+      "key": "LLM_PROVIDER",
+      "value": "",
+      "description": "AI backend (openai or ollama).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM_MODEL",
+      "key": "LLM_MODEL",
+      "value": "",
+      "description": "AI model name, e.g. gpt-4o, gpt-3.5-turbo, deepseek-r1:8b.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key (required if using OpenAI).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENAI_BASE_URL",
+      "key": "OPENAI_BASE_URL",
+      "value": "",
+      "description": "OpenAI base URL (optional, if using a custom OpenAI compatible service like LiteLLM).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM_LANGUAGE",
+      "key": "LLM_LANGUAGE",
+      "value": "English",
+      "description": "Likely language for documents (e.g. English).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_HOST",
+      "key": "OLLAMA_HOST",
+      "value": "http://localhost:11434",
+      "description": "Ollama server URL (e.g. http://host.docker.internal:11434).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_THINK",
+      "key": "OLLAMA_THINK",
+      "value": "false",
+      "description": "(Ollama only) Set to false to disable Ollama reasoning ('think') mode, true to force it on. Recommended false for thinking-mode models (e.g. Qwen 3, Gemma 3) on tasks that need strict output formats \u2014 with thinking left on, these models can spend the whole token budget reasoning and return empty content. If unset, the model's default applies.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCR_PROVIDER",
+      "key": "OCR_PROVIDER",
+      "value": "llm",
+      "description": "OCR provider to use (llm, azure, or google_docai).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VISION_LLM_PROVIDER",
+      "key": "VISION_LLM_PROVIDER",
+      "value": "openai",
+      "description": "(for OCR) - openai or ollama",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VISION_LLM_MODEL",
+      "key": "VISION_LLM_MODEL",
+      "value": "gpt-4o",
+      "description": "(for OCR) - minicpm-v (ollama example), gpt-4o (for openai), etc.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AZURE_DOCAI_ENDPOINT",
+      "key": "AZURE_DOCAI_ENDPOINT",
+      "value": "",
+      "description": "Azure Document Intelligence endpoint. Required if OCR_PROVIDER is azure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AZURE_DOCAI_KEY",
+      "key": "AZURE_DOCAI_KEY",
+      "value": "",
+      "description": "Azure Document Intelligence API key. Required if OCR_PROVIDER is azure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AZURE_DOCAI_MODEL_ID",
+      "key": "AZURE_DOCAI_MODEL_ID",
+      "value": "prebuilt-read",
+      "description": "Azure Document Intelligence model ID. Optional if using azure provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AZURE_DOCAI_TIMEOUT_SECONDS",
+      "key": "AZURE_DOCAI_TIMEOUT_SECONDS",
+      "value": "120",
+      "description": "Azure Document Intelligence timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_PROJECT_ID",
+      "key": "GOOGLE_PROJECT_ID",
+      "value": "",
+      "description": "Google Cloud project ID. Required if OCR_PROVIDER is google_docai.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_LOCATION",
+      "key": "GOOGLE_LOCATION",
+      "value": "",
+      "description": "Google Cloud region (e.g. us, eu). Required if OCR_PROVIDER is google_docai.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_PROCESSOR_ID",
+      "key": "GOOGLE_PROCESSOR_ID",
+      "value": "",
+      "description": "Document AI processor ID. Required if OCR_PROVIDER is google_docai.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_APPLICATION_CREDENTIALS",
+      "key": "GOOGLE_APPLICATION_CREDENTIALS",
+      "value": "",
+      "description": "Path to the mounted Google service account key. Required if OCR_PROVIDER is google_docai.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_OCR_TAG",
+      "key": "AUTO_OCR_TAG",
+      "value": "paperless-gpt-ocr-auto",
+      "description": "Tag for automatically processing docs with OCR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Application log level (info, debug, warn, error).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_GENERATE_TITLE",
+      "key": "AUTO_GENERATE_TITLE",
+      "value": "true",
+      "description": "Generate titles automatically if paperless-gpt-auto is used. Default: true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_GENERATE_TAGS",
+      "key": "AUTO_GENERATE_TAGS",
+      "value": "true",
+      "description": "Generate tags automatically if paperless-gpt-auto is used. Default: true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_GENERATE_CORRESPONDENTS",
+      "key": "AUTO_GENERATE_CORRESPONDENTS",
+      "value": "true",
+      "description": "Generate correspondents automatically if paperless-gpt-auto is used. Default: true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_GENERATE_CREATED_DATE",
+      "key": "AUTO_GENERATE_CREATED_DATE",
+      "value": "true",
+      "description": "Generate the created dates automatically if paperless-gpt-auto is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCR_LIMIT_PAGES",
+      "key": "OCR_LIMIT_PAGES",
+      "value": "5",
+      "description": "Limit the number of pages for OCR. Set to 0 for no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TOKEN_LIMIT",
+      "key": "TOKEN_LIMIT",
+      "value": "",
+      "description": "Maximum tokens allowed for prompts/content. Set to 0 to disable limit. Useful for smaller LLMs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORRESPONDENT_BLACK_LIST",
+      "key": "CORRESPONDENT_BLACK_LIST",
+      "value": "",
+      "description": "A comma-separated list of names to exclude from the correspondents suggestions. Example: John Doe, Jane Smith.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

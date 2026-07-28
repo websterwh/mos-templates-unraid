@@ -1,0 +1,579 @@
+{
+  "name": "BrickTracker",
+  "repo": "gitea.baerentsen.space/frederikbaerentsen/bricktracker:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/r/gitea.baerentsen.space/frederikbaerentsen/bricktracker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3333]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/brick-tracker-icon.png",
+  "project": "https://gitea.baerentsen.space/FrederikBaerentsen/BrickTracker",
+  "description": "A web application for organizing and tracking LEGO sets, parts, and minifigures. Uses the Rebrickable API to fetch LEGO data and allows users to track missing pieces and collection status.",
+  "paths": [
+    {
+      "name": "Parts Storage Path",
+      "host": "/mnt/cache/appdata/brick_tracker/parts",
+      "container": "/app/static/parts",
+      "mode": "rw",
+      "description": "Path to store part images",
+      "required": true
+    },
+    {
+      "name": "Instructions Storage Path",
+      "host": "/mnt/cache/appdata/brick_tracker/instructions",
+      "container": "/app/static/instructions",
+      "mode": "rw",
+      "description": "Path to store instruction images",
+      "required": true
+    },
+    {
+      "name": "Sets Storage Path",
+      "host": "/mnt/cache/appdata/brick_tracker/sets",
+      "container": "/app/static/sets",
+      "mode": "rw",
+      "description": "Path to store set images",
+      "required": true
+    },
+    {
+      "name": "Minifigures Storage Path",
+      "host": "/mnt/cache/appdata/brick_tracker/minifigs",
+      "container": "/app/static/minifigures",
+      "mode": "rw",
+      "description": "Path to store minifigure images",
+      "required": true
+    },
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/brick_tracker/app.db",
+      "container": "data/app.db",
+      "mode": "rw",
+      "description": "Path to the SQLite database. Run `touch app.db` BEFORE running container for the first time.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/brick_tracker/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Path to store app data",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3333",
+      "container": "3333",
+      "protocol": "tcp",
+      "description": "Container Port: 3333",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Rebrickable API Key",
+      "key": "BK_REBRICKABLE_API_KEY",
+      "value": "",
+      "description": "API key for Rebrickable. Get one at https://rebrickable.com/api/",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Domain Name",
+      "key": "BK_DOMAIN_NAME",
+      "value": "http://IP_ADDRESS:3333",
+      "description": "Domain name for the application. Replace with local IP address or domain name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "BK_AUTHENTICATION_PASSWORD",
+      "value": "",
+      "description": "Password for the application. Useful if you want to share the page with other in read-only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication Key",
+      "key": "BK_AUTHENTICATION_KEY",
+      "value": "",
+      "description": "A unique key used to sign the secrets when using authentication. Remove if not using Password. Use Python command: python3 -c 'import secrets; print(secrets.token_hex())'",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Display Bricklink Links",
+      "key": "BK_BRICKLINK_LINKS",
+      "value": "false|true",
+      "description": "Display Bricklink links wherever applicable",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Display Rebrickable Links",
+      "key": "BK_REBRICKABLE_LINKS",
+      "value": "false|true",
+      "description": "Display Rebrickable links wherever applicable",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed Upload File Types",
+      "key": "BK_INSTRUCTIONS_ALLOWED_EXTENSIONS",
+      "value": ".pdf,.docx,.png",
+      "description": "Comma separated list of allowed file types for instructions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Add' Button",
+      "key": "BK_HIDE_ADD_SET",
+      "value": "false|true",
+      "description": "Hide the 'Add' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Bulk Add' Button",
+      "key": "BK_HIDE_ADD_BULK_SET",
+      "value": "false|true",
+      "description": "Hide the 'Bulk Add' entry from the add page.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Admin'",
+      "key": "BK_HIDE_ADMIN",
+      "value": "false|true",
+      "description": "Hide the 'Admin' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Instructions'",
+      "key": "BK_HIDE_ALL_INSTRUCTIONS",
+      "value": "false|true",
+      "description": "Hide the 'Instructions' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Instructions' in Sets",
+      "key": "BK_HIDE_SET_INSTRUCTIONS",
+      "value": "false|true",
+      "description": "Hide the 'Instructions' entry from the Set card.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Minifigures'",
+      "key": "BK_HIDE_ALL_MINIFIGURES",
+      "value": "false|true",
+      "description": "Hide the 'Minifigures' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Parts'",
+      "key": "BK_HIDE_ALL_PARTS",
+      "value": "false|true",
+      "description": "Hide the 'Parts' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Sets'",
+      "key": "BK_HIDE_ALL_SETS",
+      "value": "false|true",
+      "description": "Hide the 'Sets' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Missing'",
+      "key": "BK_HIDE_MISSING_PARTS",
+      "value": "false|true",
+      "description": "Hide the 'Missing' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Problems'",
+      "key": "BK_HIDE_ALL_PROBLEMS_PARTS",
+      "value": "false|true",
+      "description": "Hide the 'Problems' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Storages'",
+      "key": "organizer",
+      "value": "false|true",
+      "description": "Hide the 'Storages' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Wishlist'",
+      "key": "BK_HIDE_WISHES",
+      "value": "false|true",
+      "description": "Hide the 'Wishlist' entry from the menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Damaged' Column",
+      "key": "BK_HIDE_TABLE_DAMAGED_PARTS",
+      "value": "false|true",
+      "description": "Hide the 'Damaged' column from the parts table.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide 'Missing' Column",
+      "key": "BK_HIDE_TABLE_MISSING_PARTS",
+      "value": "false|true",
+      "description": "Hide the 'Missing' column from the parts table.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Save Spare Parts",
+      "key": "BK_SKIP_SPARE_PARTS",
+      "value": "false|true",
+      "description": "Skip saving or displaying spare parts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Random Homepage",
+      "key": "BK_RANDOM",
+      "value": "false|true",
+      "description": "Shuffle the lists on the front page.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Show Grid Filters",
+      "key": "BK_SHOW_GRID_FILTERS",
+      "value": "false|true",
+      "description": "Make the grid filters displayed by default, rather than collapsed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Show Grid Sort",
+      "key": "BK_SHOW_GRID_SORT",
+      "value": "false|true",
+      "description": "Make the grid sort displayed by default, rather than collapsed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "BK_TIMEZONE",
+      "value": "UTC",
+      "description": "Timezone of the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug",
+      "key": "BK_DEBUG",
+      "value": "false|true",
+      "description": "Enable debug mode",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Part Link Pattern (BrickLink)",
+      "key": "BK_BRICKLINK_LINK_PART_PATTERN",
+      "value": "https://www.bricklink.com/v2/catalog/catalogitem.page?P={number}",
+      "description": "Pattern of the link to Bricklink for a part. Will be passed to Python .format(). Supports {part} and {color} parameters. BrickLink part numbers and color IDs are used when available.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Part Link Pattern",
+      "key": "BK_REBRICKABLE_LINK_PART_PATTERN",
+      "value": "https://rebrickable.com/parts/{number}/_/{color}",
+      "description": "Pattern of the link to Rebrickable for a part. Will be passed to Python .format()",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Missing Part Image",
+      "key": "BK_REBRICKABLE_IMAGE_NIL",
+      "value": "https://rebrickable.com/static/img/nil.png",
+      "description": "Image to display when a part is missing",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minifigure Link Pattern",
+      "key": "BK_REBRICKABLE_LINK_MINIFIGURE_PATTERN",
+      "value": "https://rebrickable.com/minifigs/{number}",
+      "description": "Pattern of the link to Rebrickable for a minifigure. Will be passed to Python .format()",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Missing Minifigure Image",
+      "key": "BK_REBRICKABLE_IMAGE_NIL_MINIFIGURE",
+      "value": "https://rebrickable.com/static/img/nil_mf.jpg",
+      "description": "Image to display when a minifigure is missing",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Set Link Pattern",
+      "key": "BK_REBRICKABLE_LINK_SET_PATTERN",
+      "value": "https://rebrickable.com/sets/{number}",
+      "description": "Pattern of the link to Rebrickable for a set. Will be passed to Python .format()",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Themes URL",
+      "key": "BK_THEMES_FILE_URL",
+      "value": "https://cdn.rebrickable.com/media/downloads/themes.csv.gz",
+      "description": "URL to the themes.csv.gz on Rebrickable",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Remote Images",
+      "key": "BK_USE_REMOTE_IMAGES",
+      "value": "false|true",
+      "description": "Use remote image rather than the locally stored ones. Also prevents downloading any image when adding sets.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timestamp Format",
+      "key": "BK_DATABASE_TIMESTAMP_FORMAT",
+      "value": "%Y-%m-%d-%H-%M-%S",
+      "description": "Format of the timestamp added to the database file when downloading it",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Datetime Format",
+      "key": "BK_FILE_DATETIME_FORMAT",
+      "value": "%d/%m/%Y, %H:%M:%S",
+      "description": "Format of the timestamp for files on disk (instructions, themes)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Datetime Format",
+      "key": "BK_PURCHASE_DATE_FORMAT",
+      "value": "%d/%m/%Y",
+      "description": "Format of the timestamp for purchase dates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Purchase Currency",
+      "key": "BK_PURCHASE_CURRENCY",
+      "value": "\u20ac",
+      "description": "Currency to use for purchases",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Per-Page Count",
+      "key": "BK_DEFAULT_TABLE_PER_PAGE",
+      "value": "25",
+      "description": "Default number of items per page displayed for big tables",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host",
+      "key": "BK_HOST",
+      "value": "0.0.0.0",
+      "description": "Host to bind to",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "BK_PORT",
+      "value": "3333",
+      "description": "Port to bind to",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable Socket Threading",
+      "key": "BK_NO_THREADED_SOCKET",
+      "value": "false|true",
+      "description": "Disable threading on the task executed by the socket. Useful for debugging.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Socket Name",
+      "key": "BK_SOCKET_NAMESPACE",
+      "value": "bricksocket",
+      "description": "Namespace of the Socket.IO socket",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Socket Path",
+      "key": "BK_SOCKET_PATH",
+      "value": "/bricksocket/",
+      "description": "Path of the Socket.IO socket",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Independent Accordions",
+      "key": "BK_INDEPENDENT_ACCORDIONS",
+      "value": "false|true",
+      "description": "Each accordion can be opened independently",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rebrickable API Page Size",
+      "key": "BK_REBRICKABLE_PAGE_SIZE",
+      "value": "100",
+      "description": "The amount of items to retrieve per Rebrickable API call.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rebrickable API User Agent",
+      "key": "BK_REBRICKABLE_USER_AGENT",
+      "value": "'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'",
+      "description": "User agent to use when making requests to Rebrickable. This is used to prevent being rate limited.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minifigure Order",
+      "key": "BK_MINIFIGURES_DEFAULT_ORDER",
+      "value": "rebrickable_minifigures name ASC",
+      "description": "Change the default order of minifigures.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Parts Order",
+      "key": "BK_PARTS_DEFAULT_ORDER",
+      "value": "rebrickable_parts.name ASC, rebrickable_parts.color_name ASC, bricktracker_parts.spare ASC",
+      "description": "Change the default order of parts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sets Order",
+      "key": "BK_SETS_DEFAULT_ORDER",
+      "value": "rebrickable_sets.year ASC",
+      "description": "Change the default order of sets.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Wishlist Order",
+      "key": "BK_WISHES_DEFAULT_ORDER",
+      "value": "bricktracker_wishes.set DESC",
+      "description": "Change the default order of wishlist.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Purchase Location Order",
+      "key": "BK_PURCHASE_LOCATION_DEFAULT_ORDER",
+      "value": "bricktracker_metadata_purchase_locations.name ASC",
+      "description": "Change the default order of purchase locations.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Storage Order",
+      "key": "BK_STORAGE_DEFAULT_ORDER",
+      "value": "bricktracker_metadata_storages.name ASC",
+      "description": "Change the default order of storages",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Retired Sets List",
+      "key": "BK_RETIRED_SETS_FILE_URL",
+      "value": "https://docs.google.com/spreadsheets/d/1rlYfEXtNKxUOZt2Mfv0H17DvK7bj6Pe0CuYwq6ay8WA/gviz/tq?tqx=out:csv&amp;sheet=Sorted%20by%20Retirement%20Date",
+      "description": "URL to the unofficial retired sets list on Google Sheets",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Database Path",
+      "key": "BK_DATABASE_PATH",
+      "value": "data/app.db",
+      "description": "Path to the SQLite database inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Minifigures Path",
+      "key": "BK_MINIFIGURES_FOLDER",
+      "value": "minifigures",
+      "description": "Name of the minifigures folder inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Instructions Path",
+      "key": "BK_INSTRUCTIONS_FOLDER",
+      "value": "instructions",
+      "description": "Name of the instructions folder inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Parts Path",
+      "key": "BK_PARTS_FOLDER",
+      "value": "parts",
+      "description": "Name of the parts folder inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Sets Path",
+      "key": "BK_SETS_FOLDER",
+      "value": "sets",
+      "description": "Name of the sets folder inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Retired Sets Path",
+      "key": "BK_RETIRED_SETS_PATH",
+      "value": "data/retired_sets.csv",
+      "description": "Path to the retired sets CSV file inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Themes Path",
+      "key": "BK_THEMES_PATH",
+      "value": "data/themes.csv",
+      "description": "Path to the themes CSV file inside the container. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,147 @@
+{
+  "name": "featherdrop",
+  "repo": "junkerderprovinz/featherdrop:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/featherdrop",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/featherdrop/icon.png?v=1",
+  "project": "https://github.com/junkerderprovinz/featherdrop",
+  "description": "featherdrop is a sleek, feather-light, self-hosted file sharer \u2014 your own private WeTransfer, without the accounts or size paywalls. Open the page, drop a file, set an expiry (plus an optional password or download limit), and share a short link or QR code. Files are end-to-end encrypted in your browser before upload \u2014 the server only ever stores opaque ciphertext and never sees your files, their names, or the key. Resumable uploads (tus), files on a local volume, metadata in a single SQLite file \u2014 no separate database, no accounts, no tracking. 26 languages, light/dark, and custom branding (APP_NAME/APP_LOGO/ACCENT_COLOR). Put it behind a reverse proxy and set BASE_URL so share links use your public domain.",
+  "paths": [
+    {
+      "name": "Data Directory (uploads)",
+      "host": "/mnt/cache/appdata/featherdrop/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Bulk storage for the uploaded files. Can live on slower array storage. Kept separate from the small metadata database (see Config Directory).",
+      "required": true
+    },
+    {
+      "name": "Config Directory (database)",
+      "host": "/mnt/cache/appdata/featherdrop/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the small SQLite metadata database (db.sqlite). Best kept on fast storage (e.g. the SSD cache/appdata). Separate from the bulk uploads (see Data Directory).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port the featherdrop web interface listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Config Dir (container path)",
+      "key": "CONFIG_DIR",
+      "value": "/config",
+      "description": "Container path the SQLite database is written to. Must match the Config Directory mount above (/config). Advanced \u2014 leave as /config.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Public base URL for share links behind a reverse proxy, e.g. https://featherdrop.yourdomain.tld \u2014 leave empty to use the browser address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Expiry",
+      "key": "DEFAULT_EXPIRY",
+      "value": "7d",
+      "description": "Expiry pre-selected in the UI when an uploader does not choose one. Pick from the dropdown: 1h, 6h, 1d, 7d, 30d, or never.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max File Size (bytes)",
+      "key": "MAX_FILE_SIZE",
+      "value": "0",
+      "description": "Maximum upload size in bytes. 0 = unlimited (only limited by disk space). Example: 5368709120 = 5 GB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Expiry",
+      "key": "MAX_EXPIRY",
+      "value": "never",
+      "description": "Longest expiry an uploader may pick. 'never' (default) = no cap. Pick a shorter value to cap it; longer options (incl. 'never') then disappear from the UI and the server rejects them, and the Default Expiry is clamped to the cap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage Quota (bytes)",
+      "key": "STORAGE_QUOTA",
+      "value": "0",
+      "description": "Optional. Maximum TOTAL bytes of stored shares. 0 = unlimited. Uploads that would exceed the quota are rejected before any byte lands. Example: 53687091200 = 50 GB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit",
+      "key": "RATE_LIMIT",
+      "value": "true",
+      "description": "Built-in per-IP rate limiting on uploads and download/password attempts (HTTP 429). Leave on unless you run your own limiter in a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Set true ONLY when featherdrop runs behind a reverse proxy: rate limits then use the client address from X-Forwarded-For. Never enable on a directly reachable instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom App Name",
+      "key": "APP_NAME",
+      "value": "",
+      "description": "Optional. Rename the app \u2014 replaces the 'featherdrop' wordmark in the header and the browser tab title with your own name. Leave empty to keep 'featherdrop'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Logo URL",
+      "key": "APP_LOGO",
+      "value": "",
+      "description": "Optional. Your own logo (SVG/PNG) to replace the feather: either a public image URL, or a data: URI so you need no hosting and no file on disk. To make a data URI, run 'base64 -w0 logo.svg' and prefix the output with data:image/svg+xml;base64, (use image/png for a PNG). Leave empty to keep the feather.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Accent Color",
+      "key": "ACCENT_COLOR",
+      "value": "",
+      "description": "Optional. A 6-digit hex colour (e.g. #3daee9) for buttons, the upload ring and other accents. Leave empty to keep the gold (#d4af37).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upload Password",
+      "key": "UPLOAD_PASSWORD",
+      "value": "",
+      "description": "Optional. If set, only people who know this password can upload / create shares; download links still work for everyone (instance-private uploads). Leave empty to allow open uploads. Use a value without leading or trailing spaces.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

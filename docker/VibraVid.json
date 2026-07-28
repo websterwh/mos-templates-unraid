@@ -1,0 +1,107 @@
+{
+  "name": "VibraVid",
+  "repo": "ghcr.io/astraelabs/vibravid:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/AstraeLabs/VibraVid/pkgs/container/vibravid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/yusseiin/unraid-templates/main/img/vibravid.png",
+  "project": "https://github.com/AstraeLabs/VibraVid",
+  "description": "VibraVid - Web UI for managing video downloads. IMPORTANT: run the one-time setup script BELOW before first start, otherwise the container will crash. The Django source code and the SQLite database share the same directory in the upstream image (/app/GUI), so we cannot bind-mount that directory - we bind-mount only the db.sqlite3 file. The Conf directory holds only data files and is mounted normally. ONE-TIME SETUP (run on Unraid CLI before first start): mkdir -p /mnt/user/appdata/vibravid/Conf /mnt/user/appdata/vibravid/logs /mnt/user/downloads/vibravid docker pull ghcr.io/astraelabs/vibravid:latest docker create --name vv-seed ghcr.io/astraelabs/vibravid:latest docker cp vv-seed:/app/Conf/config.json /mnt/user/appdata/vibravid/Conf/config.json docker cp vv-seed:/app/Conf/login.json /mnt/user/appdata/vibravid/Conf/login.json docker rm vv-seed touch /mnt/user/appdata/vibravid/db.sqlite3 chown -R 1000:1000 /mnt/user/appdata/vibravid /mnt/user/downloads/vibravid CAVEAT: SQLite writes a transient journal file alongside db.sqlite3 during transactions. Because only the .sqlite3 file is bind-mounted (not its parent dir), the journal lives in the container's ephemeral layer. A hard kill mid-write could in theory leave the database in an inconsistent state. Avoid \"Force Stop\" and back up /mnt/user/appdata/vibravid/db.sqlite3 periodically. BACKUPS: cp /mnt/user/appdata/vibravid/db.sqlite3 /mnt/user/backups/vibravid-db-$(date +%F).sqlite3",
+  "paths": [
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads/vibravid",
+      "container": "/app/Video",
+      "mode": "rw",
+      "description": "Where downloaded videos are stored.",
+      "required": true
+    },
+    {
+      "name": "Config dir",
+      "host": "/mnt/cache/appdata/vibravid/Conf",
+      "container": "/app/Conf",
+      "mode": "rw",
+      "description": "Holds config.json and login.json. Must be pre-seeded by the one-time setup script (see Overview).",
+      "required": true
+    },
+    {
+      "name": "Database file",
+      "host": "/mnt/cache/appdata/vibravid/db.sqlite3",
+      "container": "/app/GUI/db.sqlite3",
+      "mode": "rw",
+      "description": "SQLite database FILE (not a directory). Must exist on the host before first start - the setup script touches an empty file that Django will populate via migrate.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/vibravid/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Application logs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port for the VibraVid web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Django Secret Key",
+      "key": "DJANGO_SECRET_KEY",
+      "value": "change-me-to-a-secure-key",
+      "description": "Secret key for Django sessions/CSRF. CHANGE this to a long random string before exposing the app.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "ALLOWED_HOSTS",
+      "value": "localhost,127.0.0.1",
+      "description": "Comma-separated hostnames/IPs allowed to reach the app. Add your Unraid IP, e.g. localhost,127.0.0.1,192.168.1.50",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CSRF Trusted Origins",
+      "key": "CSRF_TRUSTED_ORIGINS",
+      "value": "http://localhost:8000,http://127.0.0.1:8000",
+      "description": "Comma-separated origins trusted for CSRF. Must include the exact scheme://host:port you use to reach the WebUI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Django Debug",
+      "key": "DJANGO_DEBUG",
+      "value": "false",
+      "description": "Enable Django debug mode. Leave false for normal use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watchlist Auto-Download Interval",
+      "key": "WATCHLIST_AUTO_INTERVAL_SECONDS",
+      "value": "",
+      "description": "Optional. Interval in seconds between watchlist auto-downloads (e.g. 14400 for 4 hours). Leave blank to disable.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

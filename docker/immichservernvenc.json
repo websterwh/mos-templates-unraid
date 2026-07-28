@@ -1,0 +1,211 @@
+{
+  "name": "immich-server-nvenc",
+  "repo": "ghcr.io/immich-app/immich-server:release",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/immich-app/immich/pkgs/container/immich-server",
+  "network": "immich_internal",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --gpus=all --health-cmd=wget --no-verbose --tries=1 --spider http://localhost:2283/api/server/ping || exit 1 --health-interval=10s --health-retries=5 --health-start-period=60s --health-timeout=5s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2283]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/immich-logo.png",
+  "project": "https://immich.app",
+  "description": "Immich \u2013 self-hosted photo and video management with NVIDIA NVENC hardware transcoding. This is the main server component with NVIDIA GPU passthrough for accelerated video transcoding. Requires NVIDIA Container Toolkit on the Unraid host. Enable transcoding in Administration \u2192 System Settings \u2192 Video Transcoding \u2192 select NVENC. For Intel QSV or AMD VAAPI transcoding, use the immich-server-qsv-vaapi template instead. Storage layout: This template splits storage between HDD (Array) and SSD (Cache) for optimal performance. Large, rarely-accessed files (uploads, backups, library) go on the Array. Frequently-accessed generated files (thumbnails, encoded video, profile) go on the Cache. All Immich containers should be on the same Docker network so they can communicate by container name. Docs: https://docs.immich.app",
+  "paths": [
+    {
+      "name": "HDD: Uploads",
+      "host": "/mnt/cache/immich/upload/",
+      "container": "/data/upload",
+      "mode": "rw",
+      "description": "Photo and video uploads. This is where all your original media files are stored.",
+      "required": true
+    },
+    {
+      "name": "HDD: Backups",
+      "host": "/mnt/cache/immich/backups/",
+      "container": "/data/backups",
+      "mode": "rw",
+      "description": "Database and album backups. Consider placing on a separate disk or off-site for redundancy.",
+      "required": true
+    },
+    {
+      "name": "HDD: Library",
+      "host": "/mnt/cache/immich/library/",
+      "container": "/data/library",
+      "mode": "rw",
+      "description": "External library files for assets stored outside of Immich.",
+      "required": true
+    },
+    {
+      "name": "SSD: Thumbnails",
+      "host": "/mnt/cache/immich-gen/thumbs/",
+      "container": "/data/thumbs",
+      "mode": "rw",
+      "description": "Generated thumbnails. Frequently read during browsing \u2013 SSD/NVMe strongly recommended.",
+      "required": true
+    },
+    {
+      "name": "SSD: Encoded Video",
+      "host": "/mnt/cache/immich-gen/encoded-video/",
+      "container": "/data/encoded-video",
+      "mode": "rw",
+      "description": "Transcoded video files. Read during playback \u2013 SSD/NVMe recommended.",
+      "required": true
+    },
+    {
+      "name": "SSD: Profile",
+      "host": "/mnt/cache/immich-gen/profile/",
+      "container": "/data/profile",
+      "mode": "rw",
+      "description": "User profile data (avatars, etc.).",
+      "required": true
+    },
+    {
+      "name": "Path: Localtime",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Timezone sync from host (read-only)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web UI",
+      "host": "2283",
+      "container": "2283",
+      "protocol": "tcp",
+      "description": "Immich web interface and API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "--- HDD Storage (Array) ---",
+      "key": "--- HDD Storage (Array) ---",
+      "value": "",
+      "description": "Large, rarely-accessed files. Map to your Unraid Array share (e.g. 'immich').",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- SSD Storage (Cache) ---",
+      "key": "--- SSD Storage (Cache) ---",
+      "value": "",
+      "description": "Frequently-accessed generated files. Map to your Unraid Cache share (e.g. 'immich-gen') for optimal performance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Database ---",
+      "key": "--- Database ---",
+      "value": "",
+      "description": "PostgreSQL connection settings. Must match your immich-vectorchord-db configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_HOSTNAME",
+      "key": "DB_HOSTNAME",
+      "value": "immich-vectorchord-db",
+      "description": "Database container name or IP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Database port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_USERNAME",
+      "key": "DB_USERNAME",
+      "value": "postgres",
+      "description": "Database username (must match DB container)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "postgres",
+      "description": "Database password (must match DB container)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_DATABASE_NAME",
+      "key": "DB_DATABASE_NAME",
+      "value": "immich",
+      "description": "Database name (must match DB container)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "--- Valkey ---",
+      "key": "--- Valkey ---",
+      "value": "",
+      "description": "Valkey/Redis connection settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_HOSTNAME",
+      "key": "REDIS_HOSTNAME",
+      "value": "immich-valkey",
+      "description": "Valkey/Redis container name or IP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PORT",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Valkey/Redis port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- System ---",
+      "key": "--- System ---",
+      "value": "",
+      "description": "General settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Advanced ---",
+      "key": "--- Advanced ---",
+      "value": "",
+      "description": "Advanced settings. Only change if you know what you are doing. If using a reverse proxy (e.g. Nginx Proxy Manager, Traefik), add IMMICH_TRUSTED_PROXIES manually via Add Variable with your proxy IP so Immich sees the real client IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMMICH_LOG_LEVEL",
+      "key": "IMMICH_LOG_LEVEL",
+      "value": "log",
+      "description": "Log verbosity: verbose, debug, log, warn, error",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

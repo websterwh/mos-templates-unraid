@@ -1,0 +1,147 @@
+{
+  "name": "Matter.js-Server",
+  "repo": "ghcr.io/matter-js/matterjs-server:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/matter-js/matterjs-server/pkgs/container/matterjs-server",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --user=0:0",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5580]/",
+  "icon": "https://raw.githubusercontent.com/matter-js/matterjs-server/main/docs/matter_logo.svg",
+  "project": "https://github.com/matter-js/matterjs-server",
+  "description": "Open Home Foundation Matter.js Server is a Matter controller server with a Python Matter Server-compatible WebSocket API and a browser dashboard. It is used by Home Assistant Matter integrations and can also run as a standalone self-managed Matter server.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/matterjs-server",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Matter fabric data, server storage, migration data, and optional logs. Back this path up before migrating from Python Matter Server.",
+      "required": true
+    },
+    {
+      "name": "Host D-Bus",
+      "host": "",
+      "container": "/run/dbus",
+      "mode": "ro",
+      "description": "Optional host D-Bus mount used for Bluetooth commissioning with Noble Bindings set to dbus. Set the host path to /run/dbus only if the host has BlueZ running.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5580",
+      "container": "5580",
+      "protocol": "tcp",
+      "description": "Matter.js Server dashboard and WebSocket API port. With host networking, keep this aligned with the PORT variable. Container port: 5580.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Storage Path",
+      "key": "STORAGE_PATH",
+      "value": "/data",
+      "description": "Storage path inside the container. Keep this pointed at the Data mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "PORT",
+      "value": "5580",
+      "description": "Dashboard and WebSocket server port used inside host networking. Keep this aligned with Web UI Port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Server logging level: critical, error, warning, info, debug, or verbose.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen Address",
+      "key": "LISTEN_ADDRESS",
+      "value": "",
+      "description": "Optional IP address or interface name to bind the WebSocket server. Leave blank to bind all interfaces. Interface names can make the upstream health check fail.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Primary Interface",
+      "key": "PRIMARY_INTERFACE",
+      "value": "",
+      "description": "Optional network interface used for Matter mDNS and link-local communication, for example eth0 or br0. Leave blank for auto-detect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log File",
+      "key": "LOG_FILE",
+      "value": "",
+      "description": "Optional full log file path inside the container, for example /data/logs/matter-server.log. The path must include the filename.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Production Mode",
+      "key": "PRODUCTION_MODE",
+      "value": "false",
+      "description": "Force dashboard production mode when running behind a reverse proxy. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Dashboard",
+      "key": "DISABLE_DASHBOARD",
+      "value": "false",
+      "description": "Disable the browser dashboard and keep only the WebSocket API. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable OTA",
+      "key": "DISABLE_OTA",
+      "value": "false",
+      "description": "Disable Matter OTA update functionality. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Test Net DCL",
+      "key": "ENABLE_TEST_NET_DCL",
+      "value": "false",
+      "description": "Also use the test-net Matter Device Certificate Ledger for certificates and OTA updates. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Options",
+      "key": "NODE_OPTIONS",
+      "value": "",
+      "description": "Optional Node.js runtime options, for example --max-old-space-size=512 for larger deployments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Noble Bindings",
+      "key": "NOBLE_BINDINGS",
+      "value": "",
+      "description": "Optional Bluetooth backend. Set to dbus with the Host D-Bus mount for unprivileged host Bluetooth access, or leave blank if not using BLE commissioning. Add BLUETOOTH_ADAPTER manually only when you need to force a numeric HCI adapter ID.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

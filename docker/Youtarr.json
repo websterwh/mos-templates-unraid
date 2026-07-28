@@ -1,0 +1,155 @@
+{
+  "name": "Youtarr",
+  "repo": "dialmaster/youtarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/dialmaster/youtarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3011]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/youtarr-icon.png",
+  "project": "https://github.com/DialmasterOrg/Youtarr",
+  "description": "Youtarr is a self-hosted YouTube downloader that automatically downloads videos from your favorite channels or specific URLs. With optional Plex integration, it can refresh your media library for a seamless, ad-free viewing experience. By default the container runs as root. To run as a non-root user (e.g. nobody:users so Plex/Jellyfin can manage the downloaded files), see the Unraid-specific instructions at https://github.com/DialmasterOrg/Youtarr/blob/main/docs/platforms/Unraid.md",
+  "paths": [
+    {
+      "name": "YouTube Output Directory",
+      "host": "",
+      "container": "/usr/src/app/data",
+      "mode": "rw",
+      "description": "Path to store downloaded YouTube videos",
+      "required": true
+    },
+    {
+      "name": "Config Storage",
+      "host": "/mnt/cache/appdata/youtarr/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Path to store configuration files",
+      "required": true
+    },
+    {
+      "name": "Image Storage",
+      "host": "/mnt/cache/appdata/youtarr/images",
+      "container": "/app/server/images",
+      "mode": "rw",
+      "description": "Path to store images",
+      "required": true
+    },
+    {
+      "name": "Job Storage",
+      "host": "/mnt/cache/appdata/youtarr/jobs",
+      "container": "/app/jobs",
+      "mode": "rw",
+      "description": "Path to store job files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3011",
+      "container": "3011",
+      "protocol": "tcp",
+      "description": "Container Port: 3011",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "YouTube Output Directory Host",
+      "key": "YOUTUBE_OUTPUT_DIR",
+      "value": "",
+      "description": "Host path to your downloaded YouTube videos. Should match the host side of 'YouTube Output Directory' above. Used only to display the path inside the Youtarr web UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Hostname or IP of your MariaDB server. On Unraid, use your server's LAN IP (e.g. 192.168.1.100). Do NOT use 'localhost' or '127.0.0.1' - those resolve to this container, not your Unraid host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Port",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "Port of your MariaDB server. Standard MariaDB is 3306.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Name",
+      "key": "DB_NAME",
+      "value": "youtarr",
+      "description": "Name of the database Youtarr should use. Must already exist on your MariaDB server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - User",
+      "key": "DB_USER",
+      "value": "",
+      "description": "MariaDB username with read/write access to the database above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Password for the MariaDB user above.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth - Enabled",
+      "key": "AUTH_ENABLED",
+      "value": "true|false",
+      "description": "Enable the built-in login for Youtarr's web UI. Leave 'true' unless Youtarr is only reachable over LAN/VPN or is behind an authenticating reverse proxy - setting 'false' exposes the full UI with no password.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth - Username",
+      "key": "AUTH_PRESET_USERNAME",
+      "value": "",
+      "description": "Strongly recommended on Unraid: set this and Auth - Password together to seed initial login credentials. Without them, Youtarr's first-run setup wizard only accepts connections from 'localhost' on the Unraid host, which is awkward for headless installs. Must be 3-32 characters; if either this or Auth - Password fails validation, both are ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth - Password",
+      "key": "AUTH_PRESET_PASSWORD",
+      "value": "",
+      "description": "Initial admin password (8-64 characters). Must be set together with Auth - Username or both are ignored. You can change this later from within the Youtarr UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info|warn|debug",
+      "description": "Logging verbosity. Options: info (default), warn, debug.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "In Docker Container Flag",
+      "key": "IN_DOCKER_CONTAINER",
+      "value": "1",
+      "description": "Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

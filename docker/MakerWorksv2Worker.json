@@ -1,0 +1,97 @@
+{
+  "name": "MakerWorks-v2-Worker",
+  "repo": "ghcr.io/schartrand77/mkw2:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/schartrand77/mkw2/pkgs/container/mkw2",
+  "network": "makerworks-net",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --add-host=host.docker.internal:host-gateway",
+  "post_parameters": "npm run worker:processing",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/schartrand77/mkw2/main/public/icons/icon-192.png",
+  "project": "https://github.com/schartrand77/mkw2",
+  "description": "Companion background worker for MakerWorks v2. This container consumes BullMQ image and model-preview jobs queued by the MakerWorks web app. Install MakerWorks Redis before starting this worker.",
+  "paths": [
+    {
+      "name": "Storage Path",
+      "host": "/mnt/cache/appdata/makerworks/storage",
+      "container": "/app/storage",
+      "mode": "rw",
+      "description": "Persistent MakerWorks storage. Must match the MakerWorks-v2 web container mapping.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://postgres:change-this-password@makerworks-postgres:5432/makerworks?schema=public",
+      "description": "PostgreSQL connection string. Must match MakerWorks-v2.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "redis://makerworks-redis:6379",
+      "description": "Redis connection string used for BullMQ processing queues.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Storage Directory",
+      "key": "STORAGE_DIR",
+      "value": "/app/storage",
+      "description": "Internal durable storage root.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Queue Attempts",
+      "key": "PROCESSING_QUEUE_ATTEMPTS",
+      "value": "5",
+      "description": "Queue retry attempts before dead-lettering.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Queue Backoff Milliseconds",
+      "key": "PROCESSING_QUEUE_BACKOFF_MS",
+      "value": "5000",
+      "description": "Exponential retry backoff delay in milliseconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Worker Concurrency",
+      "key": "IMAGE_WORKER_CONCURRENCY",
+      "value": "2",
+      "description": "Parallel image-processing jobs consumed by this worker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Preview Worker Concurrency",
+      "key": "PREVIEW_WORKER_CONCURRENCY",
+      "value": "1",
+      "description": "Parallel model-preview jobs consumed by this worker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

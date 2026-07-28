@@ -1,0 +1,198 @@
+{
+  "name": "RUST",
+  "repo": "ghcr.io/ich777/steamcmd:rust",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:28015]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/rust.png",
+  "project": "https://www.steampowered.com/",
+  "description": "This Docker will download and install SteamCMD. It will also install RUST and run it. ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/rust",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP1 - Game Port",
+      "host": "28015",
+      "container": "28015",
+      "protocol": "udp",
+      "description": "UDP Gameport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to click an 'Show more settings ...)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP2 - Query Port",
+      "host": "28016",
+      "container": "28016",
+      "protocol": "udp",
+      "description": "UDP - Query Port (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to click an 'Show more settings ...)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TCP1 - RCON Port",
+      "host": "28017",
+      "container": "28017",
+      "protocol": "tcp",
+      "description": "TCP RCON Port - not needed (if you need another port, please delete this entry and create a new TCP Port with the required port number, also don't forget to click an 'Show more settings ...)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TCP2 - App Port",
+      "host": "28018",
+      "container": "28018",
+      "protocol": "tcp",
+      "description": "TCP App Port (if you need another port, please delete this entry and create a new TCP Port with the required port number, also don't forget to click an 'Show more settings ...)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Parameters",
+      "key": "GAME_PARAMS",
+      "value": "+server.maxplayers 10",
+      "description": "Enter here your extra game startup parameters if needed starting with (eg: '+rcon.port 27016 +rcon.password YOURPASSWORD' don't forget to add also a new port here on the template page with container and host port set to the corresponding RCON port)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "258550",
+      "description": "The GAME_ID that the container downloads at startup. If you want to use a beta version of the game enter this: '258550 -beta staging' or '258550 -beta prerelease' (without quotes).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": "RustDockerServer",
+      "description": "Name of the Server goes here",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Description",
+      "key": "SERVER_DISCRIPTION",
+      "value": "Simple Unraid Rust Docker Server",
+      "description": "Server Description goes here",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Oxide Mod",
+      "key": "OXIDE_MOD",
+      "value": "",
+      "description": "Set to 'true' (without quotes) to enable Oxide Mod, otherwise leave empty (the container will check on every start/restart if there is a newer version available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Carbon Mod",
+      "key": "CARBON_MOD",
+      "value": "",
+      "description": "Set to 'true' (without quotes) to enable Carbon Mod, otherwise leave empty (the container will check on every start/restart if there is a newer version available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GAME_PORT",
+      "key": "GAME_PORT",
+      "value": "28015",
+      "description": "Game port on which the server is running (has to match the port mapping in your container).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QUERY_PORT",
+      "key": "QUERY_PORT",
+      "value": "28016",
+      "description": "Query port on which the server is running (has to match the port mapping in your container).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON_PORT",
+      "key": "RCON_PORT",
+      "value": "28017",
+      "description": "RCON port on which the server is running (has to match the port mapping in your container).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_PORT",
+      "key": "APP_PORT",
+      "value": "28018",
+      "description": "App port on which the server is running (has to match the port mapping in your container).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

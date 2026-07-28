@@ -1,0 +1,99 @@
+{
+  "name": "OpenRepo",
+  "repo": "ghcr.io/openkilt/openrepo:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/openkilt/openrepo",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--add-host=django:127.0.0.1",
+  "post_parameters": "bash -c run_openrepoweb & /venv/bin/python /app/django/manage.py runworker & nginx",
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/UberMetroid/unraid-thirdparty/main/icons/openrepo.png",
+  "project": "https://github.com/openkilt/openrepo",
+  "description": "OpenRepo is a web-based repository server designed for managing and hosting package repositories for Debian (.deb), RedHat (.rpm), and generic files. It features user access control, PGP signing key management, packages promotion, a REST API, and a CLI client. This Unraid template runs Nginx, Django, and the background worker in a single self-contained container using SQLite as the default database. Note: This is a third-party community template and is not an official XML file from the application developers.",
+  "paths": [
+    {
+      "name": "Appdata Directory",
+      "host": "/mnt/cache/appdata/openrepo",
+      "container": "/var/lib/openrepo",
+      "mode": "rw",
+      "description": "Path to save persistent application data, database (SQLite), keys, and repository packages.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web Interface Port. Access the web dashboard here.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Type",
+      "key": "OPENREPO_DB_TYPE",
+      "value": "sqlite",
+      "description": "The database engine to use. Choose 'sqlite' for a self-contained installation (recommended for this single container setup) or 'postgresql' to use an external PostgreSQL database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Django Secret Key",
+      "key": "DJANGO_SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED: generate a unique secret per install (openssl rand -hex 64). Do not reuse a published/default value \u2014 it signs sessions and CSRF tokens.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Domain Name",
+      "key": "OPENREPO_DOMAIN",
+      "value": "localhost:8080",
+      "description": "Domain name or host IP:Port where the instance is accessible (e.g. repo.example.com or 192.168.1.100:8080). Must match the published Web UI port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CSRF Trusted Origins",
+      "key": "OPENREPO_CSRF_TRUSTED_ORIGINS",
+      "value": "",
+      "description": "Space-separated list of trusted origins for CSRF security when running behind a reverse proxy (e.g., https://repo.example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "OPENREPO_LOGLEVEL",
+      "value": "INFO",
+      "description": "Loglevel for the Django application (INFO, DEBUG, WARNING, ERROR).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Mode",
+      "key": "OPENREPO_DEBUG",
+      "value": "FALSE",
+      "description": "Set to TRUE to enable Django debug logging and pages (not recommended for production).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RPM Version Ignore Build Number",
+      "key": "RPM_VERSION_IGNORE_BUILD_NUM",
+      "value": "false",
+      "description": "Set to true if you want to ignore build numbers when managing RPM packages.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

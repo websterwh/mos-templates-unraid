@@ -1,0 +1,211 @@
+{
+  "name": "Wealthfolio",
+  "repo": "wealthfolio/wealthfolio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/wealthfolio/wealthfolio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --health-cmd=wget --quiet --tries=1 --spider http://127.0.0.1:8088/api/v1/healthz || exit 1 --health-interval=30s --health-timeout=10s --health-retries=3 --health-start-period=15s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8088]/",
+  "icon": "https://raw.githubusercontent.com/wealthfolio/wealthfolio/main/assets/brand/icon.png",
+  "project": "https://wealthfolio.app",
+  "description": "Wealthfolio is a beautiful, open-source, local-first personal finance and investment tracker that keeps all of your data in your own SQLite database with no cloud dependency.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/wealthfolio",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database (wealthfolio.db) and the encrypted secrets file. BACK THIS UP.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8088",
+      "container": "8088",
+      "protocol": "tcp",
+      "description": "Host port to expose. Change if 8088 clashes with another container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WF_SECRET_KEY",
+      "key": "WF_SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED. 32-byte key used to encrypt secrets at rest and sign session tokens. Generate ONCE with: openssl rand -base64 32 -- then save it somewhere safe. Losing it means losing all stored API keys and broker credentials.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "WF_AUTH_PASSWORD_HASH",
+      "key": "WF_AUTH_PASSWORD_HASH",
+      "value": "",
+      "description": "Required for password login unless using OIDC SSO or WF_AUTH_REQUIRED=false. Argon2id PHC hash of your login password. Generate with: printf '%s' 'your-password' | argon2 yoursalt16chars -id -e -- then paste the full argon2id PHC string here.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WF_CORS_ALLOW_ORIGINS",
+      "key": "WF_CORS_ALLOW_ORIGINS",
+      "value": "",
+      "description": "REQUIRED when auth is enabled. Comma-separated list of origins allowed to call the API. Must EXACTLY match the URL in your browser address bar (scheme, host, and port). Example: http://192.168.1.10:8088 or https://wealthfolio.example.com",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WF_AUTH_REQUIRED",
+      "key": "WF_AUTH_REQUIRED",
+      "value": "true",
+      "description": "Set to false only if a reverse proxy handles authentication and you are not using Wealthfolio login or SSO. Reverse-proxy-only auth does not satisfy MCP: WF_MCP_ENABLED=true still requires WF_AUTH_PASSWORD_HASH or OIDC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_AUTH_TOKEN_TTL_MINUTES",
+      "key": "WF_AUTH_TOKEN_TTL_MINUTES",
+      "value": "60",
+      "description": "Session access token lifetime in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_ISSUER_URL",
+      "key": "WF_OIDC_ISSUER_URL",
+      "value": "",
+      "description": "Optional SSO. OIDC issuer URL, for example https://auth.example.com/application/o/wealthfolio/. OIDC is enabled when this and WF_OIDC_CLIENT_ID are both set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_CLIENT_ID",
+      "key": "WF_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Optional SSO. Client ID registered with your OIDC provider. Required when WF_OIDC_ISSUER_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_CLIENT_SECRET",
+      "key": "WF_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional SSO. Client secret if your OIDC provider requires one. PKCE is always used, so many providers can leave this blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WF_OIDC_REDIRECT_URL",
+      "key": "WF_OIDC_REDIRECT_URL",
+      "value": "",
+      "description": "Required when OIDC is enabled. Must be registered in your identity provider. Example: https://wealthfolio.example.com/api/v1/auth/oidc/callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_SCOPES",
+      "key": "WF_OIDC_SCOPES",
+      "value": "",
+      "description": "Optional SSO. Space-separated scopes. Leave blank for the default: openid email profile.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_ALLOWED_EMAILS",
+      "key": "WF_OIDC_ALLOWED_EMAILS",
+      "value": "",
+      "description": "Optional SSO allowlist. Comma-separated verified email addresses allowed to sign in. OIDC requires this and/or WF_OIDC_ALLOWED_SUBS unless WF_OIDC_ALLOW_ANY=true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_ALLOWED_SUBS",
+      "key": "WF_OIDC_ALLOWED_SUBS",
+      "value": "",
+      "description": "Optional SSO allowlist. Comma-separated OIDC subject IDs allowed to sign in. Preferred over email allowlists when available.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_ALLOW_ANY",
+      "key": "WF_OIDC_ALLOW_ANY",
+      "value": "",
+      "description": "Optional SSO. Set true only to allow any user authenticated by your identity provider. Only safe on a dedicated single-user identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_POST_LOGOUT_REDIRECT_URL",
+      "key": "WF_OIDC_POST_LOGOUT_REDIRECT_URL",
+      "value": "",
+      "description": "Optional SSO logout. URL where the identity provider returns the browser after logout. Must be registered with the provider if set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_OIDC_RP_LOGOUT",
+      "key": "WF_OIDC_RP_LOGOUT",
+      "value": "true",
+      "description": "Optional SSO logout. Set false to force local-only logout even when the identity provider supports RP-initiated logout. Default is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_MCP_ENABLED",
+      "key": "WF_MCP_ENABLED",
+      "value": "false",
+      "description": "Enable AI Agent Access (MCP) at /mcp. Requires Wealthfolio auth via WF_AUTH_PASSWORD_HASH or OIDC. The container refuses to start with MCP enabled if WF_AUTH_REQUIRED=false and no app auth is configured.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_MCP_AUDIT_ENABLED",
+      "key": "WF_MCP_AUDIT_ENABLED",
+      "value": "true",
+      "description": "When MCP is enabled, write agent tool calls to the audit log. Set false to disable new audit entries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_REQUEST_TIMEOUT_MS",
+      "key": "WF_REQUEST_TIMEOUT_MS",
+      "value": "300000",
+      "description": "HTTP request timeout in milliseconds. Default is 5 minutes -- generous to accommodate large broker syncs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WF_LISTEN_ADDR",
+      "key": "WF_LISTEN_ADDR",
+      "value": "0.0.0.0:8088",
+      "description": "Bind address inside the container. Leave at 0.0.0.0:8088 unless you know what you are doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WF_DB_PATH",
+      "key": "WF_DB_PATH",
+      "value": "/data/wealthfolio.db",
+      "description": "SQLite database path inside the container. Must live under /data so it persists.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WF_LOG_FORMAT",
+      "key": "WF_LOG_FORMAT",
+      "value": "text",
+      "description": "Log format: text (human-readable) or json (structured).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

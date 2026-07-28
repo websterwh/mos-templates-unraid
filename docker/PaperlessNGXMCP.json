@@ -1,0 +1,75 @@
+{
+  "name": "Paperless-NGX-MCP",
+  "repo": "ghcr.io/paulmeier/paperless-ngx-mcp-container:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/paulmeier/paperless-ngx-mcp-container/pkgs/container/paperless-ngx-mcp-container",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/paulmeier/paperless-ngx-mcp-unraid/main/icons/paperless-ngx-mcp.png",
+  "project": "https://github.com/paulmeier/paperless-ngx-mcp-container",
+  "description": "Paperless-NGX MCP is a Model Context Protocol server that connects AI assistants and other MCP clients to your Paperless-NGX document archive. A client such as Claude can search your documents, read their content and metadata, and manage tags, correspondents, and document types through scoped tools instead of raw API calls. This container runs the server in streamable HTTP transport mode on port 3000 and serves the MCP endpoint at POST /mcp. It needs a reachable Paperless-NGX instance and a Paperless-NGX API token to authenticate. This is a headless server with no browsable web interface: point your MCP client at http:// :3000/mcp . The image is maintained at paulmeier/paperless-ngx-mcp-container and wraps the upstream paperless-ngx-mcp project by cubinet-code.",
+  "paths": [
+    {
+      "name": "Appdata (Tailscale state)",
+      "host": "/mnt/cache/appdata/paperless-ngx-mcp",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Small writable folder used only to persist Tailscale state when you enable Unraid built-in Tailscale integration. The paperless-ngx-mcp server itself is stateless and stores nothing here. If you do not use Tailscale you can safely leave this at its default. Keeping it mapped lets the Use Tailscale toggle work without the Couldn't detect persistent Docker directory error.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "MCP Server Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port mapped to the paperless-ngx-mcp server. MCP clients connect to http:// :[this port]/mcp for the streamable HTTP transport. Change only the host side if 3000 is already taken on your server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Paperless URL",
+      "key": "PAPERLESS_URL",
+      "value": "https://paperless.example.com",
+      "description": "Full base URL of the Paperless-NGX instance the MCP server connects to, including scheme and port if non-standard. Example http://192.168.1.10:8000 or https://paperless.example.com . Do not use localhost or 127.0.0.1 here, because inside the container those refer to the MCP server itself, not your Paperless-NGX. If Paperless-NGX runs as another Docker container on this same Unraid host, use the Unraid host LAN IP with the published Paperless port, or put both containers on one custom Docker network and use the Paperless container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Paperless API Token",
+      "key": "PAPERLESS_API_KEY",
+      "value": "",
+      "description": "Paperless-NGX API token used to authenticate every request to Paperless. In Paperless-NGX open Settings, then the user menu, then API Token, create or copy a token, and paste it here. The token inherits the permissions of its owning Paperless user, so scope that user to least privilege. Treat it like a password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Paperless Public URL",
+      "key": "PAPERLESS_PUBLIC_URL",
+      "value": "",
+      "description": "Optional public-facing base URL used when the server builds shareable document links. Set this only if your Paperless-NGX is reached through a different external address than the Paperless URL above, for example behind a reverse proxy. Leave blank to fall back to the Paperless URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Container timezone, used for log timestamps. Example Europe/Madrid or America/New_York. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,227 @@
+{
+  "name": "Starr",
+  "repo": "krippler52/starr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/krippler52/starr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8877]/",
+  "icon": "https://raw.githubusercontent.com/Krippler/Starr/main/templates/starr-icon.png",
+  "project": "https://github.com/Krippler/Starr",
+  "description": "Web UI for diagnosing and repairing the SQLite databases used by Sonarr, Radarr, Lidarr, Sportarr, Readarr, Prowlarr, Whisparr, and Bazarr. Safely stops the target *arr container, takes a (zstd-compressed) timestamped backup, runs SQLite PRAGMA repairs (integrity check, FK repair, WAL checkpoint, VACUUM, REINDEX, ANALYZE) on the idle database, then starts the container back up. Repair output streams live to the browser via SSE \u2014 scheduled runs stream into the same log. Features: cron scheduler with skip-if-clean, multiple instances per app (e.g. a second Sonarr), run history with last-run pill + pre-repair time estimate + per-instance trend charts, one-click restore from any backup, mid-VACUUM cancel (real SQLite interrupt), per-instance backup retention up to 1 year, and notifications on completion via Apprise (Discord/Telegram/ntfy/Pushover/\u2026), Signal (signal-cli-rest-api), or plain JSON webhooks. With the Docker socket mounted and a single /appdata mount pointed at your host appdata root, Starr auto-discovers each *arr container \u2014 its URL, container name, and database path \u2014 so you only need to paste the API keys and click Save Credentials. Provided as-is, no warranty \u2014 reliable in our testing, but use at your own risk and keep your own backups. The authors aren't responsible for any data loss or database damage.",
+  "paths": [
+    {
+      "name": "Appdata root",
+      "host": "/mnt/cache/appdata",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Host appdata root (contains each *arr's config folder). Starr uses Docker introspection to find each *arr's /config inside this single mount, so you don't need a separate mount per app. Read-write is required because VACUUM/REINDEX/FK repair write to the source database.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/starr/backups",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Where timestamped database backups are stored. Backups are auto-pruned based on MAX_BACKUP_AGE_DAYS.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket (optional)",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "OPTIONAL, but recommended on Unraid. Mounting the host Docker socket lets Starr auto-discover your *arr containers and stop/start them around a repair \u2014 more reliable than the app's shutdown API when a container restart policy is in play. NOTE: the Docker socket grants root-equivalent control of the host Docker daemon (the same trade-off as Portainer/Watchtower/Dockge). If you'd rather not grant that, clear this field: Starr falls back to each app's HTTP shutdown API and you enter URLs/API keys manually.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8877",
+      "container": "8877",
+      "protocol": "tcp",
+      "description": "Port for the Starr web dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID the container runs as. Must own \u2014 or share a group with \u2014 the *arr config dirs under your appdata root so VACUUM/REINDEX can write the source DB. Unraid default: 99 (nobody).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID the container runs as. Unraid default: 100 (users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED. Web UI access key (your 'Web Key' at the login gate). Set a strong random value \u2014 e.g. run: openssl rand -hex 32. If left blank / at the built-in default, Starr runs UNAUTHENTICATED: anyone who can reach the port gets in, and the dashboard shows an 'insecure' banner. Always set this on a shared network.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: DEBUG, INFO, WARNING, ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_BACKUP_AGE_DAYS",
+      "key": "MAX_BACKUP_AGE_DAYS",
+      "value": "7",
+      "description": "Number of days to keep backups before auto-pruning. Set to 0 to disable pruning.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SONARR_APIKEY",
+      "key": "SONARR_APIKEY",
+      "value": "",
+      "description": "Sonarr API key (Settings \u203a General \u203a API Key). Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RADARR_APIKEY",
+      "key": "RADARR_APIKEY",
+      "value": "",
+      "description": "Radarr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LIDARR_APIKEY",
+      "key": "LIDARR_APIKEY",
+      "value": "",
+      "description": "Lidarr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPORTARR_APIKEY",
+      "key": "SPORTARR_APIKEY",
+      "value": "",
+      "description": "Sportarr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "READARR_APIKEY",
+      "key": "READARR_APIKEY",
+      "value": "",
+      "description": "Readarr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PROWLARR_APIKEY",
+      "key": "PROWLARR_APIKEY",
+      "value": "",
+      "description": "Prowlarr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WHISPARR_APIKEY",
+      "key": "WHISPARR_APIKEY",
+      "value": "",
+      "description": "Whisparr API key. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BAZARR_APIKEY",
+      "key": "BAZARR_APIKEY",
+      "value": "",
+      "description": "Bazarr API key (Settings - General - Security). Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SONARR_URL",
+      "key": "SONARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Sonarr URL. Format: http://host:port .",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RADARR_URL",
+      "key": "RADARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Radarr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LIDARR_URL",
+      "key": "LIDARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Lidarr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPORTARR_URL",
+      "key": "SPORTARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Sportarr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "READARR_URL",
+      "key": "READARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Readarr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PROWLARR_URL",
+      "key": "PROWLARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Prowlarr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WHISPARR_URL",
+      "key": "WHISPARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Whisparr URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BAZARR_URL",
+      "key": "BAZARR_URL",
+      "value": "",
+      "description": "Optional. Override the discovered Bazarr URL.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

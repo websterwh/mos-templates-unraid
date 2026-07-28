@@ -1,0 +1,139 @@
+{
+  "name": "HealthTrack",
+  "repo": "ghcr.io/ezekielthemad/healthtrack:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/EzekielTheMad/healthtrack/pkgs/container/healthtrack",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/EzekielTheMad/healthtrack/main/public/icon.png",
+  "project": "https://github.com/EzekielTheMad/healthtrack",
+  "description": "Self-hosted personal health tracker. Track medications, conditions, allergies, labs, vitals, procedures, vaccines, appointments and notes for yourself and your dependents \u2014 all data stays in a single SQLite database and uploads folder under /data on your server. No cloud services required. The first registered user becomes the instance admin; after that, registration is invite-only by default (create single-use invite links under Settings, or set SIGNUPS_ENABLED to true to open registration). Optional integrations (each enabled only when its keys are set): Anthropic API key for AI health summaries, natural-language queries and lab/vaccine PDF parsing; Google OAuth for \"Sign in with Google\"; Oura for ring data sync. Back up /data to back up everything.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/healthtrack",
+      "container": "/data",
+      "mode": "rw",
+      "description": "All application state: SQLite database (healthtrack.db), uploaded lab PDFs (uploads/) and auto-generated secrets (keys/). Back up this folder to back up everything.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the HealthTrack web interface. If another container already uses 3000 (Mealie, Grafana, etc.), change this to a free port and update APP_URL to match \u2014 the container always listens on 3000 internally.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "The URL users browse to \u2014 required for login/auth callbacks to work. Use your server's address and the mapped port, e.g. http://YOUR_SERVER_IP:3000 (or your reverse-proxy HTTPS URL if you use one).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SIGNUPS_ENABLED",
+      "key": "SIGNUPS_ENABLED",
+      "value": "",
+      "description": "Registration policy. Leave EMPTY (recommended): the first account registers freely and becomes admin, then new accounts require a single-use invite link (Settings &gt; Invites). Set to true to open registration to anyone, or false to close it completely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional. Anthropic API key \u2014 enables AI features: health summaries, natural-language health queries, medication interaction checks and lab/vaccine PDF parsing. AI features are hidden when unset.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOOGLE_CLIENT_ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Google OAuth client ID \u2014 enables the 'Sign in with Google' button. REQUIRES serving over HTTPS on a real hostname (reverse proxy or tunnel): Google rejects http:// and LAN-IP redirect URIs, so this will NOT work on a bare 192.168.x.x address. In the Google Cloud Console, add this authorized redirect URI: APP_URL/api/auth/callback/google (email/password login works without any of this).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_CLIENT_SECRET",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Google OAuth client secret (pairs with GOOGLE_CLIENT_ID).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OURA_CLIENT_ID",
+      "key": "OURA_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Oura OAuth client ID \u2014 enables Oura Ring sync (sleep, heart rate, activity). In the Oura developer portal, set the redirect URI to: APP_URL/api/oura/callback",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OURA_CLIENT_SECRET",
+      "key": "OURA_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Oura OAuth client secret (pairs with OURA_CLIENT_ID).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AUTH_SECRET",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Advanced. Session signing secret. Leave empty \u2014 one is auto-generated into /data/keys on first start. Set only if you want to manage it yourself.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ENCRYPTION_KEY",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "Advanced. Key used to encrypt stored OAuth tokens (Oura). Leave empty \u2014 one is auto-generated into /data/keys on first start. Set only if you want to manage it yourself.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns files under /data (Unraid default: 99 / nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns files under /data (Unraid default: 100 / users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container time zone, e.g. America/New_York.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,84 @@
+{
+  "name": "tor-relay",
+  "repo": "mitchellthompkins/tor-relay:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/mitchellthompkins/tor-relay/general",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9001]",
+  "icon": "https://github.com/MitchellThompkins/unraid-templates/blob/main/assets/tor_icon.png?raw=true",
+  "project": "https://github.com/MitchellThompkins/tor-relay/tree/master",
+  "description": "This allows a tor to act as a relay on your Unraid system. It does NOT allow it to act as an exit node. It automatically enables account bandwidth tracking to prevent from using too much network bandwidth. These are the container variables which can be modified: IPV4_ONLY OR_PORT DIR_PORT RELAY_BANDWIDTH_RATE RELAY_BANDWIDTH_BURST ACCOUNTING_MAX ACCOUNTING_START NICKNAME CONTACT_INFO A few defaults are pre-set, otherwise they are set by the container itself. Two manual steps are required, in addition to one highly recommended configuration: 1. (Step1) Users must create a data/ folder somewhere on their Unraid system, by default it is expected that this is at /mnt/user/appdata/tor-relay/data/ 2. (Step2) The root user must change the folder permissions to that of the unprivileged tor user. This is required for tor container to create a .tor folder to track bandwidth stats between reboots. 3. (Configuration) Assign this container a static ip on the network, and forward the ports for OR_PORT and DIR_PORT to that static ip. These two manual steps from above are: mkdir -p /mnt/user/appdata/tor-relay/data/ sudo chown 100:100 /mnt/user/appdata/tor-relay/data/ The port forwarding configuration must be configured at the router.",
+  "paths": [
+    {
+      "name": "Server data directory",
+      "host": "/mnt/cache/appdata/tor-relay/data/",
+      "container": "/var/lib/tor/",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "OR Port",
+      "host": "9001",
+      "container": "9001",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DIR Port",
+      "host": "9030",
+      "container": "9030",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NICKNAME",
+      "key": "NICKNAME",
+      "value": "HelloWorldItsMe",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACCOUNTING_MAX",
+      "key": "ACCOUNTING_MAX",
+      "value": "320 GBytes",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RELAY_BANDWIDTH_RATE",
+      "key": "RELAY_BANDWIDTH_RATE",
+      "value": "512 KBytes",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RELAY_BANDWIDTH_BURST",
+      "key": "RELAY_BANDWIDTH_BURST",
+      "value": "1024 KBytes",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

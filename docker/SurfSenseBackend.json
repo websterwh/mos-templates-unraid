@@ -1,0 +1,371 @@
+{
+  "name": "SurfSense---Backend",
+  "repo": "ghcr.io/modsetter/surfsense_backend:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/modsetter/surfsense_backend",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/surfsense-icon.png",
+  "project": "https://www.surfsense.net/",
+  "description": "Open Source Alternative to NotebookLM / Perplexity / Glean, connected to external sources such as search engines (Tavily, Linkup), Slack, Linear, Notion, YouTube, GitHub, Discord and more. This is the backend container.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/surfsense/backend/data",
+      "container": "/app",
+      "mode": "rw",
+      "description": "Path to store app data. Must match Worker",
+      "required": true
+    },
+    {
+      "name": "Temp Data",
+      "host": "/mnt/cache/appdata/surfsense/shared/tmp",
+      "container": "/tmp",
+      "mode": "rw",
+      "description": "Path to store temporary data. Must be shared between containers.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "3001",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database - URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql+asyncpg://USERNAME:PASSWORD@IP_ADDRESS:5432/surfsense",
+      "description": "URL of the PostgreSQL database, including port and credentials",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "JWT Secret key for authentication (should be a secure random string)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Frontend URL",
+      "key": "NEXT_FRONTEND_URL",
+      "value": "http://MY_IP_ADDRESS:3000",
+      "description": "URL of the frontend service, including port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication - Type",
+      "key": "AUTH_TYPE",
+      "value": "LOCAL|GOOGLE",
+      "description": "Authentication type (Google OAuth or local email/password)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication - Google Client ID",
+      "key": "GOOGLE_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth Client ID. Required if AUTH_TYPE is set to GOOGLE.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication - Google Client Secret",
+      "key": "GOOGLE_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Google OAuth Client Secret. Required if AUTH_TYPE is set to GOOGLE.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google - Calendar Redirect URI",
+      "key": "GOOGLE_CALENDAR_REDIRECT_URI",
+      "value": "http://MY_IP_ADDRESS:8000/api/v1/auth/google/calendar/connector/callback",
+      "description": "Redirect URI for Google Calendar OAuth. Must match the one set in Google Cloud Console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google - Gmail Redirect URI",
+      "key": "GOOGLE_GMAIL_REDIRECT_URI",
+      "value": "http://MY_IP_ADDRESS:8000/api/v1/auth/google/gmail/connector/callback",
+      "description": "Redirect URI for Google Gmail OAuth. Must match the one set in Google Cloud Console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AirTable - Client ID",
+      "key": "AIRTABLE_CLIENT_ID",
+      "value": "",
+      "description": "AirTable OAuth Client ID. Required if using AirTable connector.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AirTable - Client Secret",
+      "key": "AIRTABLE_CLIENT_SECRET",
+      "value": "",
+      "description": "AirTable OAuth Client Secret. Required if using AirTable connector.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AirTable - Redirect URI",
+      "key": "AIRTABLE_REDIRECT_URI",
+      "value": "http://MY_IP_ADDRESS:8000/api/v1/auth/airtable/connector/callback",
+      "description": "Redirect URI for AirTable OAuth. Must match the one set in AirTable developer console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Models - Embedder Model",
+      "key": "EMBEDDING_MODEL",
+      "value": "mixedbread-ai/mxbai-embed-large-v1",
+      "description": "Name of the embedding model (e.g., openai://text-embedding-ada-002, anthropic://claude-v1, mixedbread-ai/mxbai-embed-large-v1)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Models - Reranker Model",
+      "key": "RERANKERS_MODEL_NAME",
+      "value": "ms-marco-MiniLM-L-12-v2",
+      "description": "Name of the reranker model (e.g., ms-marco-MiniLM-L-12-v2)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Models - Reranker Model Type",
+      "key": "RERANKERS_MODEL_TYPE",
+      "value": "flashrank",
+      "description": "Type of reranker model (e.g., flashrank)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Text To Speech Service",
+      "key": "TTS_SERVICE",
+      "value": "openai/tts-1",
+      "description": "Text-to-Speech API provider for Podcasts (e.g., openai/tts-1, azure/neural, vertex_ai/). See documentation: https://docs.litellm.ai/docs/text_to_speech#supported-providers",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Text To Speech API Base",
+      "key": "TTS_SERVICE_API_BASE",
+      "value": "",
+      "description": "Base URL for the Text To Speech API. Optional, leave empty to use default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Text To Speech API Key",
+      "key": "TTS_SERVICE_API_KEY",
+      "value": "",
+      "description": "API Key for the Text To Speech API provider. Required if the provider needs authentication.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LiteLLM - Speech To Text Service",
+      "key": "STT_SERVICE",
+      "value": "openai/whisper-1",
+      "description": "Speech-to-Text API provider for Podcasts (e.g., openai/whisper-1, local). See documentation: https://docs.litellm.ai/docs/audio_transcription#supported-providers",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Speech To Text Local Model",
+      "key": "LOCAL_STT_MODEL",
+      "value": "base|tiny|small|medium|large-v3",
+      "description": "Local Whisper model size to use if STT_SERVICE is set to local.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Speech To Text API Base",
+      "key": "STT_SERVICE_API_BASE",
+      "value": "",
+      "description": "Base URL for the Speech To Text API. Optional, leave empty to use default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LiteLLM - Speech To Text API Key",
+      "key": "STT_SERVICE_API_KEY",
+      "value": "",
+      "description": "API Key for the Speech To Text API provider. Required if the provider needs authentication.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Firecrawl - API Key",
+      "key": "FIRECRAWL_API_KEY",
+      "value": "",
+      "description": "API key for Firecrawl service for web crawling",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ETL Service",
+      "key": "ETL_SERVICE",
+      "value": "UNSTRUCTURED|LLAMACLOUD|DOCLING",
+      "description": "Document parsing service",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Unstructured - API Key",
+      "key": "UNSTRUCTURED_API_KEY",
+      "value": "",
+      "description": "API key for Unstructured.io service for document parsing. Required if ETL Service is set to UNSTRUCTURED",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LlamaCloud - API Key",
+      "key": "LLAMA_CLOUD_API_KEY",
+      "value": "",
+      "description": "API key for LlamaCloud service for document parsing. Required if ETL Service is set to LLAMACLOUD",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Redis - URL",
+      "key": "CELERY_BROKER_URL",
+      "value": "redis://MY_IP_ADDRESS:6379/0",
+      "description": "URL of the Redis instance used as Celery broker, including port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis - Results URL",
+      "key": "CELERY_RESULT_BACKEND",
+      "value": "redis://MY_IP_ADDRESS:6379/0",
+      "description": "URL of the Redis instance used as Celery result backend, including port. Must match CELERY_BROKER_URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Electric - User",
+      "key": "ELECTRIC_DB_USER",
+      "value": "electric",
+      "description": "Electric database user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Electric - Password",
+      "key": "ELECTRIC_DB_PASSWORD",
+      "value": "electric_password",
+      "description": "Electric database password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LangSmith - Tracing",
+      "key": "LANGSMITH_TRACING",
+      "value": "false",
+      "description": "Enable LangSmith tracing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LangSmith - Endpoint",
+      "key": "LANGSMITH_ENDPOINT",
+      "value": "https://api.smith.langchain.com",
+      "description": "LangSmith API endpoint. Default is https://api.smith.langchain.com, change only if you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LangSmith - Project Name",
+      "key": "LANGSMITH_PROJECT",
+      "value": "",
+      "description": "LangSmith project name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LangSmith - API Key",
+      "key": "LANGSMITH_API_KEY",
+      "value": "",
+      "description": "API key for LangSmith tracing. Required if LANGSMITH_TRACING is enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Uvicorn - Host",
+      "key": "UVICORN_HOST",
+      "value": "0.0.0.0",
+      "description": "Uvicorn host address. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uvicorn - Port",
+      "key": "UVICORN_PORT",
+      "value": "8000",
+      "description": "Uvicorn port. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uvicorn - Log Level",
+      "key": "UVICORN_LOG_LEVEL",
+      "value": "info",
+      "description": "Uvicorn log level. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uvicorn - Loop",
+      "key": "UVICORN_LOOP",
+      "value": "asyncio",
+      "description": "Uvicorn loop type. Default is asyncio, change only if you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Python Path",
+      "key": "PYTHONPATH",
+      "value": "/app",
+      "description": "Internal Python path for the application. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Unstructured Has Patched Loop",
+      "key": "UNSTRUCTURED_HAS_PATCHED_LOOP",
+      "value": "1",
+      "description": "Unstructured library patched loop. Default is 1, change only if you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LangChain - Tracing V2",
+      "key": "LANGCHAIN_TRACING_V2",
+      "value": "false",
+      "description": "Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

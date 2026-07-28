@@ -1,0 +1,155 @@
+{
+  "name": "linearr",
+  "repo": "ghcr.io/gillberg1111/linearr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/gillberg1111/linearr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5005]/",
+  "icon": "https://raw.githubusercontent.com/gillberg1111/linearr/main/images/icon-256.png",
+  "project": "https://github.com/gillberg1111/linearr",
+  "description": "Linearr \u2014 the missing show sequencer for Plex, Jellyfin, and Emby. Automated round-robin rotation and chronological crossover alignment for your episodes (and their movies). Configure Plex, Jellyfin, Emby, or any combination. With multiple backends configured, new playlists get per-backend checkboxes; targeted servers are mirrored independently using each server's own library state. Two sort modes per playlist: - Rotation: round-robin across shows (Show A S01E01, Show B S01E01, Show A S01E02, ...). - Air Date: chronological across every show. Multi-part crossovers stay aligned via \"Part 1\" / \"Pt. 2\" / \"(N)\" title parsing \u2014 perfect for \"evening TV\" mixes of the three Law and Order series, the Chicago shows, etc. Pick season ranges per show, opt in to specials, optionally include associated movies (auto-detected from your movie libraries by title match \u2014 e.g. \"Psych: The Movie\" attaches to Psych). Optional \"Unwatched only\" filter excludes episodes you've already watched. Live AJAX preview means every change updates the episode list immediately \u2014 no page reloads. Flip any playlist between sort modes or toggle the unwatched filter any time; already-watched episodes stay put, the future portion rebuilds. Edits show up as native playlists in every client (Plex AND Jellyfin). Background scheduler prunes watched episodes (keeping the last few around if you fell asleep). Safety: this app NEVER deletes media files or library items from Plex or Jellyfin \u2014 only playlists.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/linearr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent state (SQLite DB + stable device id).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5005",
+      "container": "5005",
+      "protocol": "tcp",
+      "description": "Port for the rotator web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PLEX_URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Plex server URL (use the LAN IP, not plex.tv). Leave blank to disable Plex. Example: http://192.168.1.100:32400",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "X-Plex-Token. See https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/ Leave blank to disable Plex.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JELLYFIN_URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin server URL (LAN IP). Example: http://192.168.1.100:8096 Leave blank to disable Jellyfin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JELLYFIN_USERNAME",
+      "key": "JELLYFIN_USERNAME",
+      "value": "",
+      "description": "Jellyfin username. (Linearr authenticates as a user because the API-key path is broken on the playlist endpoints we need.) Leave blank to disable Jellyfin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JELLYFIN_PASSWORD",
+      "key": "JELLYFIN_PASSWORD",
+      "value": "",
+      "description": "Jellyfin password. Held in memory only; the resulting access token is never written to disk. Leave blank to disable Jellyfin.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EMBY_URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Emby server URL (LAN IP). Example: http://192.168.1.100:8096 Leave blank to disable Emby.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMBY_API_KEY",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Emby API key. Create one in Emby Dashboard \u2192 Advanced \u2192 API Keys. Leave blank to disable Emby.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EMBY_USERNAME",
+      "key": "EMBY_USERNAME",
+      "value": "",
+      "description": "Emby username (optional). Determines which user owns managed playlists. Leave blank to disable Emby.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WATCHED_KEEP",
+      "key": "WATCHED_KEEP",
+      "value": "2",
+      "description": "How many recently-watched episodes to leave in each playlist as a fall-asleep buffer. Older watched episodes are pruned.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRUNE_INTERVAL_MINUTES",
+      "key": "PRUNE_INTERVAL_MINUTES",
+      "value": "10",
+      "description": "How often the background prune + auto-sync sweep runs, in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FRANCHISE_REFRESH_DAYS",
+      "key": "FRANCHISE_REFRESH_DAYS",
+      "value": "7",
+      "description": "How often franchise definitions are refreshed from upstream sources, in days (default 7 = weekly).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_SYNC",
+      "key": "AUTO_SYNC",
+      "value": "true",
+      "description": "When true (default), the scheduler also splices newly-aired episodes and new seasons into managed playlists every PRUNE_INTERVAL_MINUTES. Set false to lock playlists until you edit them manually.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TV_LIBRARIES",
+      "key": "TV_LIBRARIES",
+      "value": "",
+      "description": "Comma-separated TV library names to source shows from (e.g. 'TV Shows,Dropout TV'). Leave blank for all TV libraries on every configured backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLASK_SECRET",
+      "key": "FLASK_SECRET",
+      "value": "",
+      "description": "Optional. Random string for Flask session cookies. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

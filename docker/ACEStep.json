@@ -1,0 +1,131 @@
+{
+  "name": "ACE-Step",
+  "repo": "spaceinvaderone/ace-step:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/spaceinvaderone/ace-step/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --user root",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7860]/",
+  "icon": "https://acestep.io/favicon-256.ico",
+  "project": "https://github.com/ace-step/ACE-Step-1.5",
+  "description": "ACE-Step 1.5 - AI Music Generation. Generate full songs with vocals, instrumentals, and lyrics using a Diffusion Transformer. Supports text-to-music, remixing, cover generation, and LoRA fine-tuning. Requires NVIDIA GPU with CUDA support. FIRST RUN: Models (~10GB) will be downloaded automatically on first start. This may take several minutes depending on your internet speed. Subsequent starts are instant. SETTINGS GUIDE: DiT Model - The core music generation model. - turbo (default): Fast generation in 8 steps. Best for most users. - turbo-rl: Turbo with reinforcement learning refinement. - sft: Higher quality, 50 steps (slower). - base: 50 steps with all features (extract, lego, complete). Language Model - Controls lyrics understanding and chain-of-thought reasoning. - 1.7B (default): Best balance of quality and VRAM. Recommended for 12-16GB GPUs. - 0.6B: For GPUs with less than 12GB VRAM. - 4B: Highest quality lyrics understanding. Requires 24GB+ VRAM. Enable LLM - Whether to load the language model. - auto (default): Detects based on your GPU VRAM. - false: DiT-only mode. Faster startup, uses less VRAM, but disables thinking/sample features. - true: Force enable. LM Backend - Engine for the language model. - pt (default): PyTorch native. Works on all GPUs including RTX 50-series. - vllm: Faster inference but may crash on RTX 50-series (Blackwell) GPUs. CPU Offloading - Moves models between GPU and CPU to save VRAM. - auto (default): Offloads if GPU has less than 20GB VRAM. - false: Keep all models on GPU. Faster generation but uses ~12GB VRAM at idle. - true: Always offload. Slower but frees VRAM for other containers. UI Language - Web interface language: English, Chinese, or Japanese.",
+  "paths": [
+    {
+      "name": "Model Checkpoints",
+      "host": "/mnt/cache/appdata/ace-step/checkpoints",
+      "container": "/app/checkpoints",
+      "mode": "rw",
+      "description": "AI model files (~10GB, auto-downloaded on first run)",
+      "required": true
+    },
+    {
+      "name": "Generated Music",
+      "host": "/mnt/cache/appdata/ace-step/output",
+      "container": "/app/gradio_outputs",
+      "mode": "rw",
+      "description": "Generated music files output directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7860",
+      "container": "7860",
+      "protocol": "tcp",
+      "description": "Gradio Web UI and REST API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DiT Model",
+      "key": "ACESTEP_CONFIG_PATH",
+      "value": "acestep-v15-turbo",
+      "description": "Diffusion model variant. Turbo=8 steps (fast), SFT=50 steps (quality), Base=50 steps (all features including extract/lego/complete).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Language Model",
+      "key": "ACESTEP_LM_MODEL_PATH",
+      "value": "acestep-5Hz-lm-1.7B",
+      "description": "Chain-of-thought LM size. 1.7B recommended for 16GB VRAM. 4B needs 24GB+. 0.6B for low VRAM.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable LLM",
+      "key": "ACESTEP_INIT_LLM",
+      "value": "auto",
+      "description": "Auto detects based on GPU VRAM. Set false for DiT-only mode (faster, no thinking/sample features).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LM Backend",
+      "key": "ACESTEP_LM_BACKEND",
+      "value": "pt",
+      "description": "pt (PyTorch native) is recommended for RTX 50-series. vllm (nano-vllm) is faster but may segfault on Blackwell GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UI Language",
+      "key": "LANGUAGE",
+      "value": "en",
+      "description": "Web interface language",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CPU Offloading",
+      "key": "ACESTEP_OFFLOAD_CPU",
+      "value": "auto",
+      "description": "auto = ACE-Step decides based on VRAM (offloads below 20GB). false = keep all models on GPU (faster, needs ~12GB idle VRAM). true = offload models to CPU between steps (slower, saves VRAM for shared GPU use).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Port (internal)",
+      "key": "PORT",
+      "value": "7860",
+      "description": "Internal port for Gradio server (should match the port mapping above)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Size",
+      "key": "ACESTEP_BATCH_SIZE",
+      "value": "",
+      "description": "Default generation batch size (1-8). Leave empty for auto (min(2, GPU max)).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CUDA Visible Devices",
+      "key": "CUDA_VISIBLE_DEVICES",
+      "value": "0",
+      "description": "Which GPU(s) to use. 0 = first GPU.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Source",
+      "key": "ACESTEP_DOWNLOAD_SOURCE",
+      "value": "auto",
+      "description": "Model download source. Auto tries HuggingFace first, falls back to ModelScope.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

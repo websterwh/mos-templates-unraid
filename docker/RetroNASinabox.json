@@ -1,0 +1,89 @@
+{
+  "name": "RetroNAS_inabox",
+  "repo": "spaceinvaderone/retronas_inabox:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/SpaceinvaderOne/RetroNASinabox",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://github.com/SpaceinvaderOne/RetroNASinabox/raw/main/RetroNAS_Icon.png",
+  "project": "https://github.com/danmons/retronas",
+  "description": "This container will fully install a RetroNAS VM into the VMs tab of your server. It downloads an a vDisk image, verifies it with a checksum before creating a vm template and installing the VM for you. What you choose in the container varaibles will reflect to the vm. For most people these dont need to be changed from the defaults. If you need to change the locations in the container this is what each will do. VM Share on Server: This should be set to your VM share - default on Unraid is /mnt/user/domains - the vm will be installed here RetroNAS data share This should point to a share you want RetronNAS to use. All your roms etc will be here. Best have an empty share and move what you need there later. default is retronas. The container will connect the VM using virtiofs to this share. So the share doent have to be \"exported\" by Unraid for retroNAS to use it (more secure) Name to call VM: Easy -- The name you want the VM to be called default id RetroNAS but you can change it The container then will do the rest. It will create an xml file for the vm based on the above and install the vm straight into the server. So once run goto the VMs tab and you will see it there. Start it up and confiure retronas in vnc window and configure (see my video how) default username and password is retronas (yes you can change them later! ) After logging in type retronas to configure your RetroNAS server. Have fun :) The container doesnt need to be kept running. It is just an install tool. The container has no webUI so to see what its doing view the container log. ** This container cant translate the location of an unassigned disk across to the vm template. So all locations choosen must be on the array or pool device.",
+  "paths": [
+    {
+      "name": "VM Share on Server",
+      "host": "/mnt/cache/domains/",
+      "container": "/retronas_vm_location",
+      "mode": "rw",
+      "description": "This should be the share in which you store your VM images. Default is /mnt/user/domains",
+      "required": true
+    },
+    {
+      "name": "RetroNAS data share",
+      "host": "/mnt/cache/retronas/",
+      "container": "/retronas_virtiofs_location",
+      "mode": "rw",
+      "description": "The share that you have created to store all RetroNAS roms etc Default /mnt/user/retronas",
+      "required": true
+    },
+    {
+      "name": "access libvirt daemon",
+      "host": "/var/run/libvirt",
+      "container": "/var/run/libvirt",
+      "mode": "rw",
+      "description": "to access the libvirt daemon running on the host",
+      "required": true
+    },
+    {
+      "name": "temp",
+      "host": "/tmp",
+      "container": "/tmp",
+      "mode": "rw",
+      "description": "only used for xml so vm can be defined",
+      "required": true
+    },
+    {
+      "name": "Location on Unraid which stores vm icons",
+      "host": "/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/",
+      "container": "/unraid_vm_icons",
+      "mode": "rw",
+      "description": "dont change",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Name to call VM",
+      "key": "vm_name",
+      "value": "RetroNAS",
+      "description": "Your VM will be created with this name. Default is RetroNAS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Replace",
+      "key": "REPLACE",
+      "value": "no",
+      "description": "No - If a vdisk exists in the location container will exit. Yes -If a vdisk exists in the location container will back it up first then install new RetroNAS VM",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "container",
+      "key": "container",
+      "value": "yes",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

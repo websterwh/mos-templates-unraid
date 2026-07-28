@@ -1,0 +1,321 @@
+{
+  "name": "Maintainerr-Overlay-Helperr",
+  "repo": "gsariev/maintainerr-overlay-helperr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/gsariev/maintainerr-overlay-helperr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/gssariev/maintainerr-overlay-helperr/refs/heads/main/img/logo.png",
+  "project": "https://github.com/gssariev/maintainerr-overlay-helperr",
+  "description": "Works in combination with Maintainerr, adding a Netflix-style \"leaving soon\" overlay on top of your media. It integrates with Plex and Maintainerr to download posters, add overlay text, and upload the modified posters back to Plex. It runs periodically to ensure posters are updated with the correct information.",
+  "paths": [
+    {
+      "name": "Images Path",
+      "host": "/mnt/cache/appdata/maintainerr_overlay_helperr/images",
+      "container": "/images",
+      "mode": "rw",
+      "description": "Path to save images",
+      "required": true
+    },
+    {
+      "name": "Fonts Path",
+      "host": "/mnt/cache/appdata/maintainerr_overlay_helperr/fonts",
+      "container": "/fonts",
+      "mode": "rw",
+      "description": "Path to the font file",
+      "required": true
+    },
+    {
+      "name": "Plex Metadata Path",
+      "host": "",
+      "container": "/plexmeta",
+      "mode": "rw",
+      "description": "Path to Plex metadata (usually Library/Application Support/Plex Media Server/Metadata inside Plex root folder)",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Plex - URL",
+      "key": "PLEX_URL",
+      "value": "http://plex:32400",
+      "description": "URL to your Plex server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex - Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Plex token for authentication",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Maintainerr - URL",
+      "key": "MAINTAINERR_URL",
+      "value": "http://maintainerr:6246",
+      "description": "URL to your Maintainerr server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Font Color",
+      "key": "FONT_COLOR",
+      "value": "#FFFFFF",
+      "description": "Color of the font in hex format",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Font Size",
+      "key": "FONT_SIZE",
+      "value": "3.2",
+      "description": "Size of the font",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Background Color",
+      "key": "BACK_COLOR",
+      "value": "#B20710",
+      "description": "Background color of the image in hex format",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Padding",
+      "key": "PADDING",
+      "value": "1.2",
+      "description": "Padding around the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Radius",
+      "key": "BACK_RADIUS",
+      "value": "0",
+      "description": "Radius of the image corners",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Horizontal Offset",
+      "key": "HORIZONTAL_OFFSET",
+      "value": "0",
+      "description": "Horizontal offset of the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Vertical Offset",
+      "key": "VERTICAL_OFFSET",
+      "value": "3",
+      "description": "Vertical offset of the image",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image - Horizontal Alignment",
+      "key": "HORIZONTAL_ALIGN",
+      "value": "center|left|right",
+      "description": "Horizontal alignment of the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Vertical Alignment",
+      "key": "VERTICAL_ALIGN",
+      "value": "top|middle|bottom",
+      "description": "Vertical alignment of the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Reset Overlay",
+      "key": "RESET_OVERLAY",
+      "value": "false|true",
+      "description": "Reset the overlay on the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Reapply Overlay",
+      "key": "REAPPLY_OVERLAY",
+      "value": "true|false",
+      "description": "Reapply the overlay on the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Date Format",
+      "key": "DATE_FORMAT",
+      "value": "MMM d|d MMM",
+      "description": "Date format for the image",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Use Date Suffix",
+      "key": "ENABLE_DAY_SUFFIX",
+      "value": "false|true",
+      "description": "Enable or disable the use of date suffixes (e.g. January 1 vs January 1st)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Use Days Left",
+      "key": "USE_DAYS",
+      "value": "true|false",
+      "description": "Enable to use days left; disable to use calculated date",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Date All Capitalized",
+      "key": "ENABLE_UPPERCASE",
+      "value": "false|true",
+      "description": "Enable or disable all capitalized date",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Image - Overlay Text",
+      "key": "OVERLAY_TEXT",
+      "value": "Leaving",
+      "description": "Text to display next to the date",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Days Text - Today",
+      "key": "TEXT_TODAY",
+      "value": "Last chance to watch",
+      "description": "Text to display for items leaving today when Use Days Left is enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Days Text - One Day Left",
+      "key": "TEXT_DAY",
+      "value": "Gone tomorrow",
+      "description": "Text to display for items leaving in 1 day when Use Days Left is enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Days Text - Multiple Days Left",
+      "key": "TEXT_DAYS",
+      "value": "Gone in {0} days",
+      "description": "Text to display for items leaving in multiple days when Use Days Left is enabled",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Collections - Order",
+      "key": "PLEX_COLLECTION_ORDER",
+      "value": "asc|desc",
+      "description": "Order of collections in Plex",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Collections - Names",
+      "key": "PROCESS_COLLECTIONS",
+      "value": "Movies Leaving Soon, TV Programmes Leaving Soon",
+      "description": "Comma-separated list of names of the collections to be reordered",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Language",
+      "key": "LANGUAGE",
+      "value": "en-US",
+      "description": "Language for the overlay text",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cron Schedule",
+      "key": "CRON_SCHEDULE",
+      "value": "0 */8 * * *",
+      "description": "Cron schedule to run the script (Now powered by Supercronic)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Run On Creation",
+      "key": "RUN_ON_CREATION",
+      "value": "true|false",
+      "description": "Run the script immediately on Docker boot",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Image Save Path",
+      "key": "IMAGE_SAVE_PATH",
+      "value": "/images",
+      "description": "Internal path to save images. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Original Image Save Path",
+      "key": "ORIGINAL_IMAGE_PATH",
+      "value": "/images/originals",
+      "description": "Internal path to save original images. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Temporary Image Save Path",
+      "key": "TEMP_IMAGE_PATH",
+      "value": "/images/temp",
+      "description": "Internal path to save temporary images. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Font Path",
+      "key": "FONT_PATH",
+      "value": "/fonts/font.ttf",
+      "description": "Internal path to saved font file. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the container (Default 99 for 'nobody')",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the container (Default 100 for 'users')",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "UMASK for file permissions",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

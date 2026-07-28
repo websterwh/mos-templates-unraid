@@ -1,0 +1,251 @@
+{
+  "name": "calibre-web-automated-book-downloader",
+  "repo": "ghcr.io/calibrain/calibre-web-automated-book-downloader:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/calibrain/calibre-web-automated-book-downloader",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8084]",
+  "icon": "https://raw.githubusercontent.com/calibrain/calibre-web-automated-book-downloader/refs/heads/main/static/media/favicon.ico",
+  "project": "https://github.com/calibrain/calibre-web-automated-book-downloader/",
+  "description": "This template was replaced by Shelfmark. Please migrate to shelfmark. An intuitive web interface for searching and requesting book downloads, designed to work seamlessly with Calibre-Web-Automated. This project streamlines the process of downloading books and preparing them for integration into your Calibre library. You must have already setup Calibre-Web-Automated for this to work. It is an add-on to it. The docker CloudFlareBypassForScrapping isn't needed anymore and can be remove \u2728 Features \ud83c\udf10 User-friendly web interface for book search and download \ud83d\udd04 Automated download to your specified ingest folder \ud83d\udd0c Seamless integration with Calibre-Web-Automated \ud83d\udcd6 Support for multiple book formats (epub, mobi, azw3, fb2, djvu, cbz, cbr) \ud83d\udee1\ufe0f Cloudflare bypass capability for reliable downloads \ud83d\udc33 Docker-based deployment for quick setup Note that PDF are NOT supported at the moment (they do not get ingested by CWA, but if you want to just download them locally, you can add pdf to the SUPPORTED_FORMATS env If you are a donator on AA, you can use your Key in AA_DONATOR_API_KEY to speed up downloads and bypass the wait times. If disabling the cloudflare bypass, you will be using alternative download hosts, such as libgen or z-lib, but they usually have a delay before getting the more recent books and their collection is not as big as aa's. But this setting should work for the majority of books. CLOUDFLARE_PROXY_URL is ignored if USE_CF_BYPASS is set to false",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/calibre-web-automated-book-downloader/",
+      "container": "/var/log/cwa-book-downloader",
+      "mode": "rw",
+      "description": "Appdata folder",
+      "required": true
+    },
+    {
+      "name": "Calibre Web Automated Import Folder",
+      "host": "/mnt/cache/calibre_library/import/",
+      "container": "/cwa-book-ingest",
+      "mode": "rw",
+      "description": "Mount should align with your Calibre-Web-Automated ingest folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "FLASK PORT",
+      "host": "8084",
+      "container": "8084",
+      "protocol": "tcp",
+      "description": "Default: 8084",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Container External Port",
+      "key": "PORT",
+      "value": "8084",
+      "description": "Container external port. Follow FLASK PORT. Default: 8084",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "FLASK_PORT",
+      "key": "FLASK_PORT",
+      "value": "8084",
+      "description": "FLASK port. If you change this, you need to recreate the",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "FLASK_HOST",
+      "key": "FLASK_HOST",
+      "value": "0.0.0.0",
+      "description": "Web interface binding. Default: 0.0.0.0",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Download dir (host)",
+      "key": "INGEST_DIR",
+      "value": "/cwa-book-ingest",
+      "description": "Download directory inside the docker. Default: /cwa-book-ingest. If you change this, you must change the path for 'Calibre Web Automated Import Folder'",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USE_CF_BYPASS",
+      "key": "USE_CF_BYPASS",
+      "value": "false",
+      "description": "Disable CF bypass and use alternative links instead. Default: true",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAX_RETRY",
+      "key": "MAX_RETRY",
+      "value": "3",
+      "description": "Maximum download retry attempts. Default: 3",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_SLEEP",
+      "key": "DEFAULT_SLEEP",
+      "value": "5",
+      "description": "Retry delay (seconds). Default: 5",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAIN_LOOP_SLEEP_TIME",
+      "key": "MAIN_LOOP_SLEEP_TIME",
+      "value": "5",
+      "description": "Processing loop delay (seconds)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUPPORTED_FORMATS",
+      "key": "SUPPORTED_FORMATS",
+      "value": "epub,mobi,azw3,fb2,djvu,cbz,cbr",
+      "description": "Supported book formats. PDF is currently not supported. Default: epub,mobi,azw3,fb2,djvu,cbz,cbr",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BOOK_LANGUAGE",
+      "key": "BOOK_LANGUAGE",
+      "value": "en",
+      "description": "Preferred language for books. Default: en",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Calibre-Web's database",
+      "key": "CWA_DB_PATH",
+      "value": "",
+      "description": "Used to enable authentication to the web gui using the same user/pass as calibre. Remove to disable authentication. MUST NOT BE EMPTY",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AA_BASE_URL",
+      "key": "AA_BASE_URL",
+      "value": "https://annas-archive.org",
+      "description": "Base URL of Annas-Archive (could be changed for a proxy). Default: https://annas-archive.org",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AA_DONATOR_KEY",
+      "key": "AA_DONATOR_KEY",
+      "value": "",
+      "description": "Optional Donator key for Anna's Archive fast download API",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Book Title",
+      "key": "USE_BOOK_TITLE",
+      "value": "false",
+      "description": "Use book title as filename instead of ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUG",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Debug mode toggle. Default: false",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AA Additional URL",
+      "key": "AA_ADDITIONAL_URLS",
+      "value": "",
+      "description": "Proxy URLs for AA, comma separated. Default empty",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy",
+      "key": "HTTP_PROXY",
+      "value": "",
+      "description": "HTTP PRoxy URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Proxy",
+      "key": "HTTPS_PROXY",
+      "value": "",
+      "description": "HTTPS proxy URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom DNS",
+      "key": "CUSTOM_DNS",
+      "value": "",
+      "description": "Custom DNS IP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE DOH",
+      "key": "USE_DOH",
+      "value": "false",
+      "description": "Use DNS over HTTPS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Script",
+      "key": "CUSTOM_SCRIPT",
+      "value": "",
+      "description": "Path to an executable script that runs after each download before the file is moved to ingest directory",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "LOG_LEVEL",
+      "description": "DEBUG | INFO | WARNING | ERROR | CRITICAL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logging",
+      "key": "ENABLE_LOGGING",
+      "value": "true",
+      "description": "Enable log file in /var/log/cwa-book-downloader",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

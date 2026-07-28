@@ -1,0 +1,115 @@
+{
+  "name": "actual-mcp-server",
+  "repo": "ghcr.io/agigante80/actual-mcp-server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/agigante80/actual-mcp-server/pkgs/container/actual-mcp-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3600]/health",
+  "icon": "https://raw.githubusercontent.com/agigante80/actual-mcp-server/main/unraid/actual-mcp-icon-512.png",
+  "project": "https://github.com/agigante80/actual-mcp-server",
+  "description": "Model Context Protocol (MCP) server that connects AI assistants (LibreChat, LobeChat, Claude Desktop, Cursor) to your self-hosted Actual Budget instance, exposing 71 tools for conversational financial management over HTTP. Fill in the \"Actual server URL\", \"Actual server password\", and \"Actual server Sync ID\" below, and SET A STRONG \"MCP auth token\": a blank token disables all HTTP authentication and exposes your financial data unauthenticated on the LAN. See the project README.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/actual-mcp-server/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent data: the local copy of your Actual Budget data (SQLite) the server downloads to run queries against.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/actual-mcp-server/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Rotated application log files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / Health Port",
+      "host": "3600",
+      "container": "3600",
+      "protocol": "tcp",
+      "description": "MCP HTTP endpoint and the unauthenticated health/metrics endpoints (/http, /health, /metrics).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the service runs as. On Unraid use 99 (nobody) so it can write the appdata directories.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the service runs as. On Unraid use 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Madrid",
+      "description": "Container timezone used for log timestamps, e.g. America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP auth token",
+      "key": "MCP_SSE_AUTHORIZATION",
+      "value": "",
+      "description": "REQUIRED. The raw Bearer token clients must send. Generate with `openssl rand -hex 32`. A BLANK value disables all HTTP authentication and exposes your data unauthenticated on the LAN.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Actual server URL",
+      "key": "ACTUAL_SERVER_URL",
+      "value": "",
+      "description": "Your Actual Budget server URL, e.g. https://actual.example.com or http://192.168.1.50:5006.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Actual server password",
+      "key": "ACTUAL_PASSWORD",
+      "value": "",
+      "description": "Your Actual Budget server password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Actual server Sync ID",
+      "key": "ACTUAL_BUDGET_SYNC_ID",
+      "value": "",
+      "description": "The budget Sync ID (Actual Budget: open the budget, Settings, Show advanced settings, Sync ID).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js runtime environment. Leave as production unless debugging.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

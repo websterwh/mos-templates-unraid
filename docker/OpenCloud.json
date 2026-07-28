@@ -1,0 +1,163 @@
+{
+  "name": "OpenCloud",
+  "repo": "junkerderprovinz/opencloud:production",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/opencloud",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:9200]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/opencloud/icon.png?v=1",
+  "project": "https://opencloud.eu",
+  "description": "OpenCloud - a modern, self-hosted file sync and share platform (a lightweight OpenCloud/ownCloud-family server) - packaged as a genuine one-click Unraid app. The official OpenCloud image has no PUID/PGID support and needs a manual init step, so a fresh install normally fails with \"permission denied\". This wrapper fixes that: it runs the one-time init for you, heals the appdata permissions and runs as your chosen PUID/PGID (99/100 = nobody/users by default). What's pre-configured: \u2022 One-click: auto-runs 'opencloud init' on first boot, then the server - nothing to do on the console. \u2022 Permission heal: root-created appdata folders are handed to your PUID/PGID automatically. \u2022 Serves HTTPS itself on port 9200 (self-signed by default) - no reverse proxy required. \u2022 Two channels via the Repository tag: :production (default, stable) and :rolling (newest features). Getting started: \u2022 Set an Admin Password below - it is applied on the first start. Log in as user \"admin\". \u2022 FIRST START takes a moment: the container generates its config and a self-signed certificate. Wait for the \"OPENCLOUD IS READY\" banner in the container log, then open the WebUI. \u2022 Open the WebUI at https:// :9200 and accept the self-signed certificate once. Notes: \u2022 Use a FRESH, empty Data folder. Do NOT point Data at an old OpenCloud/oCIS data directory: the on-disk layout differs between versions and the storage backends (local vs S3) are not interchangeable, so the server crash-loops (symptom in the log: search 'cannot open index, metadata missing'). There is no in-place migration between storage backends - to keep old files, start fresh and re-upload them. \u2022 Rolling channel: change the Repository tag from ':production' to ':rolling' to track the newest OpenCloud builds. Keep your appdata backed up before switching. \u2022 Reverse proxy: if you terminate TLS in front of OpenCloud, set \"OpenCloud terminates TLS\" to 'false' (advanced) and set the Public URL to your external https URL (e.g. https://cloud.example.com). Then \"Allow self-signed TLS\" can be 'false'. Your proxy must connect to the container over plain HTTP on port 9200 (not HTTPS) once \"OpenCloud terminates TLS\" is 'false'. \u2022 PUID/PGID default to 99/100 (nobody/users on Unraid). S3 object storage (optional, advanced): \u2022 OpenCloud can store file BLOBS in any S3-compatible bucket (MinIO, AWS, Backblaze B2, Wasabi). Set \"S3 storage driver\" to 'decomposeds3' and fill the S3 endpoint / region / access key / secret key / bucket fields. Leave the driver blank for normal local storage. \u2022 IMPORTANT: only the file blobs go to S3. The file-tree METADATA always stays on the local Data volume - so that volume is required even with S3 and MUST be backed up. Losing it orphans your S3 objects (they are opaque IDs with no folder structure). \u2022 OpenCloud does NOT use a database (no MySQL/Postgres) - do not look for one. State lives in the local metadata tree plus an embedded message bus. How to get the S3 bucket + keys: \u2022 Bucket (MinIO): in the MinIO console click \"Create Bucket\" (top left), name it e.g. 'opencloud' - that is your bucket name. It must exist BEFORE first start; the container does not create it. \u2022 Keys (MinIO): the current MinIO Community Edition console has NO \"Access Keys\" page - only the object browser. Two ways to get an access/secret key: (a) EASIEST - just use your MinIO ROOT credentials directly: access key = MINIO_ROOT_USER, secret key = MINIO_ROOT_PASSWORD (the values you set on your MinIO container; check its Docker template). (b) CLEANER - create a dedicated, revocable service account with the mc CLI: run 'mc alias set my http://MINIO-IP:9000 ROOT-USER ROOT-PASS' then 'mc admin user svcacct add my ROOT-USER' - it prints a fresh Access Key + Secret Key. \u2022 Endpoint (MinIO): use the S3 API URL http://MINIO-IP:9000 (port 9000 - the API, not the 9001 web console) and region 'default'. \u2022 AWS S3 / Backblaze B2 / Wasabi: create a bucket in the provider console, then create an access key (AWS: IAM access key; B2/Wasabi: an application/API key). Use the provider's https endpoint and the bucket's region. \u2022 If uploads fail with a checksum error on a non-AWS endpoint, add STORAGE_USERS_DECOMPOSEDS3_PUT_OBJECT_DISABLE_CONTENT_SHA256=true as an extra variable. Source on GitHub: https://github.com/junkerderprovinz/opencloud This is an independent, community-maintained packaging of OpenCloud and is not affiliated with OpenCloud GmbH.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/opencloud/config",
+      "container": "/etc/opencloud",
+      "mode": "rw",
+      "description": "Persistent OpenCloud configuration (opencloud.yaml + generated secrets). Created and initialised on first start.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/opencloud/data",
+      "container": "/var/lib/opencloud",
+      "mode": "rw",
+      "description": "Persistent OpenCloud data: user files/blobs, the search index and the internal message bus (nats). With an S3 backend this still holds the file-tree metadata, so it is always required. This grows with your stored files - point it at a share with enough space.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9200",
+      "container": "9200",
+      "protocol": "tcp",
+      "description": "HTTPS port of the OpenCloud WebUI / API (self-signed cert by default). Open https:// :9200 and accept the certificate once.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Password",
+      "key": "IDM_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the built-in 'admin' user. REQUIRED. Applied on the first start (during init). Choose a strong value - this is the login for your whole cloud.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "OC_URL",
+      "value": "https://[IP]:[PORT:9200]",
+      "description": "The URL clients use to reach OpenCloud. For a plain Unraid install leave the default (your server IP on port 9200). Behind a reverse proxy, set this to your external https URL, e.g. https://cloud.example.com.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow self-signed TLS",
+      "key": "OC_INSECURE",
+      "value": "true",
+      "description": "'true' (default) accepts the container's self-signed certificate - correct for a direct Unraid install. Set 'false' when a reverse proxy provides a valid certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "OC_LOG_LEVEL",
+      "value": "info",
+      "description": "Verbosity of the container log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Create Demo Users",
+      "key": "IDM_CREATE_DEMO_USERS",
+      "value": "false",
+      "description": "'true' seeds a set of demo users (alan, mary, ...) with well-known passwords - handy for testing, unsafe for real use. Keep 'false' for a real deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenCloud terminates TLS",
+      "key": "PROXY_TLS",
+      "value": "true",
+      "description": "'true' (default) = OpenCloud serves HTTPS itself on 9200 (self-signed) - correct for a direct Unraid install. Set 'false' when a reverse proxy terminates TLS in front of the container; then also set the Public URL to your external https URL and 'Allow self-signed TLS' to 'false'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User-ID OpenCloud runs as. Default 99 (nobody on Unraid). The wrapper heals appdata ownership to match on start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group-ID. Default 100 (users on Unraid).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 storage driver",
+      "key": "STORAGE_USERS_DRIVER",
+      "value": "",
+      "description": "Blank (default) = normal local storage. Type 'decomposeds3' to store file blobs in an S3 bucket - then fill the five S3 fields below. Only the blobs go to S3; the metadata tree stays on the local Data volume and must be backed up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 endpoint",
+      "key": "STORAGE_USERS_DECOMPOSEDS3_ENDPOINT",
+      "value": "",
+      "description": "S3 API endpoint URL. Self-hosted MinIO: the internal http URL on the API port 9000, e.g. http://192.168.1.10:9000 (NOT the 9001 console port). AWS/B2/Wasabi: their https endpoint. Only used when the driver above is 'decomposeds3'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 region",
+      "key": "STORAGE_USERS_DECOMPOSEDS3_REGION",
+      "value": "default",
+      "description": "Bucket region. Use 'default' for most MinIO installs, or your provider's region (e.g. eu-central-1) for AWS/B2/Wasabi. Only used with the 'decomposeds3' driver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 access key",
+      "key": "STORAGE_USERS_DECOMPOSEDS3_ACCESS_KEY",
+      "value": "",
+      "description": "Access key ID for the bucket. MinIO Community Edition has no Access Keys page in the console, so the easiest key is your MinIO ROOT user (MINIO_ROOT_USER, set on your MinIO container). For a dedicated key use the mc CLI: 'mc admin user svcacct add my ROOT-USER'. AWS: an IAM access key; B2/Wasabi: an application/API key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 secret key",
+      "key": "STORAGE_USERS_DECOMPOSEDS3_SECRET_KEY",
+      "value": "",
+      "description": "The secret that pairs with the access key. If you use MinIO root creds, this is your MINIO_ROOT_PASSWORD; if you made an mc service account, it is printed once when you create it. Stored masked.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "S3 bucket",
+      "key": "STORAGE_USERS_DECOMPOSEDS3_BUCKET",
+      "value": "",
+      "description": "Name of the S3 bucket to store blobs in. Create it FIRST - the container does not. MinIO: console -&gt; Buckets -&gt; Create Bucket. AWS/B2/Wasabi: create a bucket in the provider console. Enter that exact name here.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

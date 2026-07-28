@@ -1,0 +1,147 @@
+{
+  "name": "khord",
+  "repo": "ghcr.io/khordapp/khord:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/khordapp/khord",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/khordapp/khord/main/static/khord-logo.png",
+  "project": "https://github.com/khordapp/khord",
+  "description": "Khord is a self-hosted music sharing app. Share a song once \u2014 everyone listens on whichever streaming service they use (Spotify, Apple Music, YouTube Music, Deezer, and more). Setlists, upvoting, cross-platform links, and an admin panel all included. All data stored in a single SQLite database \u2014 no external services required. No reverse proxy is included \u2014 point your existing Unraid reverse proxy (NGINX Proxy Manager, Swag, Traefik, etc.) at port 3000 on this container. HTTPS is required for a publicly accessible instance.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/khord/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Directory where the SQLite database and thumbnail cache are stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port exposed by the container. Point your reverse proxy (NGINX Proxy Manager, Swag, etc.) at this port \u2014 do not expose it directly to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App URL",
+      "key": "PUBLIC_APP_URL",
+      "value": "https://khord.yourdomain.com",
+      "description": "Publicly accessible URL for this instance, e.g. https://khord.yourdomain.com.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Owner Emails",
+      "key": "OWNER_EMAILS",
+      "value": "",
+      "description": "Comma-separated email addresses granted admin/owner privileges. The first account registered with a matching email receives the admin role automatically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Spotify Client ID",
+      "key": "PUBLIC_SPOTIFY_CLIENT_ID",
+      "value": "",
+      "description": "Spotify app client ID from developer.spotify.com. Optional \u2014 enables Spotify URL resolution and playlist import. Both Client ID and Client Secret are required together. After setting, enable Spotify in the admin panel Settings tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Spotify Client Secret",
+      "key": "SPOTIFY_CLIENT_SECRET",
+      "value": "",
+      "description": "Spotify app client secret from developer.spotify.com. Required alongside Spotify Client ID. Keep this private. Note: the account that owns the Spotify app must have an active Spotify Premium subscription.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YouTube API Key",
+      "key": "YOUTUBE_API_KEY",
+      "value": "",
+      "description": "YouTube Data API v3 key from console.cloud.google.com. Optional \u2014 enables YouTube Music URL resolution when sharing songs. Also enable YouTube Music in the admin panel Settings tab. Note: free quota is ~100 searches/day (100 units per call, 10,000/day limit).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Apple Music Developer Token",
+      "key": "PUBLIC_APPLE_MUSIC_DEV_TOKEN",
+      "value": "",
+      "description": "MusicKit JWT from developer.apple.com \u2192 Keys. Optional \u2014 enables Apple Music playlist import. Requires an Apple Developer account ($99/yr). Tokens are valid up to 6 months; regenerate before expiry. After setting, enable in the instance admin panel under Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Max Users",
+      "key": "MAX_USERS",
+      "value": "0",
+      "description": "Maximum number of registered users. 0 = unlimited. Can also be adjusted live from the /admin panel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Name",
+      "key": "PUBLIC_APP_NAME",
+      "value": "Khord",
+      "description": "Display name shown in the UI and page titles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Tagline",
+      "key": "PUBLIC_APP_TAGLINE",
+      "value": "Share music, listen anywhere.",
+      "description": "One-line tagline shown on the home page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Album Art",
+      "key": "DISABLE_ALBUM_ART",
+      "value": "false",
+      "description": "Set to true to hide album art thumbnails on song cards. Can also be toggled live from the /admin panel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Theme",
+      "key": "PUBLIC_THEME",
+      "value": "dark",
+      "description": "UI color theme. Requires a container restart to apply. Options \u2014 neutral dark: dark, zinc, slate, gray, neutral, stone. Neutral light: light, zinc-light, slate-light, neutral-light, stone-light. Chromatic dark: navy, teal, emerald, rose, violet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database File Name",
+      "key": "INDEXER_DB_NAME",
+      "value": "khord.db",
+      "description": "File name of the SQLite database stored in the Data Path directory. Only change this if you need to rename the database file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Cache Directory",
+      "key": "THUMBNAIL_CACHE_DIR",
+      "value": "/data/thumbnails",
+      "description": "Directory for the server-side album art disk cache. Lives inside the Data Path volume by default. Manage cache size from the admin panel (Admin \u2192 Cache tab).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Photon",
+  "repo": "rtuszik/photon-docker",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/rtuszik/photon-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2322]/",
+  "icon": "https://raw.githubusercontent.com/Pa7rickStar/unraid_templates/refs/heads/main/images/photon-icon.png",
+  "project": "https://github.com/rtuszik/photon-docker",
+  "description": "Photon is an open-source geocoding solution built for OpenStreetMap (OSM) data, providing features such as search-as-you-type and reverse geocoding. This CA uses rtuszik's unofficial Docker image (see Project) for running Photon locally, enhancing data privacy and integration capabilities with services like Dawarich\u2060.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/photon",
+      "container": "/photon/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "2322",
+      "container": "2322",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Update Strategy",
+      "key": "UPDATE_STRATEGY",
+      "value": "DISABLED",
+      "description": "Controls how index updates are handled. PARALLEL downloads the new index in the background then swaps with minimal downtime (requires 2x space). SEQUENTIAL stops Photon, deletes the existing index, downloads the new one, then restarts. DISABLED prevents automatic updates.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Update Interval",
+      "key": "UPDATE_INTERVAL",
+      "value": "30d",
+      "description": "How often to check for updates. To reduce server load, it is recommended to set this to a long interval (e.g., 720h for 30 days) or disable updates altogether if you do not need the latest data.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Region",
+      "key": "REGION",
+      "value": "planet",
+      "description": "LARGE FILE SIZES! This might take up to 200GB depending on the selected region! Optional region for a specific dataset. Can be a continent (europe, asia), individual country/region (germany, usa, japan), country code (de, us, jp), or planet for worldwide data. See: https://github.com/rtuszik/photon-docker#available-regions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Controls logging verbosity. (DEBUG, INFO, ERROR)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Force Update",
+      "key": "FORCE_UPDATE",
+      "value": "FALSE",
+      "description": "Forces an index update on container startup, regardless of UPDATE_STRATEGY. (TRUE, FALSE)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BASE_URL",
+      "key": "BASE_URL",
+      "value": "https://download1.graphhopper.com/public/",
+      "description": "Custom base URL for index data downloads. Should point to the parent directory of index files. The default has been changed to a community mirror to reduce load on the GraphHopper servers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip MD5 Check",
+      "key": "SKIP_MD5_CHECK",
+      "value": "FALSE",
+      "description": "Optionally skip MD5 verification of downloaded index files. (TRUE, FALSE)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "File Url",
+      "key": "FILE_URL",
+      "value": "",
+      "description": "Photon executable parameters. See https://github.com/komoot/photon#running-photon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Photon Params",
+      "key": "PHOTON_PARAMS",
+      "value": "",
+      "description": "Optional notification URLs for Apprise to send status updates (e.g., download completion, errors). Supports multiple services like Pushover, Slack, email, etc. Example: pover://user@token,mailto://user:pass@gmail.com See: https://github.com/caronc/apprise",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Apprise Urls",
+      "key": "APPRISE_URLS",
+      "value": "",
+      "description": "The User ID for the photon process. Set this to your host user's ID (id -u) to prevent permission errors when using bind mounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The Group ID for the photon process. Set this to your host group's ID (id -g) to prevent permission errors when using bind mounts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

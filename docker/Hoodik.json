@@ -1,0 +1,211 @@
+{
+  "name": "Hoodik",
+  "repo": "hudik/hoodik:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/hudik/hoodik",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:5443]/",
+  "icon": "https://raw.githubusercontent.com/hudikhq/hoodik-unraid/main/images/hoodik.png",
+  "project": "https://github.com/hudikhq/hoodik",
+  "description": "Hoodik is a lightweight, self-hosted, end-to-end encrypted cloud storage server. All encryption and decryption happens in the browser \u2014 the server never sees your plaintext data. Built with Rust and Vue 3 for speed and security. Supports file uploading, downloading, sharing via encrypted links, and S3-compatible object storage backends (AWS S3, MinIO, Backblaze B2, etc.).",
+  "paths": [
+    {
+      "name": "DATA_DIR",
+      "host": "/mnt/cache/hoodik/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Maps a location for the data directory of the drive where all the data will be stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "4554",
+      "container": "5443",
+      "protocol": "tcp",
+      "description": "Application port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MAILER_TYPE",
+      "key": "MAILER_TYPE",
+      "value": "smtp",
+      "description": "Email sender, currently supported: smtp",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_ADDRESS",
+      "key": "SMTP_ADDRESS",
+      "value": "smtp.gmail.com",
+      "description": "Address of the SMTP server (if MAILER_TYPE=smtp)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_USERNAME",
+      "key": "SMTP_USERNAME",
+      "value": "username@gmail.com",
+      "description": "Username of the SMTP server (if MAILER_TYPE=smtp)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "key": "SMTP_PASSWORD",
+      "value": "GOOGLE-APP-PASSWORD",
+      "description": "Password of the SMTP server (if MAILER_TYPE=smtp) For Gmail, you will have to use https://myaccount.google.com/u/0/apppasswords",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP_PORT",
+      "key": "SMTP_PORT",
+      "value": "465",
+      "description": "Port of the SMTP server (if MAILER_TYPE=smtp) Not required, default is automatically set to 465",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_TLS_MODE",
+      "key": "SMTP_TLS_MODE",
+      "value": "",
+      "description": "SMTP TLS mode (if MAILER_TYPE=smtp). Auto-detected from port if not set. Values: implicit (port 465), starttls (port 587), none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_DEFAULT_FROM_NAME",
+      "key": "SMTP_DEFAULT_FROM_NAME",
+      "value": "HoodikDrive - Unraid",
+      "description": "Default FROM display name (if MAILER_TYPE=smtp). Example: HoodikDrive - Unraid",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP_DEFAULT_FROM_EMAIL",
+      "key": "SMTP_DEFAULT_FROM_EMAIL",
+      "value": "test@gmail.com",
+      "description": "Default FROM email address (if MAILER_TYPE=smtp). Example: user@example.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "https://hoodik.local",
+      "description": "This is the application path as seen from the browser, you should use the URL you will be entering to get to the application, eg. https://hoodik.local",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_CLIENT_URL",
+      "key": "APP_CLIENT_URL",
+      "value": "https://hoodik.local",
+      "description": "Application client URL, this will in 99.9% of the cases be exactly the same as the APP_URL, but in case you are hosting a separate frontend for this application you can define it to its own address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_NAME",
+      "key": "APP_NAME",
+      "value": "Hoodik",
+      "description": "Application display name, shown in the browser tab and emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL_CERT_FILE",
+      "key": "SSL_CERT_FILE",
+      "value": "",
+      "description": "Location of the SSL cert file for the application. If the file doesn't exist, it will be created and filled with a self signed cert. That will only happen if both cert and key files are missing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL_KEY_FILE",
+      "key": "SSL_KEY_FILE",
+      "value": "",
+      "description": "Location of the SSL key file for the application. If the file doesn't exist, it will be created and filled with a self signed key. That will only happen if both cert and key files are missing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STORAGE_PROVIDER",
+      "key": "STORAGE_PROVIDER",
+      "value": "local",
+      "description": "Storage backend for file chunks. Use 'local' for filesystem storage (default) or 's3' for S3-compatible object storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_BUCKET",
+      "key": "S3_BUCKET",
+      "value": "",
+      "description": "S3 bucket name (required if STORAGE_PROVIDER=s3).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_REGION",
+      "key": "S3_REGION",
+      "value": "us-east-1",
+      "description": "S3 region (required if STORAGE_PROVIDER=s3). For MinIO or other self-hosted services, any value works.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_ENDPOINT",
+      "key": "S3_ENDPOINT",
+      "value": "",
+      "description": "S3 endpoint URL (required if STORAGE_PROVIDER=s3). Example: https://s3.amazonaws.com or http://minio:9000 for self-hosted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_ACCESS_KEY",
+      "key": "S3_ACCESS_KEY",
+      "value": "",
+      "description": "S3 access key ID (required if STORAGE_PROVIDER=s3).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_SECRET_KEY",
+      "key": "S3_SECRET_KEY",
+      "value": "",
+      "description": "S3 secret access key (required if STORAGE_PROVIDER=s3).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "S3_PATH_STYLE",
+      "key": "S3_PATH_STYLE",
+      "value": "true",
+      "description": "Use path-style S3 URLs instead of virtual-hosted-style. Set to 'true' for MinIO and most self-hosted S3 services, 'false' for AWS S3.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3_PREFIX",
+      "key": "S3_PREFIX",
+      "value": "",
+      "description": "Optional key prefix for all S3 objects (e.g. 'hoodik/'). Useful for sharing a bucket with other services.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

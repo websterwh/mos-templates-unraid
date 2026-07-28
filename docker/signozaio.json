@@ -1,0 +1,1453 @@
+{
+  "name": "signoz-aio",
+  "repo": "jsonbored/signoz-aio:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/signoz-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/signoz.png",
+  "project": "https://github.com/JSONbored/signoz-aio",
+  "description": "SigNoz is a self-hosted observability platform for traces, metrics, and logs. [center] [color=#ff8c00]JSONbored Verified AIO Template[/color] [/center] This Unraid AIO template packages the official SigNoz Docker stack into a single container with sensible defaults for a first deployment. It internally manages SigNoz, the SigNoz OTEL collector, ClickHouse, and ZooKeeper, so you do not need to translate the upstream multi-container compose stack yourself. Advanced users can also override the metadata database and ClickHouse endpoints with supported upstream-backed settings. All-In-One (AIO) Edition Install it, keep the defaults, and point your OpenTelemetry senders at the published OTLP ports. Advanced settings are available for power users, but they are intentionally limited to real upstream-backed options instead of speculative extras. Initial Setup: 1. Click Apply. 2. Wait for first startup to complete. This image boots multiple internal services, so the first run is heavier than a typical single-service container. 3. Open the WebUI on port 8080. 4. Send telemetry to OTLP gRPC on 4317 or OTLP HTTP on 4318. 5. Optional: enable the built-in local host agent and explicitly fill the advanced host/Docker path fields if you want this same Unraid machine to forward host metrics, Docker metrics, and Docker logs into SigNoz. Resource Note: ClickHouse makes SigNoz powerful, but also heavier on RAM, disk, and startup time than lighter AIO apps.",
+  "paths": [
+    {
+      "name": "AppData - SigNoz Root",
+      "host": "/mnt/cache/appdata/signoz-aio",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Single persistent root that stores ClickHouse data, ZooKeeper state, generated config, and SigNoz SQLite metadata by default.",
+      "required": true
+    },
+    {
+      "name": "[Host Agent] Host Root Path",
+      "host": "",
+      "container": "/hostfs",
+      "mode": "ro",
+      "description": "Advanced optional host metrics mount. Leave blank unless enabling the local host agent. Set to / only if you want to mount the Unraid host root read-only for host metrics.",
+      "required": false
+    },
+    {
+      "name": "[Host Agent] Docker Socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Advanced optional Docker metrics mount. Leave blank unless enabling Docker metrics for the local host agent. Setting this to /var/run/docker.sock grants Docker control access to this container.",
+      "required": false
+    },
+    {
+      "name": "[Host Agent] Docker Container Logs Path",
+      "host": "",
+      "container": "/var/lib/docker/containers",
+      "mode": "ro",
+      "description": "Advanced optional Docker log mount. Leave blank unless enabling Docker log collection for the local host agent. Set to /var/lib/docker/containers to read local Docker JSON logs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "SigNoz UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Main SigNoz UI and API port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OTLP gRPC Port",
+      "host": "4317",
+      "container": "4317",
+      "protocol": "tcp",
+      "description": "OTLP gRPC ingest port for agents, SDKs, and collectors sending telemetry into SigNoz.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OTLP HTTP Port",
+      "host": "4318",
+      "container": "4318",
+      "protocol": "tcp",
+      "description": "OTLP HTTP ingest port for telemetry senders that use HTTP instead of gRPC.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "[Host Agent] Enable Local Host Agent",
+      "key": "SIGNOZ_ENABLE_HOST_AGENT",
+      "value": "false",
+      "description": "Advanced. Set to true to let this same container also collect local host metrics, Docker metrics, Docker logs, or Prometheus targets after you explicitly configure the host mounts or targets below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AIO] Startup Wait Timeout Seconds",
+      "key": "SIGNOZ_AIO_WAIT_TIMEOUT_SECONDS",
+      "value": "300",
+      "description": "Advanced. Maximum seconds the wrapper waits for SigNoz or ClickHouse readiness before failing with a clear startup error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Version Banner Enabled",
+      "key": "SIGNOZ_VERSION_BANNER_ENABLED",
+      "value": "true",
+      "description": "Advanced. Shows the upstream SigNoz startup version banner.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Log Level",
+      "key": "SIGNOZ_INSTRUMENTATION_LOGS_LEVEL",
+      "value": "info",
+      "description": "Advanced. Log level for SigNoz internal instrumentation logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Tracing Enabled",
+      "key": "SIGNOZ_INSTRUMENTATION_TRACES_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables SigNoz self-tracing; only enable when you have a clear internal telemetry target.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Tracing OTLP Endpoint",
+      "key": "SIGNOZ_INSTRUMENTATION_TRACES_PROCESSORS_BATCH_EXPORTER_OTLP_ENDPOINT",
+      "value": "localhost:4317",
+      "description": "Advanced. OTLP endpoint used by SigNoz self-tracing when internal tracing is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Metrics Enabled",
+      "key": "SIGNOZ_INSTRUMENTATION_METRICS_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables SigNoz self-metrics.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Metrics Host",
+      "key": "SIGNOZ_INSTRUMENTATION_METRICS_READERS_PULL_EXPORTER_PROMETHEUS_HOST",
+      "value": "0.0.0.0",
+      "description": "Advanced. Internal Prometheus host used for SigNoz self-metrics. This port is not published by the Unraid template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Internal Metrics Port",
+      "key": "SIGNOZ_INSTRUMENTATION_METRICS_READERS_PULL_EXPORTER_PROMETHEUS_PORT",
+      "value": "9090",
+      "description": "Advanced. Internal Prometheus port used for SigNoz self-metrics. This port is not published by the Unraid template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] External URL",
+      "key": "SIGNOZ_GLOBAL_EXTERNAL__URL",
+      "value": "",
+      "description": "Advanced. Public SigNoz URL used in generated links when serving through a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Ingestion URL",
+      "key": "SIGNOZ_GLOBAL_INGESTION__URL",
+      "value": "",
+      "description": "Advanced. Public ingestion endpoint URL if agents should advertise a different OTLP endpoint than the UI URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] Provider",
+      "key": "SIGNOZ_SQLSTORE_PROVIDER",
+      "value": "sqlite",
+      "description": "Advanced. Metadata database backend for organizations, users, dashboards, and settings. Leave at sqlite for the built-in self-contained install, or set to postgres to use an external PostgreSQL database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] SQLite Path",
+      "key": "SIGNOZ_SQLSTORE_SQLITE_PATH",
+      "value": "/appdata/signoz/signoz.db",
+      "description": "Advanced. SQLite file path for SigNoz metadata when the metadata DB provider is set to sqlite.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] SQLite Journal Mode",
+      "key": "SIGNOZ_SQLSTORE_SQLITE_MODE",
+      "value": "wal",
+      "description": "Advanced. SQLite journal mode for the default metadata database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] SQLite Busy Timeout",
+      "key": "SIGNOZ_SQLSTORE_SQLITE_BUSY__TIMEOUT",
+      "value": "10s",
+      "description": "Advanced. How long SQLite waits for metadata database locks before failing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] SQLite Transaction Mode",
+      "key": "SIGNOZ_SQLSTORE_SQLITE_TRANSACTION__MODE",
+      "value": "deferred",
+      "description": "Advanced. SQLite transaction locking mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] Max Open Connections",
+      "key": "SIGNOZ_SQLSTORE_MAX__OPEN__CONNS",
+      "value": "100",
+      "description": "Advanced. Maximum open SQL metadata-store connections.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] Max Connection Lifetime",
+      "key": "SIGNOZ_SQLSTORE_MAX__CONN__LIFETIME",
+      "value": "0s",
+      "description": "Advanced. Maximum SQL metadata connection lifetime. Use 0s for no lifetime limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Metadata DB] PostgreSQL DSN",
+      "key": "SIGNOZ_SQLSTORE_POSTGRES_DSN",
+      "value": "",
+      "description": "Advanced. PostgreSQL connection string used when SIGNOZ_SQLSTORE_PROVIDER=postgres. Example: postgres://signoz:your_password@postgres:5432/signoz?sslmode=disable",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Provision Root User",
+      "key": "SIGNOZ_USER_ROOT_ENABLED",
+      "value": "false",
+      "description": "Advanced. Set to true to provision a SigNoz root admin user on startup. This works with either SQLite or PostgreSQL metadata storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Root User Email",
+      "key": "SIGNOZ_USER_ROOT_EMAIL",
+      "value": "",
+      "description": "Advanced. Root user email address used when root user provisioning is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Root User Password",
+      "key": "SIGNOZ_USER_ROOT_PASSWORD",
+      "value": "",
+      "description": "Advanced. Root user password used when root user provisioning is enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Root User Org Name",
+      "key": "SIGNOZ_USER_ROOT_ORG_NAME",
+      "value": "default",
+      "description": "Advanced. Organization name for the provisioned root user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Root User Org ID",
+      "key": "SIGNOZ_USER_ROOT_ORG_ID",
+      "value": "",
+      "description": "Advanced. Optional predetermined UUIDv7 for the root user's organization.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Invite Max Token Lifetime",
+      "key": "SIGNOZ_USER_PASSWORD_INVITE_MAX__TOKEN__LIFETIME",
+      "value": "48h",
+      "description": "Advanced. Maximum lifetime for invitation tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Allow Self Password Reset",
+      "key": "SIGNOZ_USER_PASSWORD_RESET_ALLOW__SELF",
+      "value": "false",
+      "description": "Advanced. Allows users to request their own password reset flow.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Reset Max Token Lifetime",
+      "key": "SIGNOZ_USER_PASSWORD_RESET_MAX__TOKEN__LIFETIME",
+      "value": "6h",
+      "description": "Advanced. Maximum lifetime for password reset tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tokenizer JWT Secret",
+      "key": "SIGNOZ_TOKENIZER_JWT_SECRET",
+      "value": "",
+      "description": "Optional. Leave blank to auto-generate a persistent secret on first boot and save it under /appdata/config/generated.env.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Tokenizer] Rotation Interval",
+      "key": "SIGNOZ_TOKENIZER_ROTATION_INTERVAL",
+      "value": "30m",
+      "description": "Advanced. Interval for SigNoz token rotation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Tokenizer] Rotation Grace Duration",
+      "key": "SIGNOZ_TOKENIZER_ROTATION_DURATION",
+      "value": "1m",
+      "description": "Advanced. Grace duration for previous token pairs after rotation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Tokenizer] Idle Lifetime",
+      "key": "SIGNOZ_TOKENIZER_LIFETIME_IDLE",
+      "value": "168h",
+      "description": "Advanced. Idle session lifetime before reauthentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Tokenizer] Max Lifetime",
+      "key": "SIGNOZ_TOKENIZER_LIFETIME_MAX",
+      "value": "720h",
+      "description": "Advanced. Maximum session lifetime before reauthentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Tokenizer] Opaque GC Interval",
+      "key": "SIGNOZ_TOKENIZER_OPAQUE_GC_INTERVAL",
+      "value": "1h",
+      "description": "Advanced. Garbage collection interval for opaque session tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Tokenizer] Max Tokens Per User",
+      "key": "SIGNOZ_TOKENIZER_OPAQUE_TOKEN_MAX__PER__USER",
+      "value": "5",
+      "description": "Advanced. Maximum opaque tokens tracked per user when using opaque token internals.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Use External ClickHouse",
+      "key": "SIGNOZ_USE_EXTERNAL_CLICKHOUSE",
+      "value": "false",
+      "description": "Advanced. Set to true to disable the bundled ClickHouse and ZooKeeper services and use external ClickHouse endpoints instead. When enabled, configure the ClickHouse DSN and healthcheck URL options below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Base DSN",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN",
+      "value": "tcp://127.0.0.1:9000",
+      "description": "Advanced. Base ClickHouse DSN used by SigNoz. Leave at the default for the bundled database, or point it at your external ClickHouse endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Cluster Name",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_CLUSTER",
+      "value": "cluster",
+      "description": "Advanced. ClickHouse cluster name used by the SigNoz server for telemetry-store queries. Leave at cluster for the bundled deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Healthcheck URL",
+      "key": "SIGNOZ_CLICKHOUSE_HEALTHCHECK_URL",
+      "value": "http://127.0.0.1:8123/ping",
+      "description": "Advanced. HTTP healthcheck URL used before SigNoz and the collector start. Change this when using external ClickHouse.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Max Open Connections",
+      "key": "SIGNOZ_TELEMETRYSTORE_MAX__OPEN__CONNS",
+      "value": "100",
+      "description": "Advanced. Maximum open ClickHouse connections used by SigNoz.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Max Idle Connections",
+      "key": "SIGNOZ_TELEMETRYSTORE_MAX__IDLE__CONNS",
+      "value": "50",
+      "description": "Advanced. Maximum idle ClickHouse connections used by SigNoz.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Dial Timeout",
+      "key": "SIGNOZ_TELEMETRYSTORE_DIAL__TIMEOUT",
+      "value": "5s",
+      "description": "Advanced. ClickHouse connection dial timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Query Max Execution Time",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_MAX__EXECUTION__TIME",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse max_execution_time query setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Query Max Execution Time Leaf",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_MAX__EXECUTION__TIME__LEAF",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse max_execution_time_leaf query setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Query Speed Check Delay",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_TIMEOUT__BEFORE__CHECKING__EXECUTION__SPEED",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse timeout_before_checking_execution_speed query setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Query Max Result Rows",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_MAX__RESULT__ROWS",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse max_result_rows query setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Query Max Bytes To Read",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_MAX__BYTES__TO__READ",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse max_bytes_to_read query setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Ignored Data-Skipping Indices",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_IGNORE__DATA__SKIPPING__INDICES",
+      "value": "",
+      "description": "Advanced. Optional comma-separated ClickHouse data-skipping indices to ignore for SigNoz queries. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ClickHouse] Secondary Index Bulk Filtering",
+      "key": "SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_SETTINGS_SECONDARY__INDICES__ENABLE__BULK__FILTERING",
+      "value": "",
+      "description": "Advanced. Optional ClickHouse secondary index bulk filtering setting. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Host Agent] Prometheus Targets",
+      "key": "SIGNOZ_HOST_AGENT_PROMETHEUS_TARGETS",
+      "value": "",
+      "description": "Advanced. Optional comma-separated Prometheus scrape targets for the built-in local host agent, for example: node-exporter:9100,cadvisor:8080.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Host Agent] Prometheus Metrics Path",
+      "key": "SIGNOZ_HOST_AGENT_PROMETHEUS_METRICS_PATH",
+      "value": "/metrics",
+      "description": "Advanced. Metrics path used for the built-in host agent's Prometheus scrape targets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Host Agent] Prometheus Scrape Interval",
+      "key": "SIGNOZ_HOST_AGENT_PROMETHEUS_SCRAPE_INTERVAL",
+      "value": "30s",
+      "description": "Advanced. Scrape interval used for Prometheus targets defined for the built-in host agent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] OTEL Resource Attributes",
+      "key": "OTEL_RESOURCE_ATTRIBUTES",
+      "value": "host.name=signoz-host,os.type=linux",
+      "description": "Advanced OpenTelemetry resource attributes injected into the internal collector. Useful if you want a clearer default host or environment label.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Low Cardinal Exception Grouping",
+      "key": "LOW_CARDINAL_EXCEPTION_GROUPING",
+      "value": "false",
+      "description": "Advanced upstream collector option for ClickHouse trace exception grouping. Leave at false unless you intentionally want the alternate grouping behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] ClickHouse Base DSN Override",
+      "key": "SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector-specific ClickHouse base DSN override. Leave blank to inherit the main ClickHouse base DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] ClickHouse Timeout",
+      "key": "SIGNOZ_OTEL_COLLECTOR_TIMEOUT",
+      "value": "10m",
+      "description": "Advanced timeout used by the internal SigNoz collector for ClickHouse operations and migrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] ClickHouse Cluster Name",
+      "key": "SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_CLUSTER",
+      "value": "cluster",
+      "description": "Advanced cluster name used by the SigNoz collector migrations. The official external ClickHouse setup requires the cluster name to remain cluster unless you know exactly what you are changing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] ClickHouse Replication Mode",
+      "key": "SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_REPLICATION",
+      "value": "false",
+      "description": "Advanced replication setting used by the SigNoz collector migrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Traces DSN",
+      "key": "SIGNOZ_CLICKHOUSE_TRACES_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector DSN for traces database. Leave blank to derive from the base ClickHouse DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Metrics DSN",
+      "key": "SIGNOZ_CLICKHOUSE_METRICS_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector DSN for metrics database. Leave blank to derive from the base ClickHouse DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Logs DSN",
+      "key": "SIGNOZ_CLICKHOUSE_LOGS_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector DSN for logs database. Leave blank to derive from the base ClickHouse DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Meter DSN",
+      "key": "SIGNOZ_CLICKHOUSE_METER_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector DSN for SigNoz meter database. Leave blank to derive from the base ClickHouse DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Metadata DSN",
+      "key": "SIGNOZ_CLICKHOUSE_METADATA_DSN",
+      "value": "",
+      "description": "Advanced. Optional collector DSN for telemetry metadata database. Leave blank to derive from the base ClickHouse DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Batch Send Size",
+      "key": "SIGNOZ_OTEL_COLLECTOR_BATCH_SEND_SIZE",
+      "value": "10000",
+      "description": "Advanced. OTel collector batch send size for regular telemetry pipelines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Batch Max Size",
+      "key": "SIGNOZ_OTEL_COLLECTOR_BATCH_SEND_MAX_SIZE",
+      "value": "11000",
+      "description": "Advanced. OTel collector maximum batch size for regular telemetry pipelines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Batch Timeout",
+      "key": "SIGNOZ_OTEL_COLLECTOR_BATCH_TIMEOUT",
+      "value": "10s",
+      "description": "Advanced. OTel collector batch timeout for regular telemetry pipelines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Meter Batch Send Size",
+      "key": "SIGNOZ_OTEL_COLLECTOR_METER_BATCH_SEND_SIZE",
+      "value": "20000",
+      "description": "Advanced. OTel collector batch send size for SigNoz meter telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Meter Batch Max Size",
+      "key": "SIGNOZ_OTEL_COLLECTOR_METER_BATCH_SEND_MAX_SIZE",
+      "value": "25000",
+      "description": "Advanced. OTel collector maximum batch size for SigNoz meter telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Meter Batch Timeout",
+      "key": "SIGNOZ_OTEL_COLLECTOR_METER_BATCH_TIMEOUT",
+      "value": "1s",
+      "description": "Advanced. OTel collector batch timeout for SigNoz meter telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] Self Metrics Scrape Interval",
+      "key": "SIGNOZ_OTEL_COLLECTOR_SELF_SCRAPE_INTERVAL",
+      "value": "60s",
+      "description": "Advanced. Scrape interval for the collector's own Prometheus metrics.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Collector] pprof Endpoint",
+      "key": "SIGNOZ_OTEL_COLLECTOR_PPROF_ENDPOINT",
+      "value": "0.0.0.0:1777",
+      "description": "Advanced. Internal collector pprof endpoint. This port is not published by the Unraid template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Analytics Enabled",
+      "key": "SIGNOZ_ANALYTICS_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables upstream Segment analytics if a Segment key is configured. Leave false for homelab deployments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Stats Reporter Enabled",
+      "key": "SIGNOZ_STATSREPORTER_ENABLED",
+      "value": "false",
+      "description": "Advanced. Privacy default: disabled. Set true only if you want to enable upstream stats reporting internals.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] API Timeout Default",
+      "key": "SIGNOZ_APISERVER_TIMEOUT_DEFAULT",
+      "value": "60s",
+      "description": "Advanced. Default API request timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] API Timeout Max",
+      "key": "SIGNOZ_APISERVER_TIMEOUT_MAX",
+      "value": "600s",
+      "description": "Advanced. Maximum API request timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] API Timeout Excluded Routes",
+      "key": "SIGNOZ_APISERVER_TIMEOUT_EXCLUDED__ROUTES",
+      "value": "/api/v1/logs/tail,/api/v3/logs/livetail,/api/v1/export_raw_data",
+      "description": "Advanced. Comma-separated API routes excluded from request timeout handling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] API Logging Excluded Routes",
+      "key": "SIGNOZ_APISERVER_LOGGING_EXCLUDED__ROUTES",
+      "value": "/api/v1/health,/api/v1/version,/",
+      "description": "Advanced. Comma-separated API routes excluded from request logging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Querier Cache TTL",
+      "key": "SIGNOZ_QUERIER_CACHE__TTL",
+      "value": "168h",
+      "description": "Advanced. TTL for cached SigNoz query results.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Querier Flux Interval",
+      "key": "SIGNOZ_QUERIER_FLUX__INTERVAL",
+      "value": "5m",
+      "description": "Advanced. Recent-data interval that SigNoz should not cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Querier Max Concurrent Queries",
+      "key": "SIGNOZ_QUERIER_MAX__CONCURRENT__QUERIES",
+      "value": "4",
+      "description": "Advanced. Maximum concurrent SigNoz queries for missing ranges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Prometheus Query Timeout",
+      "key": "SIGNOZ_PROMETHEUS_TIMEOUT",
+      "value": "2m",
+      "description": "Advanced. Maximum time a PromQL query may run before SigNoz aborts it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Prometheus Active Query Tracker",
+      "key": "SIGNOZ_PROMETHEUS_ACTIVE__QUERY__TRACKER_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables SigNoz Prometheus active query tracking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Prometheus Query Tracker Path",
+      "key": "SIGNOZ_PROMETHEUS_ACTIVE__QUERY__TRACKER_PATH",
+      "value": "",
+      "description": "Advanced. Optional path for SigNoz Prometheus active query tracking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Prometheus Max Concurrent Queries",
+      "key": "SIGNOZ_PROMETHEUS_ACTIVE__QUERY__TRACKER_MAX__CONCURRENT",
+      "value": "20",
+      "description": "Advanced. Maximum concurrent Prometheus queries tracked by SigNoz.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] pprof Enabled",
+      "key": "SIGNOZ_PPROF_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables SigNoz internal pprof endpoint inside the container. The port is not published by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] pprof Address",
+      "key": "SIGNOZ_PPROF_ADDRESS",
+      "value": "0.0.0.0:6060",
+      "description": "Advanced. Internal SigNoz pprof bind address. Do not publish this unless you understand the exposure risk.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Ruler Eval Delay",
+      "key": "SIGNOZ_RULER_EVAL__DELAY",
+      "value": "2m",
+      "description": "Advanced. Delay applied when evaluating alerting rules.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Poll Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_POLL__INTERVAL",
+      "value": "1m",
+      "description": "Advanced. Poll interval for syncing built-in SigNoz Alertmanager state from the metadata store.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Group By Labels",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_ROUTE_GROUP__BY",
+      "value": "alertname",
+      "description": "Advanced. Comma-separated labels used by the built-in SigNoz Alertmanager route grouping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Group Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_ROUTE_GROUP__INTERVAL",
+      "value": "1m",
+      "description": "Advanced. Interval at which grouped alerts are resent to receivers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Group Wait",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_ROUTE_GROUP__WAIT",
+      "value": "1m",
+      "description": "Advanced. Initial wait before sending a newly grouped alert.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Repeat Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_ROUTE_REPEAT__INTERVAL",
+      "value": "4h",
+      "description": "Advanced. Default repeat interval for the built-in SigNoz Alertmanager route.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Resolve Timeout",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_RESOLVE__TIMEOUT",
+      "value": "5m",
+      "description": "Advanced. Default global resolve timeout for the built-in SigNoz Alertmanager.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert External URL",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_EXTERNAL__URL",
+      "value": "",
+      "description": "Advanced. External URL used by alert notifications when SigNoz is behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert GC Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_ALERTS_GC__INTERVAL",
+      "value": "30m",
+      "description": "Advanced. Garbage collection interval for built-in Alertmanager alerts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Silences Max",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_SILENCES_MAX",
+      "value": "0",
+      "description": "Advanced. Maximum stored Alertmanager silences. Use 0 for no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Silences Max Size Bytes",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_SILENCES_MAX__SIZE__BYTES",
+      "value": "0",
+      "description": "Advanced. Maximum stored Alertmanager silences size in bytes. Use 0 for no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Silences Maintenance Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_SILENCES_MAINTENANCE__INTERVAL",
+      "value": "15m",
+      "description": "Advanced. Maintenance interval for Alertmanager silences snapshots.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Silences Retention",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_SILENCES_RETENTION",
+      "value": "120h",
+      "description": "Advanced. Retention duration for Alertmanager silences.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Notification Log Maintenance Interval",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_NFLOG_MAINTENANCE__INTERVAL",
+      "value": "15m",
+      "description": "Advanced. Maintenance interval for Alertmanager notification log snapshots.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Alert Notification Log Retention",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_NFLOG_RETENTION",
+      "value": "120h",
+      "description": "Advanced. Retention duration for Alertmanager notification logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP From",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__FROM",
+      "value": "",
+      "description": "Advanced. Sender address used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Hello",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__HELLO",
+      "value": "localhost",
+      "description": "Advanced. HELO/EHLO hostname used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Smart Host",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__SMARTHOST",
+      "value": "",
+      "description": "Advanced. SMTP host:port used by built-in Alertmanager email notifications, for example smtp.example.com:587.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Username",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__AUTH__USERNAME",
+      "value": "",
+      "description": "Advanced. SMTP username used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Password",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__AUTH__PASSWORD",
+      "value": "",
+      "description": "Advanced. SMTP password used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Alerts Email] SMTP Password File",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__AUTH__PASSWORD_FILE",
+      "value": "",
+      "description": "Advanced. Optional path inside the container to a file containing the SMTP password for built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Auth Secret",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__AUTH__SECRET",
+      "value": "",
+      "description": "Advanced. Optional SMTP auth secret used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Alerts Email] SMTP Auth Identity",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__AUTH__IDENTITY",
+      "value": "",
+      "description": "Advanced. Optional SMTP auth identity used by built-in Alertmanager email notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP Require TLS",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__REQUIRE__TLS",
+      "value": "true",
+      "description": "Advanced. Requires TLS for built-in Alertmanager SMTP delivery. Set false only for trusted internal relays.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS CA File",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__CA__FILE",
+      "value": "",
+      "description": "Advanced. Optional CA certificate file path inside the container for Alertmanager SMTP TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Cert File",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__CERT__FILE",
+      "value": "",
+      "description": "Advanced. Optional client certificate file path inside the container for Alertmanager SMTP TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Key File",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__KEY__FILE",
+      "value": "",
+      "description": "Advanced. Optional client private key file path inside the container for Alertmanager SMTP TLS.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Server Name",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__SERVER__NAME",
+      "value": "",
+      "description": "Advanced. Optional server name for SNI and SMTP TLS certificate verification.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Skip Verify",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__CONFIG_INSECURE__SKIP__VERIFY",
+      "value": "false",
+      "description": "Advanced. Skips SMTP TLS certificate verification for built-in Alertmanager email notifications. Use only for trusted internal relays.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Min Version",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__MIN__VERSION",
+      "value": "upstream",
+      "description": "Advanced. Optional minimum SMTP TLS version for built-in Alertmanager notifications. Leave upstream to keep the SigNoz default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alerts Email] SMTP TLS Max Version",
+      "key": "SIGNOZ_ALERTMANAGER_SIGNOZ_GLOBAL_SMTP__TLS__MAX__VERSION",
+      "value": "upstream",
+      "description": "Advanced. Optional maximum SMTP TLS version for built-in Alertmanager notifications. Leave upstream to keep the SigNoz default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Metrics Explorer Threads",
+      "key": "SIGNOZ_METRICSEXPLORER_TELEMETRYSTORE_THREADS",
+      "value": "8",
+      "description": "Advanced. ClickHouse query threads used by Metrics Explorer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Analytics Segment Key",
+      "key": "SIGNOZ_ANALYTICS_SEGMENT_KEY",
+      "value": "",
+      "description": "Advanced. Segment key used only when upstream analytics are enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[SigNoz] Stats Reporter Interval",
+      "key": "SIGNOZ_STATSREPORTER_INTERVAL",
+      "value": "6h",
+      "description": "Advanced. Interval for upstream stats reporter collection when enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SigNoz] Stats Reporter Collect Identities",
+      "key": "SIGNOZ_STATSREPORTER_COLLECT_IDENTITIES",
+      "value": "false",
+      "description": "Advanced. Privacy default: disabled. Set true only if stats reporting is enabled and you accept upstream identity and trait collection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Enabled",
+      "key": "SIGNOZ_EMAILING_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables SigNoz email delivery through SMTP. When true, set a valid SMTP from address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Address",
+      "key": "SIGNOZ_EMAILING_SMTP_ADDRESS",
+      "value": "localhost:25",
+      "description": "Advanced. SMTP server host:port for SigNoz emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] From Address",
+      "key": "SIGNOZ_EMAILING_SMTP_FROM",
+      "value": "",
+      "description": "Advanced. From address for SigNoz emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Hello",
+      "key": "SIGNOZ_EMAILING_SMTP_HELLO",
+      "value": "",
+      "description": "Advanced. Optional SMTP HELO/EHLO hostname sent by SigNoz.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Username",
+      "key": "SIGNOZ_EMAILING_SMTP_AUTH_USERNAME",
+      "value": "",
+      "description": "Advanced. SMTP username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Password",
+      "key": "SIGNOZ_EMAILING_SMTP_AUTH_PASSWORD",
+      "value": "",
+      "description": "Advanced. SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Email] SMTP Auth Secret",
+      "key": "SIGNOZ_EMAILING_SMTP_AUTH_SECRET",
+      "value": "",
+      "description": "Advanced. Optional SMTP auth secret for mechanisms that require it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Email] SMTP Auth Identity",
+      "key": "SIGNOZ_EMAILING_SMTP_AUTH_IDENTITY",
+      "value": "",
+      "description": "Advanced. Optional SMTP auth identity for mechanisms that require it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS Enabled",
+      "key": "SIGNOZ_EMAILING_SMTP_TLS_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables TLS for SMTP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS Skip Verify",
+      "key": "SIGNOZ_EMAILING_SMTP_TLS_INSECURE__SKIP__VERIFY",
+      "value": "false",
+      "description": "Advanced. Skips SMTP TLS certificate verification. Use only for trusted internal mail relays.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS CA File",
+      "key": "SIGNOZ_EMAILING_SMTP_TLS_CA__FILE__PATH",
+      "value": "",
+      "description": "Advanced. Optional CA certificate path inside the container for SMTP TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS Cert File",
+      "key": "SIGNOZ_EMAILING_SMTP_TLS_CERT__FILE__PATH",
+      "value": "",
+      "description": "Advanced. Optional client certificate path inside the container for SMTP TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS Key File",
+      "key": "SIGNOZ_EMAILING_SMTP_TLS_KEY__FILE__PATH",
+      "value": "",
+      "description": "Advanced. Optional client private key path inside the container for SMTP TLS.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Email] Template Header Enabled",
+      "key": "SIGNOZ_EMAILING_TEMPLATES_FORMAT_HEADER_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables a custom header block in SigNoz email templates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Template Header Logo URL",
+      "key": "SIGNOZ_EMAILING_TEMPLATES_FORMAT_HEADER_LOGO__URL",
+      "value": "",
+      "description": "Advanced. Logo URL used in SigNoz email template headers when enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Template Help Enabled",
+      "key": "SIGNOZ_EMAILING_TEMPLATES_FORMAT_HELP_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables help contact text in SigNoz email templates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Template Help Email",
+      "key": "SIGNOZ_EMAILING_TEMPLATES_FORMAT_HELP_EMAIL",
+      "value": "",
+      "description": "Advanced. Help email address shown in SigNoz email templates when enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Template Footer Enabled",
+      "key": "SIGNOZ_EMAILING_TEMPLATES_FORMAT_FOOTER_ENABLED",
+      "value": "false",
+      "description": "Advanced. Enables a footer block in SigNoz email templates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Provider",
+      "key": "SIGNOZ_CACHE_PROVIDER",
+      "value": "memory",
+      "description": "Advanced. SigNoz cache provider. Leave memory for the self-contained default; set redis only when using an external Redis cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Memory Counters",
+      "key": "SIGNOZ_CACHE_MEMORY_NUM__COUNTERS",
+      "value": "100000",
+      "description": "Advanced. Number of Ristretto in-memory cache counters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Memory Max Cost",
+      "key": "SIGNOZ_CACHE_MEMORY_MAX__COST",
+      "value": "134217728",
+      "description": "Advanced. Ristretto in-memory cache max cost in bytes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Redis Host",
+      "key": "SIGNOZ_CACHE_REDIS_HOST",
+      "value": "",
+      "description": "Advanced. External Redis host when SIGNOZ_CACHE_PROVIDER=redis.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Redis Port",
+      "key": "SIGNOZ_CACHE_REDIS_PORT",
+      "value": "6379",
+      "description": "Advanced. External Redis port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Redis DB",
+      "key": "SIGNOZ_CACHE_REDIS_DB",
+      "value": "0",
+      "description": "Advanced. External Redis database number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cache] Redis Password",
+      "key": "SIGNOZ_CACHE_REDIS_PASSWORD",
+      "value": "",
+      "description": "Advanced. External Redis password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Feature] Use Span Metrics",
+      "key": "SIGNOZ_FLAGGER_CONFIG_BOOLEAN_USE__SPAN__METRICS",
+      "value": "upstream",
+      "description": "Advanced. Optional upstream feature flag override for span metrics. Leave upstream to keep the SigNoz default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Feature] Kafka Span Eval",
+      "key": "SIGNOZ_FLAGGER_CONFIG_BOOLEAN_KAFKA__SPAN__EVAL",
+      "value": "upstream",
+      "description": "Advanced. Optional upstream feature flag override for Kafka span evaluation. Leave upstream to keep the SigNoz default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Identity] Tokenizer Auth Enabled",
+      "key": "SIGNOZ_IDENTN_TOKENIZER_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables tokenizer-based identity resolution for SigNoz requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Identity] Tokenizer Headers",
+      "key": "SIGNOZ_IDENTN_TOKENIZER_HEADERS",
+      "value": "Authorization,Sec-WebSocket-Protocol",
+      "description": "Advanced. Comma-separated headers used for tokenizer identity resolution.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Identity] API Key Auth Enabled",
+      "key": "SIGNOZ_IDENTN_APIKEY_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables API-key identity resolution for SigNoz requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Identity] API Key Headers",
+      "key": "SIGNOZ_IDENTN_APIKEY_HEADERS",
+      "value": "SIGNOZ-API-KEY",
+      "description": "Advanced. Comma-separated headers used for API-key identity resolution.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Identity] Root Impersonation Enabled",
+      "key": "SIGNOZ_IDENTN_IMPERSONATION_ENABLED",
+      "value": "false",
+      "description": "Advanced and dangerous. Impersonates the root user for all requests when enabled; leave false unless upstream support explicitly directs you to use it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Service Account] Email Domain",
+      "key": "SIGNOZ_SERVICEACCOUNT_EMAIL_DOMAIN",
+      "value": "signozserviceaccount.com",
+      "description": "Advanced. Email domain used for SigNoz service account principals.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Service Account] Analytics Enabled",
+      "key": "SIGNOZ_SERVICEACCOUNT_ANALYTICS_ENABLED",
+      "value": "false",
+      "description": "Advanced. Privacy default: disabled. Set true only if you want upstream service-account analytics behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Gateway] URL",
+      "key": "SIGNOZ_GATEWAY_URL",
+      "value": "http://localhost:8080",
+      "description": "Advanced. SigNoz gateway API URL for deployments that use licensed gateway features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Provider",
+      "key": "SIGNOZ_AUDITOR_PROVIDER",
+      "value": "noop",
+      "description": "Advanced. Audit event provider. Leave noop for community defaults; otlphttp exports audit events to an OTLP HTTP endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Buffer Size",
+      "key": "SIGNOZ_AUDITOR_BUFFER__SIZE",
+      "value": "1000",
+      "description": "Advanced. Async audit event channel capacity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Batch Size",
+      "key": "SIGNOZ_AUDITOR_BATCH__SIZE",
+      "value": "100",
+      "description": "Advanced. Maximum audit events per export batch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Flush Interval",
+      "key": "SIGNOZ_AUDITOR_FLUSH__INTERVAL",
+      "value": "1s",
+      "description": "Advanced. Maximum time between audit export flushes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] OTLP HTTP Endpoint",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_ENDPOINT",
+      "value": "http://localhost:4318/v1/logs",
+      "description": "Advanced. OTLP HTTP log endpoint used when the auditor provider is otlphttp.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] OTLP HTTP Insecure",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_INSECURE",
+      "value": "false",
+      "description": "Advanced. Uses HTTP instead of HTTPS for auditor OTLP HTTP export.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] OTLP HTTP Timeout",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_TIMEOUT",
+      "value": "10s",
+      "description": "Advanced. Timeout for auditor OTLP HTTP export attempts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Retry Enabled",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_RETRY_ENABLED",
+      "value": "true",
+      "description": "Advanced. Enables retry for transient auditor OTLP HTTP export failures.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Retry Initial Interval",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_RETRY_INITIAL__INTERVAL",
+      "value": "5s",
+      "description": "Advanced. Initial auditor retry wait time.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Retry Max Interval",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_RETRY_MAX__INTERVAL",
+      "value": "30s",
+      "description": "Advanced. Maximum auditor retry backoff interval.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auditor] Retry Max Elapsed Time",
+      "key": "SIGNOZ_AUDITOR_OTLPHTTP_RETRY_MAX__ELAPSED__TIME",
+      "value": "60s",
+      "description": "Advanced. Maximum total auditor retry time before giving up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Cloud Integration] Agent Version",
+      "key": "SIGNOZ_CLOUDINTEGRATION_AGENT_VERSION",
+      "value": "v0.0.8",
+      "description": "Advanced. Upstream cloud integration agent version used by SigNoz-managed cloud integration flows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ZooKeeper] Auto-Purge Interval",
+      "key": "ZOO_AUTOPURGE_INTERVAL",
+      "value": "1",
+      "description": "Advanced internal housekeeping interval in hours for ZooKeeper snapshot and log cleanup. The default matches the official SigNoz Docker deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ZooKeeper] Prometheus Metrics Enabled",
+      "key": "ZOO_ENABLE_PROMETHEUS_METRICS",
+      "value": "yes",
+      "description": "Advanced. Enables ZooKeeper Prometheus metrics inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[ZooKeeper] Prometheus Metrics Port",
+      "key": "ZOO_PROMETHEUS_METRICS_PORT_NUMBER",
+      "value": "9141",
+      "description": "Advanced. Internal ZooKeeper Prometheus metrics port. This port is not published by the Unraid template.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

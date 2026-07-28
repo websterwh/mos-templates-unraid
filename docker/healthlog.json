@@ -1,0 +1,123 @@
+{
+  "name": "healthlog",
+  "repo": "ghcr.io/anym001/healthlog:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/anym001/healthlog",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/anym001/healthlog/main/assets/icons/icon-512.png",
+  "project": "https://github.com/anym001/healthlog",
+  "description": "HealthLog is a self-hosted, privacy-first analysis engine for your Apple Health data. It ingests exports from the Health Auto Export iOS app over HTTP and computes correlations, anomalies, trends and seasonality entirely on your own hardware - no cloud, no telemetry, no external connections. HOW IT WORKS: Health Auto Export (or any client) POSTs JSON to the ingest endpoint (POST /api/ingest) on port 8000, authenticated with the INGEST_SECRET you set (sent as the X-Ingest-Token header). Samples are deduplicated and stored idempotently in a TimescaleDB/PostgreSQL database. A nightly job (ANALYSIS_CRON, default 03:30) runs the statistical pipeline with FDR-controlled correlations, GPS route/geo analysis and workout dashboards; results and optional LLM-generated narration reports are written under /config. Check the service with GET /api/health. DATABASE (required): HealthLog needs a TimescaleDB/PostgreSQL 16 database (recommended image timescale/timescaledb:2.17.2-pg16). Run it as a companion container named healthlog-db on the same Docker network, then set DATABASE_URL to the psycopg v3 connection string, e.g. postgresql+psycopg://healthlog:PASSWORD@healthlog-db:5432/healthlog. STORAGE: Map /config to persist the optional config.yaml, the import/ backfill directory, narration/ reports and logs. Set PUID=99 / PGID=100 so the files are owned by nobody:users on Unraid. OPTIONAL CONFIG FILE: Drop a config.yaml into /config to tune the analysis pipeline, your personal profile (birth year, sex, HR zones), workout load metrics, Ollama narration and push notifications. Changes are picked up automatically without a restart. A Grafana dashboard is included in the project. Project: https://github.com/anym001/healthlog",
+  "paths": [
+    {
+      "name": "App Config Dir",
+      "host": "/mnt/cache/appdata/healthlog",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent app directory. Holds the optional config.yaml, the import/ backfill directory, narration/ reports and log files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP ingest endpoint and health check (POST your Apple Health export here; GET /api/health for status)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql+psycopg://healthlog:PASSWORD@healthlog-db:5432/healthlog",
+      "description": "Required: psycopg v3 connection string to your TimescaleDB/PostgreSQL 16 database. Replace PASSWORD with your database user's password. The default host healthlog-db assumes the database runs as a companion container with that name on the same Docker network; adjust it if your host/IP differs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "INGEST_SECRET",
+      "key": "INGEST_SECRET",
+      "value": "",
+      "description": "Required: shared secret that Health Auto Export sends in the X-Ingest-Token header. Use any strong random string and configure the same value in the iOS app.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user ID that owns the files under /config (Unraid: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group ID for the files under /config (Unraid: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone. Also sets the daily grid used for analysis bucketing and the schedule for ANALYSIS_CRON.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "Reverse proxies trusted to set X-Real-IP/X-Forwarded-For for the audit client IP (comma-separated IPs/CIDRs, or * for all). Used only for the fail2ban-ready ingest-auth-failure log line, never for authorization. Empty trusts the standard private + loopback ranges, the usual container-behind-a-proxy-on-a-private-network setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYSIS_CRON",
+      "key": "ANALYSIS_CRON",
+      "value": "30 3 * * *",
+      "description": "When the nightly analysis runs (5-field cron expression, evaluated in TZ). Default is 03:30.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FORMAT",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log output format: text or json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CONFIG_FILE",
+      "key": "CONFIG_FILE",
+      "value": "/config/config.yaml",
+      "description": "Path to the optional structured configuration file inside the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

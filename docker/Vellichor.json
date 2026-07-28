@@ -1,0 +1,123 @@
+{
+  "name": "Vellichor",
+  "repo": "ghcr.io/woodscode/vellichor-web:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/woodscode/vellichor-web/pkgs/container/vellichor-web",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --memory=12g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]/",
+  "icon": "https://raw.githubusercontent.com/woodscode/vellichor-web/main/unraid/icon.png",
+  "project": "https://github.com/woodscode/vellichor-web",
+  "description": "Self-hosted web app that turns your written stories and ebooks into narrated audiobooks using the Kokoro-82M TTS model. Multi-voice character casting, background ambience, chaptered M4B + per-chapter MP3 output, and auto-export to an Audiobookshelf library. Optional NVIDIA GPU acceleration (requires the Nvidia Driver plugin); falls back to CPU. Optional AI \"Smart cast\" needs a separate Ollama container \u2014 set Ollama URL below; without it the rule-based Quick detect is used.",
+  "paths": [
+    {
+      "name": "App data (/data)",
+      "host": "/mnt/cache/appdata/vellichor/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Uploads, job history, and the model cache (Kokoro). Persisted.",
+      "required": true
+    },
+    {
+      "name": "Audiobook library (/library)",
+      "host": "",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Optional. Where finished audiobooks are exported, e.g. your Audiobookshelf library share. Leave blank if unused.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "tcp",
+      "description": "Port for the web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Login password",
+      "key": "VELLICHOR_PASSWORD",
+      "value": "",
+      "description": "Web UI login password. LEAVE BLANK ONLY ON A TRUSTED LAN \u2014 blank disables authentication entirely.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Session-cookie signing key. Generate with: openssl rand -hex 32. Blank = a random key each restart (everyone gets logged out on restart).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama URL (AI Smart cast)",
+      "key": "OLLAMA_URL",
+      "value": "",
+      "description": "Optional. URL of a separate Ollama container for AI Smart cast, e.g. http://192.168.1.50:11434. Blank disables Smart cast (rule-based Quick detect still works).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Smart cast model",
+      "key": "SMARTCAST_MODEL",
+      "value": "llama3.2:3b",
+      "description": "Ollama model used for Smart cast (must be pulled in your Ollama container).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Completion notify URL",
+      "key": "NOTIFY_URL",
+      "value": "",
+      "description": "Optional ntfy/gotify URL to get a push when a conversion finishes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Export owner UID",
+      "key": "ABS_UID",
+      "value": "99",
+      "description": "UID to own exported audiobook files so your library app can read them (Unraid 'nobody' = 99).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Export owner GID",
+      "key": "ABS_GID",
+      "value": "100",
+      "description": "GID to own exported files (Unraid 'users' = 100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU(s) to expose. Requires the Nvidia Driver plugin. NO GPU? Clear 'Extra Parameters' (remove --runtime=nvidia) and ignore this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "Leave as-is for GPU acceleration.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

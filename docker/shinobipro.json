@@ -1,0 +1,179 @@
+{
+  "name": "shinobipro",
+  "repo": "spaceinvaderone/shinobi_pro_unraid:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/spaceinvaderone/shinobi_pro_unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://shinobi.video//libs/assets/icon/apple-touch-icon-57x57.png",
+  "project": "https://shinobi.video/",
+  "description": "Default tag is spaceinvaderone/shinobi_pro_Unraid:latest but this can be changed to :nvidia To use your Nvidia GPU for encoding 1. Use the Nvidia Unraid build of Unraid 2. Set the repository tag to :nvidia ( spaceinvaderone/shinobi_pro_Unraid:latest ) 3. Under Extra Parameters: add --runtime=nvidia 4. Set template field Nvidia build only -- Driver capabilities: to all 5. Set template field Nvidia build only -- GPU ID: to your GPU id from the nvida Unraid plugin Shinobi is the Open Source CCTV Solution written in Node.JS. Designed with multiple account system, Streams by WebSocket, and Save to WebM. Shinobi can record IP Cameras and Local Cameras. Features Time-lapse Viewer (Watch a hours worth of footage in a few minutes) 2-Factor Authentication Defeats stream limit imposed by browsers With Base64 (Stream Type) and JPEG Mode (Option) Records IP Cameras and Local Cameras Streams by WebSocket, HLS (includes audio), and MJPEG Save to WebM and MP4 Can save Audio Push Events - When a video is finished it will appear in the dashboard without a refresh Region Motion Detection (Similar to ZoneMinder Zone Detection) Represented by a Motion Guage on each monitor \"No Motion\" Notifications 1 Process for Each Camera to do both, Recording and Streaming Timeline for viewing Motion Events and Videos Sub-Accounts with permissions Monitor Viewing Monitor Editing Video Deleting Separate API keys for sub account Cron Filters can be set based on master account Stream Analyzer built-in (FFprobe GUI) Monitor Groups Can snapshot images from stream directly Lower Bandwith Mode (JPEG Mode) Snapshot (cgi-bin) must be enabled in Monitor Settings Control Cameras from Interface API Get videos Get monitors Change monitor modes : Disabled, Watch, Record Embedding streams Dashboard Framework made with Google Material Design Lite, jQuery, and Bootstrap",
+  "paths": [
+    {
+      "name": "video storage location",
+      "host": "/mnt/cache/cctv/",
+      "container": "/opt/shinobi/videos",
+      "mode": "rw,slave",
+      "description": "/opt/shinobi/videos",
+      "required": true
+    },
+    {
+      "name": "Temporary Streams",
+      "host": "/dev/shm/shinobi",
+      "container": "/dev/shm/streams",
+      "mode": "rw",
+      "description": "Temporary Streams",
+      "required": false
+    },
+    {
+      "name": "appdata location",
+      "host": "/mnt/cache/appdata/shinobipro",
+      "container": "/config",
+      "mode": "rw",
+      "description": "/config",
+      "required": true
+    },
+    {
+      "name": "maria db database location",
+      "host": "/mnt/cache/appdata/shinobipro/database",
+      "container": "/var/lib/mysql",
+      "mode": "rw",
+      "description": "/var/lib/mysql",
+      "required": true
+    },
+    {
+      "name": "customautoload modules",
+      "host": "/mnt/cache/appdata/shinobipro/customautoload",
+      "container": "/opt/shinobi/libs/customAutoLoad",
+      "mode": "rw",
+      "description": "Container Path: /opt/shinobi/libs/customAutoLoad",
+      "required": false
+    },
+    {
+      "name": "TIMEZONE",
+      "host": "/usr/share/zoneinfo/",
+      "container": "/usr/share/zoneinfo/",
+      "mode": "ro",
+      "description": "Container Path: /usr/share/zoneinfo/",
+      "required": false
+    },
+    {
+      "name": "LOCAL TIME",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Container Path: /etc/localtime",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container Port: 8080",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "username for superuser",
+      "key": "ADMIN_USER",
+      "value": "admin",
+      "description": "Container Variable: ADMIN_USER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "password for superuser",
+      "key": "ADMIN_PASSWORD",
+      "value": "password",
+      "description": "Container Variable: ADMIN_PASSWORD",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "****Nvidia build only  -- Driver capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "",
+      "description": "If using tag :nvidia -- set to all",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "****Nvidia build only -- GPU ID",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "add gpu id (from nvidia unraid plugin)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_ROOT_PASSWORD",
+      "key": "MYSQL_ROOT_PASSWORD",
+      "value": "",
+      "description": "MYSQL_ROOT_PASSWORD",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_PORT",
+      "key": "MYSQL_PORT",
+      "value": "3306",
+      "description": "MYSQL_PORT standard port 3306",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_USER",
+      "key": "MYSQL_USER",
+      "value": "majesticflame",
+      "description": "MYSQL_USER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_DATABASE",
+      "key": "MYSQL_DATABASE",
+      "value": "ccio",
+      "description": "MYSQL_DATABASE NAME",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_HOST",
+      "key": "MYSQL_HOST",
+      "value": "localhost",
+      "description": "MYSQL_HOST leave as localhost for container built in mariadb",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_PASSWORD",
+      "key": "MYSQL_PASSWORD",
+      "value": "",
+      "description": "MYSQL_PASSWORD default none for internal mariadb",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MYSQL_ROOT_USER",
+      "key": "MYSQL_ROOT_USER",
+      "value": "root",
+      "description": "MYSQL_ROOT_USER",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

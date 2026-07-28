@@ -1,0 +1,99 @@
+{
+  "name": "Sharry",
+  "repo": "jlesage/sharry",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://registry.hub.docker.com/r/jlesage/sharry",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9090]",
+  "icon": "https://raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/sharry-icon.png",
+  "project": "https://eikek.github.io/sharry/",
+  "description": "Sharry allows to share files with others in a simple way. It is a self-hosted web application. The basic concept is: upload files and get a url back that can then be shared. The container is built against Alpine Linux to provide an efficient image in terms of size and resource usage. For a complete documentation of this container, see https://github.com/jlesage/docker-sharry#readme",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/sharry",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the application's configuration, state, logs, and any files requiring persistency.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7828",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "Port used to access the web interface of the application. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "ID of the user the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "ID of the group the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "0000",
+      "description": "Mask controlling permissions for newly created files and folders, specified in octal notation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Niceness (priority)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "Priority at which the application should run. A niceness value of `-20` is the highest, `19` is the lowest and `0` the default. NOTE: Setting a negative value requires additional permissions. Thus, `--cap-add=SYS_NICE` must be added to Extra Parameters (shown when Advanced View is enabled).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External URL",
+      "key": "SHARRY_BASE_URL",
+      "value": "http://localhost:9090",
+      "description": "The external URL where Sharry can be reached (e.g. `https://sharry.example.com`). This is used to create absolute URLs and to configure the authentication cookie. These URLs are sent to the client, so they must resolve back to the Sharry server. If the default value is used, the external URL is obtained dynamically by inspecting HTTP headers of the request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Account Username",
+      "key": "SHARRY_BACKEND_AUTH_FIXED_USER",
+      "value": "admin",
+      "description": "Username of the built-in administrator account. Setting this variable to an empty value disables this account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Account Password",
+      "key": "SHARRY_BACKEND_AUTH_FIXED_PASSWORD",
+      "value": "changeme",
+      "description": "Password of the built-in administrator account. Setting this variable to an empty value disables this account.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

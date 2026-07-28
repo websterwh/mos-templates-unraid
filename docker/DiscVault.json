@@ -1,0 +1,179 @@
+{
+  "name": "DiscVault",
+  "repo": "ghcr.io/helmerznl/discvault-launcher:v26-beta",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/helmerzNL/DiscVault/main/app/frontend/favicon-192.png",
+  "project": "https://github.com/helmerzNL/DiscVault-Launcher",
+  "description": "DiscVault launcher for Unraid Community Apps. The latest/legacy launcher channel starts the legacy single-container app; v26 channels update and manage the PostgreSQL-backed DiscVault 26 stack while reusing the existing DiscVault beta appdata directory for migration.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/discvault",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Existing DiscVault beta appdata path. Kept for compatibility with the current beta container template.",
+      "required": true
+    },
+    {
+      "name": "Launcher Config Path",
+      "host": "/mnt/cache/appdata/discvault-launcher",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Launcher state, generated Compose file, and generated secrets.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required so the launcher can create and update the DiscVault stack containers.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "6080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "DiscVault web interface. The launcher proxies this port to the DiscVault Next API/UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Existing DiscVault Host Data Path",
+      "key": "DISCVAULT_DATA_DIR_HOST",
+      "value": "/mnt/user/appdata/discvault",
+      "description": "Host path of the existing DiscVault beta appdata. Must match Data Path so the managed stack can mount the same data from the Docker host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Data Path",
+      "key": "DISCVAULT_POSTGRES_DATA_DIR_HOST",
+      "value": "/mnt/user/appdata/discvault-postgres",
+      "description": "Host path where the launcher stores PostgreSQL data for DiscVault Next.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DiscVault Next Image Override",
+      "key": "DISCVAULT_NEXT_IMAGE",
+      "value": "",
+      "description": "Primary DiscVault image override for v26 stack rollouts. Accepts shorthand values auto/prod/latest/v26 - discvault:latest, beta - discvault:beta, v26-beta - discvault:v26-beta, or a full image reference. Supports digest pinning, for example ghcr.io/helmerznl/discvault:v26-beta@sha256:digest.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DiscVault Image (Fallback)",
+      "key": "DISCVAULT_IMAGE",
+      "value": "auto",
+      "description": "Fallback DiscVault image when DISCVAULT_NEXT_IMAGE is empty. Shorthand values auto/prod/latest/v26 map to discvault:latest, beta maps to discvault:beta, and v26-beta maps to discvault:v26-beta.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Compose Project Name",
+      "key": "DISCVAULT_PROJECT_NAME",
+      "value": "discvault_stack",
+      "description": "Stable Docker Compose project name for the managed stack.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Stack Network",
+      "key": "DISCVAULT_NETWORK",
+      "value": "discvault-stack",
+      "description": "Shared Docker network for launcher, API, worker, and PostgreSQL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Always Recreate Stack",
+      "key": "DISCVAULT_ALWAYS_RECREATE_STACK",
+      "value": "false",
+      "description": "When true, the launcher recreates the managed DiscVault stack on every start after pulling images. Useful for development and troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check Health SHA After Deploy",
+      "key": "DISCVAULT_CHECK_HEALTH_SHA",
+      "value": "true",
+      "description": "When true, the launcher validates /api/next/health sha against the deployed image revision and fails startup on mismatch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Boot Log Retention",
+      "key": "DISCVAULT_BOOT_LOG_RETENTION",
+      "value": "50",
+      "description": "How many launcher boot-session log files to keep in /config/logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rollout Lock Timeout Seconds",
+      "key": "DISCVAULT_ROLLOUT_LOCK_TIMEOUT",
+      "value": "300",
+      "description": "Maximum wait time for the launcher rollout lock before startup fails to avoid parallel update races.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Amsterdam",
+      "description": "Container and stack timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RP_ID",
+      "key": "RP_ID",
+      "value": "localhost",
+      "description": "WebAuthn relying party ID (domain only, no protocol/port).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RP_ORIGINS",
+      "key": "RP_ORIGINS",
+      "value": "http://localhost:6080",
+      "description": "Comma-separated WebAuthn allowed origins. Use your real DiscVault URL when using a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Optional stable PostgreSQL password. Leave empty and the launcher generates one in /config/stack.env on first start.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Optional stable JWT signing secret. Leave empty and the launcher generates one in /config/stack.env on first start.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

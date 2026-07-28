@@ -1,0 +1,125 @@
+{
+  "name": "binhex-caddy-duckdns",
+  "repo": "ghcr.io/binhex/arch-caddy-duckdns",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/binhex/arch-caddy-duckdns/pkgs/container/arch-caddy-duckdns",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/caddy-duckdns-icon.png",
+  "project": "https://caddyserver.com/",
+  "description": "Caddy is a powerful, enterprise-ready, open source web server with automatic HTTPS written in Go. This image includes the DuckDNS DNS challenge plugin, enabling automatic TLS certificate issuance and renewal via Let's Encrypt for DuckDNS hostnames without requiring port 80 to be open. Ideal for use as a reverse proxy on a home network.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/caddy-duckdns",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your Caddy configuration file (Caddyfile) and logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: HTTPS",
+      "host": "8443",
+      "container": "8443",
+      "protocol": "tcp",
+      "description": "The HTTPS port Caddy listens on. Must match https_port in your Caddyfile.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: HTTP",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "The HTTP port Caddy listens on (used for redirects). Must match http_port in your Caddyfile.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: Admin",
+      "host": "2019",
+      "container": "2019",
+      "protocol": "tcp",
+      "description": "The admin edpoint port for Caddy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: DUCKDNS_TOKEN",
+      "key": "DUCKDNS_TOKEN",
+      "value": "",
+      "description": "Duck DNS token for automatic TLS certificate issuance and renewal, sign into Duck DNS to view your token.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,50 @@
+{
+  "name": "ServicePulse",
+  "repo": "particular/servicepulse:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/particular/servicepulse",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "--setup-and-run",
+  "web_ui_url": "http://[IP]:[PORT:9090]",
+  "icon": "https://www.gravatar.com/avatar/4160e88ff57936ccec0dbaabc67b02f7?s=120&r=g&d=404",
+  "project": "https://github.com/Particular/ServicePulse",
+  "description": "Particular Software ServicePulse The 'particular/servicepulse' image is part of the Particular Service Platform, which includes the following images: - particular/servicecontrol-ravendb | The database used by the error/audit instances (https://docs.particular.net/servicecontrol/ravendb/containers) - particular/servicecontrol | The primary/error instance, which includes error handling and recoverability (https://docs.particular.net/servicecontrol/servicecontrol-instances/) - particular/servicecontrol-audit | The audit instance, which stores audit data, and can be scaled out to multiple audit instances (https://docs.particular.net/servicecontrol/audit-instances/) - particular/servicecontrol-monitoring | The monitoring instance, which tracks runtime information like throughput, queue length, and other metrics (https://docs.particular.net/servicecontrol/monitoring-instances/) - particular/servicepulse | The web application that provides a front end for recoverability and monitoring features (https://docs.particular.net/servicepulse/)",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "9090",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "9090 is the canonical port exposed by ServicePulse within the container, though this port can be mapped to any desired external port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SERVICECONTROL_URL",
+      "key": "SERVICECONTROL_URL",
+      "value": "http://servicecontrol-error:33333",
+      "description": "The ServiceControl URL points to the ServiceControl (Error) instance URL. ServicePulse requests to /api/* will be proxied to this URL in order to fetch ServiceControl data used by ServicePulse.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MONITORING_URL",
+      "key": "MONITORING_URL",
+      "value": "http://servicecontrol-monitoring:33633",
+      "description": "The Monitoring URL points to the ServiceControl Monitoring instance URL. ServicePulse requests to /monitoring-api/* will be proxied to this URL in order to fetch monitoring data used by ServicePulse.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

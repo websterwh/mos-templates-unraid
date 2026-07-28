@@ -1,0 +1,116 @@
+{
+  "name": "Backblaze64",
+  "repo": "ghcr.io/iamfoz/backblaze-personal-wine:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/iamfoz/backblaze-64-personal-wine-container/pkgs/container/backblaze-personal-wine",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]/",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/backblaze.png",
+  "project": "https://github.com/iamfoz/backblaze-64-personal-wine-container",
+  "description": "Backblaze Personal Backup running under Wine (64-bit Windows environment) on Ubuntu 24.04. Provides a web-based GUI via browser or VNC. Automatically keeps Backblaze updated to the latest version on each restart.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/Backblaze64",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for the Wine prefix and Backblaze configuration. Must survive container restarts.",
+      "required": true
+    },
+    {
+      "name": "Backup Source (Drive D)",
+      "host": "",
+      "container": "/drive_d/",
+      "mode": "rw",
+      "description": "Optional: map a host path to back up as drive D. Must be read-write: Backblaze creates a .bzvol folder in the drive's root to track and back it up. Repeat with /drive_e/, /drive_f/, etc. for additional locations.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5800",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port for the browser-based GUI (HTTP).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC Port",
+      "host": "5900",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port for direct VNC client access.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone string, e.g. America/New_York. See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "UID the app runs as. On Unraid this is normally 99 (nobody), which matches user-share ownership - the app must own the files it backs up, since Backblaze writes a .bzvol folder into each drive's root. Change only if your data is owned by a different user (check with: id -u).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "GID the app runs as. On Unraid this is normally 100 (users), matching user-share ownership. Change only if your data is owned by a different group (check with: id -g).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Auto-Update",
+      "key": "DISABLE_AUTOUPDATE",
+      "value": "false",
+      "description": "Set to true to skip the Backblaze version check on startup (faster boot, but won't auto-update).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Virtual Desktop",
+      "key": "DISABLE_VIRTUAL_DESKTOP",
+      "value": "false",
+      "description": "Set to true to disable Wine's virtual desktop mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Width",
+      "key": "DISPLAY_WIDTH",
+      "value": "900",
+      "description": "Virtual desktop width in pixels.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "700",
+      "description": "Virtual desktop height in pixels.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,249 @@
+{
+  "name": "binhex-movarr",
+  "repo": "ghcr.io/binhex/arch-movarr",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/binhex/arch-movarr/pkgs/container/arch-movarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/movarr-icon.png",
+  "project": "https://github.com/binhex/movarr",
+  "description": "movarr is an automated movie torrent acquisition daemon. It polls Jackett or Prowlarr for movie torrents, filters results against IMDb metadata (rating, votes, year, runtime, language, genres, certification), and adds matching torrents to qBittorrent. Once a torrent completes, movarr can post-process it by copying the file to your media library. All key settings can be defined via the environment variables below, or in the movarr.yml configuration file mounted at /config.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/binhex-movarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container path for movarr configuration file (movarr.yml), database, and logs.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Container path to your media library root. movarr copies completed movies here during post-processing. Set MOVARR_LIBRARY_PATH_LIST to the relevant sub-path(s) inside this mount (e.g. /media/Movies).",
+      "required": false
+    },
+    {
+      "name": "Path: /data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Container path to the qBittorrent completed downloads directory. movarr reads source files from here during post-processing before calling qBittorrent to remove the torrent.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Variable: MOVARR_LOG_LEVEL",
+      "key": "MOVARR_LOG_LEVEL",
+      "value": "INFO|DEBUG|SUCCESS|WARNING|ERROR",
+      "description": "Console log level. Set to DEBUG when troubleshooting. Overrides general.log_level_console in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_LIBRARY_PATH",
+      "key": "MOVARR_LIBRARY_PATH",
+      "value": "",
+      "description": "Comma-separated list of container paths to your media library. Used to detect already-owned movies and as the post-processing copy destination. Example: /media/Movies,/media/Movies-4K. Overrides general.library_path_list in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_QBT_HOST",
+      "key": "MOVARR_QBT_HOST",
+      "value": "localhost",
+      "description": "Hostname or IP address of the qBittorrent WebUI. If both containers share a Docker network use the container name; for host networking use 'localhost'. Overrides torrent_client.qbittorrent.host in movarr.yml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_QBT_PORT",
+      "key": "MOVARR_QBT_PORT",
+      "value": "8080",
+      "description": "qBittorrent WebUI port. Overrides torrent_client.qbittorrent.port in movarr.yml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_QBT_USERNAME",
+      "key": "MOVARR_QBT_USERNAME",
+      "value": "admin",
+      "description": "qBittorrent WebUI username. Overrides torrent_client.qbittorrent.username in movarr.yml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_QBT_PASSWORD",
+      "key": "MOVARR_QBT_PASSWORD",
+      "value": "",
+      "description": "qBittorrent WebUI password. Overrides torrent_client.qbittorrent.password in movarr.yml.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Variable: MOVARR_INDEX_PROXY",
+      "key": "MOVARR_INDEX_PROXY",
+      "value": "prowlarr|jackett",
+      "description": "Index proxy used for torrent searches. Overrides index_proxy.selected in movarr.yml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_JACKETT_HOST",
+      "key": "MOVARR_JACKETT_HOST",
+      "value": "localhost",
+      "description": "Hostname or IP address of the Jackett instance. Required when MOVARR_INDEX_PROXY=jackett. Overrides index_proxy.jackett.host in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_JACKETT_PORT",
+      "key": "MOVARR_JACKETT_PORT",
+      "value": "9117",
+      "description": "Jackett port. Required when MOVARR_INDEX_PROXY=jackett. Overrides index_proxy.jackett.port in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_JACKETT_API_KEY",
+      "key": "MOVARR_JACKETT_API_KEY",
+      "value": "",
+      "description": "Jackett API key. Required when MOVARR_INDEX_PROXY=jackett. Overrides index_proxy.jackett.api_key in movarr.yml.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MOVARR_PROWLARR_HOST",
+      "key": "MOVARR_PROWLARR_HOST",
+      "value": "localhost",
+      "description": "Hostname or IP address of the Prowlarr instance. Required when MOVARR_INDEX_PROXY=prowlarr. Overrides index_proxy.prowlarr.host in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_PROWLARR_PORT",
+      "key": "MOVARR_PROWLARR_PORT",
+      "value": "9696",
+      "description": "Prowlarr port. Required when MOVARR_INDEX_PROXY=prowlarr. Overrides index_proxy.prowlarr.port in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_PROWLARR_API_KEY",
+      "key": "MOVARR_PROWLARR_API_KEY",
+      "value": "",
+      "description": "Prowlarr API key. Required when MOVARR_INDEX_PROXY=prowlarr. Overrides index_proxy.prowlarr.api_key in movarr.yml.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MOVARR_CONFIG_PATH",
+      "key": "MOVARR_CONFIG_PATH",
+      "value": "/config/movarr/configs",
+      "description": "Path to the movarr YAML configuration file. Change only if you need the config file in a non-standard location.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_DB_PATH",
+      "key": "MOVARR_DB_PATH",
+      "value": "/config/movarr/db",
+      "description": "Path to the movarr SQLite history database. Overrides general.db_path in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_LOG_PATH",
+      "key": "MOVARR_LOG_PATH",
+      "value": "/config/movarr/logs",
+      "description": "Path to the movarr log file. Leave empty to disable file logging. Overrides general.log_path in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MOVARR_PID_PATH",
+      "key": "MOVARR_PID_PATH",
+      "value": "/config/movarr/pids",
+      "description": "Path to the movarr PID file. Overrides general.pid_path in movarr.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_STARTUP_SCRIPTS",
+      "key": "ENABLE_STARTUP_SCRIPTS",
+      "value": "no|yes",
+      "description": "Specify whether to run startup scripts to install and/or configure additional applications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute for healthchecks; defaults to healthcheck.sh if unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "Action to execute on healthcheck failure; defaults to 'exit 1'. Set to 'kill 1' to restart the container on failure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "Hostname used for DNS and HTTPS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

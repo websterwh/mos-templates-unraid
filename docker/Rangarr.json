@@ -1,0 +1,233 @@
+{
+  "name": "Rangarr",
+  "repo": "judochinx/rangarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/judochinx/rangarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/JudoChinX/unraid-templates/main/assets/rangarr-logo.png",
+  "project": "https://github.com/JudoChinX/rangarr",
+  "description": "Rangarr is a lightweight orchestration service that automates and staggers media searches across multiple *arr instances (Radarr, Sonarr, Lidarr). It helps keep your library complete without overwhelming your indexers or API limits. Features: - Multi-Instance Support: Manage Radarr, Sonarr, and Lidarr from a single service. - Smart Staggering: Prevents \"thundering herd\" issues by spacing out search requests. - Proportional Interleaving: Balanced searching between missing items and upgrades. - Weighted Distribution: Prioritize specific instances. - No Telemetry: Only communicates with the *arr instances you configure. Note: By default, this template is configured using environment variables. You can also use a config.yaml by mapping the /app/config path and changing RANGARR_CONFIG_SOURCE to \"file\".",
+  "paths": [
+    {
+      "name": "AppData Config Path",
+      "host": "/mnt/cache/appdata/rangarr",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Mount point for config.yaml (only needed if RANGARR_CONFIG_SOURCE is 'file').",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Config Source",
+      "key": "RANGARR_CONFIG_SOURCE",
+      "value": "env",
+      "description": "Set to 'env' to use environment variables or 'file' to use a config.yaml mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Run Interval (Seconds)",
+      "key": "RANGARR_GLOBAL_INTERVAL",
+      "value": "3600",
+      "description": "How often to run the search cycle (e.g., 3600 for every hour).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dry Run",
+      "key": "RANGARR_GLOBAL_DRY_RUN",
+      "value": "false",
+      "description": "If true, Rangarr will log what it would search without actually triggering the search.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stagger Interval (Seconds)",
+      "key": "RANGARR_GLOBAL_STAGGER_INTERVAL_SECONDS",
+      "value": "30",
+      "description": "Seconds to wait between individual search requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Missing Batch Size",
+      "key": "RANGARR_GLOBAL_MISSING_BATCH_SIZE",
+      "value": "20",
+      "description": "Max missing items to search per cycle (0 = disabled, -1 = unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upgrade Batch Size",
+      "key": "RANGARR_GLOBAL_UPGRADE_BATCH_SIZE",
+      "value": "10",
+      "description": "Max upgrade-eligible items to search per cycle (0 = disabled, -1 = unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Set your timezone for log timestamps.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Set the log level (DEBUG, INFO, WARNING, ERROR).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search Order",
+      "key": "RANGARR_GLOBAL_SEARCH_ORDER",
+      "value": "last_searched_ascending",
+      "description": "Priority for choosing items (alphabetical_ascending, alphabetical_descending, last_added_ascending, last_added_descending, last_searched_ascending, last_searched_descending, random, release_date_ascending, release_date_descending).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search Retry Interval (Days)",
+      "key": "RANGARR_GLOBAL_RETRY_INTERVAL_DAYS",
+      "value": "30",
+      "description": "Days to wait before searching the same item again (0 to disable).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Include Tags",
+      "key": "RANGARR_GLOBAL_INCLUDE_TAGS",
+      "value": "",
+      "description": "Comma-separated list of *arr tag names to include. Only items with at least one matching tag will be searched. Leave blank to include all items.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Exclude Tags",
+      "key": "RANGARR_GLOBAL_EXCLUDE_TAGS",
+      "value": "",
+      "description": "Comma-separated list of *arr tag names to exclude. Items with any matching tag will be skipped. Leave blank to exclude nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr: Name",
+      "key": "RANGARR_INSTANCE_0_NAME",
+      "value": "",
+      "description": "Display name for this instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr: Type",
+      "key": "RANGARR_INSTANCE_0_TYPE",
+      "value": "radarr",
+      "description": "Must be 'radarr'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr: URL",
+      "key": "RANGARR_INSTANCE_0_URL",
+      "value": "http://radarr:7878",
+      "description": "URL to your Radarr instance (use Docker IP or hostname).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr: API Key",
+      "key": "RANGARR_INSTANCE_0_API_KEY",
+      "value": "",
+      "description": "Your Radarr API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr: Name",
+      "key": "RANGARR_INSTANCE_1_NAME",
+      "value": "",
+      "description": "Display name for this instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr: Type",
+      "key": "RANGARR_INSTANCE_1_TYPE",
+      "value": "sonarr",
+      "description": "Must be 'sonarr'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr: URL",
+      "key": "RANGARR_INSTANCE_1_URL",
+      "value": "http://sonarr:8989",
+      "description": "URL to your Sonarr instance (use Docker IP or hostname).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr: API Key",
+      "key": "RANGARR_INSTANCE_1_API_KEY",
+      "value": "",
+      "description": "Your Sonarr API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr: Search Season Packs",
+      "key": "RANGARR_GLOBAL_SEASON_PACKS",
+      "value": "false",
+      "description": "If true, Sonarr will search for missing/upgrade items as season packs when multiple episodes are needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr: Name",
+      "key": "RANGARR_INSTANCE_2_NAME",
+      "value": "",
+      "description": "Display name for this instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr: Type",
+      "key": "RANGARR_INSTANCE_2_TYPE",
+      "value": "lidarr",
+      "description": "Must be 'lidarr'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr: URL",
+      "key": "RANGARR_INSTANCE_2_URL",
+      "value": "http://lidarr:8686",
+      "description": "URL to your Lidarr instance (use Docker IP or hostname).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr: API Key",
+      "key": "RANGARR_INSTANCE_2_API_KEY",
+      "value": "",
+      "description": "Your Lidarr API Key.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

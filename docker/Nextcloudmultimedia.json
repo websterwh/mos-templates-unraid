@@ -1,0 +1,67 @@
+{
+  "name": "Nextcloud-multimedia",
+  "repo": "terratrax/nextcloud-multimedia:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/terratrax/nextcloud-multimedia",
+  "network": "ultimus-home",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://s3.ultimus.cloud/ultimus-static/terratrax/nextcloud_mm.png",
+  "project": "https://nextcloud.com/",
+  "description": "This is the latest Nextcloud-31.0.4-apache image with additional packages and plugins installed to support videos and facial recognition: - ffmpeg (install from apt repository) - pdlib (built from source) - bzip (built from source) INSTALLATION First install a MariaDB or PostgreSQL container. Changing their paths to /mnt/cache/appdata/... (instead of /mnt/user/appdata/...) will enormously boost Nextcloud's loading times! After that use the database's IP:Port and credentials to install Nextcloud. Optionally install the Swag or Nginx Proxy Manager container allows you to access Nextcloud from outside of your home through HTTPS (do not forget forwarding the Ports 80 and 443 in your router). Note: The proxy itself needs to communicate through HTTP (not HTTPS) with Nextcloud. INSTALL AND CONFIGURE NEXTCLOUD MEMORIES Install Memories from within the Nextcloud application and provide it the base folder for your media when it asks. Launch a console into the container and run the following commands individually: php occ memories:video-setup (follow the prompts) php occ memories:index INSTALL AND CONFIGURE FACIAL RECOGNITION Install the 'face recognition' app from within the Nextcloud application. Launch a terminal for the container and run the following command to initialize it (customize to suit): php occ face:setup --memory 1024M --model 1 From within the application, visit settings the face recognition settings and select a temporary file size. To kick off scanning for faces: php occ face:background_job UPDATES Nextcloud often needs manual interaction to fix database indexes. In those cases execute the following through the Unraid Terminal to fix them: docker exec --user 99 Nextcloud php occ db:add-missing-indices Sometimes this command is needed: docker exec --user 99 Nextcloud php occ db:convert-filecache-bigint --no-interaction",
+  "paths": [
+    {
+      "name": "HTML/PHP Files",
+      "host": "/mnt/cache/appdata/nextcloud/html",
+      "container": "/var/www/html",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "Apps",
+      "host": "/mnt/cache/appdata/nextcloud/apps",
+      "container": "/var/www/html/custom_apps",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "Config Files",
+      "host": "/mnt/cache/appdata/nextcloud/config",
+      "container": "/var/www/html/config",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "webui",
+      "host": "7888",
+      "container": "80",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PHP_MEMORY_LIMIT",
+      "key": "PHP_MEMORY_LIMIT",
+      "value": "2048M",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

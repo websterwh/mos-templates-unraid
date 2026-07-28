@@ -1,0 +1,99 @@
+{
+  "name": "OpenHands",
+  "repo": "docker.openhands.dev/openhands/openhands:1.7",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://docker.openhands.dev/openhands/openhands",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--add-host host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/openhands/icon.png",
+  "project": "https://github.com/OpenHands/OpenHands",
+  "description": "OpenHands is an open-source AI-driven development agent. It writes, reviews, and tests code. Important: Requires access to the Docker socket to spin up isolated execution environments. Pre-configured for local Ollama use. Detailed README (full setup & options): https://github.com/junkerderprovinz/Unraid-apps/blob/main/openhands/README.md",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/openhands",
+      "container": "/.openhands",
+      "mode": "rw",
+      "description": "Persistent OpenHands configuration and state",
+      "required": true
+    },
+    {
+      "name": "Workspace Directory",
+      "host": "/mnt/cache/ai-workspace",
+      "container": "/workspace",
+      "mode": "rw",
+      "description": "Working directory exposed to the agent",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required so OpenHands can spawn isolated sandbox containers",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "OpenHands web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Sandbox Volumes",
+      "key": "SANDBOX_VOLUMES",
+      "value": "/mnt/user/ai-workspace:/workspace:rw",
+      "description": "Host:container mount(s) injected into every sandbox container the agent spins up. Must match the Workspace Directory mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLM API Key",
+      "key": "LLM_API_KEY",
+      "value": "ollama",
+      "description": "API key for the LLM backend. For Ollama any non-empty value works (e.g. 'ollama').",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LLM Model",
+      "key": "LLM_MODEL",
+      "value": "ollama/qwen2.5-coder:14b",
+      "description": "LiteLLM-style model string. Default targets Ollama with qwen2.5-coder:14b.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLM Base URL",
+      "key": "LLM_BASE_URL",
+      "value": "http://host.docker.internal:11434",
+      "description": "Base URL of the LLM endpoint. Default reaches Ollama on the Unraid host via host.docker.internal. For a remote/LAN Ollama use http://host:11434. Leave blank for hosted providers (OpenAI/Anthropic/etc.) that use their own endpoints.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Embedding Model",
+      "key": "LLM_EMBEDDING_MODEL",
+      "value": "local",
+      "description": "Embedding model used for memory/context. 'local' uses the bundled embedding model.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

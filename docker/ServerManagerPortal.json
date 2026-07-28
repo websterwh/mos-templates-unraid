@@ -1,0 +1,155 @@
+{
+  "name": "Server-Manager-Portal",
+  "repo": "ghcr.io/jl94x4/server-manager-portal:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/jl94x4/Server-Manager-Portal/pkgs/container/server-manager-portal",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --hostname=server-manager-portal",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2121]/portal",
+  "icon": "https://raw.githubusercontent.com/jl94x4/Server-Manager-Portal/main/static/logo.png",
+  "project": "https://github.com/jl94x4/Server-Manager-Portal",
+  "description": "A self-hosted Plex server management portal with user onboarding, access expiry, analytics, status monitoring, and admin tools. After install, open the WebUI and sign in with your Plex admin account, then configure Plex token and SMTP in Settings. Optional Collexions: enable in Settings \u2192 Collexions (worker is bundled in this image \u2014 no second container). Data is stored under the Config Directory at collexions/. The container entrypoint automatically fixes appdata folder permissions on startup. Updates: this template uses the :latest tag (tracks main releases). To pin a specific version, change Repository to ghcr.io/jl94x4/server-manager-portal:1.4.0 (or v1.4.0).",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/server-manager-portal/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent JSON data (users, settings, caches, logs). Container path: /app/config",
+      "required": true
+    },
+    {
+      "name": "Backup Directory",
+      "host": "/mnt/cache/appdata/server-manager-portal/backup",
+      "container": "/app/backup",
+      "mode": "rw",
+      "description": "Rolling backup snapshots created from Settings. Container path: /app/backup",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "2121",
+      "container": "2121",
+      "protocol": "tcp",
+      "description": "Portal web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the application as (default 99 on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the application as (default 100 on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required session signing secret (minimum 32 characters). Generate a secure random string to use here.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public Base URL",
+      "key": "PUBLIC_BASE_URL",
+      "value": "",
+      "description": "Optional bootstrap HTTPS URL (no trailing slash). Prefer Settings \u2192 Portal UI \u2192 Public Base URL after first login. For subpath hosting include the path, e.g. https://plex.example.com/portal",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base Path",
+      "key": "BASE_PATH",
+      "value": "",
+      "description": "Optional URL prefix when hosted under a subpath (e.g. /portal). Leave empty for root hosting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Secure Cookies",
+      "key": "FORCE_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set to true only when the portal is served over HTTPS. Must be false for plain HTTP LAN access (e.g. http://192.168.x.x:2121).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Private Integration URLs",
+      "key": "ALLOW_PRIVATE_INTEGRATION_URLS",
+      "value": "true",
+      "description": "Allow Sonarr/Radarr/Tautulli URLs on LAN/private IPs (recommended for homelab).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Remote Connection",
+      "key": "PLEX_PREFER_REMOTE_CONNECTION",
+      "value": "true",
+      "description": "Use LAN/remote Plex URL instead of localhost when running in Docker. Auto-detected if unset; set true for Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Token",
+      "key": "SETUP_TOKEN",
+      "value": "",
+      "description": "Optional one-time token for remote first-time setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plex OAuth Client ID",
+      "key": "CLIENT_ID",
+      "value": "",
+      "description": "Optional fixed Plex OAuth client id (auto-generated on first run if empty).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Data Directory",
+      "key": "CONFIG_DIR",
+      "value": "/app/config",
+      "description": "Internal runtime data path (normally leave as /app/config).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind Host",
+      "key": "BIND_HOST",
+      "value": "0.0.0.0",
+      "description": "Network interface to bind.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Port",
+      "key": "PORT",
+      "value": "2121",
+      "description": "Application listen port inside the container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,137 @@
+{
+  "name": "UniFi-Protect-Backup",
+  "repo": "ghcr.io/ep1cman/unifi-protect-backup:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/ep1cman/unifi-protect-backup/pkgs/container/unifi-protect-backup",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": null,
+  "project": "https://github.com/ep1cman/unifi-protect-backup",
+  "description": "A Python based tool for backing up UniFi Protect event clips as they occur to cloud storage. By default it will backup clips locally to `/data` inside the container. However you can create an `rclone` config file to backup to dozens of cloud providers. You can do this by running the following commands: ``` $ mkdir -p /mnt/user/appdata/unifi-protect-backup/config $ docker run -it --rm -v /mnt/user/appdata/unifi-protect-backup/config:/root/.config/rclone --entrypoint rclone ghcr.io/ep1cman/unifi-protect-backup config ``` Use the interactive configuration tool to setup your desired backup destination. Once complete you can start the container ensuring that the `RCLONE_DESTINATION` uses the name of your rclone remote e.g `MyDropbox:/path/on/dropbx` NOTE: If you are using the `local` remote type, the path set in `RCLONE_DESTINATION` will be inside the container so please use `/data`. You then need to set the optional \"Clip directory\" below to where you actually want the data to be stored.",
+  "paths": [
+    {
+      "name": "Rclone Config",
+      "host": "/mnt/cache/appdata/unifi-protect-backup/rclone/",
+      "container": "/config/rclone",
+      "mode": "r",
+      "description": "Location of rclone configuration files",
+      "required": true
+    },
+    {
+      "name": "Database directory",
+      "host": "/mnt/cache/appdata/unifi-protect-backup/database/",
+      "container": "/config/database",
+      "mode": "r",
+      "description": "Location to save the SQLite events database",
+      "required": true
+    },
+    {
+      "name": "Clip directory",
+      "host": "/mnt/cache/appdata/unifi-protect-backup/clips",
+      "container": "/data",
+      "mode": "r",
+      "description": "ONLY USED WITH LOCAL RCLONE REMOTE",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "TimeZone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "TimeZone for the container refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of possible timezones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi Protect username",
+      "key": "UFP_USERNAME",
+      "value": "",
+      "description": "Username to login to Unifi Protect instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi Protect password",
+      "key": "UFP_PASSWORD",
+      "value": "",
+      "description": "Password for Unifi Protect user",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "UniFi Protect address",
+      "key": "UFP_ADDRESS",
+      "value": "",
+      "description": "Address of Unifi Protect instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UniFi Protect port",
+      "key": "UFP_PORT",
+      "value": "443",
+      "description": "Port of Unifi Protect instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Verify SSL certificate",
+      "key": "UFP_SSL_VERIFY",
+      "value": "false",
+      "description": "Set to false if your UniFi protect instances doesn't have a valid SSL certificate",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Clip retention period",
+      "key": "RCLONE_RETENTION",
+      "value": "7d",
+      "description": "How long should event clips be backed up for. Format as per the `--max-age` argument of `rclone` (https://rclone.org/filtering/#max-age-don-t-transfer-any-file-older-than-this)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "rclone destination",
+      "key": "RCLONE_DESTINATION",
+      "value": "local:/data",
+      "description": "`rclone` destination path in the format {rclone remote}:{path on remote}. E.g.`gdrive:/backups/unifi_protect`",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ignore Cameras",
+      "key": "IGNORE_CAMERAS",
+      "value": "",
+      "description": "IDs of the cameras you want unifi-protect-backup to ignore. A list of camera IDs will be appear at the start of the log",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logging Verbosity",
+      "key": "VERBOSITY",
+      "value": "v",
+      "description": "More `v`s = more verbost logging",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "rclone args",
+      "key": "RCLONE_ARGS",
+      "value": "",
+      "description": "Optional arguments which are directly passed to `rclone rcat`. See the `rclone` documentation for the full set of arguments it supports (https://rclone.org/docs/)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

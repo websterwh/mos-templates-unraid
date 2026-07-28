@@ -1,0 +1,91 @@
+{
+  "name": "boltarr",
+  "repo": "brqae/boltarr:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/brqae/boltarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:12100]/",
+  "icon": "https://raw.githubusercontent.com/brq-ae/boltarr/master/frontend/img/BoltarrLogo.png",
+  "project": "https://github.com/brq-ae/boltarr",
+  "description": "Boltarr is a self-hosted network dashboard for mapping, monitoring, and analyzing your local network. Scan subnets with nmap, visualize your topology as an interactive graph, track devices, manage VLANs, and chat with an optional AI assistant that has full context of your network. AI is optional \u2014 works without it. Supports Ollama, OpenAI-compatible APIs, and Anthropic.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/boltarr",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for the database (boltarr.db) and AI config (config.yaml).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "12100",
+      "container": "12100",
+      "protocol": "tcp",
+      "description": "Port Boltarr listens on. Access the UI at http://[server-ip]:[port]/",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "AI Provider",
+      "key": "LLM_PROVIDER",
+      "value": "",
+      "description": "AI provider to use. Leave blank to configure via the UI instead. Options: none | ollama | openai | anthropic",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Base URL",
+      "key": "LLM_BASE_URL",
+      "value": "",
+      "description": "Base URL for the AI API. Required for Ollama and OpenAI-compatible providers. Example: http://192.168.1.10:11434",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Model",
+      "key": "LLM_MODEL",
+      "value": "",
+      "description": "Default model to use. Example: llama3.2, gpt-4o, claude-haiku-4-5-20251001",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "LLM_API_KEY",
+      "value": "",
+      "description": "API key for OpenAI-compatible or Anthropic providers. Not needed for Ollama.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Timeout (seconds)",
+      "key": "LLM_TIMEOUT",
+      "value": "120",
+      "description": "Timeout in seconds for standard AI requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Long Timeout (seconds)",
+      "key": "LLM_LONG_TIMEOUT",
+      "value": "600",
+      "description": "Timeout in seconds for long-running AI requests (e.g. full network analysis).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

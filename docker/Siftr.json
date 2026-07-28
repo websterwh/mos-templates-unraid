@@ -1,0 +1,99 @@
+{
+  "name": "Siftr",
+  "repo": "ghcr.io/daneng66/siftr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Daneng66/Siftr/pkgs/container/siftr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Daneng66/Siftr/main/unraid/siftr-icon.png",
+  "project": "https://github.com/Daneng66/Siftr",
+  "description": "Siftr is a self-hosted photo manager that helps you sift through your library with smart renaming, organizing, and deduplication. Exact and perceptual duplicate detection is powered by czkawka, and EXIF write-back uses exiftool\u2014both bundled in the image, nothing else to install. Point the /data volume at where your photos live and open the web UI.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/siftr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Working data: the SQLite database, generated thumbnails, and the .trash holding area for removed duplicates. Keep this on a fast share (e.g. cache/appdata).",
+      "required": true
+    },
+    {
+      "name": "Photo Library",
+      "host": "/mnt/cache/Photos",
+      "container": "/data/photos",
+      "mode": "rw",
+      "description": "Your photo library. Siftr reads, renames, organizes and writes EXIF here, so it must be read/write. Mapped inside /data so it can live on a large array share separate from App Data.",
+      "required": true
+    },
+    {
+      "name": "Trash Folder",
+      "host": "/mnt/cache/appdata/siftr/.trash",
+      "container": "/data/.trash",
+      "mode": "rw",
+      "description": "Holding area for duplicates removed via 'Move to trash' (reversible deletion). By default it lives inside App Data; map it to a separate share to keep trashed files off your appdata or to recover them elsewhere.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port the Siftr web interface is served on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Enable Similar-Image Dedup",
+      "key": "DEDUP_SIMILAR",
+      "value": "false",
+      "description": "Also run czkawka's perceptual (near-duplicate) image pass in addition to exact hash matching. Slower. Set to true to enable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Similar-Image Preset",
+      "key": "CZKAWKA_IMAGE_PRESET",
+      "value": "High",
+      "description": "czkawka similarity sensitivity for the perceptual pass: Minimal, VeryLow, Low, Medium, High, or VeryHigh. Only used when similar-image dedup is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan On Startup",
+      "key": "SCAN_ON_STARTUP",
+      "value": "true",
+      "description": "Scan the photo library for new/changed files when the container starts. Set to false to only scan on demand.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Concurrency",
+      "key": "SCAN_CONCURRENCY",
+      "value": "4",
+      "description": "How many photos to hash and thumbnail in parallel during a scan. Raise on powerful CPUs, lower to reduce load.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Size",
+      "key": "THUMB_SIZE",
+      "value": "256",
+      "description": "Edge length in pixels of generated grid thumbnails.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

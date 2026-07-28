@@ -1,0 +1,60 @@
+{
+  "name": "LND",
+  "repo": "lightninglabs/lnd:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/lightninglabs/lnd",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "--bitcoin.mainnet --bitcoin.node=neutrino --fee.url=https://nodes.lightning.computer/fees/v1/btc-fee-estimates.json --listen=0.0.0.0:9735 --rpclisten=0.0.0.0:10009 --restlisten=0.0.0.0:8080 --tlsautorefresh --debuglevel=info",
+  "web_ui_url": "http://[IP]:[PORT:9735]",
+  "icon": "https://raw.githubusercontent.com/lightningnetwork/lnd/master/logo.png",
+  "project": "https://github.com/lightningnetwork/lnd",
+  "description": "LND is the Lightning Network Daemon, a complete Lightning Network node implementation. This template starts LND on Bitcoin mainnet with the Neutrino light-client backend by default, exposes the Lightning P2P, gRPC, and REST ports, and persists the full /root/.lnd directory. LND can custody real bitcoin; back up the wallet seed and static channel backup before funding channels.",
+  "paths": [
+    {
+      "name": "LND Data",
+      "host": "/mnt/cache/appdata/lnd",
+      "container": "/root/.lnd",
+      "mode": "rw",
+      "description": "Persistent LND data, wallet, TLS certificate, macaroons, channel database, logs, and static channel backup.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Lightning P2P Port",
+      "host": "9735",
+      "container": "9735",
+      "protocol": "tcp",
+      "description": "Lightning peer-to-peer port. Forward this port from your router if this node should accept inbound public peers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "gRPC API Port",
+      "host": "10009",
+      "container": "10009",
+      "protocol": "tcp",
+      "description": "LND gRPC API port. Requires TLS and macaroons.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REST API Port",
+      "host": "8081",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "LND REST API port. Requires TLS and macaroons. Host port defaults to 8081 to avoid common web UI port conflicts.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,100 @@
+{
+  "name": "Dropbox",
+  "repo": "roninkenji/dropbox-docker",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/roninkenji/dropbox-docker/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:17500]",
+  "icon": "https://cf.dropboxstatic.com/static/images/icons/blue_dropbox_glyph-vflJ8-C5d.png",
+  "project": null,
+  "description": "What is Dropbox? \"One place for all your stuff, wherever you are.\" Dropbox is a home for all your photos, docs, videos, and files. Anything you add to Dropbox will automatically show up on all your computers, phones and even the Dropbox website... so you can access your stuff from anywhere. Dropbox also makes it super easy to share with others, whether you're a student or professional, parent or grandparent. Even if you accidentally spill a latte on your laptop, have no fear! Relax knowing that your stuff is safe in Dropbox and will never be lost. Container Mountpoints: * /dropbox : Dropbox home folder. The dropbox app needs to be able to change the folders out to upgrade itself. * /dropbox/Dropbox : Dropbox user files. This is your sync'd data folder. It can be share or just a plain folder under appdata. Do not use a cache + array folder as the Mover will break your files Network Ports: * 17500 : Dropbox LAN sync * 17500/udp : Dropbox LAN sync Environment Variables: * DROPBOX_USER: Dropbox user (default: nobody) * DROPBOX_USERID: Dropbox user id (default: 99) * DROPBOX_GROUP: Dropbox user group (default: users) * DROPBOX_GROUPID: Dropbox user group id (default: 100)",
+  "paths": [
+    {
+      "name": "Config folder",
+      "host": "/mnt/cache/appdata/dropbox",
+      "container": "/dropbox",
+      "mode": "rw",
+      "description": "Configuration files and updated dropbox binaries are stored here.",
+      "required": true
+    },
+    {
+      "name": "Data files",
+      "host": "/mnt/cache/Dropbox",
+      "container": "/dropbox/Dropbox",
+      "mode": "rw",
+      "description": "This directory will contain the files sync'd into your Dropbox account. Use only a share where the cache setting is Only or No.",
+      "required": true
+    },
+    {
+      "name": "Timezone file",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Timezone file",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Lan Sync Port (TCP)",
+      "host": "17500",
+      "container": "17500",
+      "protocol": "tcp",
+      "description": "Port for Lan Sync",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Lan Sync Port (UDP)",
+      "host": "17500",
+      "container": "17500",
+      "protocol": "udp",
+      "description": "Port for Lan Sync",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User",
+      "key": "DROPBOX_USER",
+      "value": "nobody",
+      "description": "User to run dropbox as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "DROPBOX_USERID",
+      "value": "99",
+      "description": "uid to run dropbox as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group",
+      "key": "DROPBOX_GROUP",
+      "value": "users",
+      "description": "Group to run dropbox as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "DROPBOX_GROUPID",
+      "value": "100",
+      "description": "gid to run dropbox as.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

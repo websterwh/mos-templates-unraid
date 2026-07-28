@@ -1,0 +1,139 @@
+{
+  "name": "Apache-WebDAV",
+  "repo": "apachewebdav/apachewebdav",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/mgutt/docker-apachewebdav",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--memory=1G",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/mgutt/unraid-docker-templates/main/mgutt/images/webdav-powered-by-apache.png",
+  "project": "https://httpd.apache.org/docs/2.4/mod/mod_dav.html",
+  "description": "Very simple WebDAV server based on Apache. You need a WebDAV client to transfer files. It does not include a WebUI to upload files through your browser. Specifying USERNAME and PASSWORD only supports a single user. If you want to have lots of different logins for various users, bind mount user.passwd as follows: Open the Unraid WebTerminal >_ and execute the following: mkdir /mnt/user/appdata/apachewebdav touch /mnt/user/appdata/apachewebdav/user.passwd Add a new Path to this container with the following values: Container Path: /user.passwd Host Path: /mnt/user/appdata/apachewebdav/user.passwd After starting the container, open its console and execute the following for \"Basic\" authentification by changing \"John\" to your username (it asks for your password after executing): htpasswd -B /user.passwd John or this if you choosed \"Digest\" authentification: htdigest user.passwd WebDAV-Login John Execute the command multiple times with different usernames to add more users.",
+  "paths": [
+    {
+      "name": "WebDAV Share",
+      "host": "/mnt/cache/webdav",
+      "container": "/var/lib/dav/data",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/dav/data",
+      "required": false
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/webdav",
+      "container": "/var/lib/dav",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/dav",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webserver Port",
+      "host": "8384",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Container Port: 80",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Domains",
+      "key": "SERVER_NAMES",
+      "value": "localhost",
+      "description": "Comma-separated list of domains (eg, example.com,www.example.com). The first is set as the ServerName, and the rest (if any) are set as ServerAlias. The default is localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "LOCATION",
+      "value": "/",
+      "description": "The URL path for WebDAV (eg, if set to /webdav then clients should connect to example.com/webdav). The default is /.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentication",
+      "key": "AUTH_TYPE",
+      "value": "Basic",
+      "description": "Apache authentication type to use. This can be Basic (best choice for HTTPS) or Digest (best choice for HTTP). The default is Basic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Title",
+      "key": "REALM",
+      "value": "WebDAV-Login",
+      "description": "The string will appear in the password dialog provided by browsers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Authenticate with this username (and the password below). Will be ignored if /user.passwd is present.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Authenticate with this password (and the username above). Will be ignored if /user.passwd is present.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public methods",
+      "key": "ANONYMOUS_METHODS",
+      "value": "",
+      "description": "Comma-separated list of HTTP request methods (eg, GET,POST,OPTIONS,PROPFIND) which can be used without login. The default is to disallow any anonymous access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SSL",
+      "key": "SSL_CERT",
+      "value": "",
+      "description": "Set to selfsigned to generate a self-signed certificate and enable Apache's SSL module. If you specify SERVER_NAMES, the first domain is set as the Common Name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "umask",
+      "key": "PUMASK",
+      "value": "0000",
+      "description": "Container Variable: PUMASK",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

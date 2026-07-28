@@ -1,0 +1,181 @@
+{
+  "name": "Scriberr",
+  "repo": "ghcr.io/rishikanthc/scriberr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/rishikanthc/scriberr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/scriberr-icon.png",
+  "project": "https://scriberr.app/",
+  "description": "A self-hostable AI audio transcription and summarization tool.",
+  "paths": [
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/scriberr/db",
+      "container": "/app/db",
+      "mode": "rw",
+      "description": "Database path",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/scriberr/config",
+      "container": "/scriberr",
+      "mode": "rw",
+      "description": "Config path",
+      "required": true
+    },
+    {
+      "name": "Models Path",
+      "host": "/mnt/cache/appdata/scriberr/models",
+      "container": "/scriberr/models",
+      "mode": "rw",
+      "description": "Models path",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Container Port: 3000",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Expose database UI (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JobQueue UI Port",
+      "host": "9243",
+      "container": "9243",
+      "protocol": "tcp",
+      "description": "Expose job queue UI (optional)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OpenAI - API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "OpenAI - Endpoint",
+      "key": "OPENAI_ENDPOINT",
+      "value": "http://ollama:11434/v1",
+      "description": "OpenAI (or Ollama-compatible) API endpoint",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenAI - Model",
+      "key": "OPENAI_MODEL",
+      "value": "llama3.2",
+      "description": "AI model to use. Make sure this matches the model in the Ollama container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenAI - User",
+      "key": "OPENAI_ROLE",
+      "value": "user",
+      "description": "Role to use with OpenAI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pocketbase - URL",
+      "key": "POCKETBASE_URL",
+      "value": "http://localhost:3000",
+      "description": "URL of the Pocketbase container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pocketbase - Email Address",
+      "key": "POCKETBASE_ADMIN_EMAIL",
+      "value": "",
+      "description": "Email address of the admin user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pocketbase - Password",
+      "key": "POCKETBASE_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password of the admin user",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redis - Host",
+      "key": "REDIS_HOST",
+      "value": "172.0.0.1",
+      "description": "Hostname of the Redis container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis - Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Port of the Redis container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Nvidia GPU",
+      "key": "NVIDIA",
+      "value": "false|true",
+      "description": "Use Nvidia GPU for AI processing",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Concurrency",
+      "key": "CONCURRENCY",
+      "value": "1",
+      "description": "Number of concurrent jobs to run",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Config Path",
+      "key": "SCRIBO_FILES",
+      "value": "/scriberr",
+      "description": "Internal config path. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dev Mode",
+      "key": "DEV_MODE",
+      "value": "false|true",
+      "description": "Enable development mode",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

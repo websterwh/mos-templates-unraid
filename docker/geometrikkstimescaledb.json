@@ -1,0 +1,67 @@
+{
+  "name": "geometrikks-timescaledb",
+  "repo": "timescale/timescaledb-ha:pg18",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/timescale/timescaledb-ha",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --shm-size=512m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/GilbN/geometrikks/main/resources/static/pwa-512x512.png",
+  "project": "https://github.com/GilbN/geometrikks",
+  "description": "TimescaleDB (PostgreSQL + TimescaleDB + PostGIS) database for GeoMetrikks. Install this container first, set a POSTGRES_PASSWORD below, then install the \"geometrikks\" app template and use the same password there. This container has no web UI - it exists purely as the GeoMetrikks database backend.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "",
+      "container": "/home/postgres/pgdata/data",
+      "mode": "rw",
+      "description": "Database data directory. bPerformance tip:/b For best performance, use a path that bypasses the Unraid array (e.g. /mnt/cache/appdata or /mnt/appdata if configured). Paths under /mnt/user go through a FUSE layer that significantly slows database operations.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "DB Port",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL port. Exposed to the host/LAN so the geometrikks app container can connect using the Unraid server's IP.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Database password. Must match the DB_PASSWORD value you set in the geometrikks app template.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "geouser",
+      "description": "Database user. Must match DB_USER in the geometrikks app template - only change if you also change it there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "geometrikks",
+      "description": "Database name. Must match DB_DATABASE in the geometrikks app template - only change if you also change it there.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

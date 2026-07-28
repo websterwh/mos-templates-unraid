@@ -1,0 +1,100 @@
+{
+  "name": "derbynet_server",
+  "repo": "mitchellriley/derbynet_server",
+  "category": [
+    "System"
+  ],
+  "registry": "https://registry.hub.docker.com/r/mitchellriley/derbynet_server",
+  "network": "plexnet",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8050]",
+  "icon": "https://raw.githubusercontent.com/mitchellriley/unraid-docker/master/mitchellriley/images/derbynet_server.png",
+  "project": "http://jeffpiazza.github.io/derbynet/",
+  "description": "DerbyNet is the new standard in race management software for Pinewood Derby events. It's free, and it's open source. With DerbyNet, multiple browsers connect to a web server running on your laptop or in the cloud.",
+  "paths": [
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/derbynet_server/data",
+      "container": "/var/lib/derbynet",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/derbynet",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webserver Port",
+      "host": "8050",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Container Port: 80",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure Webserver Port (Self Signed Certs)",
+      "host": "8051",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "The docker has a secure webportal but the certificates are self signed.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timer Password",
+      "key": "TIMER_PASSWORD",
+      "value": "555",
+      "description": "The Timer role is intended for use by the derby-timer.jar program running on the remote timer device connected to the track (raspberrypi). By default, the Timer user has an empty password, so it is not necessary to enter any password in derby-timer.jar. However, this password, like all passwords should be updated to secure the server. Note: The password must match the password set for TIMER_PASSWORD in the timer device (raspberrypi) /etc/derbynet.conf file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Race Crew Password",
+      "key": "RACE_CREW_PASSWORD",
+      "value": "murphy",
+      "description": "RaceCrew, password \u201cmurphy\u201d (as in Don Murphy, not Murphy\u2019s Law): this role can do things like check racers in, but not erase the database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Race Coordinator Password",
+      "key": "RACE_COORD_PASSWORD",
+      "value": "doyourbest",
+      "description": "RaceCoordinator, password default is \u201cdoyourbest\u201d This role can do anything at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Photo Password",
+      "key": "PHOTO_PASSWORD",
+      "value": "flashbulb",
+      "description": "You can upload photos to the web server via HTTP, using the Photo role. The default password for the Photo role is \u201cflashbulb.\u201d For an example of this, see extras/photostand/photostand.sh, a shell script for automated photo capture. (More description at http://www.derbytalk.com/viewtopic.php?f=25&amp;t=8253.)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

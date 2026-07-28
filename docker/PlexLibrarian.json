@@ -1,0 +1,139 @@
+{
+  "name": "PlexLibrarian",
+  "repo": "ghcr.io/brycepearce/plex-librarian:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/brycepearce/plex-librarian",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/BrycePearce/plex-librarian/main/assets/icon.png",
+  "project": "https://github.com/BrycePearce/plex-librarian",
+  "description": "Library health insights for your Plex server. Find stale content, track viewing patterns, and reclaim disk space. Includes a Sign in with Plex setup wizard \u2014 or set PLEX_URL and PLEX_TOKEN to skip OAuth entirely.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/plex-librarian",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent app data directory for the database and saved settings. The default is ready to use.",
+      "required": true
+    },
+    {
+      "name": "Library Inspection Path",
+      "host": "",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Optional. Read-only library mount used to verify Radarr orphan-download hardlinks. After adding it, configure the matching Radarr and local roots under Settings > Media connections.",
+      "required": false
+    },
+    {
+      "name": "Download Cleanup Path",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Optional. Download mount beneath which Plex Librarian may unlink files proven to be hardlinks of current Arr-managed media. Never map a broader root than necessary.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8288",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Plex Librarian web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Optional. URL of your Plex Media Server (e.g. http://192.168.1.100:32400). Set this together with Plex Token to bypass the OAuth setup wizard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Optional. Your Plex authentication token. Set this together with Plex URL to bypass the OAuth setup wizard.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database Path",
+      "key": "DB_PATH",
+      "value": "/data/librarian.db",
+      "description": "Full path inside the container where the SQLite database file lives. Only change this if you have a specific reason to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent URL",
+      "key": "QBITTORRENT_URL",
+      "value": "",
+      "description": "Optional power-user override. qBittorrent Web UI URL reachable from this container. Configure qBittorrent in the web UI instead for multiple instances.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Username",
+      "key": "QBITTORRENT_USERNAME",
+      "value": "",
+      "description": "qBittorrent Web UI username. Leave blank only when authentication bypass trusts this container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Password",
+      "key": "QBITTORRENT_PASSWORD",
+      "value": "",
+      "description": "qBittorrent Web UI password. Leave blank only when authentication bypass trusts this container.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Library Sync Concurrency",
+      "key": "LIBRARY_SYNC_CONCURRENCY",
+      "value": "3",
+      "description": "Max number of libraries synced in parallel. Kept low by default to avoid competing with Plex for resources on the same host \u2014 only raise this on dedicated hardware.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fetch Concurrency",
+      "key": "FETCH_CONCURRENCY",
+      "value": "8",
+      "description": "Max concurrent Plex page requests per library. Kept low by default to avoid competing with Plex for resources on the same host \u2014 only raise this on dedicated hardware.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Stall Timeout (minutes)",
+      "key": "SYNC_STALL_TIMEOUT_MINUTES",
+      "value": "15",
+      "description": "Abort a sync if it reports no progress for this many minutes \u2014 e.g. the Plex server going offline mid-sync. Only raise this if you have a very slow or high-latency Plex connection triggering false positives.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Retention (days)",
+      "key": "LOG_RETENTION_DAYS",
+      "value": "180",
+      "description": "Days to keep sync history and activity feed entries before they're automatically deleted. Raise this to retain history longer, or set to 0 to keep them forever.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

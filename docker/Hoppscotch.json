@@ -1,0 +1,509 @@
+{
+  "name": "Hoppscotch",
+  "repo": "hoppscotch/hoppscotch:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/hoppscotch/hoppscotch",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3100]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/hoppscotch-icon.png",
+  "project": "https://hoppscotch.io/",
+  "description": "Open source API development ecosystem, alternative to Postman and Insomnia.",
+  "paths": [
+    {
+      "name": "Uploads path",
+      "host": "/mnt/cache/appdata/wedding_share/uploads",
+      "container": "/app/wwwroot/uploads",
+      "mode": "rw",
+      "description": "Path to uploaded files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Admin UI Port",
+      "host": "3100",
+      "container": "3100",
+      "protocol": "tcp",
+      "description": "Container Port: 3100",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frontend Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Container Port: 3000",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend Port",
+      "host": "3170",
+      "container": "3170",
+      "protocol": "tcp",
+      "description": "Container Port: 3170",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://username:password@url:5432/dbname",
+      "description": "Postgres database URL",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Tokens - JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "JWT secret for authentication tokens",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Tokens - Session Secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Session secret for authentication tokens",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Data Encryption Key",
+      "key": "DATA_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Key for data encryption in database. Must be 32 characters.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redirect URL",
+      "key": "REDIRECT_URL",
+      "value": "http://localhost:3000",
+      "description": "Redirect URL for authentication",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Whitelisted Origins",
+      "key": "WHITELISTED_ORIGINS",
+      "value": "http://localhost:3000,http://localhost:3100,http://localhost:3170",
+      "description": "Comma-separated list of whitelisted URLs for authentication. Include three ports used by Hoppscotch.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enabled Auth Providers",
+      "key": "VITE_ALLOWED_AUTH_PROVIDERS",
+      "value": "",
+      "description": "Comma-separated list of enabled authentication providers. Options: GOOGLE, GITHUB, MICROSOFT, EMAIL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google Auth - Client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth client ID. Delete if not using Google authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Google Auth - Client Secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Google OAuth client secret. Delete if not using Google authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Google Auth - Callback URL",
+      "key": "GOOGLE_CALLBACK_URL",
+      "value": "http://localhost:3170/v1/auth/google/callback",
+      "description": "Google OAuth callback URL. Delete if not using Google authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Google Auth - Scope",
+      "key": "GOOGLE_SCOPE",
+      "value": "email,profile",
+      "description": "Google OAuth scope. Delete if not using Google authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub Auth - Client ID",
+      "key": "GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "GitHub OAuth client ID. Delete if not using GitHub authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "GitHub Auth - Client Secret",
+      "key": "GITHUB_CLIENT_SECRET",
+      "value": "",
+      "description": "GitHub OAuth client secret. Delete if not using GitHub authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "GitHub Auth - Callback URL",
+      "key": "GITHUB_CALLBACK_URL",
+      "value": "http://localhost:3170/v1/auth/github/callback",
+      "description": "GitHub OAuth callback URL. Delete if not using GitHub authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub Auth - Scope",
+      "key": "GITHUB_SCOPE",
+      "value": "user:email",
+      "description": "GitHub OAuth scope. Delete if not using GitHub authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Microsoft Auth - Client ID",
+      "key": "MICROSOFT_CLIENT_ID",
+      "value": "",
+      "description": "Microsoft OAuth client ID. Delete if not using Microsoft authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Microsoft Auth - Client Secret",
+      "key": "MICROSOFT_CLIENT_SECRET",
+      "value": "",
+      "description": "Microsoft OAuth client secret. Delete if not using Microsoft authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Microsoft Auth - Callback URL",
+      "key": "MICROSOFT_CALLBACK_URL",
+      "value": "http://localhost:3170/v1/auth/microsoft/callback",
+      "description": "Microsoft OAuth callback URL. Delete if not using Microsoft authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Microsoft Auth - Scope",
+      "key": "MICROSOFT_SCOPE",
+      "value": "user.read",
+      "description": "Microsoft OAuth scope. Delete if not using Microsoft authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Microsoft Auth - Tenant",
+      "key": "MICROSOFT_TENANT",
+      "value": "common",
+      "description": "Microsoft OAuth tenant. Delete if not using Microsoft authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - Enable",
+      "key": "MAILER_SMTP_ENABLE",
+      "value": "false|true",
+      "description": "Enable email sending for authentication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer- Use Custom Configs",
+      "key": "MAILER_USE_CUSTOM_CONFIGS",
+      "value": "false|true",
+      "description": "Use custom SMTP configurations.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - From Address",
+      "key": "MAILER_ADDRESS_FROM",
+      "value": "from@example.com",
+      "description": "Sender email address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP URL",
+      "key": "MAILER_SMTP_URL",
+      "value": "smtps://user@domain.com:pass@smtp.domain.com",
+      "description": "SMTP server URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP Host",
+      "key": "MAILER_SMTP_HOST",
+      "value": "smtp.domain.com",
+      "description": "SMTP server host if custom configs is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP Port",
+      "key": "MAILER_SMTP_PORT",
+      "value": "587",
+      "description": "SMTP server port if custom configs is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP Secure",
+      "key": "MAILER_SMTP_SECURE",
+      "value": "true|false",
+      "description": "SMTP secure connection if custom configs is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP Username",
+      "key": "MAILER_SMTP_USER",
+      "value": "user@domain.com",
+      "description": "SMTP username if custom configs is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer - SMTP Password",
+      "key": "MAILER_SMTP_PASS",
+      "value": "",
+      "description": "SMTP password if custom configs is enabled.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Mailer - TLS Reject Unauthorized",
+      "key": "MAILER_TLS_REJECT_UNAUTHORIZED",
+      "value": "true|false",
+      "description": "Reject unauthorized TLS connections if custom configs is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frontend - Base URL",
+      "key": "VITE_BASE_URL",
+      "value": "http://IP_ADDRESS:3000",
+      "description": "Base URL for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frontend - Shortcode Base URL",
+      "key": "VITE_SHORTCODE_BASE_URL",
+      "value": "http://IP_ADDRESS:3000",
+      "description": "Base URL for shortcode sharing, can be the same as Base URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frontend - Admin URL",
+      "key": "VITE_ADMIN_URL",
+      "value": "http://IP_ADDRESS:3100",
+      "description": "Admin URL for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend - GraphQL URL",
+      "key": "VITE_BACKEND_GQL_URL",
+      "value": "http://IP_ADDRESS:3170/graphql",
+      "description": "GraphQL URL for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend - WebSockets URL",
+      "key": "VITE_BACKEND_WS_URL",
+      "value": "wss://IP_ADDRESS:3170/graphql",
+      "description": "WebSockets URL for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend - API URL",
+      "key": "VITE_BACKEND_API_URL",
+      "value": "http://IP_ADDRESS:3170/v1",
+      "description": "API URL for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit - TTL",
+      "key": "RATE_LIMIT_TTL",
+      "value": "60",
+      "description": "Time, in seconds, it takes to refresh the maximum number of requests being received",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit - Max Requests",
+      "key": "RATE_LIMIT_MAX",
+      "value": "100",
+      "description": "Maximum number of requests per IP under the TTL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Tokens - Salt Complexity",
+      "key": "TOKEN_SALT_COMPLEXITY",
+      "value": "10",
+      "description": "Salt complexity for authentication tokens",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Tokens - Magic Link Token Validity",
+      "key": "MAGIC_LINK_TOKEN_VALIDITY",
+      "value": "3",
+      "description": "Duration, in days, for magic link tokens",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Tokens - Refresh Token Validity",
+      "key": "REFRESH_TOKEN_VALIDITY",
+      "value": "604800000",
+      "description": "Duration, in milliseconds, for refresh tokens",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Tokens - Access Token Validity",
+      "key": "ACCESS_TOKEN_VALIDITY",
+      "value": "86400000",
+      "description": "Duration, in milliseconds, for access tokens",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow Secure Cookies",
+      "key": "ALLOW_SECURE_COOKIES",
+      "value": "false|true",
+      "description": "Set to false if using http. Some auth providers may not support http requests and may stop working when set to false.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Subpath Access Mode Port",
+      "key": "HOPP_AIO_ALTERNATE_PORT",
+      "value": "80",
+      "description": "This is an optional variable that lets you specify an alternate port for the container\u2019s endpoint when operating in subpath access mode. By default, this endpoint is exposed on port 80.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Terms of Service Link",
+      "key": "VITE_APP_TOS_LINK",
+      "value": "https://docs.hoppscotch.io/support/terms",
+      "description": "Terms of service link",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Privacy Policy Link",
+      "key": "VITE_APP_PRIVACY_POLICY_LINK",
+      "value": "https://docs.hoppscotch.io/support/privacy",
+      "description": "Privacy policy link",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Title",
+      "key": "TITLE",
+      "value": "Wedding Share",
+      "description": "Title of the app",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Logo URL",
+      "key": "LOGO",
+      "value": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/wedding-share-icon.png",
+      "description": "URL of the logo",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Gallery Column Count",
+      "key": "GALLERY_COLUMNS",
+      "value": "4",
+      "description": "Number of columns in the gallery",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed File Types",
+      "key": "ALLOWED_FILE_TYPES",
+      "value": ".jpg,.jpeg,.png",
+      "description": "Comma separated list of allowed file types",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max File Size",
+      "key": "MAX_FILE_SIZE_MB",
+      "value": "10",
+      "description": "Maximum file size in MB",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Secret key to combat strangers uploading. Optional, but recommended.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Upload",
+      "key": "DISABLE_UPLOAD",
+      "value": "false|true",
+      "description": "Disable the ability to upload files",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable QR Code",
+      "key": "DISABLE_QR_CODE",
+      "value": "false|true",
+      "description": "Disable the sharable QR code",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hide Secret Key from QR Code",
+      "key": "HIDE_KEY_FROM_QR_CODE",
+      "value": "false|true",
+      "description": "Hide the secret key from the QR code",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable Home Link",
+      "key": "DISABLE_HOME_LINK",
+      "value": "false|true",
+      "description": "Disable the home link",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

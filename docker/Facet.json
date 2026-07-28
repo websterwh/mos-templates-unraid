@@ -1,0 +1,163 @@
+{
+  "name": "Facet",
+  "repo": "ghcr.io/jesposito/facet:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/jesposito/Facet/pkgs/container/facet",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/jesposito/unraid_templates/main/images/facet-icon.png",
+  "project": "https://github.com/jesposito/Facet",
+  "description": "Facet is a self-hosted personal profile platform. Create multiple views of your professional profile for different audiences (recruiters, conferences, clients) and own all of your data. Each view is a curated slice of your full profile: a recruiter sees roles and references, a conference organizer sees talks and bio, a client sees portfolio and rates. You decide what each audience sees and they only see what you've shared. First-time login: visit `/admin`, sign in with the first email from `Admin Emails` (or `admin@example.com` if blank) and the seeded password printed in the container logs. You will be forced to set a new password immediately. Features: - Multiple profile views per person - OAuth login via Google or GitHub (optional) - Optional AI assist via OpenAI, Anthropic, or local Ollama - All data stays on your server - Single Docker container, embedded SQLite database",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/facet/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Path to app data (SQLite database and configuration). Include this in backups.",
+      "required": true
+    },
+    {
+      "name": "Uploads Storage",
+      "host": "/mnt/cache/appdata/facet/uploads",
+      "container": "/uploads",
+      "mode": "rw",
+      "description": "Path to uploaded images and files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port mapped to the Facet web UI (Caddy listens on 8080 inside the container).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Public URL for Facet (e.g. http://YOUR-SERVER-IP:8080 or https://facet.example.com). REQUIRED if you want OAuth sign-in or to share profile links externally. Used as the OAuth callback host and the base for share URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Emails",
+      "key": "ADMIN_EMAILS",
+      "value": "",
+      "description": "Comma-separated email allowlist for OAuth login. Leave empty to allow any email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Behind Proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Set to true if running behind a reverse proxy (NPMplus, Traefik, Cloudflare Tunnel).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Google - Client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for Sign in with Google. Redirect URI: YOUR_URL/api/oauth2-redirect",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Google - Client Secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret from Google Cloud Console.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OAuth - GitHub - Client ID",
+      "key": "GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for Sign in with GitHub. Redirect URI: YOUR_URL/api/oauth2-redirect",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - GitHub - Client Secret",
+      "key": "GITHUB_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret from GitHub OAuth Apps.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI - OpenAI - API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "API key for OpenAI assist (optional).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI - Anthropic - API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "API key for Anthropic assist (optional).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI - Ollama - URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "",
+      "description": "URL for local Ollama instance (e.g. http://192.168.1.100:11434).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI - Ollama - Model",
+      "key": "OLLAMA_MODEL",
+      "value": "llama3.2",
+      "description": "Ollama model name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin UI Enabled",
+      "key": "ADMIN_ENABLED",
+      "value": "false",
+      "description": "Enable PocketBase admin UI at /_/ for debugging. Leave false in production.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

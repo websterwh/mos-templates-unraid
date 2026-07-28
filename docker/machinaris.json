@@ -1,0 +1,142 @@
+{
+  "name": "machinaris",
+  "repo": "ghcr.io/guydavis/machinaris",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/guydavis/machinaris",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8926]/",
+  "icon": "https://raw.githubusercontent.com/guydavis/machinaris-unraid/master/machinaris.png",
+  "project": "https://github.com/guydavis/machinaris",
+  "description": "Building upon the official Chia binaries, Machinaris also offers a plot manager, log monitor, and a simple WebUI for Unraid.",
+  "paths": [
+    {
+      "name": "appdata",
+      "host": "/mnt/cache/appdata/machinaris",
+      "container": "/root/.chia",
+      "mode": "rw",
+      "description": "Holds app data for the container. Not for temp plotting or final plot storage.",
+      "required": false
+    },
+    {
+      "name": "plots1",
+      "host": "",
+      "container": "/plots1",
+      "mode": "rw",
+      "description": "Holds completed Chia plots for farming.",
+      "required": false
+    },
+    {
+      "name": "plotting",
+      "host": "",
+      "container": "/plotting",
+      "mode": "rw",
+      "description": "Your fast temp space for plotting, ideally a cache pool or unassigned SSD.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "chia_protocol",
+      "host": "8444",
+      "container": "8444",
+      "protocol": "tcp",
+      "description": "The TCP port for connecting to peers. Port forward at your router.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "farmer_port",
+      "host": "8447",
+      "container": "8447",
+      "protocol": "tcp",
+      "description": "The TCP port allowing harvesters to connect with on your LAN. DO NOT port forward at your router.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "web",
+      "host": "8926",
+      "container": "8926",
+      "protocol": "tcp",
+      "description": "Machinaris local web app port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "api",
+      "host": "8927",
+      "container": "8927",
+      "protocol": "tcp",
+      "description": "Machinaris local API port.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "worker_address",
+      "key": "worker_address",
+      "value": "",
+      "description": "The IP address of your Unraid server on your LAN for controller/worker communication.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "mnemonic",
+      "key": "keys",
+      "value": "/root/.chia/mnemonic.txt",
+      "description": "Path to the mnemonic key used by Chia to run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "mode",
+      "key": "mode",
+      "value": "fullnode",
+      "description": "Determines which services Machinaris starts. Default is everything (aka fullnode).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "auto_plot",
+      "key": "AUTO_PLOT",
+      "value": "false",
+      "description": "When true, a Plotman plotting loop will be immediately launched on start of the container, applying your plotman.yaml settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "plots_dir",
+      "key": "plots_dir",
+      "value": "/plots1",
+      "description": "A colon-separated list of all in-container folders holding your completed plots.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "blockchains",
+      "key": "blockchains",
+      "value": "chia",
+      "description": "The blockchain to farm. Leave set to 'chia'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "blockchain_db_download",
+      "key": "blockchain_db_download",
+      "value": "false",
+      "description": "On first launch, whether to download a fully synced copy of the blockchain database, avoidng hours/days of syncing. Off by default due to inherent risks. More at: https://github.com/guydavis/machinaris/wiki/Blockchains",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

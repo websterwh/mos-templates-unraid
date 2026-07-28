@@ -1,0 +1,81 @@
+{
+  "name": "s3sync-awscliv2",
+  "repo": "jvdgt/docker-s3sync",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/jvdgt/docker-s3sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://github.com/jterpstra1/unraid-templates/blob/5dfc4be048f25c8e2135dd89624a36a2f78e69b4/icons/s3-icon.png?raw=true",
+  "project": "https://github.com/jterpstra1/docker-s3sync",
+  "description": "This application backs up every folder mounted at `/data/` to a given AWS S3 path using the `aws s3 sync` command. It requires a pair of (IAM) Access and Secret Keys. You can supply the usual s3 sync parameters such as `--delete` and everything else. The cron schedule defines how often the sync command is executed, and it uses a lockfile to avoid parallel executions. This app has been based on the already available s3sync, however that was outdated, this version contains AWS CLI V2 and doesn't rely on extra python packages.",
+  "paths": [
+    {
+      "name": "Backup Source Example",
+      "host": "/mnt/cache/exmaple/",
+      "container": "/data/example",
+      "mode": "ro",
+      "description": "This folder will be backed up.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "ACCESS_KEY",
+      "key": "ACCESS_KEY",
+      "value": "YOUR_ACCESS_KEY",
+      "description": "Your AWS Access Key.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "YOUR_SECRET_KEY",
+      "description": "Your AWS Secret Key.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Region",
+      "key": "REGION",
+      "value": "eu-west-1",
+      "description": "The region of your bucket.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "S3 Sync Parameters",
+      "key": "S3SYNCPARAMS",
+      "value": "--delete",
+      "description": "(Optional) Extra parameters for the s3 sync command.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Path",
+      "key": "S3PATH",
+      "value": "s3://YOUR_BUCKET_NAME",
+      "description": "The target bucket path with optional prefix.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cron Schedule",
+      "key": "CRON_SCHEDULE",
+      "value": "0 * * * *",
+      "description": "Cron schedule of backup.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

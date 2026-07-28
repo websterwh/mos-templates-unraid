@@ -1,0 +1,185 @@
+{
+  "name": "pihole-v6-unbound",
+  "repo": "mpgirro/docker-pihole-unbound",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/pihole/pihole",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --restart=unless-stopped --hostname=piholev6unbound",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/admin",
+  "icon": "https://raw.githubusercontent.com/Eksistenze/unraidtemplates/main/pihole-unbound/pihole.png",
+  "project": "https://github.com/mpgirro/docker-pihole-unbound/",
+  "description": "This Docker deployment runs both Pi-Hole version 6 and Unbound in a single container. The base image for the container is the official Pi-Hole docker container, with an extra build step added to install the Unbound resolver directly into to the container based on instructions provided directly by the Pi-Hole team.",
+  "paths": [
+    {
+      "name": "Host Path for /config",
+      "host": "/mnt/cache/appdata/pihole-unbound",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Appdata folder",
+      "required": true
+    },
+    {
+      "name": "/etc/pihole",
+      "host": "/mnt/cache/appdata/pihole-unbound/etc_pihole-unbound",
+      "container": "/etc/pihole",
+      "mode": "rw",
+      "description": "Pi-hole v6 moves all configuration into this folder.",
+      "required": true
+    },
+    {
+      "name": "/etc/dnsmasq.d",
+      "host": "/mnt/cache/appdata/pihole-unbound/etc_pihole_dnsmasq-unbound",
+      "container": "/etc/dnsmasq.d",
+      "mode": "rw",
+      "description": "This path is no longer necessary. Pi-hole V6 moves all config to the /etc/pihole/pihole.toml file.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP Web Interface Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS Web Interface Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 53 TCP",
+      "host": "53",
+      "container": "53",
+      "protocol": "tcp",
+      "description": "Port 53 TCP/UDP used for DNS traffic",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 53 UDP",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": "Port 53 TCP/UDP used for DNS traffic",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Unbound Port",
+      "host": "5335",
+      "container": "5335",
+      "protocol": "tcp",
+      "description": "Used internally by PiHole to route DNS requests to unbound.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DHCP Server Port",
+      "host": "67",
+      "container": "67",
+      "protocol": "udp",
+      "description": "Set to 67 if using Pi-hole as your DHCP server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTP Server Port(Time)",
+      "host": "123",
+      "container": "123",
+      "protocol": "udp",
+      "description": "Set to 123 if you are using Pi-hole as your NTP server and add--cap-add=SYS_TIME to Extra Parameters",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web Password",
+      "key": "FTLCONF_webserver_api_password",
+      "value": "",
+      "description": "Not setting this will result in a random password being generated.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Theme",
+      "key": "FTLCONF_webserver_interface_theme",
+      "value": "default-auto",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PiHole DNS servers",
+      "key": "FTLCONF_dns_upstreams",
+      "value": "127.0.0.1#5335",
+      "description": "Set the DNS server(s) that Pi-hole uses seperated by semi-colons. Since we are using unbound, should be set to 127.0.0.1#5335",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNSSEC",
+      "key": "FTLCONF_dns_dnssec",
+      "value": "true",
+      "description": "Set to true to enable DNSSEC. Will add to logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Listening Mode",
+      "key": "FTLCONF_dns_listeningMode",
+      "value": "single",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable /dnsmasq.d",
+      "key": "FTLCONF_misc_etc_dnsmasq_d",
+      "value": "false",
+      "description": "Load custom user configuration files from /etc/dnsmasq.d/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNSMASQ Config Lines",
+      "key": "FTLCONF_misc_dnsmasq_lines",
+      "value": "",
+      "description": "Use this to add dnsmasq config lines without adding .conf files. Lines should be seperated with a semi-colon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rev Server",
+      "key": "FTLCONF_dns_revServers",
+      "value": "false",
+      "description": "Used to forward DNS requests to local records(router) for resolution. Use the following format: true,192.168.0.0/24,192.168.0.1#53,lan",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

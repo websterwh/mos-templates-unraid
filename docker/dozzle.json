@@ -1,0 +1,91 @@
+{
+  "name": "dozzle",
+  "repo": "ghcr.io/prophetse7en/dozzle:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/prophetse7en/dozzle/pkgs/container/dozzle",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/dozzle.png",
+  "project": "https://github.com/amir20/dozzle",
+  "description": "Dozzle is a real-time log viewer for Docker containers. This is a thin wrapper over the official amir20/dozzle image that adds a Docker HEALTHCHECK (upstream's built-in health endpoint does not work with Unraid's --health-cmd). Rebuilt weekly to track upstream :latest. As of v6+, authentication is optional but recommended if exposed beyond your LAN. Create /data/users.yml to enable simple auth \u2014 see https://github.com/amir20/dozzle/issues/2630",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket \u2014 required for Dozzle to read container logs",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/dozzle",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data directory. Holds users.yml for authentication and any session state. Optional if you do not enable auth.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "DOZZLE_BASE",
+      "value": "/",
+      "description": "Base URL path for reverse proxy setups (e.g. /dozzle)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "DOZZLE_LEVEL",
+      "value": "info",
+      "description": "Log level for Dozzle itself: debug, info, warn, error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Tailsize",
+      "key": "DOZZLE_TAILSIZE",
+      "value": "300",
+      "description": "Number of log lines to tail initially when opening a container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Provider",
+      "key": "DOZZLE_AUTH_PROVIDER",
+      "value": "none",
+      "description": "Authentication provider: none (no auth), simple (users.yml), forward-proxy. See Dozzle docs for details.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Analytics",
+      "key": "DOZZLE_NO_ANALYTICS",
+      "value": "true",
+      "description": "Disable anonymous usage analytics sent by Dozzle",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

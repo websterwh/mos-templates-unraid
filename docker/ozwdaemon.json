@@ -1,0 +1,108 @@
+{
+  "name": "ozwdaemon",
+  "repo": "openzwave/ozwdaemon:allinone-latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/openzwave/ozwdaemon/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7800]/vnc.html",
+  "icon": "https://github.com/FoxxMD/unraid-docker-templates/raw/master/icons/zwave.png",
+  "project": "https://github.com/OpenZWave/qt-openzwave",
+  "description": "Container for running the OpenZWave MQTT Adapter (for Home Assistant via the new Z-Wave Integration) You will need a running MQTT instance and a z-wave controller in order to use this container. For more information see: https://github.com/OpenZWave/qt-openzwave https://www.home-assistant.io/integrations/ozw/ Or visit the Unraid forum support thread for more configuration/info",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/ozw",
+      "container": "/opt/ozw/config",
+      "mode": "rw",
+      "description": "Container Path: /opt/ozw/config",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7800",
+      "container": "7800",
+      "protocol": "tcp",
+      "description": "Port used to access the web-based ozw-admin instance in the container (when using allinone image)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ozw-admin Port",
+      "host": "1983",
+      "container": "1983",
+      "protocol": "tcp",
+      "description": "Port used by ozw-admin GUI to access the instance",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MQTT Host",
+      "key": "MQTT_SERVER",
+      "value": "",
+      "description": "IP Address of the MQTT Host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USB Path",
+      "key": "USB_PATH",
+      "value": "",
+      "description": "Path to the USB stick/serial device for your z-wave controller in the container. This should be the same value as USB Z-Wave Device.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT Port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "The port to access the MQTT Host on. Defaults to 1883",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT User",
+      "key": "MQTT_USERNAME",
+      "value": "",
+      "description": "Username to (optionally) authenticate with MQTT",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "Password to (optionally) authenticate with MQTT",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Zwave Network Key",
+      "key": "OZW_NETWORK_KEY",
+      "value": "",
+      "description": "Network key for the Z-Wave network. Not required if no devices are securely included.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "USB Z-Wave Device",
+      "host": "",
+      "container": "",
+      "description": "USB stick/serial device passthrough (your z-wave controller)",
+      "required": true
+    }
+  ],
+  "labels": []
+}

@@ -1,0 +1,91 @@
+{
+  "name": "constat",
+  "repo": "ghcr.io/prophetse7en/constat:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/prophetse7en/constat/pkgs/container/constat",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7890]/",
+  "icon": "https://raw.githubusercontent.com/prophetse7en/constat/main/icon.png",
+  "project": "https://github.com/ProphetSe7en/constat",
+  "description": "Docker container monitor with web UI \u2014 live stats, health tracking, auto-restart, memory monitoring, log viewer, and container sequences. The Web UI requires first-run login setup (Radarr/Sonarr-style authentication); LAN devices bypass by default. Most configuration lives in /config/constat.conf.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for container monitoring and auto-restart",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/constat",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Config directory \u2014 edit constat.conf for all settings",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "7890",
+      "container": "7890",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "File creation mask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_NETWORKS",
+      "key": "TRUSTED_NETWORKS",
+      "value": "",
+      "description": "Optional: lock Trusted Networks at host level. Comma-separated IPs/CIDRs (e.g. 192.168.0.0/24, 10.0.0.0/24). When set, the UI field becomes read-only and can only be changed by editing this template and restarting. Leave empty to configure via the Security panel in the web UI. Loopback is always trusted regardless.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "Optional: lock Trusted Proxies at host level. Comma-separated reverse-proxy IPs (e.g. 172.17.0.1). Only needed when Constat sits behind SWAG, Authelia, Traefik, etc. When set, the UI field becomes read-only. Leave empty for direct access.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

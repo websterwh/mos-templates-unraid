@@ -1,0 +1,1548 @@
+{
+  "name": "simplelogin-aio",
+  "repo": "jsonbored/simplelogin-aio:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/simplelogin-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/simplelogin.jpeg",
+  "project": "https://github.com/JSONbored/simplelogin-aio",
+  "description": "SimpleLogin is an open-source email alias platform that lets you shield your real inbox behind forwarding aliases. All-In-One Unraid Edition `simplelogin-aio` packages the web UI, background jobs, inbound email handler, Postfix, PostgreSQL, and Redis into one Unraid-first container with persistent appdata paths. Quick Install (Beginners) 1. Install this template in Unraid. 2. Set [code]URL[/code], [code]EMAIL_DOMAIN[/code], [code]SUPPORT_EMAIL[/code], and [code]FLASK_SECRET[/code]. 3. Registration is disabled by default for safety. Temporarily set [code]DISABLE_REGISTRATION[/code] to [code]false[/code] only if you need web sign-up for first boot, then switch it back to [code]true[/code] and restart. 4. Choose an outbound relay mode if your ISP blocks outbound TCP 25. 5. Forward inbound TCP 25 from your router/firewall to the Unraid host if you want internet mail delivery. 6. Start the container, wait for first boot to finish, then add the required DNS records from the setup guide. Power Users (Advanced View) - Advanced View exposes the full official upstream self-hosting environment surface plus wrapper-specific relay and AIO controls. - Leave defaults in place for the easiest install. Only set overrides you actually need. - You can point the app at external PostgreSQL or Redis, customize alias domain behavior, enable SSO providers, tune anti-spam and analytics integrations, and provide custom asset/key files through the optional [code]/custom-assets[/code] mount. Important Notes - Current upstream packaging is [code]linux/amd64[/code] only. - This is still a real self-hosted mail stack. DNS, deliverability, router/firewall port forwarding, and sender reputation still matter. - For the simplest operation, keep the internal Postgres/Redis/Postfix defaults and only set the small required config set above.",
+  "paths": [
+    {
+      "name": "Appdata Directory",
+      "host": "/mnt/cache/appdata/simplelogin-aio",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Primary persistent directory for PostgreSQL, Redis, DKIM keys, uploads, generated JWT keys, and application state.",
+      "required": true
+    },
+    {
+      "name": "PGP Keyring Directory",
+      "host": "/mnt/cache/appdata/simplelogin-aio/pgp",
+      "container": "/pgp",
+      "mode": "rw",
+      "description": "Persistent directory for your GnuPG keyring and optional server-generated PGP signing keys.",
+      "required": false
+    },
+    {
+      "name": "Custom Assets Directory",
+      "host": "",
+      "container": "/custom-assets",
+      "mode": "rw",
+      "description": "Optional host path mounted at /custom-assets for advanced file-based settings such as custom words lists, OpenID keys, Paddle public keys, or imported PGP material.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "tcp",
+      "description": "Port used by the SimpleLogin web UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SMTP Inbound Port",
+      "host": "25",
+      "container": "25",
+      "protocol": "tcp",
+      "description": "Inbound SMTP port. Forward TCP 25 from your router or firewall to the Unraid host if you want aliases to receive internet mail.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App URL",
+      "key": "URL",
+      "value": "https://app.example.com",
+      "description": "Canonical HTTPS URL for the dashboard, for example https://app.example.com. This does not need to be the same as your SMTP/MX hostname.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Primary Email Domain",
+      "key": "EMAIL_DOMAIN",
+      "value": "example.com",
+      "description": "Real public alias domain, for example example.com. Do not use a private-only tailnet domain here. First-account registration must use a separate existing mailbox, not this alias domain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Support Email",
+      "key": "SUPPORT_EMAIL",
+      "value": "support@example.com",
+      "description": "Working mailbox used for system mail, for example support@example.com. Use an address that already exists.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Flask Secret",
+      "key": "FLASK_SECRET",
+      "value": "",
+      "description": "Long random app secret. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "SMTP Relay Mode",
+      "key": "RELAY_MODE",
+      "value": "direct",
+      "description": "Outbound mail mode. Choose one of the built-in dropdown values only: direct, brevo, protonmail, gmail, mailgun, or custom. Use a relay provider if your ISP blocks outbound TCP 25.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brevo Username",
+      "key": "BREVO_USERNAME",
+      "value": "",
+      "description": "Brevo SMTP username, usually your account email. Required when RELAY_MODE=brevo.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Brevo Password",
+      "key": "BREVO_PASSWORD",
+      "value": "",
+      "description": "Brevo SMTP key or password. Required when RELAY_MODE=brevo.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Proton Mail SMTP Token",
+      "key": "PROTONMAIL_TOKEN",
+      "value": "",
+      "description": "Proton SMTP token. Required when RELAY_MODE=protonmail. The username stays SUPPORT_EMAIL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gmail Username",
+      "key": "GMAIL_USERNAME",
+      "value": "",
+      "description": "Full Gmail address used for relay auth. Required when RELAY_MODE=gmail.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gmail App Password",
+      "key": "GMAIL_APP_PASSWORD",
+      "value": "",
+      "description": "16-character Gmail app password. Required when RELAY_MODE=gmail.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mailgun Username",
+      "key": "MAILGUN_USERNAME",
+      "value": "",
+      "description": "Mailgun SMTP username, usually postmaster@yourdomain. Required when RELAY_MODE=mailgun.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mailgun Password",
+      "key": "MAILGUN_PASSWORD",
+      "value": "",
+      "description": "Mailgun SMTP password. Required when RELAY_MODE=mailgun.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Custom Relay Host",
+      "key": "CUSTOM_RELAYHOST",
+      "value": "",
+      "description": "Required when RELAY_MODE=custom. Example: [smtp.provider.com]:587",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Relay Username",
+      "key": "CUSTOM_USERNAME",
+      "value": "",
+      "description": "SMTP username for your custom relay. Required when RELAY_MODE=custom.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Custom Relay Password",
+      "key": "CUSTOM_PASSWORD",
+      "value": "",
+      "description": "SMTP password for your custom relay. Required when RELAY_MODE=custom.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "External PostgreSQL DB_URI",
+      "key": "DB_URI",
+      "value": "",
+      "description": "Leave blank for the bundled database. When set to an external host, the bundled PostgreSQL stays idle. Format: postgresql://user:pass@host:5432/dbname",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "External Redis URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Leave blank for the bundled Redis. When set to an external host, the bundled Redis stays idle. Format: redis://:pass@host:6379/0",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Postfix Server Override",
+      "key": "POSTFIX_SERVER",
+      "value": "127.0.0.1",
+      "description": "Advanced escape hatch. Leave at 127.0.0.1 to keep the bundled Postfix path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postfix Port Override",
+      "key": "POSTFIX_PORT",
+      "value": "25",
+      "description": "Advanced escape hatch. Leave at 25 for the bundled Postfix path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Nameservers",
+      "key": "NAMESERVERS",
+      "value": "1.1.1.1,1.0.0.1",
+      "description": "Comma-separated resolvers used for lookups, for example 1.1.1.1,1.0.0.1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Temp Directory",
+      "key": "TEMP_DIR",
+      "value": "",
+      "description": "Optional temp directory path inside the container or a mounted path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Words File Path",
+      "key": "WORDS_FILE_PATH",
+      "value": "/code/local_data/test_words.txt",
+      "description": "Advanced path override for the words file used for random alias generation. Use /custom-assets if you mount your own file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local File Uploads",
+      "key": "LOCAL_FILE_UPLOAD",
+      "value": "true",
+      "description": "Leave true for local file storage inside /appdata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GnuPG Home",
+      "key": "GNUPGHOME",
+      "value": "/pgp",
+      "description": "GnuPG home directory path used for PGP features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Partner API Token Secret",
+      "key": "PARTNER_API_TOKEN_SECRET",
+      "value": "",
+      "description": "Optional partner token secret. Generate with: openssl rand -hex 32. Blank uses FLASK_SECRET.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Registration",
+      "key": "DISABLE_REGISTRATION",
+      "value": "true",
+      "description": "Recommended default. Keep true to block public sign-up. Temporarily switch to false only while creating a first account, then set true again and restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Onboarding Emails",
+      "key": "DISABLE_ONBOARDING",
+      "value": "true",
+      "description": "Recommended for self-hosted installs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Alias Suffix",
+      "key": "DISABLE_ALIAS_SUFFIX",
+      "value": "true",
+      "description": "Recommended for self-hosted installs to allow cleaner aliases without the random suffix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SPF Enforcement",
+      "key": "ENFORCE_SPF",
+      "value": "true",
+      "description": "Enable SPF enforcement using the extra headers provided by Postfix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Print Emails Instead of Sending",
+      "key": "NOT_SEND_EMAIL",
+      "value": "false",
+      "description": "For testing only. When true, email bodies are logged instead of sent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Colored Logs",
+      "key": "COLOR_LOG",
+      "value": "",
+      "description": "Optional colored log output for debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "ADMIN_EMAIL",
+      "value": "",
+      "description": "General stats and admin alert email recipient. This is not a login credential.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Support Name",
+      "key": "SUPPORT_NAME",
+      "value": "",
+      "description": "Display name used alongside SUPPORT_EMAIL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postmaster Address",
+      "key": "POSTMASTER",
+      "value": "",
+      "description": "Postmaster email used by some mail-related features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Free Plan Email Count",
+      "key": "MAX_NB_EMAIL_FREE_PLAN",
+      "value": "10",
+      "description": "Max number of emails a non-premium user can generate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Rate Limit",
+      "key": "ALIAS_LIMIT",
+      "value": "",
+      "description": "Alias creation rate limit. Example: 100/day;50/hour;5/minute",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatically Disable Aliases",
+      "key": "ALIAS_AUTOMATIC_DISABLE",
+      "value": "",
+      "description": "Optional automatic alias disable behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Redirect Domains",
+      "key": "ALLOWED_REDIRECT_DOMAINS",
+      "value": "",
+      "description": "JSON list of allowed redirect domains. Example: [&quot;app.example.com&quot;]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Landing Page URL",
+      "key": "LANDING_PAGE_URL",
+      "value": "",
+      "description": "Optional landing page URL shown by the app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Status Page URL",
+      "key": "STATUS_PAGE_URL",
+      "value": "",
+      "description": "Optional status page URL shown by the app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "hCaptcha Secret",
+      "key": "HCAPTCHA_SECRET",
+      "value": "",
+      "description": "hCaptcha secret key from your hCaptcha site. Set both hCaptcha fields to enable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "hCaptcha Site Key",
+      "key": "HCAPTCHA_SITEKEY",
+      "value": "",
+      "description": "hCaptcha site key from your hCaptcha site. Set both hCaptcha fields to enable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email Servers With Priority",
+      "key": "EMAIL_SERVERS_WITH_PRIORITY",
+      "value": "",
+      "description": "Leave blank to auto-use mail.EMAIL_DOMAIN. Set this only if your MX host should be something else, for example [(10, &quot;mx.example.com.&quot;)].",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Other Alias Domains",
+      "key": "OTHER_ALIAS_DOMAINS",
+      "value": "",
+      "description": "JSON list of extra alias domains. Example: [&quot;example.net&quot;,&quot;example.org&quot;]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Domains Override",
+      "key": "ALIAS_DOMAINS",
+      "value": "",
+      "description": "Full alias-domain override as a JSON list. If set, it replaces OTHER_ALIAS_DOMAINS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Premium Alias Domains",
+      "key": "PREMIUM_ALIAS_DOMAINS",
+      "value": "",
+      "description": "JSON list of premium-only domains. Example: [&quot;vip.example.com&quot;]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "First Alias Domain",
+      "key": "FIRST_ALIAS_DOMAIN",
+      "value": "",
+      "description": "Alias domain used when creating the first alias.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bounce Prefix",
+      "key": "BOUNCE_PREFIX",
+      "value": "",
+      "description": "VERP bounce prefix. Must end with + if used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bounce Suffix",
+      "key": "BOUNCE_SUFFIX",
+      "value": "",
+      "description": "VERP bounce suffix. Must start with + if used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bounce Prefix For Reply Phase",
+      "key": "BOUNCE_PREFIX_FOR_REPLY_PHASE",
+      "value": "",
+      "description": "Reply-phase bounce prefix without a trailing +.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Client ID",
+      "key": "GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "GitHub OAuth app client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Client Secret",
+      "key": "GITHUB_CLIENT_SECRET",
+      "value": "",
+      "description": "GitHub OAuth app client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google Client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google Client Secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Google OAuth client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Facebook Client ID",
+      "key": "FACEBOOK_CLIENT_ID",
+      "value": "",
+      "description": "Facebook OAuth client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Facebook Client Secret",
+      "key": "FACEBOOK_CLIENT_SECRET",
+      "value": "",
+      "description": "Facebook OAuth client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Proton Client ID",
+      "key": "PROTON_CLIENT_ID",
+      "value": "",
+      "description": "Proton OAuth client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Client Secret",
+      "key": "PROTON_CLIENT_SECRET",
+      "value": "",
+      "description": "Proton OAuth client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Proton Base URL",
+      "key": "PROTON_BASE_URL",
+      "value": "",
+      "description": "Proton API base URL override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Validate Certs",
+      "key": "PROTON_VALIDATE_CERTS",
+      "value": "true",
+      "description": "Certificate verification for Proton integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connect With Proton",
+      "key": "CONNECT_WITH_PROTON",
+      "value": "",
+      "description": "Enable Proton login integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Cookie Name",
+      "key": "CONNECT_WITH_PROTON_COOKIE_NAME",
+      "value": "",
+      "description": "Cookie name for Proton login integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Icon",
+      "key": "CONNECT_WITH_OIDC_ICON",
+      "value": "",
+      "description": "Font Awesome icon slug for generic OIDC login button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Discovery URL",
+      "key": "OIDC_WELL_KNOWN_URL",
+      "value": "",
+      "description": "OIDC discovery URL, usually ending in /.well-known/openid-configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Scopes",
+      "key": "OIDC_SCOPES",
+      "value": "openid email profile",
+      "description": "Space-separated OIDC scopes. Default works for most providers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Name Field",
+      "key": "OIDC_NAME_FIELD",
+      "value": "name",
+      "description": "OIDC user-info field used for display name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable SimpleLogin OIDC Provider",
+      "key": "ENABLE_OIDC_SERVER",
+      "value": "0",
+      "description": "Set to 1 to enable SimpleLogin as an OpenID provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenID Private Key Path",
+      "key": "OPENID_PRIVATE_KEY_PATH",
+      "value": "",
+      "description": "Optional OpenID private key path. Blank auto-generates when ENABLE_OIDC_SERVER=1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenID Public Key Path",
+      "key": "OPENID_PUBLIC_KEY_PATH",
+      "value": "",
+      "description": "Optional OpenID public key path matching the private key above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Apple API Secret",
+      "key": "APPLE_API_SECRET",
+      "value": "",
+      "description": "Apple sign-in API secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mac App Apple API Secret",
+      "key": "MACAPP_APPLE_API_SECRET",
+      "value": "",
+      "description": "Apple sign-in secret for the native Mac app.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sentry DSN",
+      "key": "SENTRY_DSN",
+      "value": "",
+      "description": "Sentry DSN for backend error tracking.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sentry Front-End DSN",
+      "key": "SENTRY_FRONT_END_DSN",
+      "value": "",
+      "description": "Optional separate Sentry DSN for front-end error tracking.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plausible Host",
+      "key": "PLAUSIBLE_HOST",
+      "value": "",
+      "description": "Plausible Analytics host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plausible Domain",
+      "key": "PLAUSIBLE_DOMAIN",
+      "value": "",
+      "description": "Plausible tracked domain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Flask Profiler Path",
+      "key": "FLASK_PROFILER_PATH",
+      "value": "",
+      "description": "Optional Flask profiler sqlite path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Flask Profiler Password",
+      "key": "FLASK_PROFILER_PASSWORD",
+      "value": "",
+      "description": "Optional Flask profiler password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable SpamAssassin",
+      "key": "ENABLE_SPAM_ASSASSIN",
+      "value": "0",
+      "description": "Set to 1 to enable SpamAssassin integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SpamAssassin Host",
+      "key": "SPAMASSASSIN_HOST",
+      "value": "",
+      "description": "SpamAssassin server host or IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HIBP Scan Interval Days",
+      "key": "HIBP_SCAN_INTERVAL_DAYS",
+      "value": "7",
+      "description": "How often to check Have I Been Pwned data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HIBP API Keys",
+      "key": "HIBP_API_KEYS",
+      "value": "",
+      "description": "JSON list of HIBP API keys. Example: [&quot;key1&quot;,&quot;key2&quot;]",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auto-Generate PGP Server Key",
+      "key": "AUTO_GENERATE_PGP",
+      "value": "0",
+      "description": "Set to 1 to auto-generate a PGP server key pair.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGP Sender Private Key Path",
+      "key": "PGP_SENDER_PRIVATE_KEY_PATH",
+      "value": "",
+      "description": "Optional path to a private PGP key used to sign forwarding emails. Use /custom-assets or /pgp if you provide your own key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DKIM Private Key Path",
+      "key": "DKIM_PRIVATE_KEY_PATH",
+      "value": "/dkim.key",
+      "description": "Advanced DKIM private key path override. Leave at /dkim.key for the wrapper-managed default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Bucket",
+      "key": "BUCKET",
+      "value": "",
+      "description": "Bucket name used by upstream S3-backed features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AWS Access Key ID",
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "AWS or S3-compatible access key ID.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AWS Secret Access Key",
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "AWS or S3-compatible secret access key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AWS Region",
+      "key": "AWS_REGION",
+      "value": "",
+      "description": "AWS region.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Vendor ID",
+      "key": "PADDLE_VENDOR_ID",
+      "value": "",
+      "description": "Paddle vendor ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Monthly Product ID",
+      "key": "PADDLE_MONTHLY_PRODUCT_ID",
+      "value": "",
+      "description": "Paddle monthly product ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Yearly Product ID",
+      "key": "PADDLE_YEARLY_PRODUCT_ID",
+      "value": "",
+      "description": "Paddle yearly product ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Public Key Path",
+      "key": "PADDLE_PUBLIC_KEY_PATH",
+      "value": "",
+      "description": "Path to your Paddle public key file, for example /custom-assets/paddle_public.pem.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Auth Code",
+      "key": "PADDLE_AUTH_CODE",
+      "value": "",
+      "description": "Paddle auth code.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Coinbase Webhook Secret",
+      "key": "COINBASE_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Coinbase webhook secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Coinbase Checkout ID",
+      "key": "COINBASE_CHECKOUT_ID",
+      "value": "",
+      "description": "Coinbase checkout ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Coinbase API Key",
+      "key": "COINBASE_API_KEY",
+      "value": "",
+      "description": "Coinbase API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Coinbase Yearly Price",
+      "key": "COINBASE_YEARLY_PRICE",
+      "value": "",
+      "description": "Coinbase yearly price value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Config File Path",
+      "key": "CONFIG",
+      "value": "",
+      "description": "Expert-only alternate dotenv file path. Usually leave blank and use the template fields instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Monitoring Email",
+      "key": "MONITORING_EMAIL",
+      "value": "",
+      "description": "Optional monitoring report email recipient.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Unsubscriber Address",
+      "key": "UNSUBSCRIBER",
+      "value": "",
+      "description": "Optional address that receives unsubscribe requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Legacy Unsubscriber Address",
+      "key": "OLD_UNSUBSCRIBER",
+      "value": "",
+      "description": "Legacy alias for unsubscribe routing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Users With HTTP Unsubscribe",
+      "key": "USERS_WITH_HTTP_UNSUBSCRIBE",
+      "value": "",
+      "description": "Comma-separated users allowed to use HTTP unsubscribe.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Legacy Free Plan Alias Limit",
+      "key": "MAX_NB_EMAIL_OLD_FREE_PLAN",
+      "value": "",
+      "description": "Legacy free-plan alias cap used for old accounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB Connection Name",
+      "key": "DB_CONN_NAME",
+      "value": "",
+      "description": "Optional PostgreSQL application_name override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AWS Endpoint URL",
+      "key": "AWS_ENDPOINT_URL",
+      "value": "",
+      "description": "Optional custom S3-compatible endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Monthly Product IDs",
+      "key": "PADDLE_MONTHLY_PRODUCT_IDS",
+      "value": "",
+      "description": "JSON list of extra Paddle monthly product IDs. Example: [12345,67890]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Yearly Product IDs",
+      "key": "PADDLE_YEARLY_PRODUCT_IDS",
+      "value": "",
+      "description": "JSON list of extra Paddle yearly product IDs. Example: [12345,67890]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Paddle Coupon ID",
+      "key": "PADDLE_COUPON_ID",
+      "value": "",
+      "description": "Optional Paddle coupon product ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Extra Header Name",
+      "key": "PROTON_EXTRA_HEADER_NAME",
+      "value": "",
+      "description": "Optional Proton integration header name override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Extra Header Value",
+      "key": "PROTON_EXTRA_HEADER_VALUE",
+      "value": "",
+      "description": "Optional Proton integration header value.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Prevent Linked Proton Change",
+      "key": "PROTON_PREVENT_CHANGE_LINKED_ACCOUNT",
+      "value": "false",
+      "description": "Presence-based upstream flag. Set true to prevent linked Proton account changes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sentry Trace Rate",
+      "key": "SENTRY_TRACE_RATE",
+      "value": "",
+      "description": "Optional Sentry trace sample rate. Example: 0.001",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postfix Backup Servers",
+      "key": "POSTFIX_BACKUP_SERVERS",
+      "value": "",
+      "description": "Comma-separated backup outbound SMTP servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postfix Submission TLS",
+      "key": "POSTFIX_SUBMISSION_TLS",
+      "value": "false",
+      "description": "Presence-based upstream flag. Set true to use Postfix submission with TLS on port 587.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postfix Timeout",
+      "key": "POSTFIX_TIMEOUT",
+      "value": "",
+      "description": "Postfix send timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postfix Connect Timeout",
+      "key": "POSTFIX_CONNECT_TIMEOUT",
+      "value": "",
+      "description": "Postfix connect timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton MX Servers",
+      "key": "PROTON_MX_SERVERS",
+      "value": "",
+      "description": "Comma-separated Proton MX servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Email Domains",
+      "key": "PROTON_EMAIL_DOMAINS",
+      "value": "",
+      "description": "Comma-separated Proton email domains.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Load PGP In Email Handler",
+      "key": "LOAD_PGP_EMAIL_HANDLER",
+      "value": "false",
+      "description": "Presence-based upstream flag for niche local PGP loading behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Apple Webhook Secret Check",
+      "key": "APPLE_WEBHOOK_SECRET_CHECK_ENABLED",
+      "value": "false",
+      "description": "Presence-based upstream flag to validate Apple webhook shared secret.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Spam Score",
+      "key": "MAX_SPAM_SCORE",
+      "value": "",
+      "description": "SpamAssassin spam score threshold for forwarded mail.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Reply Spam Score",
+      "key": "MAX_REPLY_PHASE_SPAM_SCORE",
+      "value": "",
+      "description": "SpamAssassin spam score threshold for reply-phase mail.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGP Signer Address",
+      "key": "PGP_SIGNER",
+      "value": "",
+      "description": "Optional signer address used for outgoing encrypted email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "No Reply Address",
+      "key": "NOREPLY",
+      "value": "",
+      "description": "Formatted no-reply address override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Partner No Reply Address",
+      "key": "PARTNER_NOREPLY",
+      "value": "",
+      "description": "Formatted partner no-reply address override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HIBP API RPM",
+      "key": "HIBP_API_RPM",
+      "value": "",
+      "description": "Have I Been Pwned requests-per-minute limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip HIBP For Partner Aliases",
+      "key": "HIBP_SKIP_PARTNER_ALIAS",
+      "value": "",
+      "description": "Optional HIBP behavior override for partner aliases.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Save Unsent Directory",
+      "key": "SAVE_UNSENT_DIR",
+      "value": "",
+      "description": "Optional directory where unsent emails are stored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rspamd Signs DKIM",
+      "key": "RSPAMD_SIGN_DKIM",
+      "value": "false",
+      "description": "Presence-based upstream flag indicating DKIM signing is handled by Rspamd.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Twilio Auth Token",
+      "key": "TWILIO_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional Twilio auth token for phone-related integrations.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Phone Provider 1 Secret",
+      "key": "PHONE_PROVIDER_1_SECRET",
+      "value": "",
+      "description": "Optional phone provider secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Phone Provider 2 Header",
+      "key": "PHONE_PROVIDER_2_HEADER",
+      "value": "",
+      "description": "Optional phone provider header name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Phone Provider 2 Secret",
+      "key": "PHONE_PROVIDER_2_SECRET",
+      "value": "",
+      "description": "Optional phone provider secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Zendesk Host",
+      "key": "ZENDESK_HOST",
+      "value": "",
+      "description": "Optional Zendesk host for support integrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Zendesk API Token",
+      "key": "ZENDESK_API_TOKEN",
+      "value": "",
+      "description": "Optional Zendesk API token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Zendesk Enabled",
+      "key": "ZENDESK_ENABLED",
+      "value": "false",
+      "description": "Presence-based upstream flag to enable Zendesk integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DMARC Check Enabled",
+      "key": "DMARC_CHECK_ENABLED",
+      "value": "false",
+      "description": "Presence-based upstream flag to enable DMARC checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VERP Prefix",
+      "key": "VERP_PREFIX",
+      "value": "",
+      "description": "VERP prefix override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VERP Email Secret",
+      "key": "VERP_EMAIL_SECRET",
+      "value": "",
+      "description": "Custom VERP secret. Generate with: openssl rand -hex 32. Must be at least 32 chars.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Transactional Bounce Prefix",
+      "key": "TRANSACTIONAL_BOUNCE_PREFIX",
+      "value": "",
+      "description": "Optional transactional bounce prefix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transactional Bounce Suffix",
+      "key": "TRANSACTIONAL_BOUNCE_SUFFIX",
+      "value": "",
+      "description": "Optional transactional bounce suffix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Transfer Token Secret",
+      "key": "ALIAS_TRANSFER_TOKEN_SECRET",
+      "value": "",
+      "description": "Alias transfer token secret. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Create Contacts For Free Users",
+      "key": "DISABLE_CREATE_CONTACTS_FOR_FREE_USERS",
+      "value": "",
+      "description": "Optional upstream behavior override for free-user contact creation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Random Suffix Length",
+      "key": "ALIAS_RAND_SUFFIX_LENGTH",
+      "value": "",
+      "description": "Length of generated alias random suffix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event Webhook URL",
+      "key": "EVENT_WEBHOOK",
+      "value": "",
+      "description": "Optional event webhook destination URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event Webhook Skip Verify SSL",
+      "key": "EVENT_WEBHOOK_SKIP_VERIFY_SSL",
+      "value": "false",
+      "description": "Presence-based upstream flag to skip SSL verification for the event webhook.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event Webhook Disabled",
+      "key": "EVENT_WEBHOOK_DISABLE",
+      "value": "false",
+      "description": "Presence-based upstream flag to disable event webhooks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event Webhook Enabled User IDs",
+      "key": "EVENT_WEBHOOK_ENABLED_USER_IDS",
+      "value": "",
+      "description": "Comma-separated user IDs allowed to emit event webhooks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event Listener DB URI",
+      "key": "EVENT_LISTENER_DB_URI",
+      "value": "",
+      "description": "Optional dedicated DB URI for the event listener.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Max API Keys",
+      "key": "MAX_API_KEYS",
+      "value": "",
+      "description": "Maximum number of API keys per user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Memory Store URI",
+      "key": "MEM_STORE_URI",
+      "value": "",
+      "description": "Optional memory store URI override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery Code HMAC Secret",
+      "key": "RECOVERY_CODE_HMAC_SECRET",
+      "value": "",
+      "description": "Recovery-code HMAC secret. Generate with: openssl rand -hex 32. Must be at least 16 chars.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Min Rspamd Score For Failed DMARC",
+      "key": "MIN_RSPAMD_SCORE_FOR_FAILED_DMARC",
+      "value": "",
+      "description": "Rspamd score threshold for quarantining DMARC-failed email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable All Reverse Alias Replacement",
+      "key": "ENABLE_ALL_REVERSE_ALIAS_REPLACEMENT",
+      "value": "false",
+      "description": "Presence-based upstream flag to replace all reverse aliases.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Reverse Alias Replacements",
+      "key": "MAX_NB_REVERSE_ALIAS_REPLACEMENT",
+      "value": "",
+      "description": "Maximum reverse aliases replaced when the related feature is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Rate Limit",
+      "key": "DISABLE_RATE_LIMIT",
+      "value": "false",
+      "description": "Presence-based upstream flag to disable rate limiting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Create Rate Limit Free",
+      "key": "ALIAS_CREATE_RATE_LIMIT_FREE",
+      "value": "",
+      "description": "Free-user alias create rate limits in hits,seconds:hits,seconds format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Create Rate Limit Paid",
+      "key": "ALIAS_CREATE_RATE_LIMIT_PAID",
+      "value": "",
+      "description": "Paid-user alias create rate limits in hits,seconds:hits,seconds format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Restore One Rate Limit",
+      "key": "ALIAS_RESTORE_ONE_RATE_LIMIT",
+      "value": "",
+      "description": "Single-alias restore rate limits in hits,seconds:hits,seconds format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Restore All Rate Limit",
+      "key": "ALIAS_RESTORE_ALL_RATE_LIMIT",
+      "value": "",
+      "description": "Bulk alias restore rate limits in hits,seconds:hits,seconds format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Bounces Per Day",
+      "key": "MAX_BOUNCES_1D",
+      "value": "",
+      "description": "Maximum daily bounces before automatic handling triggers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Bounces Per Week",
+      "key": "MAX_BOUNCES_1W",
+      "value": "",
+      "description": "Maximum weekly bounces before automatic handling triggers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Partner DNS Custom Domains",
+      "key": "PARTNER_DNS_CUSTOM_DOMAINS",
+      "value": "",
+      "description": "Expert partner mapping in key=value;key=value format. Example: a.com=x.com;b.com=y.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Partner Domain Validation Prefixes",
+      "key": "PARTNER_CUSTOM_DOMAIN_VALIDATION_PREFIXES",
+      "value": "",
+      "description": "Expert validation prefixes in key=value;key=value format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailbox Verification Override Code",
+      "key": "MAILBOX_VERIFICATION_OVERRIDE_CODE",
+      "value": "",
+      "description": "Optional mailbox verification override code for controlled environments.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Audit Log Max Days",
+      "key": "AUDIT_LOG_MAX_DAYS",
+      "value": "",
+      "description": "Maximum audit log retention in days.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias Trash Days",
+      "key": "ALIAS_TRASH_DAYS",
+      "value": "",
+      "description": "Days before trashed aliases are purged.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed OAuth Schemes",
+      "key": "ALLOWED_OAUTH_SCHEMES",
+      "value": "",
+      "description": "Comma-separated allowed OAuth callback schemes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Email Forward Recipients",
+      "key": "MAX_EMAIL_FORWARD_RECIPIENTS",
+      "value": "",
+      "description": "Maximum forward recipients per email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Master Encryption Key Hex",
+      "key": "MASTER_ENC_KEY_HEX",
+      "value": "",
+      "description": "Hex-encoded master encryption key. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MAC Key Hex",
+      "key": "MAC_KEY_HEX",
+      "value": "",
+      "description": "Hex-encoded MAC key. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Abuser HKDF Salt",
+      "key": "ABUSER_HKDF_SALT",
+      "value": "",
+      "description": "Hex-encoded HKDF salt. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Invalid MX IPs",
+      "key": "INVALID_MX_IPS",
+      "value": "",
+      "description": "Comma-separated invalid MX IPs ignored by validation logic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Rust PGP",
+      "key": "USE_RUST_PGP",
+      "value": "false",
+      "description": "Presence-based upstream flag to use the Rust PGP implementation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Size Limit",
+      "key": "SMTP_SIZE_LIMIT",
+      "value": "",
+      "description": "Maximum SMTP message size in bytes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Partner Support URL",
+      "key": "PARTNER_SUPPORT_URL",
+      "value": "",
+      "description": "Optional partner support URL shown by the app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin FIDO Required",
+      "key": "ADMIN_FIDO_REQUIRED",
+      "value": "none",
+      "description": "Admin FIDO requirement. Choose one of the built-in dropdown values only: none, any, or hardware. Leave this at none unless you already intend to enforce admin FIDO or security keys.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Grace Period",
+      "key": "ADMIN_GRACE_PERIOD",
+      "value": "",
+      "description": "Admin grace period in seconds before FIDO enforcement.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Drop PGP Key Attachments On Reply",
+      "key": "DROP_PGP_KEY_ATTACHMENTS_ON_REPLY",
+      "value": "false",
+      "description": "Presence-based upstream flag to drop PGP key attachments on reply.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UpCloud Username",
+      "key": "UPCLOUD_USERNAME",
+      "value": "",
+      "description": "Optional UpCloud username for niche upstream integrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UpCloud Password",
+      "key": "UPCLOUD_PASSWORD",
+      "value": "",
+      "description": "Optional UpCloud password for niche upstream integrations.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UpCloud DB ID",
+      "key": "UPCLOUD_DB_ID",
+      "value": "",
+      "description": "Optional UpCloud database ID for niche upstream integrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Store Transactional Emails",
+      "key": "STORE_TRANSACTIONAL_EMAILS",
+      "value": "false",
+      "description": "Presence-based upstream flag to store transactional emails.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

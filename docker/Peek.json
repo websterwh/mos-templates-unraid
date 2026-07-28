@@ -1,0 +1,99 @@
+{
+  "name": "Peek",
+  "repo": "carrotwaxr/peek-stash-browser:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/carrotwaxr/peek-stash-browser/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/carrotwaxr/peek-stash-browser/main/client/public/branding/logos/peek-logo.png",
+  "project": "https://github.com/carrotwaxr/peek-stash-browser",
+  "description": "Peek Stash Browser is a modern web application for browsing and streaming your Stash media library. Features: - Modern React frontend with responsive design - Video streaming proxied through Stash (no local media access needed) - Adaptive quality selection (Direct, 1080p, 720p, 480p, 360p) - JWT-based authentication with admin/user roles - Advanced filtering and search - Subtitle/caption support - 4-step setup wizard for easy first-time configuration This is a single-container solution that includes: - Frontend web interface (React + Vite) - Backend API server (Node.js/Express + TypeScript) - SQLite database for user data First-Time Setup: After installation, access http:// :6969 and complete the 4-step setup wizard: 1. Welcome screen 2. Create admin account (username + password) 3. Connect to Stash (URL + API key) 4. Setup complete! Requirements: - Existing Stash server with GraphQL API enabled - Network access from Peek to Stash server - At least 1GB RAM recommended Upgrading from v1.x: Your existing STASH_URL and STASH_API_KEY will auto-migrate to the database on first start. After successful migration, you can remove these env vars from your container config.",
+  "paths": [
+    {
+      "name": "App Data Directory",
+      "host": "/mnt/cache/appdata/peek-stash-browser",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Peek configuration and database. Requires read/write access.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "6969",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Web interface port - access Peek at http:// :6969",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Secret Key",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secure random string for JWT authentication. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Stash GraphQL URL (Legacy)",
+      "key": "STASH_URL",
+      "value": "",
+      "description": "MIGRATION ONLY: Leave blank for new installs - configured via Setup Wizard. Existing v1.x installs: keep your value, it will auto-migrate to database on first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stash API Key (Legacy)",
+      "key": "STASH_API_KEY",
+      "value": "",
+      "description": "MIGRATION ONLY: Leave blank for new installs - configured via Setup Wizard. Existing v1.x installs: keep your value, it will auto-migrate to database on first start.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "file:/app/data/peek-db.db",
+      "description": "SQLite database file path. Leave as default unless you know what you're doing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Directory",
+      "key": "CONFIG_DIR",
+      "value": "/app/data",
+      "description": "Directory for config and database. Should match App Data Directory container path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js environment mode. Leave as 'production' for normal use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "SECURE_COOKIES",
+      "value": "false",
+      "description": "Enable secure cookies (HTTPS only). Set to 'true' only if you use HTTPS with a reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

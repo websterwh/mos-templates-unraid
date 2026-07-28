@@ -1,0 +1,201 @@
+{
+  "name": "db-backup",
+  "repo": "tiredofit/db-backup:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/tiredofit/db-backup/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/A75G/docker-templates/master/templates/icons/db-backup.png",
+  "project": "https://hub.docker.com/r/tiredofit/db-backup/",
+  "description": "Backup multiple database types on a scheduled basis with many customizable options. Manual Backups can be performed by entering the container and typing backup-now For diffrent port please add variable DB1_PORT and include the port For more DB backups you can include DB2_NAME etc https://github.com/tiredofit/docker-db-backup#job-backup-options Check advanced for more settings",
+  "paths": [
+    {
+      "name": "Backup Location",
+      "host": "/mnt/cache/backups/db/",
+      "container": "/backup",
+      "mode": "rw",
+      "description": "Database Dump Location",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DB01_NAME",
+      "key": "DB01_NAME",
+      "value": "ALL",
+      "description": "Schema Name e.g. database or ALL to backup all databases the user has access to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB01_TYPE",
+      "key": "DB01_TYPE",
+      "value": "mysql",
+      "description": "Type of DB Server to backup couch influx mysql mssql pgsql mongo redis sqlite3",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB01_HOST",
+      "key": "DB01_HOST",
+      "value": "192.168.1.1",
+      "description": "Server Hostname e.g. mariadb. For sqlite3, full path to DB file e.g. /backup/db.sqlite3",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB01_USER",
+      "key": "DB01_USER",
+      "value": "root",
+      "description": "username for the database(s) - Can use root for MySQL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB01_PASS",
+      "key": "DB01_PASS",
+      "value": "password",
+      "description": "(optional if DB doesn't require it) password for the database",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_SPLIT_DB",
+      "key": "DEFAULT_SPLIT_DB",
+      "value": "TRUE",
+      "description": "If using ALL - use this to split each database into its own file as opposed to one singular file",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_BACKUP_INTERVAL",
+      "key": "DEFAULT_BACKUP_INTERVAL",
+      "value": "1440",
+      "description": "How often to dump DB Minutes Defaults 1440 = Day",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_BACKUP_BEGIN",
+      "key": "DEFAULT_BACKUP_BEGIN",
+      "value": "0300",
+      "description": "https://github.com/tiredofit/docker-db-backup#scheduling-options",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_CLEANUP_TIME",
+      "key": "DEFAULT_CLEANUP_TIME",
+      "value": "10080",
+      "description": "Value in minutes to delete old backups. 10080 = One Week. If you want all backup delete this key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_COMPRESSION",
+      "key": "DEFAULT_COMPRESSION",
+      "value": "ZSTD",
+      "description": "Use either Gzip GZ, Bzip2 BZ, XZip XZ, ZSTD ZSTD or none NONE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_COMPRESSION_LEVEL",
+      "key": "DEFAULT_COMPRESSION_LEVEL",
+      "value": "3",
+      "description": "Numerical value of what level of compression to use, most allow 1 to 9, except for ZSTD which allows for 1 to 19",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_GZ_RSYNCABLE",
+      "key": "DEFAULT_GZ_RSYNCABLE",
+      "value": "FALSE",
+      "description": "Use --rsyncable (gzip only) for faster rsync transfers and incremental backup deduplication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUG_MODE",
+      "key": "DEBUG_MODE",
+      "value": "FALSE",
+      "description": "DEBUG_MODE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CONTAINER_ENABLE_MONITORING",
+      "key": "CONTAINER_ENABLE_MONITORING",
+      "value": "FALSE",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_CHECKSUM",
+      "key": "DEFAULT_CHECKSUM",
+      "value": "NONE",
+      "description": "Either MD5 or SHA1 or NONE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_CREATE_LATEST_SYMLINK",
+      "key": "DEFAULT_CREATE_LATEST_SYMLINK",
+      "value": "FALSE",
+      "description": "Create a symbolic link pointing to last backup in this format: latest-(DB_TYPE)_(DB_NAME)_(DB_HOST)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_ENABLE_PARALLEL_COMPRESSION",
+      "key": "DEFAULT_ENABLE_PARALLEL_COMPRESSION",
+      "value": "autodetected",
+      "description": "Maximum amount of threads to use when compressing - Integer value e.g. 8",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USER_DBBACKUP",
+      "key": "USER_DBBACKUP",
+      "value": "99",
+      "description": "The uid that the image should read and write files as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GROUP_DBBACKUP",
+      "key": "GROUP_DBBACKUP",
+      "value": "100",
+      "description": "The gid that the image should read and write files as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_FILESYSTEM_PATH_PERMISSION",
+      "key": "DEFAULT_FILESYSTEM_PATH_PERMISSION",
+      "value": "755",
+      "description": "Permissions to apply to backup directory",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_FILESYSTEM_PERMISSION",
+      "key": "DEFAULT_FILESYSTEM_PERMISSION",
+      "value": "777",
+      "description": "Permissions to apply to files.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

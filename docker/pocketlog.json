@@ -1,0 +1,163 @@
+{
+  "name": "pocketlog",
+  "repo": "ghcr.io/anym001/pocketlog:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/anym001/pocketlog",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/anym001/pocketlog/main/frontend/icons/icon-512.png",
+  "project": "https://github.com/anym001/pocketlog",
+  "description": "PocketLog is a self-hosted budget book (household finances) Progressive Web App. It runs in the browser on all common platforms and can be installed to the homescreen as an app. Designed for private self-hosting: your data lives exclusively on your own server. By default PocketLog uses an embedded SQLite database (no separate database needed) - just map the /config volume so your data survives container updates. An external MariaDB is optional. The app runs in your own container. All assets (fonts, icons, JS libraries) are served from your own origin - no CDN calls, no external connections, no tracking, no telemetry. Features: income & expense transactions with categories and tags, savings goals and debt tracking, budgets with spending limits, recurring transactions, bulk actions, reports & charts, full-text search, CSV import/export, offline support, light/dark themes, multi-user with its own username/password login and brute-force protection, scoped API access via bearer tokens (read/import/write). STORAGE: By default the SQLite database lives at /config/db/pocketlog.db - map /config to your appdata share to persist it. Set PUID=99 / PGID=100 so the files are owned by nobody:users on Unraid. OPTIONAL MariaDB: To use an external MariaDB 10.6+ instead, create a database and user and set the DB_* variables. Setting any DB_* variable switches PocketLog from SQLite to MariaDB; DB_PASSWORD is then required. On first launch open the WebUI to create the initial admin account. Project: https://github.com/anym001/pocketlog",
+  "paths": [
+    {
+      "name": "App Config Dir",
+      "host": "/mnt/cache/appdata/pocketlog",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent app directory. Holds the SQLite database (/config/db, unless an external MariaDB is used) and optional log files (/config/logs).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port of the PocketLog web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user ID that owns the files under /config (Unraid: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group ID for the files under /config (Unraid: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "IPs or CIDR ranges of trusted reverse proxies, or * for all. Decides which sources may set X-Real-IP/X-Forwarded-For (audit log IP) and X-Forwarded-Proto (HTTPS detection). Empty trusts the standard private ranges, so a proxy on a Docker/LAN network works out of the box; set a value to narrow it to a specific proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_COOKIE_SECURE",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "auto",
+      "description": "Secure flag on session cookies. auto: HTTPS detected via X-Forwarded-Proto from a trusted proxy (see TRUSTED_PROXIES), else the request scheme - works for most setups. 1: always set. 0: never set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "MariaDB option only: hostname or IP of the MariaDB instance. Setting any DB_* variable switches PocketLog from SQLite to MariaDB. Leave empty to use the embedded SQLite database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "",
+      "description": "MariaDB option only: port (default 3306)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_NAME",
+      "key": "DB_NAME",
+      "value": "",
+      "description": "MariaDB option only: database name (default pocketlog)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "",
+      "description": "MariaDB option only: database user (default pocketlog)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "MariaDB option only: database password. Required once any DB_* variable is set (MariaDB active).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DEFAULT_LOCALE",
+      "key": "DEFAULT_LOCALE",
+      "value": "de-DE",
+      "description": "Default locale for new accounts (BCP-47, e.g. de-DE, de-AT, de-CH, en-GB, en-US). Each user can override it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_CURRENCY",
+      "key": "DEFAULT_CURRENCY",
+      "value": "EUR",
+      "description": "Default currency for new accounts (ISO 4217, e.g. EUR, USD, GBP, CHF, JPY). Display-only, per-user overridable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FORMAT",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log output format: text or json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FILE",
+      "key": "LOG_FILE",
+      "value": "",
+      "description": "Optional path to a log file inside /config/logs (e.g. /config/logs/pocketlog.log). Leave empty to log to stdout only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

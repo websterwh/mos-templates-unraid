@@ -1,0 +1,107 @@
+{
+  "name": "Plexcache-D",
+  "repo": "ghcr.io/studionirin/plexcache-d:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/StudioNirin/PlexCache-D",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5757]",
+  "icon": "https://raw.githubusercontent.com/StudioNirin/PlexCache-D/main/docker/icon.png",
+  "project": "https://github.com/StudioNirin/PlexCache-D/issues",
+  "description": "Automate Plex media management: Efficiently transfer media from the On Deck/Watchlist to an SSD cache, and seamlessly move watched media back to their respective locations. This app reduces energy consumption by minimizing the need to spin up the array/hard drive(s) when watching recurrent media like TV series. It achieves this by moving the media from the OnDeck and watchlist for the main user and/or other users. For TV shows/anime, it also fetches the next specified number of episodes.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/plexcache",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for settings, logs, and tracking data",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache",
+      "container": "/mnt/cache",
+      "mode": "rw",
+      "description": "Your Unraid cache drive where media files are cached for fast access",
+      "required": true
+    },
+    {
+      "name": "Array",
+      "host": "/mnt/user0",
+      "container": "/mnt/user0",
+      "mode": "rw",
+      "description": "Direct array access (user0) for creating .plexcached backups",
+      "required": true
+    },
+    {
+      "name": "User",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "User share for Plex library path resolution",
+      "required": true
+    },
+    {
+      "name": "Unraid Notify Script",
+      "host": "/usr/local/emhttp",
+      "container": "/usr/local/emhttp",
+      "mode": "ro",
+      "description": "Unraid's notify script and PHP includes (for native notifications)",
+      "required": false
+    },
+    {
+      "name": "Notifications",
+      "host": "/tmp/notifications",
+      "container": "/tmp/notifications",
+      "mode": "rw",
+      "description": "Unraid's notification queue (for native notifications)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "5757",
+      "container": "5757",
+      "protocol": "tcp",
+      "description": "Web UI port for browser access",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Timezone for accurate log timestamps and scheduling",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

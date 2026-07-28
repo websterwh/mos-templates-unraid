@@ -1,0 +1,107 @@
+{
+  "name": "SenseVoice-API",
+  "repo": "ghcr.io/hsiang-han/sensevoice-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:10095]/docs",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/sensevoice-icon.png",
+  "project": "https://github.com/hsiang-han/SenseVoice-API",
+  "description": "OpenAI-compatible Speech-to-Text API powered by SenseVoice-Small (Alibaba FunAudioLLM). Features: emotion detection (happy/sad/angry/neutral), audio event detection (Speech/Music/Applause/Laughter), auto language identification (zh/en/ja/ko/yue), word-level timestamps, WebSocket streaming. Ultra-low latency (~70ms for 10s audio on GPU). Supports both GPU and CPU mode (set DEVICE to cpu for CPU-only, no GPU required). REST API at /v1/audio/transcriptions. For GPU mode: remove --gpus all from Extra Parameters if running CPU-only.",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/sensevoice-api/models",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Model download cache (~900MB). First start downloads model here; subsequent starts are instant. Persists across container recreates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "10095",
+      "container": "10095",
+      "protocol": "tcp",
+      "description": "REST API and WebSocket port. Swagger docs at /docs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Device",
+      "key": "DEVICE",
+      "value": "cuda:0",
+      "description": "Inference device. GPU: cuda:0 (recommended, ~70ms/10s audio), cuda:1 for second GPU. CPU: set to cpu (slower, but no GPU required \u2014 remove --gpus all from Extra Parameters).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Model ID",
+      "key": "MODEL_ID",
+      "value": "FunAudioLLM/SenseVoiceSmall",
+      "description": "HuggingFace model identifier. Default model is pre-downloaded in image.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HuggingFace Endpoint",
+      "key": "HF_ENDPOINT",
+      "value": "https://huggingface.co",
+      "description": "HuggingFace download endpoint. China users: change to https://hf-mirror.com for faster model downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Speaker Diarization",
+      "key": "ENABLE_SPK",
+      "value": "false",
+      "description": "Identify who is speaking using cam++ model. Adds ~7MB speaker model download on first start. Results appear in verbose_json format as 'segments' with 'speaker' field. Requires response_format=verbose_json in client.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Size",
+      "key": "BATCH_SIZE",
+      "value": "1",
+      "description": "Inference batch size",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "PORT",
+      "value": "10095",
+      "description": "Internal API server port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU devices to expose (all, 0, 1, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA driver capabilities",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

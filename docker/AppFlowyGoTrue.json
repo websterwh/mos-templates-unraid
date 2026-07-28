@@ -1,0 +1,336 @@
+{
+  "name": "AppFlowy-GoTrue",
+  "repo": "appflowyinc/gotrue:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/appflowyinc/gotrue",
+  "network": "custom:appflowy",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://avatars.githubusercontent.com/u/81710027?s=200&v=4",
+  "project": "https://github.com/vmalinics0/unraid-appflowy",
+  "description": "Step 4/7: GoTrue authentication service for AppFlowy Cloud \u2014 handles user sign-up, login, JWT issuance, OAuth, email magic links, and SAML. Part of the AppFlowy Cloud stack.",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "API_EXTERNAL_URL",
+      "value": "http://YOUR_SERVER_IP/gotrue",
+      "description": "Public-facing GoTrue URL. Set to http://YOUR_SERVER_IP/gotrue (or your domain with /gotrue). Must be reachable by clients for OAuth redirects.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "GOTRUE_ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Email address of the initial admin account created on first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "GOTRUE_ADMIN_PASSWORD",
+      "value": "changeme_admin_password",
+      "description": "Password for the initial admin account.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "JWT Secret",
+      "key": "GOTRUE_JWT_SECRET",
+      "value": "changeme_jwt_secret_min32chars!!",
+      "description": "Shared JWT signing secret. MUST be identical to APPFLOWY_GOTRUE_JWT_SECRET in AppFlowy-Cloud. Minimum 32 characters. Keep private.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgres://postgres:changeme_strong_password@AppFlowy-Postgres:5432/postgres?search_path=auth",
+      "description": "GoTrue PostgreSQL connection string. Update user, password, and host if you changed them. Uses the auth schema.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Expiry (seconds)",
+      "key": "GOTRUE_JWT_EXP",
+      "value": "604800",
+      "description": "JWT token lifetime in seconds. Default: 604800 (7 days).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auto-confirm Email",
+      "key": "GOTRUE_MAILER_AUTOCONFIRM",
+      "value": "true",
+      "description": "Set true to skip email confirmation (recommended for initial setup). Set false to require email confirmation \u2014 you must also configure SMTP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable Public Signup",
+      "key": "GOTRUE_DISABLE_SIGNUP",
+      "value": "false",
+      "description": "Set true to allow only invited users to sign up.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit (emails/min)",
+      "key": "GOTRUE_RATE_LIMIT_EMAIL_SENT",
+      "value": "100",
+      "description": "Maximum emails GoTrue can send per minute.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB Driver",
+      "key": "GOTRUE_DB_DRIVER",
+      "value": "postgres",
+      "description": "Database driver \u2014 always postgres.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Site URL",
+      "key": "GOTRUE_SITE_URL",
+      "value": "appflowy-flutter://",
+      "description": "Deep-link scheme for the AppFlowy native app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "URI Allow List",
+      "key": "GOTRUE_URI_ALLOW_LIST",
+      "value": "**",
+      "description": "Allowed OAuth redirect URIs. ** permits all; restrict for production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Admin Group",
+      "key": "GOTRUE_JWT_ADMIN_GROUP_NAME",
+      "value": "supabase_admin",
+      "description": "JWT group name for admin users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal Port",
+      "key": "PORT",
+      "value": "9999",
+      "description": "GoTrue internal listen port. Do not change.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Confirm Path",
+      "key": "GOTRUE_MAILER_URLPATHS_CONFIRMATION",
+      "value": "/gotrue/verify",
+      "description": "URL path for email confirmation links.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Invite Path",
+      "key": "GOTRUE_MAILER_URLPATHS_INVITE",
+      "value": "/gotrue/verify",
+      "description": "URL path for invite links.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Recovery Path",
+      "key": "GOTRUE_MAILER_URLPATHS_RECOVERY",
+      "value": "/gotrue/verify",
+      "description": "URL path for password recovery links.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Email-Change Path",
+      "key": "GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE",
+      "value": "/gotrue/verify",
+      "description": "URL path for email-change confirmation links.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "GOTRUE_SMTP_HOST",
+      "value": "",
+      "description": "SMTP server hostname (e.g. smtp.gmail.com). Required if GOTRUE_MAILER_AUTOCONFIRM=false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "GOTRUE_SMTP_PORT",
+      "value": "465",
+      "description": "SMTP port. Use 465 for TLS/SMTPS, 587 for STARTTLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP User",
+      "key": "GOTRUE_SMTP_USER",
+      "value": "",
+      "description": "SMTP sender email address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "GOTRUE_SMTP_PASS",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Admin Email",
+      "key": "GOTRUE_SMTP_ADMIN_EMAIL",
+      "value": "",
+      "description": "Admin email used as the From address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Max Frequency",
+      "key": "GOTRUE_SMTP_MAX_FREQUENCY",
+      "value": "1ns",
+      "description": "Minimum interval between emails to the same address. Use 1ns for no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Magic Link Template URL",
+      "key": "GOTRUE_MAILER_TEMPLATES_MAGIC_LINK",
+      "value": "",
+      "description": "Optional: public URL to a custom magic-link email HTML template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google OAuth Enabled",
+      "key": "GOTRUE_EXTERNAL_GOOGLE_ENABLED",
+      "value": "false",
+      "description": "Enable Google OAuth login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google Client ID",
+      "key": "GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google Client Secret",
+      "key": "GOTRUE_EXTERNAL_GOOGLE_SECRET",
+      "value": "",
+      "description": "Google OAuth client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google Redirect URI",
+      "key": "GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI",
+      "value": "http://YOUR_SERVER_IP/gotrue/callback",
+      "description": "Google OAuth redirect URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub OAuth Enabled",
+      "key": "GOTRUE_EXTERNAL_GITHUB_ENABLED",
+      "value": "false",
+      "description": "Enable GitHub OAuth login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Client ID",
+      "key": "GOTRUE_EXTERNAL_GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "GitHub OAuth app client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Client Secret",
+      "key": "GOTRUE_EXTERNAL_GITHUB_SECRET",
+      "value": "",
+      "description": "GitHub OAuth app client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GitHub Redirect URI",
+      "key": "GOTRUE_EXTERNAL_GITHUB_REDIRECT_URI",
+      "value": "http://YOUR_SERVER_IP/gotrue/callback",
+      "description": "GitHub OAuth redirect URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discord OAuth Enabled",
+      "key": "GOTRUE_EXTERNAL_DISCORD_ENABLED",
+      "value": "false",
+      "description": "Enable Discord OAuth login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discord Client ID",
+      "key": "GOTRUE_EXTERNAL_DISCORD_CLIENT_ID",
+      "value": "",
+      "description": "Discord OAuth application client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discord Client Secret",
+      "key": "GOTRUE_EXTERNAL_DISCORD_SECRET",
+      "value": "",
+      "description": "Discord OAuth application client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discord Redirect URI",
+      "key": "GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI",
+      "value": "http://YOUR_SERVER_IP/gotrue/callback",
+      "description": "Discord OAuth redirect URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SAML Enabled",
+      "key": "GOTRUE_SAML_ENABLED",
+      "value": "false",
+      "description": "Enable SAML 2.0 single sign-on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SAML Private Key",
+      "key": "GOTRUE_SAML_PRIVATE_KEY",
+      "value": "",
+      "description": "PEM-encoded private key for SAML 2.0 signing.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

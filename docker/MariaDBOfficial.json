@@ -1,0 +1,91 @@
+{
+  "name": "MariaDB-Official",
+  "repo": "mariadb",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/_/mariadb",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --memory=2G",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3306]",
+  "icon": "https://github.com/mgutt/unraid-docker-templates/raw/main/mgutt/images/mariadb.png",
+  "project": "https://mariadb.org/",
+  "description": "Official MariaDB database container. It allows to set a database and username without using the console. MariaDB is a community-developed, commercially supported fork of MySQL (RDBMS). Root Password: This container creates by default a random root password on initial execution. Open Docker > MariaDB Icon > Logs > Scroll down to \"GENERATED ROOT PASSWORD\" to find it. Creating database dumps docker exec MariaDB-Official sh -c 'exec mysqldump --all-databases -uroot -p\"YOUR_ROOT_PASSWORD\"' > /mnt/user/Backups/all-databases.sql Restoring data from dump files docker exec -i MariaDB-Official sh -c 'exec mysql -uroot -p\"YOUR_ROOT_PASSWORD\"' < /mnt/user/Backups/all-databases.sql",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/mariadb-official/data",
+      "container": "/var/lib/mysql",
+      "mode": "rw",
+      "description": "Recommened: For better performance replace /mnt/user against /mnt/cache. Note: This requires appdata share caching set to Prefer or Only!",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/mariadb-official/config",
+      "container": "/etc/mysql/conf.d",
+      "mode": "rw",
+      "description": "Container Path: /etc/mysql/conf.d",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "3306",
+      "container": "3306",
+      "protocol": "tcp",
+      "description": "Container Port: 3306",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Generate Random Password",
+      "key": "MARIADB_RANDOM_ROOT_PASSWORD",
+      "value": "Yes",
+      "description": "Set to yes, to generate a random root password. The generated password will be printed to the logs (Docker &gt; MariaDB Icon &gt; Logs).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Name",
+      "key": "MARIADB_DATABASE",
+      "value": "dbname_here",
+      "description": "This variable allows you to specify the name of a database to be created on image startup.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database User",
+      "key": "MARIADB_USER",
+      "value": "dbuser_here",
+      "description": "Container Variable: MARIADB_USER",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Password",
+      "key": "MARIADB_PASSWORD",
+      "value": "",
+      "description": "Container Variable: MARIADB_PASSWORD",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Root Password",
+      "key": "MARIADB_ROOT_PASSWORD",
+      "value": "",
+      "description": "Generate Random Password must be empty if you like to set your own Root Password!",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

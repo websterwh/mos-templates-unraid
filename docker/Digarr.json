@@ -1,0 +1,195 @@
+{
+  "name": "Digarr",
+  "repo": "docker.io/iuliandita/digarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/iuliandita/digarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/iuliandita/digarr/main/docs/logo.png",
+  "project": "https://github.com/iuliandita/digarr",
+  "description": "AI-powered music discovery engine for self-hosted music stacks. Connects to Lidarr, Last.fm, ListenBrainz, Spotify, and more to find new artists you will actually like. Supports auto-playlists, subscription feeds, mood-based discovery, and genre browsing. Ships with a built-in embedded database -- no separate PostgreSQL container needed. Data is stored in the mapped data folder (/mnt/user/appdata/digarr/data), which must be writable by the container user (uid 1000). To use an external PostgreSQL instead, set the (advanced) Database URL variable.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/digarr/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for the built-in embedded database. Must be writable by the container user (uid 1000).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Data Path",
+      "key": "DB_PATH",
+      "value": "/app/data",
+      "description": "Container path for the built-in embedded database (matches the Data folder mapping)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Leave empty to use the built-in database. Set only to use an external PostgreSQL, e.g. postgresql://user:pass@host:5432/digarr",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial Username",
+      "key": "DIGARR_INITIAL_USERNAME",
+      "value": "",
+      "description": "Auto-create this admin user on first boot",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial Password",
+      "key": "DIGARR_INITIAL_PASSWORD",
+      "value": "",
+      "description": "Password for the initial admin user (min 8 chars)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Provider",
+      "key": "AI_PROVIDER",
+      "value": "",
+      "description": "AI provider: anthropic, openai, gemini, ollama, openai-compatible (or configure in UI)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Model",
+      "key": "AI_MODEL",
+      "value": "",
+      "description": "Model name, e.g. gpt-4o-mini, claude-sonnet-4-5-20250514",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "AI_API_KEY",
+      "value": "",
+      "description": "API key for the AI provider",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Base URL",
+      "key": "AI_BASE_URL",
+      "value": "",
+      "description": "Base URL for openai-compatible or ollama (e.g. http://ollama:11434)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr URL",
+      "key": "LIDARR_URL",
+      "value": "",
+      "description": "Lidarr instance URL, e.g. http://lidarr:8686 (optional -- discovery works without Lidarr)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr API Key",
+      "key": "LIDARR_API_KEY",
+      "value": "",
+      "description": "Lidarr API key (Settings > General in Lidarr)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ListenBrainz Username",
+      "key": "LISTENBRAINZ_USERNAME",
+      "value": "",
+      "description": "ListenBrainz username for taste analysis",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz Token",
+      "key": "LISTENBRAINZ_TOKEN",
+      "value": "",
+      "description": "ListenBrainz user token",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm Username",
+      "key": "LASTFM_USERNAME",
+      "value": "",
+      "description": "Last.fm username for taste analysis",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Last.fm API Key",
+      "key": "LASTFM_API_KEY",
+      "value": "",
+      "description": "Last.fm API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allowed Origin",
+      "key": "ALLOWED_ORIGIN",
+      "value": "",
+      "description": "CORS allowed origin, e.g. https://digarr.example.com (required for reverse proxy)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Encryption Key",
+      "key": "DIGARR_ENCRYPTION_KEY",
+      "value": "",
+      "description": "32+ char key for encrypting stored API tokens (auto-generated if blank)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Registration",
+      "key": "DIGARR_DISABLE_REGISTRATION",
+      "value": "true|false",
+      "description": "Set to false to allow new user registration",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip TLS Verify",
+      "key": "SKIP_TLS_VERIFY",
+      "value": "false|true",
+      "description": "Skip TLS certificate verification for Lidarr/Jellyfin connections",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Webhook URL",
+      "key": "WEBHOOK_URL",
+      "value": "",
+      "description": "Discord, Slack, ntfy, or any HTTP endpoint for notifications",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,428 @@
+{
+  "name": "Bitwarden-Lite",
+  "repo": "ghcr.io/bitwarden/lite:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://github.com/bitwarden/self-host/pkgs/container/lite",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8443]/",
+  "icon": "https://raw.githubusercontent.com/bitwarden/brand/main/icons/256x256.png",
+  "project": "https://github.com/mimartin12/unraid-bw-lite-template",
+  "description": "Unofficial Unraid template for the official Bitwarden Lite self-hosted password manager image. This template is not supported, endorsed, or maintained by Bitwarden. It runs the official Bitwarden Lite single-container self-hosted image using SQLite by default for a simple one-container Unraid install. Before starting, generate an installation ID and key at https://bitwarden.com/host/ and set BW_DOMAIN to the hostname or IP address users will use to reach this server. SSL is enabled by default. Provide certificates in /etc/bitwarden, use the generated self-signed certificate for testing, or disable SSL when using an external reverse proxy.",
+  "paths": [
+    {
+      "name": "Bitwarden Data",
+      "host": "/mnt/cache/appdata/bitwarden-lite",
+      "container": "/etc/bitwarden",
+      "mode": "rw",
+      "description": "Persistent Bitwarden Lite data, generated files, certificates, and the default SQLite vault.db.",
+      "required": true
+    },
+    {
+      "name": "Bitwarden Logs",
+      "host": "/mnt/cache/appdata/bitwarden-lite/logs",
+      "container": "/var/log/bitwarden",
+      "mode": "rw",
+      "description": "Persistent Bitwarden Lite service logs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPS Web UI Port",
+      "host": "8443",
+      "container": "8443",
+      "protocol": "tcp",
+      "description": "Container HTTPS port used by the Unraid WebUI button. Required when BW_ENABLE_SSL is true.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container HTTP port. Use only if SSL is disabled or when proxying internally.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Domain",
+      "key": "BW_DOMAIN",
+      "value": "bitwarden.example.com",
+      "description": "Hostname or IP address where Bitwarden will be accessed, without a scheme or trailing slash. For local testing, this can be your Unraid server IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Installation ID",
+      "key": "BW_INSTALLATION_ID",
+      "value": "",
+      "description": "Installation ID from https://bitwarden.com/host/.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Installation Key",
+      "key": "BW_INSTALLATION_KEY",
+      "value": "",
+      "description": "Installation key from https://bitwarden.com/host/.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database Provider",
+      "key": "BW_DB_PROVIDER",
+      "value": "sqlite",
+      "description": "Database provider. Default sqlite creates vault.db under /etc/bitwarden. Other valid values include mysql, mariadb, postgresql, and sqlserver.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SQLite File",
+      "key": "BW_DB_FILE",
+      "value": "/etc/bitwarden/vault.db",
+      "description": "SQLite database file path inside the container. The default stores vault.db in the persistent /etc/bitwarden appdata mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container user ID. Unraid default is nobody.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container group ID. Unraid default is users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable IPv6",
+      "key": "BW_ENABLE_IPV6",
+      "value": "false",
+      "description": "Enable IPv6 support in the Bitwarden Lite web server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External DB Server",
+      "key": "BW_DB_SERVER",
+      "value": "",
+      "description": "External database hostname or IP. Required for mysql, mariadb, postgresql, or sqlserver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External DB Port",
+      "key": "BW_DB_PORT",
+      "value": "",
+      "description": "Optional custom database port. Leave blank to use the default for the selected database provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External DB Name",
+      "key": "BW_DB_DATABASE",
+      "value": "",
+      "description": "External database name. Required for mysql, mariadb, postgresql, or sqlserver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External DB Username",
+      "key": "BW_DB_USERNAME",
+      "value": "",
+      "description": "External database username. Required for mysql, mariadb, postgresql, or sqlserver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External DB Password",
+      "key": "BW_DB_PASSWORD",
+      "value": "",
+      "description": "External database password. Required for mysql, mariadb, postgresql, or sqlserver.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable SSL",
+      "key": "BW_ENABLE_SSL",
+      "value": "true",
+      "description": "Set true for Bitwarden Lite to terminate HTTPS itself. If using a reverse proxy for HTTPS, set false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL Certificate",
+      "key": "BW_SSL_CERT",
+      "value": "ssl.crt",
+      "description": "SSL certificate filename under /etc/bitwarden when BW_ENABLE_SSL is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL Key",
+      "key": "BW_SSL_KEY",
+      "value": "ssl.key",
+      "description": "SSL private key filename under /etc/bitwarden when BW_ENABLE_SSL is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SSL CA",
+      "key": "BW_ENABLE_SSL_CA",
+      "value": "false",
+      "description": "Use SSL with a certificate authority-backed service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL CA Certificate",
+      "key": "BW_SSL_CA_CERT",
+      "value": "ca.crt",
+      "description": "SSL CA certificate filename under /etc/bitwarden when BW_ENABLE_SSL_CA is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SSL DH",
+      "key": "BW_ENABLE_SSL_DH",
+      "value": "false",
+      "description": "Use SSL with Diffie-Hellman parameters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL DH Parameters",
+      "key": "BW_SSL_DH_CERT",
+      "value": "dh.pem",
+      "description": "Diffie-Hellman parameters filename under /etc/bitwarden when BW_ENABLE_SSL_DH is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL Protocols",
+      "key": "BW_SSL_PROTOCOLS",
+      "value": "",
+      "description": "Optional NGINX SSL protocols override. Leave blank for Bitwarden recommended defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL Ciphers",
+      "key": "BW_SSL_CIPHERS",
+      "value": "",
+      "description": "Optional NGINX SSL ciphers override. Leave blank for Bitwarden recommended defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port Variable",
+      "key": "BW_PORT_HTTP",
+      "value": "8080",
+      "description": "Internal HTTP listener port used by Bitwarden Lite. Keep in sync with the container port mapping target.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port Variable",
+      "key": "BW_PORT_HTTPS",
+      "value": "8443",
+      "description": "Internal HTTPS listener port used by Bitwarden Lite when SSL is enabled. Keep in sync with the container port mapping target.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Admin Service",
+      "key": "BW_ENABLE_ADMIN",
+      "value": "true",
+      "description": "Enable the admin service. Bitwarden docs say not to disable this service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable API Service",
+      "key": "BW_ENABLE_API",
+      "value": "true",
+      "description": "Enable the API service. Bitwarden docs say not to disable this service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Identity Service",
+      "key": "BW_ENABLE_IDENTITY",
+      "value": "true",
+      "description": "Enable the identity service. Bitwarden docs say not to disable this service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Icons Service",
+      "key": "BW_ENABLE_ICONS",
+      "value": "true",
+      "description": "Enable the website icon service for vault item URIs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Notifications Service",
+      "key": "BW_ENABLE_NOTIFICATIONS",
+      "value": "true",
+      "description": "Enable push notifications, login with device, mobile vault sync notifications, and related notification features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Events Service",
+      "key": "BW_ENABLE_EVENTS",
+      "value": "false",
+      "description": "Enable Bitwarden event logs for teams and enterprise event monitoring.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SCIM Service",
+      "key": "BW_ENABLE_SCIM",
+      "value": "false",
+      "description": "Enable SCIM for Enterprise organizations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SSO Service",
+      "key": "BW_ENABLE_SSO",
+      "value": "false",
+      "description": "Enable SSO services for Enterprise organizations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy Icons To Cloud",
+      "key": "BW_ICONS_PROXY_TO_CLOUD",
+      "value": "false",
+      "description": "Proxy icon requests to Bitwarden cloud to reduce local memory use. Bitwarden recommends setting BW_ENABLE_ICONS=false when this is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Reply-To Email",
+      "key": "globalSettings__mail__replyToEmail",
+      "value": "",
+      "description": "Reply-to email address used by this Bitwarden server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "globalSettings__mail__smtp__host",
+      "value": "",
+      "description": "SMTP server hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "globalSettings__mail__smtp__port",
+      "value": "587",
+      "description": "SMTP server port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP SSL",
+      "key": "globalSettings__mail__smtp__ssl",
+      "value": "false",
+      "description": "Set true for SMTP over SSL. Set false for TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "globalSettings__mail__smtp__username",
+      "value": "",
+      "description": "SMTP username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "globalSettings__mail__smtp__password",
+      "value": "",
+      "description": "SMTP password. Bitwarden notes that dollar signs are not supported in SMTP passwords.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Yubico Client ID",
+      "key": "globalSettings__yubico__clientId",
+      "value": "",
+      "description": "Yubico Web Services client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Yubico Secret Key",
+      "key": "globalSettings__yubico__key",
+      "value": "",
+      "description": "Yubico Web Services secret key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Admin Portal Emails",
+      "key": "adminSettings__admins",
+      "value": "",
+      "description": "Comma-separated email addresses allowed to access the Bitwarden system administrator portal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable User Registration",
+      "key": "globalSettings__disableUserRegistration",
+      "value": "false",
+      "description": "Set true after creating your initial account to prevent open public registration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HIBP API Key",
+      "key": "globalSettings__hibpApiKey",
+      "value": "",
+      "description": "Have I Been Pwned API key for breach reports and master password checks.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Real IPs",
+      "key": "BW_REAL_IPS",
+      "value": "",
+      "description": "Comma-separated trusted proxy IPs for NGINX real client IP handling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Content Security Policy",
+      "key": "BW_CSP",
+      "value": "",
+      "description": "Optional Content-Security-Policy override. Changing this can break Bitwarden features.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

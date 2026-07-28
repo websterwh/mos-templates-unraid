@@ -1,0 +1,363 @@
+{
+  "name": "jotty",
+  "repo": "ghcr.io/fccview/jotty:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/fccview/jotty",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/fccview/unraid-templates/refs/heads/main/icons/jotty.png",
+  "project": "https://github.com/fccview/jotty",
+  "description": "jotty-page is a lightweight alternative for managing your personal checklists and notes. It's extremely easy to deploy, keeps all your data on your own server and allows you to encrypt/decrypt your notes for your personal peace of mind.",
+  "paths": [
+    {
+      "name": "Appdata: data",
+      "host": "/mnt/cache/appdata/jotty/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Appdata: config",
+      "host": "/mnt/cache/appdata/jotty/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Appdata: cache",
+      "host": "/mnt/cache/appdata/jotty/cache",
+      "container": "/app/.next/cache",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "1122",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "You can change 1122 to any available port on your host system.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Sets the Node.js environment to production mode for optimal performance and security.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Process User ID that the container will run as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Process Group ID that the container will run as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Sets the default file creation mask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS",
+      "key": "HTTPS",
+      "value": "false",
+      "description": "Enables HTTPS mode for secure connections.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Base URL of your jotty\u00c2\u00b7page instance. Required for secure session (https) and SSO. Include the https://",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Serve Public Images",
+      "key": "SERVE_PUBLIC_IMAGES",
+      "value": "yes",
+      "description": "Allows public access to uploaded images via direct URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Serve Public Videos",
+      "key": "SERVE_PUBLIC_VIDEOS",
+      "value": "yes",
+      "description": "Allows public access to uploaded files via direct URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Serve Public Files",
+      "key": "SERVE_PUBLIC_FILES",
+      "value": "yes",
+      "description": "Allows public access to uploaded files via direct URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Check Updates",
+      "key": "STOP_CHECK_UPDATES",
+      "value": "no",
+      "description": "If set to yes stops the github api call and won't give you a toast when a new update is available.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Bruteforce Protection",
+      "key": "DISABLE_BRUTEFORCE_PROTECTION",
+      "value": "false",
+      "description": "Optional. Disables brute force protection for local login authentication. By default, accounts are temporarily locked after 3 failed login attempts with exponential delays (10s, 30s, 60s, etc.). Set to true to completely disable this security feature.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Locale",
+      "key": "DEFAULT_LOCALE",
+      "value": "en",
+      "description": "Optional. Sets the default language for the application (e.g., on the login page) when no user is logged in or a user hasn't set a preference.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable PWA Zoom",
+      "key": "ENABLE_PWA_ZOOM",
+      "value": "no",
+      "description": "Optional. Enables zooming on the PWA for accessibility reasons.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Mode",
+      "key": "AUTH_MODE",
+      "value": "|oidc|ldap",
+      "description": "Enables OIDC (OpenID Connect) single sign-on or LDAP/Active Directory authentication. Set to 'oidc' or 'ldap'. Supersedes SSO_MODE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Mode (legacy)",
+      "key": "SSO_MODE",
+      "value": "|oidc",
+      "description": "Legacy fallback for AUTH_MODE. Kept for backward compatibility with existing setups \u2014 prefer AUTH_MODE for new installs. Leave empty if AUTH_MODE is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Issuer",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "URL of your OIDC provider (e.g., Authentik, Auth0, Keycloak).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client ID from your OIDC provider configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Client secret for confidential OIDC client authentication.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Client ID File",
+      "key": "OIDC_CLIENT_ID_FILE",
+      "value": "",
+      "description": "Optional. Path to file containing the OIDC client ID. If set, takes priority over OIDC_CLIENT_ID. Useful for Docker Secrets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret File",
+      "key": "OIDC_CLIENT_SECRET_FILE",
+      "value": "",
+      "description": "Optional. Path to file containing the OIDC client secret. If set, takes priority over OIDC_CLIENT_SECRET. Useful for Docker Secrets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local Auth Fallback",
+      "key": "SSO_FALLBACK_LOCAL",
+      "value": "yes",
+      "description": "Optional. Allows both SSO and local authentication methods.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Admin Groups",
+      "key": "OIDC_ADMIN_GROUPS",
+      "value": "admins",
+      "description": "Optional. Comma-separated list of OIDC groups that should have admin privileges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Admin Roles",
+      "key": "OIDC_ADMIN_ROLES",
+      "value": "admin",
+      "description": "Optional. Comma-separated list of OIDC roles that should have admin privileges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC User Groups",
+      "key": "OIDC_USER_GROUPS",
+      "value": "",
+      "description": "Optional. Comma-separated list of OIDC groups allowed to access the application. If set, only users in these groups (or admins) can log in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC User Roles",
+      "key": "OIDC_USER_ROLES",
+      "value": "",
+      "description": "Optional. Comma-separated list of OIDC roles allowed to access the application. If set, only users with these roles (or admins) can log in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Groups Scope",
+      "key": "OIDC_GROUPS_SCOPE",
+      "value": "groups",
+      "description": "Scope to request for groups. Defaults to 'groups'. Set to empty string or 'no' to disable for providers like Entra ID that don't support the groups scope.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Logout URL",
+      "key": "OIDC_LOGOUT_URL",
+      "value": "",
+      "description": "Optional. Custom logout URL for global logout. Full URL to redirect to when logging out.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP URL",
+      "key": "LDAP_URL",
+      "value": "",
+      "description": "URL of your LDAP server (e.g., ldap://ldap.example.com:389). Use ldaps:// on port 636 for TLS. Required when AUTH_MODE=ldap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP Bind DN",
+      "key": "LDAP_BIND_DN",
+      "value": "",
+      "description": "Distinguished name of the service account used to search the directory (e.g., cn=service,dc=example,dc=com). Required when AUTH_MODE=ldap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP Bind Password",
+      "key": "LDAP_BIND_PASSWORD",
+      "value": "",
+      "description": "Password of the LDAP service account. Required when AUTH_MODE=ldap (unless LDAP_BIND_PASSWORD_FILE is set).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LDAP Bind Password File",
+      "key": "LDAP_BIND_PASSWORD_FILE",
+      "value": "",
+      "description": "Optional. Path to a file containing the LDAP service account password. Takes priority over LDAP_BIND_PASSWORD. Useful for Docker Secrets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP Base DN",
+      "key": "LDAP_BASE_DN",
+      "value": "",
+      "description": "Base DN under which to search for users (e.g., ou=users,dc=example,dc=com). Required when AUTH_MODE=ldap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP User Attribute",
+      "key": "LDAP_USER_ATTRIBUTE",
+      "value": "uid",
+      "description": "Optional. The LDAP attribute matched against the submitted username. Defaults to 'uid'. Use 'sAMAccountName' for Active Directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP Admin Groups",
+      "key": "LDAP_ADMIN_GROUPS",
+      "value": "",
+      "description": "Optional. Pipe-separated list of group DNs granted admin rights on first login (e.g., cn=admins,ou=groups,dc=example,dc=com). Use '|' as separator since DNs contain commas. Requires memberof overlay on the LDAP server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LDAP User Groups",
+      "key": "LDAP_USER_GROUPS",
+      "value": "",
+      "description": "Optional. Pipe-separated list of group DNs allowed to log in. Only members of these groups (or admin groups) can authenticate. Requires memberof overlay on the LDAP server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Extra CA Certs",
+      "key": "NODE_EXTRA_CA_CERTS",
+      "value": "",
+      "description": "Optional. Path (inside the container) to a CA certificate file. Use this for LDAPS with a self-signed certificate (e.g., /app/config/ldap-ca.crt).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal API URL",
+      "key": "INTERNAL_API_URL",
+      "value": "",
+      "description": "Use if getting 403 errors after SSO login: Set to http://localhost:3000",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUGGER",
+      "key": "DEBUGGER",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

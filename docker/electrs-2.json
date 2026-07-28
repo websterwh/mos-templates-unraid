@@ -1,0 +1,67 @@
+{
+  "name": "electrs",
+  "repo": "ofawx/electrs",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/ofawx/electrs/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "-vvvv",
+  "web_ui_url": "http://[IP]:[PORT:50001]",
+  "icon": null,
+  "project": "https://github.com/romanz/electrs",
+  "description": "Serve your Electrum clients from your own Bitcoin node! Avoid trusting public Electrum nodes, and maintain your own privacy. Electrs does not support encrypted (SSL) communication, so avoid connecting directly to the TCP port over public networks (eg the Internet). Note that some clients, including Electrum, do not support connections without SSL. Consider using nginx as an SSL proxy (see link below for sample configuration). Electrs is designed for personal use only, and is not appropriate for serving a large number of clients. If you have RPC enabled in Bitcoin Core without manually specifying an RPC user and password, Electrs can use Bitcoin's cookie file to auth automatically. If you have manually configured user and password in Bitcoin, these must also be set in Electrs manually. To do so, create a file called electrs.toml in the Electrs Data directory configured below. In this file, include the following data, substituting your own values for USER and PASSWORD: auth = \"USER:PASSWORD\" See https://github.com/romanz/electrs/blob/master/doc/usage.md for full details on Electrs configuration.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/bitcoin/electrs/",
+      "container": "/data/",
+      "mode": "rw",
+      "description": "Database storage. Requires at least 50 GiB free disk.",
+      "required": true
+    },
+    {
+      "name": "Bitcoin Data",
+      "host": "/mnt/cache/bitcoin/core/",
+      "container": "/data/.bitcoin/",
+      "mode": "ro",
+      "description": "Bitcoin Core data directory. Read only.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Electrum TCP",
+      "host": "50001",
+      "container": "50001",
+      "protocol": "tcp",
+      "description": "Port to listen for incoming client connections",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TCP Bind",
+      "key": "ELECTRS_ELECTRUM_RPC_ADDR",
+      "value": "0.0.0.0:50001",
+      "description": "Subnet to accept connections from, and port to listen on. Port must match above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Core RPC Address",
+      "key": "ELECTRS_DAEMON_RPC_ADDR",
+      "value": "192.168.1.1:8332",
+      "description": "Address for Bitcoin Core RPC.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

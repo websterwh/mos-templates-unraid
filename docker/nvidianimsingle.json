@@ -1,0 +1,107 @@
+{
+  "name": "nvidia-nim-single",
+  "repo": "nvcr.io/nim/meta/llama-3.2-3b-instruct:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://registry.hub.docker.com/r/nvcr.io/nim/meta/llama-3.2-3b-instruct",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --shm-size=16gb --ulimit memlock=-1 --ulimit stack=67108864",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/docs",
+  "icon": "https://raw.githubusercontent.com/PikkonMG/unraid-docker-templates/main/templates/img/nvidia-nim-single.png",
+  "project": "https://build.nvidia.com/",
+  "description": "NVIDIA NIM AI inference server for running LLMs locally on NVIDIA GPUs with CUDA acceleration and an OpenAI-compatible API. Be sure to check out for NIM related support https://developer.nvidia.com/nim DEFAULT MODEL: meta/llama-3.2-3b-instruct -- recommended for GPUs with 12 GB VRAM or less (RTX 3060, 3070, etc). TO CHANGE MODELS: Update BOTH the Repository image tag AND the NIM_MODEL_NAME variable to matching values. Browse available models at https://build.nvidia.com/models VRAM REQUIREMENTS (approximate): - Llama 3.2 3B ~6 GB -- fits 8-12 GB cards - Mistral 7B ~14 GB -- needs 16 GB+ (fp16 uses more than expected) - Llama 3.1 8B ~22 GB -- needs 24 GB+ - Llama 3.1 70B ~80 GB -- multi-GPU only BEFORE FIRST START -- REQUIRED STEPS (run once in Unraid terminal): Before you can pull the image you must have a NVIDIA API key from https://build.nvidia.com. Generate a Personal API Key from your profile. Step 1: Login to NGC registry (only needed once, persists until reboot): docker login nvcr.io Username: $oauthtoken Password: YOUR_NGC_API_KEY REQUIRED BEFORE FIRST START -- run in Unraid terminal: Step 2: Fix cache directory permissions: chown -R 1000:1000 /mnt/user/appdata/nvidia-nim/cache chmod -R 775 /mnt/user/appdata/nvidia-nim/cache REQUIRES: NVIDIA GPU (Turing/RTX 20 series or newer) | nvidia-driver Unraid plugin | NGC API key from build.nvidia.com URLS (replace YOUR_SERVER_IP with your Unraid IP): WebUI / Swagger docs : http://YOUR_SERVER_IP:8000/docs API base URL : http://YOUR_SERVER_IP:8000/v1 (use this in AnythingLLM, Open WebUI, etc.) Models list : http://YOUR_SERVER_IP:8000/v1/models",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/nvidia-nim/cache",
+      "container": "/opt/nim/.cache",
+      "mode": "rw",
+      "description": "Persistent storage for downloaded model weights. IMPORTANT: Run 'chown -R 1000:1000 /mnt/user/appdata/nvidia-nim/cache &amp;&amp; chmod -R 775 /mnt/user/appdata/nvidia-nim/cache' in the Unraid terminal before first start or the container will fail with a permission error. SSD storage preferred for faster load times.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "NIM listens on this port. WebUI docs at http://your-server-ip:8000/docs. API base URL at http://your-server-ip:8000/v1 -- use this when connecting clients like AnythingLLM, Open WebUI, LangChain, etc. Use any non-empty string as the API key in clients.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NGC API Key",
+      "key": "NGC_API_KEY",
+      "value": "",
+      "description": "Your NVIDIA Personal API key from https://build.nvidia.com. Generate a Personal API Key from your profile. NOTE: This is separate from the docker login nvcr.io command which allows Docker to pull the container image. This variable allows the container to authenticate with NGC to download model artifacts at runtime.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NIM Model Name",
+      "key": "NIM_MODEL_NAME",
+      "value": "meta/llama-3.2-3b-instruct",
+      "description": "Must match the model used by the container image. Default is the 3B model recommended for 12GB GPUs. Browse models at https://build.nvidia.com/models",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Model Length",
+      "key": "NIM_MAX_MODEL_LEN",
+      "value": "16384",
+      "description": "Maximum context window in tokens. The 3B model requests 131072 by default but a 12GB GPU can only fit ~30000 tokens of KV cache. Set to 16384 for 12GB cards. Reduce to 8192 if KV cache errors occur.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NIM Cache Path",
+      "key": "NIM_CACHE_PATH",
+      "value": "/opt/nim/.cache",
+      "description": "Internal container path for the model cache. Must match the container-side path of the Model Cache volume mapping above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CUDA Visible Devices",
+      "key": "CUDA_VISIBLE_DEVICES",
+      "value": "0",
+      "description": "GPU index to use inside the container. Use 0 for the first GPU, 0,1 for multiple GPUs. Do NOT use 'all' -- it will crash vLLM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Relax Memory Constraints",
+      "key": "NIM_RELAX_MEM_CONSTRAINTS",
+      "value": "1",
+      "description": "Allows NIM to relax strict GPU memory checks so models may start on GPUs with less VRAM than normally required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PyTorch Memory Allocator",
+      "key": "PYTORCH_CUDA_ALLOC_CONF",
+      "value": "expandable_segments:True",
+      "description": "Reduces GPU memory fragmentation. Helps avoid out-of-memory errors on consumer GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NIM Log Level",
+      "key": "NIM_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging verbosity. Options: DEBUG, INFO, WARNING, ERROR.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

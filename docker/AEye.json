@@ -1,0 +1,75 @@
+{
+  "name": "A-Eye",
+  "repo": "ghcr.io/vonhex/a-eye:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/vonhex/a-eye/pkgs/container/a-eye",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/vonhex/a-eye/main/frontend/static/a-eye-logo.png",
+  "project": "https://github.com/vonhex/a-eye",
+  "description": "A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local Ollama vision model to understand, describe, tag, and rename your photos \u2014 no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.",
+  "paths": [
+    {
+      "name": "Photos Directory",
+      "host": "/mnt/cache/Photos/",
+      "container": "/photos",
+      "mode": "rw",
+      "description": "Path to your photos directory. A-Eye will scan and process images from here.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/a-eye/",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for the database, config, and thumbnail cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the A-Eye web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Ollama Host",
+      "key": "OLLAMA_HOST",
+      "value": "http://192.168.1.x:11434",
+      "description": "URL of your running Ollama instance. Use your server's LAN IP \u2014 not localhost (that resolves inside the container).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns your photos directory. Run 'id -u' on your Unraid terminal to find yours. Default 99 = nobody.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns your photos directory. Run 'id -g' on your Unraid terminal to find yours. Default 100 = users.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

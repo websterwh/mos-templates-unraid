@@ -1,0 +1,190 @@
+{
+  "name": "velociraptor",
+  "repo": "xboarder56/velociraptor:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://hub.docker.com/r/xboarder56/velociraptor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8889]",
+  "icon": "https://raw.githubusercontent.com/Gill-Bates/unraid-app-templates/refs/heads/main/icons/02_velociraptor.png",
+  "project": "https://github.com/Xboarder56/velociraptor-docker",
+  "description": "Velociraptor DFIR server running in Docker (xboarder56 fork), adapted for Unraid. Multi-arch image: linux/amd64 and linux/arm64. Mapped services: - Frontend / client ingress: 8000/tcp - API / gRPC gateway: 8001/tcp - Web GUI (HTTPS): 8889/tcp - Prometheus metrics: 8003/tcp Persistent path: - /mnt/user/appdata/velociraptor -> /velociraptor (config, keys, artifacts, repacked client bundles \u2014 all stored here) First run: The container auto-generates server.config.yaml and client.config.yaml and repacks Linux (.deb/.rpm amd64+arm64), macOS (amd64+arm64) and Windows (.exe/.msi) clients into /velociraptor/client_bundles/. A small build banner (version, arch, base image, git commit, build date) is printed to the log on every start. Login: Open https:// :8889, accept the self-signed TLS certificate and log in with the credentials set via VELOX_DEFAULT_USER / VELOX_DEFAULT_PASSWORD. Change them immediately after first login! Security: - TLS is self-signed by default; rotate keys/certificates from the Velociraptor GUI. - Keep API port 8001 and metrics port 8003 restricted to trusted networks only. - VELOX_DEFAULT_USER/PASSWORD are only used for the initial bootstrap user. Troubleshooting: docker logs -f velociraptor docker exec -it velociraptor sh Source: https://github.com/Xboarder56/velociraptor-docker Fork of: https://github.com/weslambert/velociraptor-docker (Wes Lambert)",
+  "paths": [
+    {
+      "name": "Velociraptor Data",
+      "host": "/mnt/cache/appdata/velociraptor",
+      "container": "/velociraptor",
+      "mode": "rw",
+      "description": "Persistent data directory: config, keys, artifacts and repacked client bundles are all stored here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Frontend / Client Ingress",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Velociraptor frontend/client ingress port. Clients connect here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API / gRPC Gateway",
+      "host": "8001",
+      "container": "8001",
+      "protocol": "tcp",
+      "description": "Velociraptor API/gRPC gateway port. Restrict to trusted networks only.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web GUI (HTTPS)",
+      "host": "8889",
+      "container": "8889",
+      "protocol": "tcp",
+      "description": "Velociraptor Web GUI. Open https:// :8889 in your browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Metrics",
+      "host": "8003",
+      "container": "8003",
+      "protocol": "tcp",
+      "description": "Prometheus metrics endpoint. Restrict to monitoring network if not needed publicly.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone, e.g. Etc/UTC or America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "VELOX_DEFAULT_USER",
+      "value": "admin",
+      "description": "Bootstrap admin username for the Velociraptor GUI. Change after first login.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "VELOX_DEFAULT_PASSWORD",
+      "value": "changeme",
+      "description": "Bootstrap admin password. Change immediately after first login!",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Role",
+      "key": "VELOX_DEFAULT_USER_ROLE",
+      "value": "administrator",
+      "description": "Role assigned to the bootstrap user (e.g. administrator, analyst, investigator).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frontend Hostname",
+      "key": "VELOX_FRONTEND_HOSTNAME",
+      "value": "localhost",
+      "description": "Public hostname clients use to reach the server. Set to your Unraid IP or FQDN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frontend Port",
+      "key": "VELOX_FRONTEND_PORT",
+      "value": "8000",
+      "description": "Public-facing port clients use to reach the server (built into client URL).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frontend Scheme",
+      "key": "VELOX_FRONTEND_SERVER_SCHEME",
+      "value": "https",
+      "description": "Scheme for client URL: https (recommended) or http.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frontend Server URL (override)",
+      "key": "VELOX_FRONTEND_SERVER_URL",
+      "value": "",
+      "description": "Full client URL override, e.g. https://ingest.example.com:8000/ \u2014 overrides Hostname/Port/Scheme if set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUI Hostname",
+      "key": "VELOX_GUI_HOSTNAME",
+      "value": "localhost",
+      "description": "Public hostname for the admin GUI. Defaults to Frontend Hostname if not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUI Port",
+      "key": "VELOX_GUI_PORT",
+      "value": "8889",
+      "description": "Public-facing port for the admin GUI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUI Scheme",
+      "key": "VELOX_GUI_SCHEME",
+      "value": "https",
+      "description": "Scheme for GUI URL: https or http.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUI URL (override)",
+      "key": "VELOX_GUI_URL",
+      "value": "",
+      "description": "Full GUI URL override, e.g. https://admin.example.com:8889/app/index.html \u2014 overrides GUI Hostname/Port/Scheme if set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API / gRPC Port (internal)",
+      "key": "VELOX_API_PORT",
+      "value": "8001",
+      "description": "Internal gRPC API port. Only change if you have a port conflict.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Metrics Port (internal)",
+      "key": "VELOX_MONITORING_PORT",
+      "value": "8003",
+      "description": "Internal Prometheus metrics port. Only change if you have a port conflict.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verbose Server Logs",
+      "key": "VELOX_START_SERVER_VERBOSE",
+      "value": "false",
+      "description": "Set to true to enable verbose (-v) server logs (DEBUG level). Leave false for INFO only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

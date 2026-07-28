@@ -1,0 +1,115 @@
+{
+  "name": "MunkiReport",
+  "repo": "ghcr.io/munkireport/munkireport-php:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/munkireport/munkireport-php/wiki",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/mak-cs/unraid/master/icons/munkireport.png",
+  "project": "https://github.com/munkireport/munkireport-php?tab=readme-ov-file#munkireport",
+  "description": "MunkiReport is a reporting client for macOS. While originally dependent on Munki, MunkiReport is able to run stand-alone or to be coupled with Munki, Jamf or other macOS management solutions. Features: - Quick overview of your macOS fleet with a customizable dashboards - Get reports on many features (hardware types, disk usage, etc) - Extendable with a growing list of modules - Lightweight: only sends reports when facts have changed - Responsive webdesign IMPORTANT: This Unraid docker template uses the SQLite database! If you prefer MariaDB as your database, please check the instructions from the application developer.",
+  "paths": [
+    {
+      "name": "Path Database",
+      "host": "/mnt/cache/appdata/MunkiReport/db",
+      "container": "/var/munkireport/app/db",
+      "mode": "rw",
+      "description": "Storage location of the database.",
+      "required": true
+    },
+    {
+      "name": "Path Users",
+      "host": "/mnt/cache/appdata/MunkiReport/users",
+      "container": "/var/munkireport/local/users",
+      "mode": "rw",
+      "description": "Storage location of the user account files.",
+      "required": false
+    },
+    {
+      "name": "Path php_custom.ini",
+      "host": "/mnt/cache/appdata/MunkiReport/config/php_custom.ini",
+      "container": "/usr/local/etc/php/conf.d/php_custom.ini",
+      "mode": "ro",
+      "description": "Storage location of the php_custom.ini file. The following values should be added/adjusted: post_max_size=25M upload_max_filesize=25M",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port WebUI",
+      "host": "8181",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "IP Port to serve the WebUI of the application.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable AUTH_METHODS",
+      "key": "AUTH_METHODS",
+      "value": "NOAUTH",
+      "description": "Can be one of the following values: NOAUTH, LOCAL, AD, SAML, LDAP, NETWORK",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable SITENAME",
+      "key": "SITENAME",
+      "value": "",
+      "description": "Will appear in the title bar of your browser and as heading on each webpage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable WEBHOST",
+      "key": "WEBHOST",
+      "value": "",
+      "description": "The hostname of the webserver, by default automatically determined but if that does not work you can set it. No trailing slash.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable MODULES",
+      "key": "MODULES",
+      "value": "disk_report,munkireport,displays_info,network",
+      "description": "By default munkireport will only install 3 basic reporting modules: munkireport, managed installs and disk_report. If you want the client to report on more items, here are the availlable MODULES: applications, ard, bluetooth, certificate, directory_service, disk_report, displays_info, extensions, filevault_status, fonts, homebrew, homebrew_info, ibridge, installhistory, inventory, localadmin, managedinstalls, mdm_status, munkiinfo, munkireport, munkireportinfo, network, power, printer, profile, security, softwareupdate, sophos, supported_os, timemachine, usage_stats, usb, user_sessions, warranty, wifi",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "GasMoney",
+  "repo": "ghcr.io/mmenanno/gasmoney:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/mmenanno/gasmoney/pkgs/container/gasmoney",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9292]/",
+  "icon": "https://raw.githubusercontent.com/mmenanno/gasmoney/main/app/assets/icons/icon-1024.png",
+  "project": "https://github.com/mmenanno/gasmoney",
+  "description": "Self-hosted, single-screen calculator that estimates the gas cost of any trip you've driven (or are about to drive). Feed it GasBuddy CSV exports, or wire up the optional auto-sync that drives a bundled Chromium through GasBuddy's login, and it works out per-trip cost from the fuel-economy and pump-price values bracketing the trip date. Pinned vehicles get $/km dashboard tiles (latest fillup + 5-fillup average). Saved trips, manual fillup entry, and a year-by-year backfill mode are all built in.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/gasmoney",
+      "container": "/app/state",
+      "mode": "rw",
+      "description": "Persistent SQLite database (vehicles, fillups, saved trips, sync runs, GasBuddy credentials encrypted at rest) plus the auto-generated encryption key.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "9292",
+      "container": "9292",
+      "protocol": "tcp",
+      "description": "Application web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user id the container should run as. Default 99 matches Unraid's `nobody`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group id the container should run as. Default 100 matches Unraid's `users`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File-mode creation mask. 022 (default) = files 644, dirs 755.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

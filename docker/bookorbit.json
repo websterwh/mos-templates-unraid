@@ -1,0 +1,171 @@
+{
+  "name": "bookorbit",
+  "repo": "ghcr.io/bookorbit/bookorbit:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/bookorbit/bookorbit/pkgs/container/bookorbit",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init --read-only --tmpfs /tmp --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=FOWNER --cap-add=SETGID --cap-add=SETUID --security-opt no-new-privileges:true --stop-timeout 30 -e NODE_ENV=production -e PORT=3000 --health-cmd=node -e \\const p=process.env.PORT||3000;fetch(http://127.0.0.1:+p+/api/v1/health).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\\ --health-interval=30s --health-timeout=5s --health-retries=3 --health-start-period=20s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/bookorbit.png",
+  "project": "https://bookorbit.app/",
+  "description": "BookOrbit is a self-hosted digital library and reading platform for EPUB, MOBI, AZW3, PDF, CBZ/CBR comics, and M4B/MP3 audiobooks, with sync to Kobo and KOReader devices, rich metadata lookup, reading stats, OPDS, and multi-user/OIDC support. THIS APP REQUIRES A COMPANION DATABASE. Install the \"bookorbit-db\" template FIRST or an instance of pgvector-18 and let it fully start (~20-30 seconds) before starting this container. Both containers must share a custom Docker network if they are setup to reach each other by name. Before installing, go to Docker Settings and create a custom network named \"bookorbit\" (Docker -> Add a new network -> name it \"bookorbit\", bridge driver), then attach both containers to it. Otherwise, use the database's IP and port to reach it. Required secrets - generate these yourself before filling in the fields below: openssl rand -hex 24 -> Postgres Password (also set on bookorbit-db) openssl rand -hex 32 -> JWT Secret openssl rand -hex 16 -> Setup Bootstrap Token After both containers are running, open App URL in your browser. You'll be redirected to a setup wizard - use your Setup Bootstrap Token to create the admin account. Full docs: https://bookorbit.app/installation.html",
+  "paths": [
+    {
+      "name": "Books Folder",
+      "host": "/mnt/cache/media/books",
+      "container": "/books",
+      "mode": "rw",
+      "description": "Host folder where your book files live. Point this at your existing media/books share.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/bookorbit",
+      "container": "/data",
+      "mode": "rw",
+      "description": "BookOrbit's own app data (config, generated files). BookOrbit manages ownership of this folder automatically.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port used to reach BookOrbit. Maps to the fixed internal port 3000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Full URL you'll use to open BookOrbit, e.g. http://192.168.1.10:3000 for direct LAN access, or https://books.example.com if behind a reverse proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BookOrbit Books Folder",
+      "key": "BOOKS_HOST_PATH",
+      "value": "./books",
+      "description": "Host folder mounted as /books in the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "bookorbit",
+      "description": "Must exactly match POSTGRES_USER on the bookorbit-db container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Must exactly match POSTGRES_PASSWORD on the bookorbit-db container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres DB",
+      "key": "POSTGRES_DB",
+      "value": "bookorbit",
+      "description": "Must exactly match POSTGRES_DB on the bookorbit-db container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "IP of bookorbit-db container or 'bookorbit-db' if both containers share a custom network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Port the Postgres container listens on internally.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Long random secret used to sign login tokens. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Setup Bootstrap Token",
+      "key": "SETUP_BOOTSTRAP_TOKEN",
+      "value": "",
+      "description": "One-time token used to claim the admin account on first setup. Generate with: openssl rand -hex 16",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID BookOrbit runs/writes files as. Must have read (and write, for uploads/Book Dock) access to your Books Folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID BookOrbit runs/writes files as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Book Dock Path",
+      "key": "BOOK_DOCK_PATH",
+      "value": "",
+      "description": "Advanced: internal path for the Book Dock drop-folder feature. Leave blank unless you've read the Book Dock docs and mapped an additional volume for it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fix Permissions",
+      "key": "BOOKORBIT_FIX_PERMISSIONS",
+      "value": "true",
+      "description": "BookOrbit automatically repairs ownership of the App Data folder on startup. Set to false only if your platform manages that folder's ownership externally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Max Old Space Size",
+      "key": "NODE_MAX_OLD_SPACE_SIZE",
+      "value": "2048",
+      "description": "Node.js heap limit in MB. Raise this (e.g. 4096) for very large libraries if you see out-of-memory errors. 'auto' lets Node decide.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity. Set to 'debug' for troubleshooting.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

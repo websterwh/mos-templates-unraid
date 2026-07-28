@@ -1,0 +1,243 @@
+{
+  "name": "PhotoPrism",
+  "repo": "photoprism/photoprism",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/photoprism/photoprism",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2342]/",
+  "icon": "https://raw.githubusercontent.com/findthelorax/unraid-templates/main/images/photoprism.png",
+  "project": "https://github.com/photoprism/photoprism",
+  "description": "PhotoPrism\u2122 is a server-based application for browsing, organizing and sharing your personal photo collection. It makes use of the latest technologies to automatically tag and find pictures without getting in your way. Say goodbye to solutions that force you to upload your visual memories to the cloud. Please also support the developer of this superior project through a PayPal donation or on Patreon. Database lockups: If you got problems where the database lockes up you should switch to a mysql based database but you have to also setup a dedicated database for that, for example 'MariaDB' from Linuxserver.io - if you need help please visit the support thread of this container and/or the MariaDB thread.",
+  "paths": [
+    {
+      "name": "Data Dir",
+      "host": "/mnt/cache/appdata/photoprism",
+      "container": "/photoprism/storage",
+      "mode": "rw",
+      "description": "Storage PATH for generated files like cache and index (Keep cache, settings and database)",
+      "required": true
+    },
+    {
+      "name": "Storage Path",
+      "host": "",
+      "container": "/photoprism/originals",
+      "mode": "rw",
+      "description": "Path to your images and storage folder",
+      "required": true
+    },
+    {
+      "name": "Photo Import Folder",
+      "host": "",
+      "container": "/photoprism/import",
+      "mode": "rw",
+      "description": "Only if you want to use the Import function of PhotoPrism (ATTENTION: Don't put the import folder in a subdirectory of the storage folder for your images!)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebGUI Port",
+      "host": "2342",
+      "container": "2342",
+      "protocol": "tcp",
+      "description": "WebGUI Port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Offensive Uploads",
+      "key": "PHOTOPRISM_UPLOAD_NSFW",
+      "value": "true",
+      "description": "Allow uploads that MAY be offensive (Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Flag Offensive Photos",
+      "key": "PHOTOPRISM_DETECT_NSFW",
+      "value": "false",
+      "description": "Flag photos as private that MAY be offensive (Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Tile",
+      "key": "PHOTOPRISM_SITE_TITLE",
+      "value": "",
+      "description": "Website Title",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Caption",
+      "key": "PHOTOPRISM_SITE_CAPTION",
+      "value": "",
+      "description": "Website Caption",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Description",
+      "key": "PHOTOPRISM_SITE_DESCRIPTION",
+      "value": "",
+      "description": "Website Description",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Author",
+      "key": "PHOTOPRISM_SITE_AUTHOR",
+      "value": "",
+      "description": "Website Author",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial Admin Password",
+      "key": "PHOTOPRISM_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Initial Admin Password - you can change the password on the settings page (If you don't want to use a password delete this entry and create another variable with the Key: 'PHOTOPRISM_PUBLIC' and the Value: 'true')",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Photoprims Database Type",
+      "key": "PHOTOPRISM_DATABASE_DRIVER",
+      "value": "sqlite",
+      "description": "Choose if you want to use the builtin 'sqlite' database or a 'mysql' based database (If you got problems where the database lockes up you should switch to mysql but you have to also setup a dedicated database for that for example 'MariaDB' from Linuxserver.io)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MySQL Database Connection",
+      "key": "PHOTOPRISM_DATABASE_DSN",
+      "value": "",
+      "description": "Needs to be filled out if you are using a 'mysql' based databyse type (it has to be filled in exact this format: 'DBUSER:DBPASSWORD@tcp(DBIP:DBPORT)/photoprism?parseTime=true' all values in CAPS have to be replaced with your credentials and without quotes)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webdav Autoindex - Safety Delay",
+      "key": "PHOTOPRISM_AUTO_INDEX",
+      "value": "0",
+      "description": "Set the safety delay for the Webdav Autoindexing in seconds (set to '-1' to disable set to '0' to enable the default value of 15 minutes or your preferred value in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webdav Autoimport- Safety Delay",
+      "key": "PHOTOPRISM_AUTO_IMPORT",
+      "value": "0",
+      "description": "Set the safety delay for the Webdav Autoimport in seconds (set to '-1' to disable set to '0' to enable the default value of 15 minutes or your preferred value in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Settings Hidden",
+      "key": "PHOTOPRISM_SETTINGS_HIDDEN",
+      "value": "false",
+      "description": "Users can not view or change settings (Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "On-Demand Rendering",
+      "key": "PHOTOPRISM_THUMB_UNCACHED",
+      "value": "false",
+      "description": "Enable on-demand thumbnail rendering (high memory and cpu usage - Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tumbnail Size Limit",
+      "key": "PHOTOPRISM_THUMB_SIZE",
+      "value": "2048",
+      "description": "Pre-rendered thumbnail size limit (default 2048, min 720, max 7680)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "On-demand Size Limit",
+      "key": "PHOTOPRISM_THUMB_SIZE_UNCACHED",
+      "value": "7680",
+      "description": "On-demand rendering size limit (default 7680, min 720, max 7680)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Converted Image Size Limit",
+      "key": "PHOTOPRISM_JPEG_SIZE",
+      "value": "7680",
+      "description": "Size limit for converted image files in pixels (720-30000)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Quality",
+      "key": "PHOTOPRISM_JPEG_QUALITY",
+      "value": "90",
+      "description": "Set to 95 for high-quality thumbnails (requires more storage)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Darktable Presets",
+      "key": "PHOTOPRISM_DARKTABLE_PRESETS",
+      "value": "false",
+      "description": "Use darktable presets (disables concurrent raw to jpeg conversion - Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resample Filter",
+      "key": "PHOTOPRISM_THUMB_FILTER",
+      "value": "lanczos",
+      "description": "Resample filter, best to worst: blackman, lanczos, cubic, linear",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Experimental Features",
+      "key": "PHOTOPRISM_EXPERIMENTAL",
+      "value": "false",
+      "description": "Enable experimental features (Valid options: 'true' or 'false')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "PHOTOPRISM_UID",
+      "value": "99",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "PHOTOPRISM_GID",
+      "value": "100",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Storage Path",
+      "key": "PHOTOPRISM_STORAGE_PATH",
+      "value": "/photoprism/storage",
+      "description": "Change only if you know what you are doing! (delete this value if you want to store your database and generated thumnails in the main directory)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

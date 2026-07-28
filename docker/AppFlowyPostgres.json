@@ -1,0 +1,75 @@
+{
+  "name": "AppFlowy-Postgres",
+  "repo": "pgvector/pgvector:pg16",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/pgvector/pgvector",
+  "network": "custom:appflowy",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://avatars.githubusercontent.com/u/81710027?s=200&v=4",
+  "project": "https://github.com/vmalinics0/unraid-appflowy",
+  "description": "Step 1/7: PostgreSQL 16 with pgvector extension \u2014 the primary database for AppFlowy Cloud. Deploy first. Part of the AppFlowy Cloud stack.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/AppFlowy-Postgres",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Persistent data directory for PostgreSQL. Must be on a path with enough free space.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Postgres Port (internal)",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL port. Exposed to the appflowy Docker network only. Change host port only if you need external access.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "PostgreSQL superuser username. Must match the value used in all other AppFlowy services.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "changeme_strong_password",
+      "description": "PostgreSQL superuser password. Change this before first start. Must match all other AppFlowy services.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres Database",
+      "key": "POSTGRES_DB",
+      "value": "postgres",
+      "description": "Default database name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGPORT",
+      "key": "PGPORT",
+      "value": "5432",
+      "description": "Port PostgreSQL listens on inside the container. Keep in sync with the port mapping above.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

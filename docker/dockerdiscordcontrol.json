@@ -1,0 +1,99 @@
+{
+  "name": "dockerdiscordcontrol",
+  "repo": "dockerdiscordcontrol/dockerdiscordcontrol:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/dockerdiscordcontrol/dockerdiscordcontrol",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9374]",
+  "icon": "https://ddc.bot/favicon.png",
+  "project": "https://ddc.bot",
+  "description": "Control your Docker containers directly from Discord! Interactive Discord bot with buttons to start, stop, restart, and monitor containers. Includes a web dashboard for configuration, task scheduling, auto-actions, and channel translation (DeepL/Google/Microsoft). Available in 40 languages. Alpine-based image, less than 200 MB RAM. Setup: Access the Web UI at http://[YOUR-IP]:9374 and log in with username \"admin\", password \"setup\". Homepage: https://ddc.bot",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/dockerdiscordcontrol/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "DDC configuration files.",
+      "required": true
+    },
+    {
+      "name": "Logs Directory",
+      "host": "/mnt/cache/appdata/dockerdiscordcontrol/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "DDC log files.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket for container management.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "9374",
+      "container": "9374",
+      "protocol": "tcp",
+      "description": "Port for DDC web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "DDC_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for web UI admin user (username: admin). If not set, use username &quot;admin&quot;, password &quot;setup&quot; for first login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Flask Secret Key",
+      "key": "FLASK_SECRET_KEY",
+      "value": "",
+      "description": "Secret key for session security. Generate with: openssl rand -hex 32. If not set, sessions reset on restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discord Bot Token",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "Discord bot token. Can also be configured via the Web UI after first login.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

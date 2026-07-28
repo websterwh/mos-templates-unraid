@@ -1,0 +1,163 @@
+{
+  "name": "HELBACKUP",
+  "repo": "ghcr.io/kreuzbube88/helbackup:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://ghcr.io/kreuzbube88/helbackup",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://github.com/Kreuzbube88/helbackup/blob/main/frontend/public/favicon.png?raw=true",
+  "project": "https://github.com/Kreuzbube88/helbackup",
+  "description": "HELBACKUP is a self-hosted backup orchestrator built specifically for Unraid. One container, full control \u2014 no cloud dependency, no subscription. Backup Types: \u2713 Flash Drive \u2014 Incremental rsync of /boot with SHA-256 verification \u2713 Appdata \u2014 Optional container stop/start, Docker config export included \u2713 Virtual Machines \u2014 Libvirt snapshot, vDisk rsync, XML config export \u2713 Docker Images \u2014 Save images as .tar archives via Docker API \u2713 System Config \u2014 Network, users, shares, plugins, disk assignments Targets: \u2713 Remote NAS / Server \u2014 SSH + Rsync with optional strict host-key pinning \u2713 Local Filesystem \u2014 Direct path on the Unraid array \u2713 NAS Power Management \u2014 Wake-on-LAN before backup, auto-shutdown after Job Engine: \u2713 Visual Job Builder \u2014 Drag-and-drop step ordering with dependency graph \u2713 Retry Logic \u2014 Linear or exponential backoff per step \u2713 Pre/Post Hook Scripts \u2014 Run custom scripts around backup jobs \u2713 Catch-Up on Start \u2014 Runs missed schedules after container restart \u2713 Checksum Verification \u2014 SHA-256 validation for all backup files Retention: \u2713 Simple Retention \u2014 Keep last N backups with configurable minimum \u2713 GFS Rotation \u2014 Grandfather-Father-Son: Daily / Weekly / Monthly, saves up to 90% storage Security & Encryption: \u2713 AES-256 Encryption \u2014 Optional end-to-end GPG encryption with recovery key \u2713 First-Run Setup \u2014 No default passwords, admin account created on first access \u2713 API Tokens \u2014 Scoped tokens with optional expiry \u2713 Webhooks \u2014 HMAC-signed event delivery Recovery: \u2713 Granular File Restore \u2014 Browse and restore individual files or directories \u2713 Full Server Restore Wizard \u2014 Step-by-step guided recovery for all backup types \u2713 Flash Drive Restore \u2014 Complete /boot restoration with confirmation guard Monitoring & Notifications: \u2713 7 Notification Channels \u2014 Email, Gotify, ntfy, Pushover, Telegram, Discord, Slack \u2713 Live Logs \u2014 Real-time backup progress via SSE stream \u2713 Dashboard \u2014 System status, per-target storage, 30-day history chart \u2713 Prometheus Metrics \u2014 Ready-made monitoring integration \u2713 German & English UI \u2014 Full i18n support First-Time Setup: 1. Install the container 2. Open the Web UI 3. Create your admin account 4. Save your Recovery Key (shown once!) 5. Follow the onboarding wizard to create your first backup Documentation: https://github.com/Kreuzbube88/helbackup",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/helbackup/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "SSH keys and application config",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/helbackup/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "SQLite database",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/helbackup/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Application logs",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for container management (stop/start during backups)",
+      "required": true
+    },
+    {
+      "name": "Unraid Flash Drive",
+      "host": "/boot",
+      "container": "/unraid/boot",
+      "mode": "rw",
+      "description": "\u26a0\ufe0f Unraid USB flash drive (READ-WRITE for automated Flash restore). PROTECTED: Write operations only allowed during explicit restore sessions with multi-step confirmation!",
+      "required": true
+    },
+    {
+      "name": "Host System (Restore)",
+      "host": "/mnt/user",
+      "container": "/unraid/user",
+      "mode": "rw",
+      "description": "\u26a0\ufe0f Unraid user array (READ-WRITE for automated restore). PROTECTED: Write operations only allowed during explicit restore sessions with multi-step confirmation!",
+      "required": true
+    },
+    {
+      "name": "Cache Drive",
+      "host": "/mnt/cache",
+      "container": "/unraid/cache",
+      "mode": "rw",
+      "description": "\u26a0\ufe0f Unraid cache drive (READ-WRITE for restore). Required if appdata or VM disks live on cache (/mnt/cache/appdata/, /mnt/cache/domains/).",
+      "required": true
+    },
+    {
+      "name": "Libvirt Configs",
+      "host": "/etc/libvirt",
+      "container": "/unraid/libvirt",
+      "mode": "ro",
+      "description": "\u26a0\ufe0f VM configurations (READ-WRITE for restore). Required for VM backup and restore. Remove if you don't use virtual machines.",
+      "required": true
+    },
+    {
+      "name": "Libvirt Socket",
+      "host": "/var/run/libvirt/libvirt-sock",
+      "container": "/var/run/libvirt/libvirt-sock",
+      "mode": "rw",
+      "description": "Libvirt Unix socket. Required for VM live snapshot support during backup. Only available when libvirt is running on the host \u2014 remove if not using VMs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the HELBACKUP web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LIBVIRT_DEFAULT_URI",
+      "key": "LIBVIRT_DEFAULT_URI",
+      "value": "qemu:///system",
+      "description": "Libvirt connection URI for VM management. Do not change unless your libvirt setup uses a different URI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required: Random secret for authentication. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "SECURE_COOKIES",
+      "key": "SECURE_COOKIES",
+      "value": "false",
+      "description": "Set to false for local HTTP access. Set to true when using HTTPS via reverse proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone for scheduled backups (e.g., Europe/Berlin, America/New_York)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: debug, info, warn, error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (Unraid default: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (Unraid default: 100)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

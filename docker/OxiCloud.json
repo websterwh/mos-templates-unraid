@@ -1,0 +1,99 @@
+{
+  "name": "OxiCloud",
+  "repo": "diocrafts/oxicloud:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/diocrafts/oxicloud",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8086]",
+  "icon": "https://raw.githubusercontent.com/paulmeier/oxicloud-unraid/main/icons/oxicloud.png",
+  "project": "https://github.com/AtalayaLabs/OxiCloud",
+  "description": "OxiCloud is an ultra-fast, lightweight self-hosted cloud built in Rust. It gives you files, sharing, previews, trash, search, photos, plus calendars and contacts over WebDAV, CalDAV, and CardDAV, with OIDC SSO, per-user quotas, and shared links. OxiCloud needs an EXTERNAL PostgreSQL database (it has no built-in DB) so install a PostgreSQL container first. The schema is created automatically on first start. There is no default login: open the WebUI after the first start and create your admin account.",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/appdata/oxicloud",
+      "container": "/app/storage",
+      "mode": "rw",
+      "description": "Holds all user files (the content-addressable blob store), the auto-generated JWT secret, the full-text search index, and the Tailscale state directory. Must persist across restarts and image updates. For a large file library you can point this at an array share such as /mnt/user/oxicloud instead of the cache-backed appdata path.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8086",
+      "container": "8086",
+      "protocol": "tcp",
+      "description": "Host port mapped to the OxiCloud web interface. Browse to http:// :[this port] to reach OxiCloud.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Connection String",
+      "key": "OXICLOUD_DB_CONNECTION_STRING",
+      "value": "postgres://oxicloud:oxicloud@HOST-IP:5432/oxicloud",
+      "description": "PostgreSQL connection string. OxiCloud has no built-in database so it needs an external PostgreSQL container. After installing PostgreSQL, create a database and a role both named oxicloud, then replace HOST-IP with that container address or the Unraid host IP. Example postgres://oxicloud:yourpassword@192.168.1.10:5432/oxicloud . The schema is created automatically on first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind Address",
+      "key": "OXICLOUD_SERVER_HOST",
+      "value": "0.0.0.0",
+      "description": "Interface OxiCloud binds inside the container. Must stay 0.0.0.0 or the container becomes unreachable through the mapped port. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Server Port",
+      "key": "OXICLOUD_SERVER_PORT",
+      "value": "8086",
+      "description": "Port OxiCloud listens on inside the container. Keep it matched to the container side of the WebUI Port mapping above (8086). Change both together if you remap it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "OXICLOUD_JWT_SECRET",
+      "value": "",
+      "description": "Secret that signs session tokens (HS256). Leave blank to let OxiCloud generate a strong one on first start and persist it inside the Storage volume as .jwt_secret, which survives restarts. Set your own (minimum 32 characters) only if you want a fixed value across redeployments. Generate one with: openssl rand -hex 32",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Base URL",
+      "key": "OXICLOUD_BASE_URL",
+      "value": "",
+      "description": "External URL clients use to reach OxiCloud, including the scheme. Set this when access goes through a reverse proxy, a custom domain, or a Tailscale hostname so generated share links and OIDC redirects are correct. Example https://oxicloud.your-tailnet.ts.net or https://cloud.example.com . Leave blank for plain LAN access by IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Open Registration",
+      "key": "OXICLOUD_DISABLE_REGISTRATION",
+      "value": "false",
+      "description": "Set to true to block public self-registration once you have created your accounts. Recommended for an internet-exposed instance. Leave false while setting up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Container timezone, used for log timestamps. tzdata is installed in the image. Example Europe/Madrid or America/New_York. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

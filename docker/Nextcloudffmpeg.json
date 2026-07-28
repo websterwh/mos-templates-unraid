@@ -1,0 +1,50 @@
+{
+  "name": "Nextcloud-ffmpeg",
+  "repo": "kilrah/nextcloud-ffmpeg",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/kilrah/nextcloud-ffmpeg",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://github.com/kilrah/unraid-docker-templates/raw/main/icons/nextcloud-ffmpeg.png",
+  "project": "https://nextcloud.com/",
+  "description": "Official Nextcloud image but with ffmpeg, PDLib and Quicksync support added to the container to allow for building video thumbnails and using video conversion/facial recognition apps. The additions take an extra 700MB in the container image, should you not need them you can safely replace the \"Repository\" entry with the base \"nextcloud\", both images are directly compatible regarding all of appdata/storage/database/mounts/ports. To enable previews for movies you will need to edit your appdata/config/config.php file and enable the appropriate providers, refer to Nextcloud's configuration doc below or the config.sample.php in the same folder which is well documented: https://docs.nextcloud.com/server/22/admin_manual/configuration_server/config_sample_php_parameters.html#previews. If you have large images you might need to increase preview_max_memory in nextcloud's config file, in which case you would also want to increase the global PHP memory limit. To do so you can add e.g. \"-e PHP_MEMORY_LIMIT=2G\" in this template's Extra Parameters. The image includes Intel and AMD VA drivers for hardware video transcoding in the Memories app, to enable add a new Device to the template, with \"/dev/dri\". The Face Recognition app also requires a higher PHP memory limit, see above.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/nextcloud-ffmpeg",
+      "container": "/var/www/html",
+      "mode": "rw",
+      "description": "Application data",
+      "required": true
+    },
+    {
+      "name": "Storage",
+      "host": "",
+      "container": "/var/www/html/data",
+      "mode": "rw",
+      "description": "User data storage location, typically a share if you have lots of data. Can be removed, in which case everything is stored in the App Data folder.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "HTTP port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,115 @@
+{
+  "name": "feedBack",
+  "repo": "ghcr.io/got-feedback/feedback:nightly",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/got-feedback/feedback",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/bigjoedata/unraid-templates/main/feedback/icon.png",
+  "project": "https://github.com/got-feedback/feedback",
+  "description": "feedBack is an open-source rhythm gaming and music education platform. Supports multi-instrument gameplay, chart creation tools, music theory training, lessons, minigames, and a powerful plugin ecosystem. DISCLAIMER: This is an unofficial, community-provided Docker template. The application is actively developed, and major changes may occur.",
+  "paths": [
+    {
+      "name": "Song Library Directory",
+      "host": "/mnt/cache/Media/feedpaks/",
+      "container": "/feedpaks",
+      "mode": "rw",
+      "description": "Where your feedPak chart library is stored (Read-Write required for seeding starter/diagnostic content and folder organization).",
+      "required": true
+    },
+    {
+      "name": "Appdata Directory",
+      "host": "/mnt/cache/appdata/feedback",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Location for config DB, caches (art, audio, feedpaks), and persistent packages.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "The port for feedBack Web UI (defaulted to 7000 to avoid browser blocked-port list)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Plugins Directory",
+      "key": "FEEDBACK_PLUGINS_DIR",
+      "value": "/config/plugins",
+      "description": "Optional: Set the path to scan for user-installed custom plugins. Defaults to /config/plugins. You can place custom plugins directly into the plugins/ subfolder of your appdata share on the host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Install Plugins",
+      "key": "FEEDBACK_AUTO_INSTALL_PLUGINS",
+      "value": "",
+      "description": "Optional: Comma-separated list of GitHub repositories (e.g., got-feedback/feedBack-plugin-rig-builder,got-feedback/feedBack-plugin-practice) to automatically download and install at startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Max Workers",
+      "key": "SCAN_MAX_WORKERS",
+      "value": "",
+      "description": "Optional: Restricts the maximum number of concurrent files being scanned at startup. Useful to cap CPU usage during library sync on lower-end servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Uvicorn / feedBack logging level (DEBUG | INFO | WARNING | ERROR).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Format",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log formatting style (text | json).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log File Location",
+      "key": "LOG_FILE",
+      "value": "/config/feedback.log",
+      "description": "Optional: Persistent log file location to write logging output directly to your appdata directory for easier troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DLC_DIR Env",
+      "key": "DLC_DIR",
+      "value": "/feedpaks",
+      "description": "Internal application environment variable for song/chart library directory",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CONFIG_DIR Env",
+      "key": "CONFIG_DIR",
+      "value": "/config",
+      "description": "Internal application environment variable for appdata config",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

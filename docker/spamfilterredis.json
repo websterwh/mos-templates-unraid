@@ -1,0 +1,40 @@
+{
+  "name": "spamfilter-redis",
+  "repo": "redis:8-alpine",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/_/redis/",
+  "network": "spamnet",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--log-opt max-size=50m --log-opt max-file=5",
+  "post_parameters": "redis-server /usr/local/etc/redis/redis.conf",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/marcelverdult/imap-spamfilter/main/assets/icon.png",
+  "project": "https://github.com/marcelverdult/imap-spamfilter",
+  "description": "Redis persistence backend for the IMAP spam filter stack. Stores rspamd Bayes tokens, fuzzy hashes, and neural weights. AOF + RDB enabled so the corpus survives container restarts. Install on the spamnet network alongside spamfilter-rspamd, spamfilter-unbound, and spamfilter.",
+  "paths": [
+    {
+      "name": "Data dir",
+      "host": "/mnt/cache/appdata/spamfilter/redis",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Redis AOF/RDB files. Critical to back up - losing this means retraining Bayes from zero.",
+      "required": true
+    },
+    {
+      "name": "Server config dir",
+      "host": "/mnt/cache/appdata/spamfilter/redis-config",
+      "container": "/usr/local/etc/redis",
+      "mode": "ro",
+      "description": "Directory holding the bootstrap-rendered redis.conf (persistence, memory cap, requirepass auth). Read-only. Run bootstrap.sh before installing.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

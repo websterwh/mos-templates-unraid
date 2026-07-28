@@ -1,0 +1,201 @@
+{
+  "name": "nanoclaw-aio",
+  "repo": "jsonbored/nanoclaw-aio:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/nanoclaw-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/nanoclaw.png",
+  "project": "https://github.com/JSONbored/nanoclaw-aio",
+  "description": "NanoClaw is a Telegram-first AI agent orchestrator for running Claude-powered assistant workflows from chat. All-In-One Unraid Edition `nanoclaw-aio` packages NanoClaw v2 into one Unraid-first container and uses the paired [code]jsonbored/nanoclaw-agent[/code] helper image for isolated agent work. Quick Install (Beginners) 1. Install this template and leave [code]Appdata Directory[/code] and [code]Host Appdata Path[/code] aligned unless you intentionally use a custom appdata path. 2. Set [code]TELEGRAM_BOT_TOKEN[/code] from BotFather. 3. Set [code]ANTHROPIC_API_KEY[/code] or one of the advanced Claude credential options. 4. Start the container and watch the logs for [code]PAIR_TELEGRAM_CODE[/code]. 5. Send that pairing code to your Telegram bot to pair the main chat. Power Users (Advanced View) - Advanced View exposes Claude credential aliases, OneCLI gateway settings, helper image overrides, concurrency/timeouts, logging, and assistant identity controls. - Keep [code]CONTAINER_IMAGE[/code] and [code]CONTAINER_IMAGE_BASE[/code] on the JSONbored defaults unless you build and maintain your own compatible agent helper image. - [code]NANOCLAW_HOST_APPDATA_DIR[/code] must match the host-side path for [code]/appdata[/code] because nested helper containers are launched through the host Docker daemon. Important Notes - This template is marked beta while the NanoClaw v2 runtime gets more real-world Unraid soak time. - The Docker socket mount is an advanced opt-in setting because NanoClaw launches paired helper containers through the host Docker daemon, which grants host-level Docker control. NanoClaw cannot run helper containers until that mount is enabled. - Persistent databases, logs, groups, env files, and channel state live under [code]/appdata[/code].",
+  "paths": [
+    {
+      "name": "Appdata Directory",
+      "host": "/mnt/cache/appdata/nanoclaw-aio",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Persistent NanoClaw data: databases, logs, groups, channel state, env files, and host-visible runtime files for nested agent containers.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Advanced opt-in security-sensitive mount. NanoClaw v2 needs the Docker socket to spawn nested jsonbored/nanoclaw-agent helper containers, which grants host-level Docker control access.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Bot token from @BotFather. After startup, send the PAIR_TELEGRAM_CODE from the logs to this bot.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Claude API key. Use this or one of the advanced Claude credential options.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Host Appdata Path",
+      "key": "NANOCLAW_HOST_APPDATA_DIR",
+      "value": "/mnt/user/appdata/nanoclaw-aio",
+      "description": "Host-side path matching the Appdata Directory mount. Nested agent containers need this host path when the AIO talks to the host Docker daemon.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Claude Code OAuth Token",
+      "key": "CLAUDE_CODE_OAUTH_TOKEN",
+      "value": "",
+      "description": "Optional Claude Code OAuth-style credential. Use instead of ANTHROPIC_API_KEY when applicable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic Auth Token",
+      "key": "ANTHROPIC_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional Claude/Anthropic auth token for runtimes that expect ANTHROPIC_AUTH_TOKEN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic Base URL",
+      "key": "ANTHROPIC_BASE_URL",
+      "value": "",
+      "description": "Optional Anthropic-compatible API endpoint override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OneCLI URL",
+      "key": "ONECLI_URL",
+      "value": "",
+      "description": "Optional OneCLI gateway URL for NanoClaw agent credential injection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OneCLI API Key",
+      "key": "ONECLI_API_KEY",
+      "value": "",
+      "description": "Optional OneCLI API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Agent Image",
+      "key": "CONTAINER_IMAGE",
+      "value": "jsonbored/nanoclaw-agent:v2.0.64-agent.2",
+      "description": "Helper image used for spawned agent containers. Advanced users may point this to a custom built agent image.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Agent Image Base",
+      "key": "CONTAINER_IMAGE_BASE",
+      "value": "jsonbored/nanoclaw-agent",
+      "description": "Base repository NanoClaw uses when building per-agent customized helper images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Timeout",
+      "key": "CONTAINER_TIMEOUT",
+      "value": "1800000",
+      "description": "Agent container timeout in milliseconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Idle Timeout",
+      "key": "IDLE_TIMEOUT",
+      "value": "1800000",
+      "description": "Idle timeout in milliseconds for keeping agent containers warm after results.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Output Size",
+      "key": "CONTAINER_MAX_OUTPUT_SIZE",
+      "value": "10485760",
+      "description": "Maximum captured output from an agent container in bytes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Messages Per Prompt",
+      "key": "MAX_MESSAGES_PER_PROMPT",
+      "value": "10",
+      "description": "Maximum message history items NanoClaw passes into a prompt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Concurrent Containers",
+      "key": "MAX_CONCURRENT_CONTAINERS",
+      "value": "5",
+      "description": "Maximum number of concurrent NanoClaw agent containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "NanoClaw log level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Assistant Name",
+      "key": "ASSISTANT_NAME",
+      "value": "nanoclaw",
+      "description": "Assistant trigger name used by NanoClaw. Example trigger: @nanoclaw",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Assistant Has Own Number",
+      "key": "ASSISTANT_HAS_OWN_NUMBER",
+      "value": "false",
+      "description": "Set true only when your NanoClaw assistant has its own dedicated channel identity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Pair Telegram",
+      "key": "NANOCLAW_AUTO_PAIR_TELEGRAM",
+      "value": "true",
+      "description": "When true, the container starts the pairing-code watcher on first boot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone used by scheduled tasks and formatted timestamps.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

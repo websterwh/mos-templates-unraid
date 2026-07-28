@@ -1,0 +1,83 @@
+{
+  "name": "VynodeArr",
+  "repo": "ghcr.io/minerport/vynodearr-unified:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/minerport/VynodeArr-Unified/pkgs/container/vynodearr-unified",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --stop-timeout 60",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8686]/",
+  "icon": "https://raw.githubusercontent.com/minerport/VynodeArr-Unified/main/assets/branding/VynodeArr.png",
+  "project": "https://github.com/minerport/VynodeArr-Unified",
+  "description": "Unified movie and television media manager. One dashboard supervises isolated movie and television engines. Uses its own appdata and port, so existing Radarr and Sonarr containers remain separate. Use unique download-client categories such as vynode-movies and vynode-tv.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/vynodearr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent unified, movie, and television configuration",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/movies",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Movie library",
+      "required": true
+    },
+    {
+      "name": "Television",
+      "host": "/mnt/cache/tv",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Television library",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Shared download-client path",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8686",
+      "container": "8686",
+      "protocol": "tcp",
+      "description": "Unified VynodeArr dashboard port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "IANA timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Lifecycle Control Key",
+      "key": "VynodeArr__LifecycleApiKey",
+      "value": "",
+      "description": "Long random secret required for remote start, stop, and shutdown controls",
+      "required": true,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

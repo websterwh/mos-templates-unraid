@@ -1,0 +1,317 @@
+{
+  "name": "lancache-bundle",
+  "repo": "josh5/lancache-bundle:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/josh5/lancache-bundle",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:53]",
+  "icon": "https://github.com/Josh5/lancache-bundle/raw/master/lancache-bundle-logo.png",
+  "project": "https://github.com/Josh5/lancache-bundle",
+  "description": "An all in one lancache docker providing a combination of the following three projects: https://github.com/lancachenet/lancache-dns https://github.com/lancachenet/monolithic https://github.com/lancachenet/sniproxy Thanks to cheesemarathon for their work on the SteamCacheBundle that inspired this and provided the grounding for the template. Note, however, that this Docker image does not run at all the same way and is strictly based on the original upstream logcache project. On start, this image will download the latest domain list from https://github.com/uklans/cache-domains. This means no constant upgrading of the docker image is necessary in order to guarantee continued usability",
+  "paths": [
+    {
+      "name": "data",
+      "host": "/mnt/cache/lancache",
+      "container": "/data/cache",
+      "mode": "rw",
+      "description": "Location to store the cached files",
+      "required": false
+    },
+    {
+      "name": "DNS Logs",
+      "host": "/mnt/cache/appdata/lancache-bundle/log/named",
+      "container": "/var/log/named",
+      "mode": "rw",
+      "description": "Location to store the DNS logs",
+      "required": false
+    },
+    {
+      "name": "Nginx Logs",
+      "host": "/mnt/cache/appdata/lancache-bundle/log/nginx",
+      "container": "/var/log/nginx",
+      "mode": "rw",
+      "description": "Location to store the Nginx logs",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "DNS UDP Port",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": "DNS port, don't change!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Container Port: 80 Don't change!",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Container Port: 443 SNIProxy port, don't change!",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LANCACHE_IP",
+      "key": "LANCACHE_IP",
+      "value": "192.168.1.202",
+      "description": "IP Address of cache container. (Has to be the same as the HOST's IP. If you set the container's IP to 192.168.1.202 this has to be the same. If you use bridge it has to be the same as unRAID's IP.)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS_BIND_IP",
+      "key": "DNS_BIND_IP",
+      "value": "192.168.1.202",
+      "description": "IP Address of cache container. (Has to be the same as the HOST's IP. If you set the container's IP to 192.168.1.202 this has to be the same. If you use bridge it has to be the same as unRAID's IP.)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CACHE_MEM_SIZE",
+      "key": "CACHE_MEM_SIZE",
+      "value": "500m",
+      "description": "Memory size for the cache",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CACHE_DISK_SIZE",
+      "key": "CACHE_DISK_SIZE",
+      "value": "2000g",
+      "description": "Max size for the cache",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CACHE_MAX_AGE",
+      "key": "CACHE_MAX_AGE",
+      "value": "150d",
+      "description": "Max age for files in the cache",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPSTREAM_DNS",
+      "key": "UPSTREAM_DNS",
+      "value": "1.1.1.1",
+      "description": "Container Variable: UPSTREAM_DNS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USE_GENERIC_CACHE",
+      "key": "USE_GENERIC_CACHE",
+      "value": "true",
+      "description": "Must be set to true to use generic cache",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_ARENANET",
+      "key": "DISABLE_ARENANET",
+      "value": "",
+      "description": "Set to true to disable arenanet caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_BLIZZARD",
+      "key": "DISABLE_BLIZZARD",
+      "value": "",
+      "description": "Set to true to disable blizzard caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_CITYOFHEROES",
+      "key": "DISABLE_CITYOFHEROES",
+      "value": "",
+      "description": "Set to true to disable cityofheroes caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_DAYBREAK",
+      "key": "DISABLE_DAYBREAK",
+      "value": "",
+      "description": "Set to true to disable daybreak caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_EPICGAMES",
+      "key": "DISABLE_EPICGAMES",
+      "value": "",
+      "description": "Set to true to disable epicgames caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_FRONTIER",
+      "key": "DISABLE_FRONTIER",
+      "value": "",
+      "description": "Set to true to disable frontier caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_HIREZ",
+      "key": "DISABLE_HIREZ",
+      "value": "",
+      "description": "Set to true to disable hirez caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_NEVERWINTER",
+      "key": "DISABLE_NEVERWINTER",
+      "value": "",
+      "description": "Set to true to disable neverwinter caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_NEXUSMODS",
+      "key": "DISABLE_NEXUSMODS",
+      "value": "",
+      "description": "Set to true to disable nexusmods caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_NINTENDO",
+      "key": "DISABLE_NINTENDO",
+      "value": "",
+      "description": "Set to true to disable nintendo caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_ORIGIN",
+      "key": "DISABLE_ORIGIN",
+      "value": "",
+      "description": "Set to true to disable origin caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_RENEGADEX",
+      "key": "DISABLE_RENEGADEX",
+      "value": "",
+      "description": "Set to true to disable renegadex caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_RIOT",
+      "key": "DISABLE_RIOT",
+      "value": "",
+      "description": "Set to true to disable riot caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_ROCKSTAR",
+      "key": "DISABLE_ROCKSTAR",
+      "value": "",
+      "description": "Set to true to disable rockstar caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_SONY",
+      "key": "DISABLE_SONY",
+      "value": "",
+      "description": "Set to true to disable sony caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_STEAM",
+      "key": "DISABLE_STEAM",
+      "value": "",
+      "description": "Set to true to disable steam caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_TESO",
+      "key": "DISABLE_TESO",
+      "value": "",
+      "description": "Set to true to disable teso caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_TWITCH",
+      "key": "DISABLE_TWITCH",
+      "value": "",
+      "description": "Set to true to disable twitch caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_UPLAY",
+      "key": "DISABLE_UPLAY",
+      "value": "",
+      "description": "Set to true to disable uplay caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_WARFRAME",
+      "key": "DISABLE_WARFRAME",
+      "value": "",
+      "description": "Set to true to disable warframe caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_WARGAMING",
+      "key": "DISABLE_WARGAMING",
+      "value": "",
+      "description": "Set to true to disable wargaming caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_WSUS",
+      "key": "DISABLE_WSUS",
+      "value": "",
+      "description": "Set to true to disable windowsupdates caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_XBOXLIVE",
+      "key": "DISABLE_XBOXLIVE",
+      "value": "",
+      "description": "Set to true to disable xboxlive caching",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,91 @@
+{
+  "name": "pirarara-ai",
+  "repo": "caiquebrito/pirarara-ai:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/caiquebrito/pirarara-ai/main/frontend/public/logo.png",
+  "project": "https://github.com/caiquebrito/pirarara-ai",
+  "description": "Pirarara AI \u2014 self-hosted local AI platform with chat, agent loop, workspace, and model management. Requires an Ollama server running on your network. No external database needed \u2014 uses SQLite internally.",
+  "paths": [
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/pirarara/db",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where the SQLite database file is stored",
+      "required": true
+    },
+    {
+      "name": "Workspace",
+      "host": "/mnt/cache/appdata/pirarara/workspace",
+      "container": "/workspace",
+      "mode": "rw",
+      "description": "Directory where the agent can read/write files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Ollama URL",
+      "key": "OLLAMA_URL",
+      "value": "http://192.168.15.180:11434",
+      "description": "URL of your Ollama instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Model",
+      "key": "OLLAMA_DEFAULT_MODEL",
+      "value": "qwen2.5-coder:7b-instruct-q4_K_M",
+      "description": "Ollama model to use by default",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Random secret for JWT signing \u2014 generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional \u2014 for Claude models via Anthropic API",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional \u2014 for OpenAI models",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

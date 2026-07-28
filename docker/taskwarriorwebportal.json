@@ -1,0 +1,115 @@
+{
+  "name": "taskwarrior-web-portal",
+  "repo": "ghcr.io/furan917/taskwarrior-web-portal-docker:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/furan917/taskwarrior-web-portal-docker/pkgs/container/taskwarrior-web-portal-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5050]/",
+  "icon": "https://avatars.githubusercontent.com/u/7008500",
+  "project": "https://github.com/furan917/taskwarrior-web-portal",
+  "description": "A web UI for Taskwarrior 3.x, packaged for Unraid. Browse, create, edit, and complete tasks from your browser without touching the CLI. Task data lives on your Unraid share and is never sent anywhere unless you opt in to sync. Optionally pairs with the taskchampion-sync-server Community App to sync tasks across multiple devices \u2014 all encryption happens client-side, the sync server never sees plaintext. Runs fully local with no sync server if preferred. WARNING: This app has no built-in authentication. It is designed for trusted LAN access only. If you intend to expose it outside your local network, place it behind a reverse proxy with authentication \u2014 for example Nginx Proxy Manager with HTTP Basic Auth, or a Cloudflare Tunnel with Authelia or Authentik in front.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/taskwarrior-web-portal",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for your task data, client UUID, and config. Back this path up \u2014 it is the only copy of your tasks.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5050",
+      "container": "5050",
+      "protocol": "tcp",
+      "description": "Host port for the web UI. The default is 5050; change it here if that port is already in use on your server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the process runs as. Defaults to Unraid's nobody user (99). Set to your own UID (run `id -u` in the Unraid terminal) if you want task files owned by your user account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the process runs as. Defaults to Unraid's users group (100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Host Check",
+      "key": "TWP_DISABLE_HOST_CHECK",
+      "value": "1",
+      "description": "Set to 1 to disable the host/origin allowlist check. Recommended for Docker deployments where the external hostname or port is not known. Set to 0 and use Allowed Hosts below if you want stricter control.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "TWP_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Only used when Disable Host Check is 0. Your Unraid server's LAN IP address, e.g. 192.168.1.10. Separate multiple entries with commas.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "TWP_SECURE_COOKIES",
+      "value": "0",
+      "description": "Set to 1 if this container is behind a TLS-terminating reverse proxy (e.g. Nginx Proxy Manager with HTTPS). Adds the Secure flag to the CSRF cookie so it is only transmitted over HTTPS. Leave at 0 for plain HTTP LAN access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Server URL",
+      "key": "TWC_SERVER_URL",
+      "value": "",
+      "description": "Optional. Full URL of your TaskChampion Sync Server, e.g. http://192.168.1.10:8007. Leave empty to run local-only with no sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Passphrase",
+      "key": "TWC_PASSPHRASE",
+      "value": "",
+      "description": "Encryption passphrase for your task data. Required when a Sync Server URL is set. Tasks are encrypted before leaving this container \u2014 the sync server never sees plaintext. Use a strong passphrase and store it safely; it cannot be recovered if lost.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sync Client ID",
+      "key": "TWC_CLIENT_ID",
+      "value": "",
+      "description": "The client UUID used to identify your task database on the sync server. IMPORTANT: all devices that should share the same tasks must use the same UUID here. Copy the UUID from your other device's taskrc (rc.sync.server.client_id) or from the web portal config page. Leave empty to auto-generate a new UUID on first start (local-only or first device).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bugwarrior Binary",
+      "key": "BUGWARRIOR_BIN",
+      "value": "",
+      "description": "Optional. Absolute path to the bugwarrior binary inside the container, e.g. /venv/bin/bugwarrior. Only needed if you have installed bugwarrior in a custom location or a mounted virtualenv. Leave empty to let the portal detect it automatically via PATH and common install directories.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

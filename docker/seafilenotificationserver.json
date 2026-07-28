@@ -1,0 +1,123 @@
+{
+  "name": "seafile-notification-server",
+  "repo": "seafileltd/notification-server:12.0-latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/seafileltd/notification-server/",
+  "network": "seafile-net",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8083]",
+  "icon": "https://cdn.icon-icons.com/icons2/1381/PNG/512/seafile_93931.png",
+  "project": "https://github.com/selfhosters/unRAID-CA-templates",
+  "description": "Notification Server for Seafile You must modify the file `seafile.conf` with the correct values of the notification server: https://manual.seafile.com/latest/config/seafile-conf/#notification-server-configuration Is recommendend the use of a docker network for all the neccesary containers needed for Seafile: 1. Seafile Server Container 2. Database Container 3. Seafile Notification Server # This specific setup increase the security of the seafile instance as the admin just need to forward 2 ports to the host: the WebGUI for the Seafile Server and the Notification Server port.",
+  "paths": [
+    {
+      "name": "Base directory",
+      "host": "/mnt/cache/appdata/Seafile/notification-server/config",
+      "container": "/shared",
+      "mode": "rw",
+      "description": "Config file storage",
+      "required": true
+    },
+    {
+      "name": "Logs directory",
+      "host": "/mnt/cache/appdata/Seafile/notification-server/logs",
+      "container": "/shared/logs",
+      "mode": "rw",
+      "description": "Log file storage",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8083",
+      "container": "8083",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MySQL DB Host",
+      "key": "SEAFILE_MYSQL_DB_HOST",
+      "value": "mariadb",
+      "description": "Use the container name of the DB or the IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MySQL DB Port",
+      "key": "SEAFILE_MYSQL_DB_PORT",
+      "value": "3306",
+      "description": "Change it if you used a custom port for the DB.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seafile DB User",
+      "key": "SEAFILE_MYSQL_DB_USER",
+      "value": "seafile",
+      "description": "If not sure you can find it in /conf/seafile.conf inside the seafile server container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seafile DB Password",
+      "key": "SEAFILE_MYSQL_DB_PASSWORD",
+      "value": "",
+      "description": "If not sure you can find it in /conf/seafile.conf inside the seafile server container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "CCNET DB Name",
+      "key": "SEAFILE_MYSQL_DB_CCNET_DB_NAME",
+      "value": "ccnet_db",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seafile DB Name",
+      "key": "SEAFILE_MYSQL_DB_SEAFILE_DB_NAME",
+      "value": "seafile_db",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Private Key",
+      "key": "JWT_PRIVATE_KEY",
+      "value": "",
+      "description": "If not sure you can find it in /conf/seafile.conf inside the seafile server container. Or you can create a new one but you have to change it also in seafile.conf inside de seafile server container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Log to STDOUT",
+      "key": "SEAFILE_LOG_TO_STDOUT",
+      "value": "false|true",
+      "description": "It shows the seafile notification server logs in the container logs. Useful for Debugging.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "NOTIFICATION_SERVER_LOG_LEVEL",
+      "value": "info|error|debug",
+      "description": "Use 'debug' if you want to know what is wrong.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "victoria-metrics",
+  "repo": "victoriametrics/victoria-metrics:v1.118.0",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/victoriametrics/victoria-metrics",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "-envflag.enable",
+  "web_ui_url": "http://[IP]:[PORT:8428]/vmui",
+  "icon": "https://raw.githubusercontent.com/alex-red/unraid-ca-templates/master/templates/images/victoria-metrics-logo.png",
+  "project": "https://github.com/VictoriaMetrics/VictoriaMetrics",
+  "description": "VictoriaMetrics is a fast, cost-effective and scalable monitoring solution and time series database. TLDR: It is a faster, more lightweight replacement to InfluxDB/TimescaleDB/etc (up to 20x faster data digestion, up to 7-10x less ram usage). Can be used in place of InfluxDB in many apps such as HomeAssistant. Includes a great web UI for query exploration. For HomeAssistant: drop in replacement for InfluxDB, see https://community.home-assistant.io/t/influxdb-vs-victoriametrics/453361 Git repository: https://github.com/VictoriaMetrics/VictoriaMetrics Dockerhub: https://hub.docker.com/r/victoriametrics/victoria-metrics Website: https://victoriametrics.com VictoriaMetrics prominent features: - Long-term storage for Prometheus. - Drop-in replacement for Prometheus and Graphite in Grafana. - Easy setup and operation with a single executable and configuration via command-line flags. - Fast backups with vmbackup/vmrestore tools. - Implements MetricsQL query language. - Global query view for multiple data sources. - High performance and scalability, outperforming InfluxDB and TimescaleDB by up to 20x. - Efficient RAM usage, 10x less than InfluxDB and up to 7x less than others. - Optimized for high-churn time series data. - High data compression, storing up to 70x more data points in limited storage. - Ideal for high-latency IO and low IOPS storage. - Can substitute moderately sized clusters of competing solutions. - Protects data from corruption on unclean shutdown. - Supports various metrics protocols, including Prometheus, InfluxDB, Graphite, OpenTSDB, and more. - Offers stream aggregation, metrics relabeling, and series limiting. - Suitable for diverse data sources like APM, Kubernetes, IoT, financial data, and more. - Open source cluster version. - Compatible with NFS-based storages like Amazon EFS and Google Filestore.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/victoria-metrics",
+      "container": "/victoria-metrics-data",
+      "mode": "rw",
+      "description": "Data directory, includes config and the actual DB",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8428",
+      "container": "8428",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Retention Period",
+      "key": "retentionPeriod",
+      "value": "99y",
+      "description": "Data with timestamps outside the retentionPeriod is automatically deleted. The minimum retentionPeriod is 24h or 1d.vThe following optional suffixes are supported: h (hour), d (day), w (week), y (year). If suffix isn't set, then the duration is counted in months (default 1m).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Scrape File",
+      "key": "promscrape_config",
+      "value": "",
+      "description": "Location of promscrape config in the container. For example: /victoria-metrics-data/prometheus.yml. Disabled if nothing is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Scrape Strictly Parse",
+      "key": "promscrape_config_strictParse",
+      "value": "false",
+      "description": "Set true to only parse valid promscrape configs. Incompatible fields: remote_write =&gt; -remoteWrite* remote_read =&gt; not supported rule_files and alerting =&gt; these sections are supported by vmalert.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

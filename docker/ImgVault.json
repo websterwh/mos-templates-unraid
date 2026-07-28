@@ -1,0 +1,82 @@
+{
+  "name": "ImgVault",
+  "repo": "ghcr.io/tjindarr/imgvault:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/tjindarr/imgvault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Tjindarr/ImgVault/main/icon.png",
+  "project": "https://github.com/Tjindarr/ImgVault",
+  "description": "Self-hosted photo and video vault \u2014 all-in-one. Everything (FastAPI backend, SQLite database, Nginx, React frontend) runs in a single container. No external database, Redis, or sidecar containers needed; all metadata and thumbnails are stored locally on your Unraid array. Automatically indexes your media library, extracts EXIF metadata, generates WebP thumbnails, reverse-geocodes GPS coordinates, detects duplicates and similar photos, and serves everything via a fast modern web UI with map view, timeline, search, albums and trash. Installable as a PWA on mobile.",
+  "paths": [
+    {
+      "name": "Photos (source)",
+      "host": "/mnt/cache/Pictures",
+      "container": "/data/photos",
+      "mode": "rw",
+      "description": "Path to your photo and video library (will be indexed)",
+      "required": true
+    },
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/imgvault/db",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "SQLite database storage",
+      "required": true
+    },
+    {
+      "name": "Thumbnails",
+      "host": "/mnt/cache/appdata/imgvault/thumbs",
+      "container": "/data/thumbnails",
+      "mode": "rw",
+      "description": "WebP thumbnail cache",
+      "required": true
+    },
+    {
+      "name": "Transcoded videos",
+      "host": "/mnt/cache/appdata/imgvault/transcoded",
+      "container": "/data/transcoded",
+      "mode": "rw",
+      "description": "Cache for transcoded videos (MOV/MKV/AVI -> MP4)",
+      "required": true
+    },
+    {
+      "name": "Converted images",
+      "host": "/mnt/cache/appdata/imgvault/converted",
+      "container": "/data/converted",
+      "mode": "rw",
+      "description": "Cache for converted images (HEIC/TIFF -> JPEG)",
+      "required": true
+    },
+    {
+      "name": "Trash",
+      "host": "/mnt/cache/appdata/imgvault/trash",
+      "container": "/data/trash",
+      "mode": "rw",
+      "description": "Recycle bin (auto-purged after 30 days)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8180",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port for the ImgVault web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

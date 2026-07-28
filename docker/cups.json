@@ -1,0 +1,67 @@
+{
+  "name": "cups",
+  "repo": "ydkn/cups",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/olbat/cupsd",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:631]/",
+  "icon": "https://raw.githubusercontent.com/josecoelho/unraid-templates/main/cups/cups.png",
+  "project": null,
+  "description": "Docker image including CUPS print server and printing drivers (installed from the Debian packages). Connect to the Cups server at http://127.0.0.1:631 Add printers: Administration > Printers > Add Printer Note: The admin user/password for the Cups server is admin/admin",
+  "paths": [
+    {
+      "name": "USB mapping",
+      "host": "/var/run/dbus",
+      "container": "/var/run/dbus",
+      "mode": "rw",
+      "description": "Container Path: /var/run/dbus",
+      "required": false
+    },
+    {
+      "name": "Config file",
+      "host": "/mnt/cache/appdata/cups/",
+      "container": "/etc/cups/",
+      "mode": "rw",
+      "description": "Cups appdata",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web interface port",
+      "host": "631",
+      "container": "631",
+      "protocol": "tcp",
+      "description": "Container Port: 631",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "admin",
+      "description": "Customise admin password",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Printer",
+      "host": "/dev/bus/usb/003/009",
+      "container": "",
+      "description": "USB path to your printer. Run `lsusb` and find your printer. E.g.: Bus 003 Device 009: ID 03f0:c111 Hewlett-Packard Deskjet 1510 It's the Bus 003 Device 009, so the path to is should be: /dev/bus/usb/003/009",
+      "required": true
+    }
+  ],
+  "labels": []
+}

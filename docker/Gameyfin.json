@@ -1,0 +1,125 @@
+{
+  "name": "Gameyfin",
+  "repo": "ghcr.io/gameyfin/gameyfin:2",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/gameyfin/gameyfin/pkgs/container/gameyfin",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/gameyfin/gameyfin/refs/heads/main/assets/v2/Avatar.png",
+  "project": "https://gameyfin.org",
+  "description": "Manage your video games. Gameyfin turns your video game files into a beautiful webpage. Everything is stored locally (except videos) so its LAN-friendly as well!",
+  "paths": [
+    {
+      "name": "Video game library",
+      "host": "/path/on/host/to/video/game/files",
+      "container": "/games/my-video-game-library",
+      "mode": "rw",
+      "description": "Add as many video game files as you want",
+      "required": true
+    },
+    {
+      "name": "Database Directory",
+      "host": "/mnt/cache/appdata/gameyfin/db",
+      "container": "/opt/gameyfin/db",
+      "mode": "rw",
+      "description": "Where Gameyfins database will be stored",
+      "required": true
+    },
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/gameyfin/data",
+      "container": "/opt/gameyfin/data",
+      "mode": "rw",
+      "description": "Where Gameyfins media (images) will be stored",
+      "required": true
+    },
+    {
+      "name": "Plugin Data Directory",
+      "host": "/mnt/cache/appdata/gameyfin/plugindata",
+      "container": "/opt/gameyfin/plugindata",
+      "mode": "rw",
+      "description": "Where the installed plugins will store their data",
+      "required": true
+    },
+    {
+      "name": "Logs Directory",
+      "host": "/mnt/cache/appdata/gameyfin/logs",
+      "container": "/opt/gameyfin/logs",
+      "mode": "rw",
+      "description": "Where Gameyfins logs will be stored",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Gameyfin Web UI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for Gameyfins web UI (if you do not use a reverse proxy)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tracker port for Torrent plugin",
+      "host": "6969",
+      "container": "6969",
+      "protocol": "tcp",
+      "description": "Set this if you plan to use the Torrent plugin",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Seed client port for Torrent plugin",
+      "host": "6881",
+      "container": "6881",
+      "protocol": "tcp",
+      "description": "Set this if you plan to use the Torrent plugin",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App Key",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "16, 24 or 32 byte long Base64 encoded string, which can be generated using the following command: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Set this if you are using Gameyfin with a reverse proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Set this if you want to run Gameyfin with a specific user ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Set this if you want to run Gameyfin with a specific group ID",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

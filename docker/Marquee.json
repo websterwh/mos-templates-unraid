@@ -1,0 +1,105 @@
+{
+  "name": "Marquee",
+  "repo": "jamisonfitz/marquee:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/jamisonfitz/marquee",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8084]/",
+  "icon": "https://raw.githubusercontent.com/Jamisonfitz/marquee/main/assets/marquee-icon.png",
+  "project": "https://github.com/Jamisonfitz/marquee",
+  "description": "Marquee turns a Google Nest Hub into a cinematic Plex now-playing display. When you press play it casts a designed card with the poster, title logo, plot, Rotten Tomatoes and IMDb scores, media details, and live progress; when the credits roll the Hub returns to ambient mode automatically. Five hand-designed templates (Spotlight, Split, Hero, Lower Third, Big Clock), four themes plus a custom accent color, and a drag-and-drop block editor with instant preview. Cast devices are auto-discovered on your LAN, so setup is: add your Plex token, open the settings page, press Scan, pick your Hub. Requires Plex Media Server and a Google Cast device (Nest Hub, Chromecast with a screen) on the same LAN. Runs LAN-only with no login and no cloud; your Plex token never leaves the server. Settings page at port 8084.",
+  "paths": [
+    {
+      "name": "Settings",
+      "host": "/mnt/cache/appdata/marquee",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent settings.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Nest Hub IP",
+      "key": "HUB_IP",
+      "value": "",
+      "description": "Optional \u2014 leave empty and pick your Hub with Scan on the settings page, or set the Hub's static LAN IP here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Card URL",
+      "key": "PAGE_URL",
+      "value": "http://[SERVER-IP]:8084/image",
+      "description": "URL the Hub loads, so it must be this server's LAN IP \u2014 localhost will not work here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_HOST",
+      "value": "http://localhost:32400",
+      "description": "Plex Media Server URL. Keep localhost if Plex runs on this Unraid server; otherwise use its LAN IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Plex X-Plex-Token; treat it like a password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Plex Users",
+      "key": "PLEX_USERS",
+      "value": "",
+      "description": "Comma-separated Plex usernames that trigger the marquee. Leave empty to react to everyone streaming from the server, including shared users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Devices",
+      "key": "PLEX_DEVICES",
+      "value": "",
+      "description": "Comma-separated player/device names that trigger the marquee (as shown on the settings page under Active sessions). Leave empty for any device. Also editable live in settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDb API Key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional key for credits-scene badges.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Poll Interval",
+      "key": "POLL_SECONDS",
+      "value": "5",
+      "description": "Seconds between Plex checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Port",
+      "key": "SERVE_PORT",
+      "value": "8084",
+      "description": "Web UI port.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

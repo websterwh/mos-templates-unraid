@@ -1,0 +1,163 @@
+{
+  "name": "Only-Fan-Controller",
+  "repo": "ghcr.io/sethpjohnson/only-fan-controller:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8086]/dashboard/",
+  "icon": "https://raw.githubusercontent.com/sethpjohnson/only-fan-controller/main/icon.png",
+  "project": "https://github.com/sethpjohnson/only-fan-controller",
+  "description": "Quiet, threshold-based fan control for Dell PowerEdge (iDRAC) servers, with optional NVIDIA GPU monitoring and Home Assistant integration.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/only-fan-controller/data",
+      "container": "/var/lib/only-fan-controller",
+      "mode": "rw",
+      "description": "History database storage",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI / API Port",
+      "host": "8086",
+      "container": "8086",
+      "protocol": "tcp",
+      "description": "Dashboard and API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "iDRAC Host",
+      "key": "IDRAC_HOST",
+      "value": "",
+      "description": "iDRAC IP address (IPMI over LAN must be enabled)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "iDRAC Username",
+      "key": "IDRAC_USERNAME",
+      "value": "root",
+      "description": "iDRAC username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "iDRAC Password",
+      "key": "IDRAC_PASSWORD",
+      "value": "",
+      "description": "iDRAC password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "API Token",
+      "key": "API_TOKEN",
+      "value": "",
+      "description": "Optional bearer token to change fans/hints via the HTTP API from other LAN hosts. Blank = local host only (does not affect Home Assistant/MQTT control).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable MQTT (Home Assistant)",
+      "key": "MQTT_ENABLED",
+      "value": "false",
+      "description": "Enable the Home Assistant MQTT bridge (self-registers via MQTT Discovery)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Broker",
+      "key": "MQTT_BROKER",
+      "value": "",
+      "description": "MQTT broker. Just the IP works (e.g. 192.168.1.10); host:port or tcp://host:port also fine. Defaults to port 1883 (Mosquitto). This is the MQTT broker, NOT Home Assistant's web UI on 8123.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Username",
+      "key": "MQTT_USERNAME",
+      "value": "",
+      "description": "MQTT broker username (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "MQTT broker password (optional)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable GPU Monitoring",
+      "key": "GPU_ENABLED",
+      "value": "false",
+      "description": "Monitor NVIDIA GPU temps. If you enable this, also add --runtime=nvidia to Extra Parameters (requires the Unraid NVIDIA Driver plugin). Leave off on CPU-only systems.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Idle Fan Speed %",
+      "key": "FAN_IDLE_SPEED",
+      "value": "20",
+      "description": "Base fan speed when temps are below thresholds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CPU Threshold C",
+      "key": "FAN_CPU_THRESHOLD",
+      "value": "65",
+      "description": "Bump fans above this CPU temp. Keep below the 85C critical limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GPU Threshold C",
+      "key": "FAN_GPU_THRESHOLD",
+      "value": "60",
+      "description": "Bump fans above this GPU temp. Keep below the 90C critical limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fan Step Size %",
+      "key": "FAN_STEP_SIZE",
+      "value": "10",
+      "description": "Fan increase per 5C over threshold",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cooldown Delay s",
+      "key": "FAN_COOLDOWN_DELAY",
+      "value": "60",
+      "description": "Seconds below threshold before ramping fans down",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check Interval s",
+      "key": "CHECK_INTERVAL",
+      "value": "10",
+      "description": "Seconds between temperature checks",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

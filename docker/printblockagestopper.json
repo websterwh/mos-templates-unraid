@@ -1,0 +1,116 @@
+{
+  "name": "print-blockage-stopper",
+  "repo": "abadrdh/print-blockage-stopper",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/abadrdh/print-blockage-stopper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-drop=ALL --cap-add=DAC_OVERRIDE --cap-add=CHOWN --cap-add=FOWNER --cap-add=SETUID --cap-add=SETGID --security-opt=no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8631]",
+  "icon": "https://raw.githubusercontent.com/ahmedbadr3/print-blockage-stopper/main/icon.png",
+  "project": "https://github.com/ahmedbadr3/print-blockage-stopper",
+  "description": "Automated maintenance prints for any network printer (especially pigment printers like Canon imagePROGRAF, Epson SureColor, HP DesignJet, etc.). Sends a small test image on a configurable schedule (default: every 3 days) to keep all ink channels flowing and prevent costly pigment clogs and cleaning cycles. Features: multi-printer support, network printer discovery, per-printer schedules, smart skip (won't print if the printer was recently used), preset test images for 4/6/8/11/12-colour printers, custom image upload, notifications (webhook, email, Home Assistant), and a modern React dashboard with dark mode.",
+  "paths": [
+    {
+      "name": "Data / Logs",
+      "host": "/mnt/cache/appdata/print-blockage-stopper",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for printer config, logs, uploads, and CUPS state.",
+      "required": true
+    },
+    {
+      "name": "Unraid Notifications",
+      "host": "/usr/local/emhttp/webGui/scripts/notify",
+      "container": "/unraid/notify",
+      "mode": "rw",
+      "description": "Mount Unraid's notification script to get alerts on print failures. Leave default for standard Unraid installs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Dashboard",
+      "host": "8631",
+      "container": "8631",
+      "protocol": "tcp",
+      "description": "Web dashboard for managing printers, schedules, and test images.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CUPS Web UI",
+      "host": "631",
+      "container": "631",
+      "protocol": "tcp",
+      "description": "CUPS print server interface for advanced monitoring.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Printer IP Address",
+      "key": "PRINTER_IP",
+      "value": "",
+      "description": "(Optional) IP address of a printer to auto-add on first boot. You can also add printers from the dashboard after starting the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Print Schedule",
+      "key": "SCHEDULE",
+      "value": "0 10 */3 * *",
+      "description": "Default cron expression for new printers. Can be customised per-printer in the dashboard. Default: every 3 days at 10 AM.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Paper Size",
+      "key": "PAPER_SIZE",
+      "value": "A4",
+      "description": "Default paper size for new printers (e.g., A4, Letter, A3). Can be changed per-printer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Skip Hours",
+      "key": "SKIP_HOURS",
+      "value": "72",
+      "description": "Default hours to skip maintenance print if printer was recently used. Adjustable per-printer in the dashboard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connection Type",
+      "key": "CONNECTION",
+      "value": "ipp",
+      "description": "Default connection type for new printers: 'ipp' (recommended) or 'socket' (port 9100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook URL",
+      "key": "WEBHOOK_URL",
+      "value": "",
+      "description": "(Optional) URL for print success/failure notifications. Works with Slack incoming webhooks, Discord webhooks, ntfy.sh, or any endpoint accepting JSON POST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Port",
+      "key": "PRINTER_PORT",
+      "value": "9100",
+      "description": "Default port for socket connections (only used when Connection Type is 'socket').",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

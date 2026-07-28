@@ -1,0 +1,492 @@
+{
+  "name": "mem0-aio",
+  "repo": "jsonbored/mem0-aio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/mem0-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/mem0.jpeg",
+  "project": "https://github.com/JSONbored/mem0-aio",
+  "description": "Mem0 OpenMemory gives LLM apps a persistent memory layer with a web UI, MCP/API server, and pluggable vector backends. All-In-One Unraid Edition `mem0-aio` packages the OpenMemory UI, API, and embedded Qdrant into one Unraid-first container so beginners can get a working first boot without wiring a separate vector database. Quick Install (Beginners) 1. Install the template and leave the default appdata path in place. 2. For the fastest hosted path, set [code]OPENAI_API_KEY[/code]. 3. For the normal local-LLM homelab path, set [code]OLLAMA_BASE_URL[/code] to your external Ollama root URL and set the Ollama chat/embed models you actually have pulled. 4. Start the container and open the Web UI. The wrapper will auto-default to Ollama when [code]OLLAMA_BASE_URL[/code] is set and no explicit provider overrides are supplied. 5. Leave the direct API/MCP port unpublished unless you intentionally need external MCP/API clients behind your own access controls. If you publish it, set [code]MEM0_API_HOST=0.0.0.0[/code] and protect that endpoint yourself. Advanced View - Leave storage defaults in place for the bundled SQLite + Qdrant path. - If you use external vector storage, configure exactly one backend. The wrapper rejects competing selectors such as Redis plus PGVector plus external Qdrant because OpenMemory can only initialize one vector store at a time. - Provider overrides are available for native Ollama, OpenAI-compatible endpoints, hosted model providers, and supported external vector stores, but only set the fields your chosen path needs. Important Notes - This wrapper is meant to simplify first boot on Unraid, not remove the real complexity of model/provider credentials and external-service tuning. - Actual memory generation still requires a valid LLM/embedder configuration. Leaving [code]OPENAI_API_KEY[/code] blank is fine if you are using Ollama, but you still need to provide a reachable Ollama endpoint and valid model names. - Native Ollama uses the root API URL such as [code]http://host.docker.internal:11434[/code], not an OpenAI-compatible [code]/v1[/code] path. If your reverse proxy adds auth and only exposes an OpenAI-style [code]/v1[/code] endpoint, use the advanced OpenAI-compatible base URL fields instead of the native Ollama provider path. - The embedded Qdrant service is intentionally bundled for the beginner AIO path; it is skipped only when one valid external vector backend is configured.",
+  "paths": [
+    {
+      "name": "AppData - OpenMemory Storage",
+      "host": "/mnt/cache/appdata/mem0-aio/storage",
+      "container": "/mem0/storage",
+      "mode": "rw",
+      "description": "Persistent storage for the SQLite database, embedded Qdrant data, and AIO state.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Main OpenMemory web interface port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API / MCP Port",
+      "host": "8765",
+      "container": "8765",
+      "protocol": "tcp",
+      "description": "Optional direct API and MCP host port. Leave blank for normal UI-only access. If you publish this port, also set [Security] API Bind Address (MEM0_API_HOST) to 0.0.0.0 and protect access at your network or reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional hosted-provider quick start. Leave blank if you plan to use Ollama instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default User ID",
+      "key": "USER",
+      "value": "default_user",
+      "description": "Default user namespace used by the API and MCP server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Base URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "",
+      "description": "Native external Ollama root URL. Example: http://host.docker.internal:11434 or http://192.168.1.10:11434. When set, the wrapper auto-defaults to Ollama if no explicit provider override is supplied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Chat Model",
+      "key": "LLM_MODEL",
+      "value": "",
+      "description": "Optional Ollama chat model override. Set this to a model you already have pulled on your Ollama server. Example: llama3.1:latest or mistral:7b",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Embed Model",
+      "key": "EMBEDDER_MODEL",
+      "value": "",
+      "description": "Optional Ollama embedding model override. Set this to a model you already have pulled on your Ollama server. Example: nomic-embed-text",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Security] API Bind Address (MEM0_API_HOST)",
+      "key": "MEM0_API_HOST",
+      "value": "127.0.0.1",
+      "description": "Bind address for the internal API/MCP server. Keep 127.0.0.1 for UI-only access; use 0.0.0.0 only when deliberately publishing the API/MCP port behind your own LAN, VPN, firewall, or reverse-proxy controls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[UI] Browser API URL",
+      "key": "NEXT_PUBLIC_API_URL",
+      "value": "/openmemory-api",
+      "description": "Default same-origin proxy path for the web UI. Leave this alone unless you intentionally want the browser to call a different API URL directly.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[UI] Public User ID",
+      "key": "NEXT_PUBLIC_USER_ID",
+      "value": "default_user",
+      "description": "Default user ID shown in the browser client. Usually keep this aligned with USER.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[LLM] Provider",
+      "key": "LLM_PROVIDER",
+      "value": "auto",
+      "description": "Advanced provider override. Leave this on auto for the normal wrapper behavior: OpenAI when no Ollama URL is set, or Ollama when OLLAMA_BASE_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[LLM] API Key",
+      "key": "LLM_API_KEY",
+      "value": "",
+      "description": "Optional provider-specific API key if you are not using OPENAI_API_KEY or if you want the LLM to use a different secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[LLM] Base URL",
+      "key": "LLM_BASE_URL",
+      "value": "",
+      "description": "Optional custom LLM API base URL for OpenAI-compatible or provider-specific endpoints. Use this for auth-protected OpenAI-style proxies, usually ending in /v1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[LLM] Ollama Host Override",
+      "key": "OLLAMA_HOST",
+      "value": "",
+      "description": "Optional host override used by upstream Docker Ollama auto-detection. Example: host.docker.internal",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Embedder] Provider",
+      "key": "EMBEDDER_PROVIDER",
+      "value": "auto",
+      "description": "Advanced embedder provider override. Leave this on auto for the normal wrapper behavior so the embedder follows the matching OpenAI or Ollama path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Embedder] API Key",
+      "key": "EMBEDDER_API_KEY",
+      "value": "",
+      "description": "Optional provider-specific embedder API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Embedder] Base URL",
+      "key": "EMBEDDER_BASE_URL",
+      "value": "",
+      "description": "Optional custom embedder API base URL. Use this for OpenAI-compatible or separate embedding endpoints, including auth-protected proxies that expose /v1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Embedder] Dimensions Override",
+      "key": "EMBEDDER_DIMENSIONS",
+      "value": "",
+      "description": "Optional explicit embedding dimension override for vector-store setup. Usually leave blank and let the wrapper auto-detect it, but set this if your embedder is custom or auto-detection cannot determine the correct size.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "sqlite:////mem0/storage/openmemory.db",
+      "description": "Advanced override for the API database connection. Leave the default SQLite path for normal AIO usage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Legacy] API_KEY Alias",
+      "key": "API_KEY",
+      "value": "",
+      "description": "Legacy upstream alias used by older OpenMemory examples that referenced env:API_KEY. Leave blank unless you intentionally depend on that older pattern.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:Qdrant] URL",
+      "key": "QDRANT_URL",
+      "value": "",
+      "description": "External Qdrant URL, for example http://qdrant:6333 or https://qdrant.example.com. Use this instead of external QDRANT_HOST when auth or HTTPS is involved. Do not combine with Redis, PGVector, or other vector backends.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Qdrant] Host",
+      "key": "QDRANT_HOST",
+      "value": "127.0.0.1",
+      "description": "Bundled Qdrant host by default. Leave as 127.0.0.1 for the AIO path; set to an external host only when Qdrant is the one external vector backend you want.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Qdrant] Port",
+      "key": "QDRANT_PORT",
+      "value": "6333",
+      "description": "Qdrant port for the bundled or selected external Qdrant backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Qdrant] API Key",
+      "key": "QDRANT_API_KEY",
+      "value": "",
+      "description": "API key for authenticated external Qdrant. Requires QDRANT_URL or an external QDRANT_HOST; the bundled Qdrant service is not started with API-key auth.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:Qdrant] Disable Telemetry",
+      "key": "QDRANT__TELEMETRY_DISABLED",
+      "value": "true",
+      "description": "Controls Qdrant usage-statistics reporting for the bundled embedded vector store. Default is true so the AIO image stays privacy-first by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Chroma] Host",
+      "key": "CHROMA_HOST",
+      "value": "",
+      "description": "External Chroma host. Requires CHROMA_PORT and must be the only external vector backend configured.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Chroma] Port",
+      "key": "CHROMA_PORT",
+      "value": "",
+      "description": "External Chroma port. Requires CHROMA_HOST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Weaviate] Cluster URL",
+      "key": "WEAVIATE_CLUSTER_URL",
+      "value": "",
+      "description": "External Weaviate cluster URL. Use this or WEAVIATE_HOST/WEAVIATE_PORT, and do not combine with another vector backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Weaviate] Host",
+      "key": "WEAVIATE_HOST",
+      "value": "",
+      "description": "External Weaviate host. Requires WEAVIATE_PORT unless WEAVIATE_CLUSTER_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Weaviate] Port",
+      "key": "WEAVIATE_PORT",
+      "value": "",
+      "description": "External Weaviate port. Requires WEAVIATE_HOST unless WEAVIATE_CLUSTER_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Redis] URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Redis-backed vector-store URL. Example: redis://:password@host:6379/0. This selects Redis as the vector backend; do not combine with PGVector or Qdrant.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:PGVector] Host",
+      "key": "PG_HOST",
+      "value": "",
+      "description": "External PostgreSQL/pgvector host. Requires PG_PORT and must be the only external vector backend configured.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:PGVector] Port",
+      "key": "PG_PORT",
+      "value": "",
+      "description": "External PostgreSQL/pgvector port. Required when any PG_* vector-store setting is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:PGVector] Database",
+      "key": "PG_DB",
+      "value": "",
+      "description": "External PostgreSQL database name for pgvector. Defaults to mem0 when PGVector is selected and this is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:PGVector] User",
+      "key": "PG_USER",
+      "value": "",
+      "description": "External PostgreSQL username for pgvector. Defaults to mem0 when PGVector is selected and this is blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:PGVector] Password",
+      "key": "PG_PASSWORD",
+      "value": "",
+      "description": "External PostgreSQL password for pgvector. Defaults to mem0 when PGVector is selected and this is blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:Milvus] Host",
+      "key": "MILVUS_HOST",
+      "value": "",
+      "description": "Optional external Milvus host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Milvus] Port",
+      "key": "MILVUS_PORT",
+      "value": "",
+      "description": "Optional external Milvus port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Milvus] Token",
+      "key": "MILVUS_TOKEN",
+      "value": "",
+      "description": "Optional Milvus token for authenticated deployments.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:Milvus] Database Name",
+      "key": "MILVUS_DB_NAME",
+      "value": "",
+      "description": "Optional Milvus database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] Host",
+      "key": "ELASTICSEARCH_HOST",
+      "value": "",
+      "description": "Optional external Elasticsearch host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] Port",
+      "key": "ELASTICSEARCH_PORT",
+      "value": "",
+      "description": "Optional external Elasticsearch port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] User",
+      "key": "ELASTICSEARCH_USER",
+      "value": "",
+      "description": "Optional Elasticsearch username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] Password",
+      "key": "ELASTICSEARCH_PASSWORD",
+      "value": "",
+      "description": "Optional Elasticsearch password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] Use SSL",
+      "key": "ELASTICSEARCH_USE_SSL",
+      "value": "true",
+      "description": "Whether the Elasticsearch HTTP endpoint uses HTTPS. Default is true because modern Elasticsearch containers usually expose HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:Elasticsearch] Verify Certs",
+      "key": "ELASTICSEARCH_VERIFY_CERTS",
+      "value": "true",
+      "description": "Whether to verify Elasticsearch TLS certificates. Keep true for external HTTPS backends; set false only for a trusted self-signed endpoint on a private network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:OpenSearch] Host",
+      "key": "OPENSEARCH_HOST",
+      "value": "",
+      "description": "Optional external OpenSearch host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:OpenSearch] Port",
+      "key": "OPENSEARCH_PORT",
+      "value": "",
+      "description": "Optional external OpenSearch port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:OpenSearch] User",
+      "key": "OPENSEARCH_USER",
+      "value": "",
+      "description": "Optional OpenSearch username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:OpenSearch] Password",
+      "key": "OPENSEARCH_PASSWORD",
+      "value": "",
+      "description": "Optional OpenSearch password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Vector Store:OpenSearch] Use SSL",
+      "key": "OPENSEARCH_USE_SSL",
+      "value": "true",
+      "description": "Whether the OpenSearch HTTP endpoint uses HTTPS. Default is true because modern OpenSearch containers usually expose HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:OpenSearch] Verify Certs",
+      "key": "OPENSEARCH_VERIFY_CERTS",
+      "value": "true",
+      "description": "Whether to verify OpenSearch TLS certificates. Keep true for external HTTPS backends; set false only for a trusted self-signed endpoint on a private network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Vector Store:FAISS] Path",
+      "key": "FAISS_PATH",
+      "value": "",
+      "description": "Optional FAISS storage path inside the container or a mounted host path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Backup Export] User ID Filter",
+      "key": "EXPORT_USER_ID",
+      "value": "",
+      "description": "Optional one-shot filter for the bundled upstream export helper script. Only set this if you intentionally run the export tooling inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Backup Export] App ID Filter",
+      "key": "EXPORT_APP_ID",
+      "value": "",
+      "description": "Optional one-shot filter for the bundled upstream export helper script.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Backup Export] From Date (epoch)",
+      "key": "EXPORT_FROM_DATE",
+      "value": "",
+      "description": "Optional one-shot export filter. Epoch timestamp in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Backup Export] To Date (epoch)",
+      "key": "EXPORT_TO_DATE",
+      "value": "",
+      "description": "Optional one-shot export filter. Epoch timestamp in seconds.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

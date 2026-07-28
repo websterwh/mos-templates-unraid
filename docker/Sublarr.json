@@ -1,0 +1,107 @@
+{
+  "name": "Sublarr",
+  "repo": "ghcr.io/abrechen2/sublarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/Abrechen2/sublarr/pkgs/container/sublarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5765]/",
+  "icon": "https://raw.githubusercontent.com/Abrechen2/sublarr/master/logo.png",
+  "project": "https://github.com/Abrechen2/sublarr",
+  "description": "Self-hosted subtitle manager for anime and media libraries \u2014 a *arr-style companion (and Bazarr alternative) that automatically searches, scores and downloads the best subtitle, then gives you tools to edit, sync and convert it. Runs entirely on your LAN; no cloud required. **What it does:** - Searches 21 subtitle providers in parallel (AnimeTosho, Jimaku, OpenSubtitles, SubDL, Subscene, Subf2m, Subsource, SubsDump, Addic7ed, BetaSeries, Titlovi, Titrari, TVSubtitles, Gestdown, Kitsunekko, Napisy24, Podnapisi, YIFY, Zimuku, LegendasDivX, TurkceAltyazi) plus embedded subtitle extraction. - ASS-first scoring with format, dialect, sync-quality and uploader-trust weighting; smart de-duplication; per-provider circuit breakers. - Sonarr/Radarr webhook integration (multi-instance), Jellyfin/Emby/Plex/Kodi library refresh, AniDB absolute-episode-order handling. - Standalone mode (no *arr required): watches a folder and reads .nfo metadata. - Subtitle toolbox: Aegisub-class waveform editor, ffsubsync/alass sync, format conversion, an 18-step post-processing pipeline, batch OCR and Whisper fallback. - Optional LLM translation (Ollama / DeepL / Google / LibreTranslate / OpenAI-compatible) \u2014 experimental; quality varies. **Setup:** Sublarr is self-contained \u2014 it stores everything in an embedded SQLite database, so **no separate database container is required**. After the container is healthy, open http:// :[PORT:5765] and the first-run onboarding wizard walks you through language selection, provider keys and automation. Sonarr/Radarr are optional. Map the **Media Path** to the same library root your Sonarr/Radarr/Jellyfin see, so subtitle files land next to your videos. **Configuration is UI-first.** This template only exposes the handful of boot-level settings (ports, paths, IDs, optional API key / database / log level). Everything else \u2014 Sonarr/Radarr connections, provider API keys, language profiles, translation backends, path mapping, automation \u2014 is configured in the web UI under Settings and stored in the database. There is no need to set those as environment variables. **Optional backends:** PostgreSQL and Redis are supported for larger setups via the `SUBLARR_DATABASE_URL` / `SUBLARR_REDIS_URL` variables (advanced) \u2014 point them at your own containers. Not needed for normal use. **Optional translation (experimental):** install the Ollama Community App and pull a general model (e.g. `qwen2.5:14b-instruct`), then point Sublarr at it under Settings \u2192 Translation in the web UI (e.g. `http://host.docker.internal:11434`). Disabled by default. **Full documentation:** https://sublarr.de/docs/ \u00b7 **Source:** https://github.com/Abrechen2/sublarr",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/sublarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent application data \u2014 SQLite database, plugins, backups and logs. Single volume; nothing else needs to be mounted for normal use.",
+      "required": true
+    },
+    {
+      "name": "Media Path",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Root of your media library. Must be the same path your Sonarr/Radarr/Jellyfin use so subtitles are written next to the video files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5765",
+      "container": "5765",
+      "protocol": "tcp",
+      "description": "Host port for the Sublarr web UI and API. Swagger UI is available at /api/docs.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership. Unraid default is 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership. Unraid default is 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone, e.g. Europe/Berlin or UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API Key",
+      "key": "SUBLARR_API_KEY",
+      "value": "",
+      "description": "Optional API key (X-Api-Key header) protecting the API. Strongly recommended if the port is exposed beyond your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database URL",
+      "key": "SUBLARR_DATABASE_URL",
+      "value": "",
+      "description": "Advanced: PostgreSQL DSN to use Postgres instead of the built-in SQLite, e.g. postgresql://sublarr:PASSWORD@host.docker.internal:5432/sublarr. Leave empty for SQLite (recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis URL",
+      "key": "SUBLARR_REDIS_URL",
+      "value": "",
+      "description": "Advanced: Redis connection string for the job queue, e.g. redis://host.docker.internal:6379/0. Leave empty to use the in-process queue (recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "SUBLARR_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Advanced: log verbosity \u2014 DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

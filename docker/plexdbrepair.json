@@ -1,0 +1,113 @@
+{
+  "name": "plex-dbrepair",
+  "repo": "bmmbmm01/plex-dbrepair",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/bmmbmm01/plex-dbrepair",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname dbrepair",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/plex-logo.png",
+  "project": "https://github.com/bmartino1/plex-dbrepair-docker",
+  "description": "You must mount your Plex container's appdata folder into this container. Example: /mnt/user/appdata/plex Inside this folder you should see the directory structure: Library/Application Support/Plex Media Server Do NOT mount the Library folder itself. Mount the parent Plex appdata directory. The script runs once automatically and repairs the Plex database, then the container exits. No Plex container or Plex process should be running during repair. Check container logs to monitor progress. You may also open the console and run \"top\" to verify activity.",
+  "paths": [
+    {
+      "name": "Plex Appdata Folder",
+      "host": "/mnt/cache/appdata/plex_Supply_the_Plex_appdata_folder_here",
+      "container": "/config",
+      "mode": "rw",
+      "description": "THE OTHER CONTAINERS APPDATA FOLDER!!! The Path to your Plex container appdata folder (the folder that CONTAINS the 'Other Plex Containers Library' directory). Example: /mnt/user/appdata/plex. Inside this folder, you should see 'Library'. Do NOT mount the Library folder itself!",
+      "required": true
+    },
+    {
+      "name": "Docker Run Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required to manage Plex containers from Unraid.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DBREPAIR_MODE",
+      "key": "DBREPAIR_MODE",
+      "value": "automatic",
+      "description": "automatic (check, vacuum, reindex) \u00b7 check (integrity check only) \u00b7 vacuum (optimize database) \u00b7 repair (alias for vacuum) \u00b7 reindex (rebuild indexes) \u00b7 deflate (VACUUM INTO rewrite) \u00b7 prune (clear PhotoTranscoder cache)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_PLEX_KILL",
+      "key": "ALLOW_PLEX_KILL",
+      "value": "true",
+      "description": "T/F If enabled, the container will stop running Plex containers before database operations begin. Requires /var/run/docker.sock.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PLEX_CONTAINER_MATCH",
+      "key": "PLEX_CONTAINER_MATCH",
+      "value": "plex",
+      "description": "Pattern used to identify Plex containers to stop by name or image.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RESTART_PLEX",
+      "key": "RESTART_PLEX",
+      "value": "true",
+      "description": "T/F Restart Plex containers after repairs complete.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PRUNE_DAYS",
+      "key": "PRUNE_DAYS",
+      "value": "30",
+      "description": "Files older than this number of days will be removed from the PhotoTranscoder cache when using DBREPAIR_MODE=prune.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_BACKUPS",
+      "key": "ENABLE_BACKUPS",
+      "value": "false",
+      "description": "T/F Create timestamped database backups before any changes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RESTORE_LAST_BACKUP",
+      "key": "RESTORE_LAST_BACKUP",
+      "value": "false",
+      "description": "T/F Restore most recent backup and exit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXCLUDE_CONTAINER_NAMES",
+      "key": "EXCLUDE_CONTAINER_NAMES",
+      "value": "dbrepair,plex-dbrepair",
+      "description": "CSV list of containers that should never be stopped.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXCLUDE_IMAGE_REGEX",
+      "key": "EXCLUDE_IMAGE_REGEX",
+      "value": "plex-dbrepair",
+      "description": "Image regex used to avoid stopping the dbrepair container itself.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

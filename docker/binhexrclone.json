@@ -1,0 +1,212 @@
+{
+  "name": "binhex-rclone",
+  "repo": "ghcr.io/binhex/arch-rclone",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/binhex/arch-rclone/pkgs/container/arch-rclone",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5572]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/rclone-icon.png",
+  "project": "https://rclone.org",
+  "description": "Rclone is a command line program to manage files on cloud storage. It is a feature rich alternative to cloud vendors web storage interfaces. Over 40 cloud storage products support rclone including S3 object stores, business and consumer file storage services, as well as standard transfer protocols. Rclone has powerful cloud equivalents to the unix commands rsync, cp, mv, mount, ls, ncdu, tree, rm, and cat. Rclone's familiar syntax includes shell pipeline support, and --dry-run protection. It is used at the command line, in scripts or via its API. Users call rclone The Swiss army knife of cloud storage, and Technology indistinguishable from magic.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/rclone",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "This is the container path to your media files, e.g. movies, tv, music, pictures etc.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "5572",
+      "container": "5572",
+      "protocol": "tcp",
+      "description": "This is the Web UI port for the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Rclone Authorization",
+      "host": "53682",
+      "container": "53682",
+      "protocol": "tcp",
+      "description": "This is the Rclone authorization port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: RCLONE_CONFIG_PATH",
+      "key": "RCLONE_CONFIG_PATH",
+      "value": "/config/rclone/config/rclone.conf",
+      "description": "Specify the file path to your preconfigured rclone configuration file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_MEDIA_SHARES",
+      "key": "RCLONE_MEDIA_SHARES",
+      "value": "",
+      "description": "Specify the media shares to process in rclone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_REMOTE_NAME",
+      "key": "RCLONE_REMOTE_NAME",
+      "value": "remote",
+      "description": "Specify the remote name as defined in the rclone configuration file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_SLEEP_PERIOD",
+      "key": "RCLONE_SLEEP_PERIOD",
+      "value": "24h",
+      "description": "Specify the delay between re-runs of rclone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_OPERATION",
+      "key": "RCLONE_OPERATION",
+      "value": "copy|sync",
+      "description": "Specify whether to copy new files or syncronise, syncronise may cause delete operation so use with caution.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_DIRECTION",
+      "key": "RCLONE_DIRECTION",
+      "value": "localtoremote|remotetolocal|both",
+      "description": "Specify the direction to syncronise, local to remote, remote to local or two way sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_WEBUI",
+      "key": "ENABLE_WEBUI",
+      "value": "yes|no",
+      "description": "Specify whether to enable the rclone Web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WEBUI_USER",
+      "key": "WEBUI_USER",
+      "value": "admin",
+      "description": "Specify the rclone Web UI username.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: WEBUI_PASS",
+      "key": "WEBUI_PASS",
+      "value": "",
+      "description": "Specify the rclone Web UI password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: RCLONE_USER_FLAGS",
+      "key": "RCLONE_USER_FLAGS",
+      "value": "",
+      "description": "Specify any additional user defined flags for rclone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_POST_CHECK",
+      "key": "RCLONE_POST_CHECK",
+      "value": "yes|no",
+      "description": "Specify whether to verify local and remote files match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: RCLONE_POST_REPORT",
+      "key": "RCLONE_POST_REPORT",
+      "value": "combined|differ|error|match|missing-on-dst|missing-on-src",
+      "description": "Specify what post check level to report.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

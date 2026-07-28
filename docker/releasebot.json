@@ -1,0 +1,83 @@
+{
+  "name": "release-bot",
+  "repo": "ghcr.io/janisv/release-bot:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/janisv/release-bot",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/release-bot-icon.png",
+  "project": "https://github.com/JanisV/release-bot",
+  "description": "A Telegram bot that monitors the releases of given repos, sending messages upon a new release.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/release_bot/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Path to data (SQLite) storage",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Container Port: 5000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Token for the Telegram bot",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Maximum repositories per chat",
+      "key": "MAX_REPOS_PER_CHAT",
+      "value": "0",
+      "description": "Maximum number of repositories a chat can monitor. 0 for unlimited",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub Token",
+      "key": "GITHUB_TOKEN",
+      "value": "",
+      "description": "Token for the GitHub API. If not provided, restricted by rate limiting",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Site URL",
+      "key": "SITE_URL",
+      "value": "",
+      "description": "URL of the site to listen for incoming requests from Telegram. If not provided, will use polling instead of webhooks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URI",
+      "key": "DATABASE_URI",
+      "value": "",
+      "description": "URI for the database. If not provided, will use SQLite database",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

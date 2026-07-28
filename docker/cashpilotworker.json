@@ -1,0 +1,83 @@
+{
+  "name": "cashpilot-worker",
+  "repo": "drumsergio/cashpilot-worker:latest",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/cashpilot-worker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8081]",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/cashpilot.png",
+  "project": "https://github.com/GeiserX/CashPilot",
+  "description": "(CashPilot UI required separately) CashPilot Worker is the Docker agent that deploys and monitors passive income containers on this server. It requires Docker socket access and reports container health back to the CashPilot UI via heartbeats every 60 seconds. Deploy one worker per server. Each worker manages local containers and reports status to the central CashPilot UI dashboard. Required: Set CASHPILOT_UI_URL to point to your CashPilot UI instance (e.g. http://192.168.1.100:8080) and use the same CASHPILOT_API_KEY as the UI. The worker exposes a minimal status page on port 8081 showing connection status and local container list. More info: https://github.com/GeiserX/CashPilot",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for container management. Required.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/cashpilot-worker",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Worker configuration and state persistence",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Worker Port",
+      "host": "8081",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "Port for the worker mini-UI and API",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone (e.g. America/New_York, Europe/London)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UI URL",
+      "key": "CASHPILOT_UI_URL",
+      "value": "http://192.168.1.100:8080",
+      "description": "URL of the CashPilot UI instance (e.g. http://192.168.1.100:8080). Worker sends heartbeats here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API Key",
+      "key": "CASHPILOT_API_KEY",
+      "value": "",
+      "description": "Shared API key for UI authentication. Must match the key set on the CashPilot UI.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Worker Name",
+      "key": "CASHPILOT_WORKER_NAME",
+      "value": "unraid",
+      "description": "Human-readable name for this worker shown in the UI dashboard. Defaults to hostname if empty.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

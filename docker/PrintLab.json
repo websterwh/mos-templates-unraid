@@ -1,0 +1,363 @@
+{
+  "name": "PrintLab",
+  "repo": "ghcr.io/schartrand77/printlab:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/schartrand77/printlab/pkgs/container/printlab",
+  "network": "makerworks-net",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/schartrand77/printlab/main/public/icon-192.png",
+  "project": "https://github.com/schartrand77/printlab",
+  "description": "PrintLab is a standalone dashboard and API for Bambu printers with multi-printer monitoring, printer job tracking, MakerWorks handoff, StockWorks filament lookup, and optional timelapse upload support.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/printlab/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent PrintLab data, cache, submitted jobs, and successful G-code records.",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/printlab/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Optional PrintLab config.json and file-based secret directory.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8983",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the PrintLab web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Application log level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRINTERS_JSON",
+      "key": "PRINTERS_JSON",
+      "value": "",
+      "description": "Optional multi-printer JSON array. If set, overrides single PRINTER_* values.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Printer Name",
+      "key": "PRINTER_NAME",
+      "value": "",
+      "description": "Friendly name for single-printer mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Host",
+      "key": "PRINTER_HOST",
+      "value": "",
+      "description": "Single-printer LAN IP or hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Serial",
+      "key": "PRINTER_SERIAL",
+      "value": "",
+      "description": "Single-printer serial number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Access Code",
+      "key": "PRINTER_ACCESS_CODE",
+      "value": "",
+      "description": "Single-printer LAN access code.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Printer Device Type",
+      "key": "PRINTER_DEVICE_TYPE",
+      "value": "unknown",
+      "description": "Printer device type override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local MQTT",
+      "key": "PRINTER_LOCAL_MQTT",
+      "value": "true",
+      "description": "Use local MQTT mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Camera",
+      "key": "PRINTER_ENABLE_CAMERA",
+      "value": "true",
+      "description": "Enable camera retrieval.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable SSL Verify",
+      "key": "PRINTER_DISABLE_SSL_VERIFY",
+      "value": "false",
+      "description": "Disable SSL verification for printer/cloud calls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Cache Path",
+      "key": "FILE_CACHE_PATH",
+      "value": "/data/cache",
+      "description": "Internal cache path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Print Cache Count",
+      "key": "PRINT_CACHE_COUNT",
+      "value": "1",
+      "description": "Cached print records count.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timelapse Cache Count",
+      "key": "TIMELAPSE_CACHE_COUNT",
+      "value": "1",
+      "description": "Cached timelapse records count.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bambu Region",
+      "key": "BAMBU_REGION",
+      "value": "",
+      "description": "Optional Bambu cloud region.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bambu Email",
+      "key": "BAMBU_EMAIL",
+      "value": "",
+      "description": "Optional Bambu cloud email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bambu Username",
+      "key": "BAMBU_USERNAME",
+      "value": "",
+      "description": "Optional Bambu cloud username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bambu Auth Token",
+      "key": "BAMBU_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional Bambu cloud auth token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Require Auth",
+      "key": "REQUIRE_AUTH",
+      "value": "true",
+      "description": "Require login for UI and API access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Admin login username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "ADMIN_EMAIL",
+      "value": "",
+      "description": "Optional admin login email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password Hash",
+      "key": "ADMIN_PASSWORD_HASH",
+      "value": "",
+      "description": "Required hashed admin password. Generate with PrintLab scripts/hash_password.py.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session Secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Required long random secret used to sign session cookies.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session Cookie Secure",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "Set true when serving behind HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MakerWorks Base URL",
+      "key": "MAKERWORKS_BASE_URL",
+      "value": "http://MakerWorks-v2:3000",
+      "description": "MakerWorks API base URL on makerworks-net.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MakerWorks API Key",
+      "key": "MAKERWORKS_API_KEY",
+      "value": "",
+      "description": "Optional MakerWorks API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MakerWorks Bearer Token",
+      "key": "MAKERWORKS_BEARER_TOKEN",
+      "value": "",
+      "description": "Optional MakerWorks bearer token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MakerWorks Auth Header",
+      "key": "MAKERWORKS_AUTH_HEADER",
+      "value": "X-API-Key",
+      "description": "Header used for MakerWorks API key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MakerWorks Webhook Secret",
+      "key": "MAKERWORKS_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Shared secret for callbacks sent to MakerWorks.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MakerWorks Submit API Key",
+      "key": "MAKERWORKS_SUBMIT_API_KEY",
+      "value": "",
+      "description": "API key accepted for MakerWorks submit boundary routes.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MakerWorks Allowed Paths",
+      "key": "MAKERWORKS_ALLOWED_PATHS",
+      "value": "/health,/api/models",
+      "description": "Comma-separated allowlist for MakerWorks proxy paths.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MakerWorks Job Callback Enabled",
+      "key": "MAKERWORKS_JOB_CALLBACK_ENABLED",
+      "value": "false",
+      "description": "Send job status callbacks to MakerWorks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MakerWorks Job Callback Path Template",
+      "key": "MAKERWORKS_JOB_CALLBACK_PATH_TEMPLATE",
+      "value": "",
+      "description": "Callback path, e.g. /api/printlab/jobs/{job_id}.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "StockWorks Base URL",
+      "key": "STOCKWORKS_BASE_URL",
+      "value": "http://StockWorks:8000",
+      "description": "Optional StockWorks API base URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "StockWorks API Key",
+      "key": "STOCKWORKS_API_KEY",
+      "value": "",
+      "description": "Optional StockWorks API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YouTube Upload Enabled",
+      "key": "YOUTUBE_UPLOAD_ENABLED",
+      "value": "false",
+      "description": "Enable automatic timelapse uploads to YouTube.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YouTube Client ID",
+      "key": "YOUTUBE_CLIENT_ID",
+      "value": "",
+      "description": "OAuth client ID for YouTube uploads.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YouTube Client Secret",
+      "key": "YOUTUBE_CLIENT_SECRET",
+      "value": "",
+      "description": "OAuth client secret for YouTube uploads.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YouTube Refresh Token",
+      "key": "YOUTUBE_REFRESH_TOKEN",
+      "value": "",
+      "description": "OAuth refresh token for YouTube uploads.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

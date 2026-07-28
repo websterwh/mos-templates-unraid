@@ -1,0 +1,4547 @@
+{
+  "name": "dify-aio",
+  "repo": "jsonbored/dify-aio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/dify-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/dify.png",
+  "project": "https://github.com/JSONbored/dify-aio",
+  "description": "Dify is a self-hosted AI application platform for agentic workflows, RAG pipelines, tools, model-provider integrations, and observability. All-In-One Unraid Edition `dify-aio` packages the Dify API, workers, web UI, plugin daemon, code sandbox, SSRF proxy, Nginx, PostgreSQL with pgvector, and Redis into one practical Unraid-first container. Quick Install (Beginners) 1. Install this template and leave [code]Web UI Port[/code] and [code]AppData[/code] at their defaults unless you already have a port conflict. 2. Start the container and give first boot a few minutes. The wrapper initializes bundled PostgreSQL, pgvector, Redis, generated secrets, local storage, the sandbox, plugin daemon, and the Dify services. 3. Open the Web UI and create the first admin account. You can optionally set [code]Initial Admin Password[/code] before first boot, but it is not required. 4. Add model-provider credentials inside Dify first. For a reverse proxy or published apps, set [code]Public URL[/code] to your external HTTPS URL and restart. 5. Keep Advanced View defaults for the easiest install. The bundled database, cache, vector store, local file storage, sandbox, and SSRF proxy are already wired together. Power Users (Advanced View) - Advanced View exposes external PostgreSQL-compatible databases, Redis, object storage, vector databases, SMTP/mail, plugin storage, observability, CORS/CSP, sandbox, proxy, token expiry, indexing, cleanup, and broader upstream Dify environment controls. - If you switch a backend selector such as [code]VECTOR_STORE[/code], [code]STORAGE_TYPE[/code], [code]DB_TYPE[/code], or internal service toggles, configure the matching companion fields for that backend. - Blank secret fields generate and persist values in [code]/appdata/config/generated.env[/code]. Explicit Unraid template values override generated secrets, and [code]/appdata/config/extra.env[/code] remains the final advanced override escape hatch. - [code]CHECK_UPDATE_URL[/code] is blank by default to avoid outbound update checks unless you intentionally opt in. Important Notes - Dify is a heavier multi-service stack. Plan for at least 2 CPU cores and 4 GiB RAM, with more memory for real indexing, workflow, or model-heavy workloads. - Public exposure should sit behind a trusted reverse proxy with TLS. Review sandbox/network settings before allowing untrusted users to run code or tools. - External vector stores, object storage, SMTP, and model providers are optional but real production deployments may need them.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/dify-aio",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Persistent Dify data, generated secrets, PostgreSQL data, Redis data, uploads, plugin storage, and sandbox configuration.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Dify Web UI and API gateway port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "DIFY_AIO_PUBLIC_URL",
+      "value": "",
+      "description": "Optional external base URL such as https://dify.example.com. Used to default Dify console, app, trigger, WebSocket, and file URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial Admin Password",
+      "key": "INIT_PASSWORD",
+      "value": "",
+      "description": "Optional initial admin password. Dify limits this value to 30 characters. Leave blank to set the admin account during first-run setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deploy Environment",
+      "key": "DEPLOY_ENV",
+      "value": "PRODUCTION",
+      "description": "Dify deployment environment mode. Keep PRODUCTION for normal Unraid installs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Update Check URL",
+      "key": "CHECK_UPDATE_URL",
+      "value": "",
+      "description": "Optional Dify update-check endpoint. Leave blank to disable outbound update checks for privacy-focused or offline installs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Dify application secret key. Leave blank to generate and persist one on first boot. Changing this after setup invalidates encrypted credentials and sessions.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Use Internal PostgreSQL",
+      "key": "DIFY_USE_INTERNAL_POSTGRES",
+      "value": "true",
+      "description": "Use the bundled PostgreSQL 15 database with pgvector. Set false only when using an external PostgreSQL-compatible database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Type",
+      "key": "DB_TYPE",
+      "value": "postgresql",
+      "description": "Database type used by Dify. The bundled AIO database is PostgreSQL; non-PostgreSQL modes require external infrastructure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Host",
+      "key": "DB_HOST",
+      "value": "127.0.0.1",
+      "description": "PostgreSQL host. Keep 127.0.0.1 for bundled PostgreSQL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database User",
+      "key": "DB_USERNAME",
+      "value": "dify",
+      "description": "PostgreSQL user for Dify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database Name",
+      "key": "DB_DATABASE",
+      "value": "dify",
+      "description": "PostgreSQL database used by the Dify API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Database Name",
+      "key": "DB_PLUGIN_DATABASE",
+      "value": "dify_plugin",
+      "description": "PostgreSQL database used by the Dify plugin daemon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Internal Redis",
+      "key": "DIFY_USE_INTERNAL_REDIS",
+      "value": "true",
+      "description": "Use the bundled Redis instance. Set false only when using an external Redis service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Host",
+      "key": "REDIS_HOST",
+      "value": "127.0.0.1",
+      "description": "Redis host. Keep 127.0.0.1 for bundled Redis.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Password",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Redis password. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Celery Broker URL",
+      "key": "CELERY_BROKER_URL",
+      "value": "",
+      "description": "Optional explicit Celery broker URL. Leave blank to derive it from Redis settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Console API URL",
+      "key": "CONSOLE_API_URL",
+      "value": "",
+      "description": "Optional public console API URL. Leave blank to derive from Public URL or incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Console Web URL",
+      "key": "CONSOLE_WEB_URL",
+      "value": "",
+      "description": "Optional public console web URL. Leave blank to derive from Public URL or incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Service API URL",
+      "key": "SERVICE_API_URL",
+      "value": "",
+      "description": "Optional public Service API URL shown inside Dify. Leave blank to derive from Public URL or incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trigger URL",
+      "key": "TRIGGER_URL",
+      "value": "",
+      "description": "Optional public trigger URL. Leave blank to derive from Public URL or use Dify defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App API URL",
+      "key": "APP_API_URL",
+      "value": "",
+      "description": "Optional published-app API URL. Leave blank to derive from Public URL or incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Web URL",
+      "key": "APP_WEB_URL",
+      "value": "",
+      "description": "Optional published-app web URL. Leave blank to derive from Public URL or incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Files URL",
+      "key": "FILES_URL",
+      "value": "",
+      "description": "Optional public file preview/download URL. Leave blank to derive from Public URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal Files URL",
+      "key": "INTERNAL_FILES_URL",
+      "value": "",
+      "description": "Internal file URL used by Dify services. Leave blank for the AIO localhost default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Next Public Socket URL",
+      "key": "NEXT_PUBLIC_SOCKET_URL",
+      "value": "",
+      "description": "Optional WebSocket URL for collaboration mode. Leave blank to derive from Public URL when provided.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log File",
+      "key": "LOG_FILE",
+      "value": "",
+      "description": "Optional Dify log file path. Leave blank for /appdata/logs/server.log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Timezone",
+      "key": "LOG_TZ",
+      "value": "",
+      "description": "Optional Dify log timezone. Leave blank to inherit TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API Bind Address",
+      "key": "DIFY_BIND_ADDRESS",
+      "value": "127.0.0.1",
+      "description": "Internal Dify API bind address. Keep localhost so only the bundled Nginx gateway is exposed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Workers",
+      "key": "SERVER_WORKER_AMOUNT",
+      "value": "1",
+      "description": "Dify API worker count. Increase only if the host has enough CPU and memory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Worker Class",
+      "key": "SERVER_WORKER_CLASS",
+      "value": "geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+      "description": "Gunicorn worker class. The AIO default supports collaboration WebSockets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Celery Workers",
+      "key": "CELERY_WORKER_AMOUNT",
+      "value": "2",
+      "description": "Dify background worker count. Increase for indexing-heavy workloads on larger hosts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Celery Worker Class",
+      "key": "CELERY_WORKER_CLASS",
+      "value": "gevent",
+      "description": "Celery worker class. Keep gevent unless debugging an upstream-specific issue.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gunicorn Timeout",
+      "key": "GUNICORN_TIMEOUT",
+      "value": "360",
+      "description": "API request timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Vector Store",
+      "key": "VECTOR_STORE",
+      "value": "pgvector",
+      "description": "Dify vector database backend. The default uses bundled PostgreSQL with pgvector. Non-pgvector choices require external services and matching variables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGVector Host",
+      "key": "PGVECTOR_HOST",
+      "value": "",
+      "description": "Optional pgvector host override. Leave blank to reuse the Dify database host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGVector Port",
+      "key": "PGVECTOR_PORT",
+      "value": "",
+      "description": "Optional pgvector port override. Leave blank to reuse the Dify database port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGVector User",
+      "key": "PGVECTOR_USER",
+      "value": "",
+      "description": "Optional pgvector user override. Leave blank to reuse the Dify database user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGVector Password",
+      "key": "PGVECTOR_PASSWORD",
+      "value": "",
+      "description": "Optional pgvector password override. Leave blank to reuse the Dify database password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PGVector Database",
+      "key": "PGVECTOR_DATABASE",
+      "value": "",
+      "description": "Optional pgvector database override. Leave blank to reuse the Dify database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Qdrant URL",
+      "key": "QDRANT_URL",
+      "value": "",
+      "description": "External Qdrant URL when Vector Store is qdrant.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Qdrant API Key",
+      "key": "QDRANT_API_KEY",
+      "value": "",
+      "description": "External Qdrant API key when required.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Weaviate Endpoint",
+      "key": "WEAVIATE_ENDPOINT",
+      "value": "",
+      "description": "External Weaviate HTTP endpoint when Vector Store is weaviate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Weaviate API Key",
+      "key": "WEAVIATE_API_KEY",
+      "value": "",
+      "description": "External Weaviate API key when required.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Weaviate GRPC Endpoint",
+      "key": "WEAVIATE_GRPC_ENDPOINT",
+      "value": "",
+      "description": "External Weaviate gRPC endpoint when required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage Type",
+      "key": "STORAGE_TYPE",
+      "value": "opendal",
+      "description": "Dify file storage backend. The default uses local OpenDAL filesystem storage under AppData.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenDAL Scheme",
+      "key": "OPENDAL_SCHEME",
+      "value": "fs",
+      "description": "OpenDAL storage scheme. The AIO default uses local filesystem storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenDAL Filesystem Root",
+      "key": "OPENDAL_FS_ROOT",
+      "value": "",
+      "description": "OpenDAL filesystem root. Leave blank for /app/api/storage, symlinked to AppData.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Endpoint",
+      "key": "S3_ENDPOINT",
+      "value": "",
+      "description": "S3-compatible storage endpoint when using S3 storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Region",
+      "key": "S3_REGION",
+      "value": "us-east-1",
+      "description": "S3 region.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Bucket Name",
+      "key": "S3_BUCKET_NAME",
+      "value": "",
+      "description": "S3 bucket for Dify files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Access Key",
+      "key": "S3_ACCESS_KEY",
+      "value": "",
+      "description": "S3 access key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "S3 Secret Key",
+      "key": "S3_SECRET_KEY",
+      "value": "",
+      "description": "S3 secret key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable Sandbox",
+      "key": "DIFY_ENABLE_SANDBOX",
+      "value": "true",
+      "description": "Run the bundled Dify sandbox used for code execution. Disabling it breaks code-execution features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox API Key",
+      "key": "SANDBOX_API_KEY",
+      "value": "",
+      "description": "Sandbox API key. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Code Execution Endpoint",
+      "key": "CODE_EXECUTION_ENDPOINT",
+      "value": "",
+      "description": "Dify sandbox endpoint. Leave blank for the AIO localhost sandbox.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Code Execution API Key",
+      "key": "CODE_EXECUTION_API_KEY",
+      "value": "",
+      "description": "Dify sandbox API key used by the API service. Leave blank to mirror Sandbox API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sandbox Network Access",
+      "key": "SANDBOX_ENABLE_NETWORK",
+      "value": "true",
+      "description": "Allow sandboxed code to access the network through the bundled SSRF proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox Worker Timeout",
+      "key": "SANDBOX_WORKER_TIMEOUT",
+      "value": "15",
+      "description": "Sandbox execution timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox Port",
+      "key": "SANDBOX_PORT",
+      "value": "",
+      "description": "Sandbox service port. Leave blank for 8194.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox HTTP Proxy",
+      "key": "SANDBOX_HTTP_PROXY",
+      "value": "",
+      "description": "HTTP proxy used by sandboxed code. Leave blank for the bundled SSRF proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox HTTPS Proxy",
+      "key": "SANDBOX_HTTPS_PROXY",
+      "value": "",
+      "description": "HTTPS proxy used by sandboxed code. Leave blank for the bundled SSRF proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSRF HTTP Proxy URL",
+      "key": "SSRF_PROXY_HTTP_URL",
+      "value": "",
+      "description": "Internal HTTP proxy URL used by Dify. Leave blank for the bundled SSRF proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSRF HTTPS Proxy URL",
+      "key": "SSRF_PROXY_HTTPS_URL",
+      "value": "",
+      "description": "Internal HTTPS proxy URL used by Dify. Leave blank for the bundled SSRF proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSRF Reverse Proxy Port",
+      "key": "SSRF_REVERSE_PROXY_PORT",
+      "value": "",
+      "description": "Internal reverse proxy port. Leave blank for the AIO non-conflicting default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSRF Sandbox Host",
+      "key": "SSRF_SANDBOX_HOST",
+      "value": "",
+      "description": "Sandbox host name used by the SSRF proxy. Leave blank for localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Daemon Key",
+      "key": "PLUGIN_DAEMON_KEY",
+      "value": "",
+      "description": "Plugin daemon server key. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plugin Inner API Key",
+      "key": "PLUGIN_DIFY_INNER_API_KEY",
+      "value": "",
+      "description": "Shared inner API key used between Dify and the plugin daemon. Leave blank to generate and persist one on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plugin Daemon URL",
+      "key": "PLUGIN_DAEMON_URL",
+      "value": "",
+      "description": "Plugin daemon URL used by Dify. Leave blank for the AIO localhost plugin daemon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Inner API URL",
+      "key": "PLUGIN_DIFY_INNER_API_URL",
+      "value": "",
+      "description": "Inner API URL used by the plugin daemon. Leave blank for the AIO localhost API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verify Plugin Signatures",
+      "key": "FORCE_VERIFYING_SIGNATURE",
+      "value": "true",
+      "description": "Require signed plugins where Dify supports signature verification.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Marketplace Enabled",
+      "key": "MARKETPLACE_ENABLED",
+      "value": "true",
+      "description": "Enable the Dify plugin marketplace integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mail Type",
+      "key": "MAIL_TYPE",
+      "value": "resend",
+      "description": "Mail provider used by Dify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resend API Key",
+      "key": "RESEND_API_KEY",
+      "value": "",
+      "description": "Resend API key when Mail Type is resend.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SendGrid API Key",
+      "key": "SENDGRID_API_KEY",
+      "value": "",
+      "description": "SendGrid API key when Mail Type is sendgrid.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Server",
+      "key": "SMTP_SERVER",
+      "value": "",
+      "description": "SMTP host when Mail Type is smtp.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "465",
+      "description": "SMTP port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "SMTP username.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mail From",
+      "key": "MAIL_DEFAULT_SEND_FROM",
+      "value": "",
+      "description": "Default sender address for Dify email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nginx Port",
+      "key": "NGINX_PORT",
+      "value": "8080",
+      "description": "Internal Nginx listen port. Keep this aligned with the Web UI Port mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nginx Server Name",
+      "key": "NGINX_SERVER_NAME",
+      "value": "_",
+      "description": "Nginx server_name value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nginx Client Max Body Size",
+      "key": "NGINX_CLIENT_MAX_BODY_SIZE",
+      "value": "100M",
+      "description": "Maximum request body size accepted by the bundled Nginx gateway.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nginx Proxy Read Timeout",
+      "key": "NGINX_PROXY_READ_TIMEOUT",
+      "value": "3600s",
+      "description": "Bundled Nginx proxy read timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nginx Proxy Send Timeout",
+      "key": "NGINX_PROXY_SEND_TIMEOUT",
+      "value": "3600s",
+      "description": "Bundled Nginx proxy send timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Firecrawl",
+      "key": "ENABLE_WEBSITE_FIRECRAWL",
+      "value": "true",
+      "description": "Expose Firecrawl as a Dify website datasource option. Configure Firecrawl credentials inside Dify where required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Jina Reader",
+      "key": "ENABLE_WEBSITE_JINAREADER",
+      "value": "true",
+      "description": "Expose Jina Reader as a Dify website datasource option.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website WaterCrawl",
+      "key": "ENABLE_WEBSITE_WATERCRAWL",
+      "value": "true",
+      "description": "Expose WaterCrawl as a Dify website datasource option.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Workflow Execution Storage",
+      "key": "WORKFLOW_NODE_EXECUTION_STORAGE",
+      "value": "rdbms",
+      "description": "Storage backend for workflow node execution records. Keep rdbms for the default AIO database path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIO Wait Timeout Seconds",
+      "key": "DIFY_AIO_WAIT_TIMEOUT_SECONDS",
+      "value": "300",
+      "description": "Startup wait timeout for internal service readiness checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIO Extra Env File",
+      "key": "DIFY_AIO_EXTRA_ENV_FILE",
+      "value": "/appdata/config/extra.env",
+      "description": "Optional dotenv-style file for rare upstream Dify variables that are intentionally not shown in the Unraid template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIO LANG Override",
+      "key": "DIFY_AIO_LANG",
+      "value": "",
+      "description": "Optional locale override for LANG. Leave blank for C.UTF-8.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIO LC_ALL Override",
+      "key": "DIFY_AIO_LC_ALL",
+      "value": "",
+      "description": "Optional locale override for LC_ALL. Leave blank for C.UTF-8.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Web Port",
+      "key": "DIFY_WEB_PORT",
+      "value": "3000",
+      "description": "Internal Dify web service port. Keep aligned with the bundled Nginx proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Web Host",
+      "key": "DIFY_WEB_HOST",
+      "value": "127.0.0.1",
+      "description": "Internal Dify web service bind host. Keep localhost so only the bundled Nginx gateway is exposed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Platform",
+      "key": "PLUGIN_PLATFORM",
+      "value": "local",
+      "description": "Plugin daemon platform mode. The AIO default is local.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Remote Installing Host",
+      "key": "PLUGIN_DEBUGGING_HOST",
+      "value": "127.0.0.1",
+      "description": "Plugin remote-install/debug host used by the plugin daemon. Keep localhost unless you intentionally expose plugin debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Remote Installing Port",
+      "key": "PLUGIN_DEBUGGING_PORT",
+      "value": "5003",
+      "description": "Plugin remote-install/debug port used by the plugin daemon.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Max Package Size",
+      "key": "PLUGIN_MAX_PACKAGE_SIZE",
+      "value": "52428800",
+      "description": "Maximum plugin package size accepted by the plugin daemon, in bytes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Daemon Port",
+      "key": "PLUGIN_DAEMON_PORT",
+      "value": "5002",
+      "description": "Internal plugin daemon port. Keep aligned with the bundled Nginx /e/ route.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin DB SSL Mode",
+      "key": "DB_SSL_MODE",
+      "value": "disable",
+      "description": "Plugin daemon database SSL mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sandbox Pip Mirror URL",
+      "key": "PIP_MIRROR_URL",
+      "value": "",
+      "description": "Optional Python package mirror URL used by the Dify sandbox.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Next Telemetry",
+      "key": "NEXT_TELEMETRY_DISABLED",
+      "value": "1",
+      "description": "Disable telemetry from the bundled Next.js web runtime.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "The log level for the application. Supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOG_OUTPUT_FORMAT",
+      "key": "LOG_OUTPUT_FORMAT",
+      "value": "text",
+      "description": "Log output format: text or json",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOG_FILE_MAX_SIZE",
+      "key": "LOG_FILE_MAX_SIZE",
+      "value": "20",
+      "description": "Log file max size, the unit is MB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOG_FILE_BACKUP_COUNT",
+      "key": "LOG_FILE_BACKUP_COUNT",
+      "value": "5",
+      "description": "Log file max backup count",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOG_DATEFORMAT",
+      "key": "LOG_DATEFORMAT",
+      "value": "%Y-%m-%d %H:%M:%S",
+      "description": "Log dateformat",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: DEBUG",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Debug mode, default is false. It is recommended to turn on this configuration for local development to prevent some problems caused by monkey patch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: FLASK_DEBUG",
+      "key": "FLASK_DEBUG",
+      "value": "false",
+      "description": "Flask debug mode, it can output trace information at the interface when turned on, which is convenient for debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_REQUEST_LOGGING",
+      "key": "ENABLE_REQUEST_LOGGING",
+      "value": "False",
+      "description": "Enable request logging, which will log the request and response information. And the log level is DEBUG",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENAI_API_BASE",
+      "key": "OPENAI_API_BASE",
+      "value": "https://api.openai.com/v1",
+      "description": "Used to change the OpenAI base address, default is https://api.openai.com/v1. When OpenAI cannot be accessed in China, replace it with a domestic mirror address, or when a local model provides OpenAI compatible API, it can be replaced.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MIGRATION_ENABLED",
+      "key": "MIGRATION_ENABLED",
+      "value": "true",
+      "description": "When enabled, migrations will be executed prior to application startup and the application will start after the migrations have completed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: FILES_ACCESS_TIMEOUT",
+      "key": "FILES_ACCESS_TIMEOUT",
+      "value": "300",
+      "description": "File Access Time specifies a time interval in seconds for the file to be accessed. The default value is 300 seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_COLLABORATION_MODE",
+      "key": "ENABLE_COLLABORATION_MODE",
+      "value": "false",
+      "description": "Collaboration mode toggle To open collaboration features, you also need to set SERVER_WORKER_CLASS=geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ACCESS_TOKEN_EXPIRE_MINUTES",
+      "key": "ACCESS_TOKEN_EXPIRE_MINUTES",
+      "value": "60",
+      "description": "Access token expiration time in minutes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REFRESH_TOKEN_EXPIRE_DAYS",
+      "key": "REFRESH_TOKEN_EXPIRE_DAYS",
+      "value": "30",
+      "description": "Refresh token expiration time in days",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: APP_DEFAULT_ACTIVE_REQUESTS",
+      "key": "APP_DEFAULT_ACTIVE_REQUESTS",
+      "value": "0",
+      "description": "The default number of active requests for the application, where 0 means unlimited, should be a non-negative integer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: APP_MAX_ACTIVE_REQUESTS",
+      "key": "APP_MAX_ACTIVE_REQUESTS",
+      "value": "0",
+      "description": "The maximum number of active requests for the application, where 0 means unlimited, should be a non-negative integer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: APP_MAX_EXECUTION_TIME",
+      "key": "APP_MAX_EXECUTION_TIME",
+      "value": "1200",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_AUTO_SCALE",
+      "key": "CELERY_AUTO_SCALE",
+      "value": "false",
+      "description": "Flag indicating whether to enable autoscaling of Celery workers. Autoscaling is useful when tasks are CPU intensive and can be dynamically allocated and deallocated based on the workload. When autoscaling is enabled, the maximum and minimum number of workers can be specified....",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_MAX_WORKERS",
+      "key": "CELERY_MAX_WORKERS",
+      "value": "",
+      "description": "The maximum number of Celery workers that can be autoscaled. This is optional and only used when autoscaling is enabled. Default is not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_MIN_WORKERS",
+      "key": "CELERY_MIN_WORKERS",
+      "value": "",
+      "description": "The minimum number of Celery workers that can be autoscaled. This is optional and only used when autoscaling is enabled. Default is not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: API_TOOL_DEFAULT_CONNECT_TIMEOUT",
+      "key": "API_TOOL_DEFAULT_CONNECT_TIMEOUT",
+      "value": "10",
+      "description": "API Tool configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: API_TOOL_DEFAULT_READ_TIMEOUT",
+      "key": "API_TOOL_DEFAULT_READ_TIMEOUT",
+      "value": "60",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX",
+      "key": "NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX",
+      "value": "false",
+      "description": "Enable inline LaTeX rendering with single dollar signs ($...$) in the web frontend Default is false for security reasons to prevent conflicts with regular text",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_POOL_SIZE",
+      "key": "SQLALCHEMY_POOL_SIZE",
+      "value": "30",
+      "description": "The size of the database connection pool. The default is 30 connections, which can be appropriately increased.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_MAX_OVERFLOW",
+      "key": "SQLALCHEMY_MAX_OVERFLOW",
+      "value": "10",
+      "description": "The default is 10 connections, which allows temporary overflow beyond the pool size.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_POOL_RECYCLE",
+      "key": "SQLALCHEMY_POOL_RECYCLE",
+      "value": "3600",
+      "description": "Database connection pool recycling time, the default is 3600 seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_ECHO",
+      "key": "SQLALCHEMY_ECHO",
+      "value": "false",
+      "description": "Whether to print SQL, default is false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_POOL_PRE_PING",
+      "key": "SQLALCHEMY_POOL_PRE_PING",
+      "value": "false",
+      "description": "If True, will test connections for liveness upon each checkout",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_POOL_USE_LIFO",
+      "key": "SQLALCHEMY_POOL_USE_LIFO",
+      "value": "false",
+      "description": "Whether to enable the Last in first out option or use default FIFO queue if is false",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SQLALCHEMY_POOL_TIMEOUT",
+      "key": "SQLALCHEMY_POOL_TIMEOUT",
+      "value": "30",
+      "description": "Number of seconds to wait for a connection from the pool before raising a timeout error. Default is 30",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_MAX_CONNECTIONS",
+      "key": "POSTGRES_MAX_CONNECTIONS",
+      "value": "200",
+      "description": "Maximum number of connections to the database Default is 100 Reference: https://www.postgresql.org/docs/current/runtime-config-connection.html#GUC-MAX-CONNECTIONS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_SHARED_BUFFERS",
+      "key": "POSTGRES_SHARED_BUFFERS",
+      "value": "128MB",
+      "description": "Sets the amount of shared memory used for postgres&apos;s shared buffers. Default is 128MB Recommended value: 25% of available memory Reference: https://www.postgresql.org/docs/current/runtime-config-resource.html#GUC-SHARED-BUFFERS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_WORK_MEM",
+      "key": "POSTGRES_WORK_MEM",
+      "value": "4MB",
+      "description": "Sets the amount of memory used by each database worker for working space. Default is 4MB Reference: https://www.postgresql.org/docs/current/runtime-config-resource.html#GUC-WORK-MEM",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_MAINTENANCE_WORK_MEM",
+      "key": "POSTGRES_MAINTENANCE_WORK_MEM",
+      "value": "64MB",
+      "description": "Sets the amount of memory reserved for maintenance activities. Default is 64MB Reference: https://www.postgresql.org/docs/current/runtime-config-resource.html#GUC-MAINTENANCE-WORK-MEM",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_EFFECTIVE_CACHE_SIZE",
+      "key": "POSTGRES_EFFECTIVE_CACHE_SIZE",
+      "value": "4096MB",
+      "description": "Sets the planner&apos;s assumption about the effective cache size. Default is 4096MB Reference: https://www.postgresql.org/docs/current/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_STATEMENT_TIMEOUT",
+      "key": "POSTGRES_STATEMENT_TIMEOUT",
+      "value": "0",
+      "description": "Sets the maximum allowed duration of any statement before termination. Default is 0 (no timeout). Reference: https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-STATEMENT-TIMEOUT A value of 0 prevents the server from timing out statements.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT",
+      "key": "POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT",
+      "value": "0",
+      "description": "Sets the maximum allowed duration of any idle in-transaction session before termination. Default is 0 (no timeout). Reference: https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT A value of 0 prevents the server from...",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSQL_MAX_CONNECTIONS",
+      "key": "MYSQL_MAX_CONNECTIONS",
+      "value": "1000",
+      "description": "MySQL Performance Configuration Maximum number of connections to MySQL Default is 1000",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSQL_INNODB_BUFFER_POOL_SIZE",
+      "key": "MYSQL_INNODB_BUFFER_POOL_SIZE",
+      "value": "512M",
+      "description": "InnoDB buffer pool size Default is 512M Recommended value: 70-80% of available memory for dedicated MySQL server Reference: https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_buffer_pool_size",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSQL_INNODB_LOG_FILE_SIZE",
+      "key": "MYSQL_INNODB_LOG_FILE_SIZE",
+      "value": "128M",
+      "description": "InnoDB log file size Default is 128M Reference: https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_log_file_size",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT",
+      "key": "MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT",
+      "value": "2",
+      "description": "InnoDB flush log at transaction commit Default is 2 (flush to OS cache, sync every second) Options: 0 (no flush), 1 (flush and sync), 2 (flush to OS cache) Reference: https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_flush_log_at_trx_commit",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_USERNAME",
+      "key": "REDIS_USERNAME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_USE_SSL",
+      "key": "REDIS_USE_SSL",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SSL_CERT_REQS",
+      "key": "REDIS_SSL_CERT_REQS",
+      "value": "CERT_NONE",
+      "description": "SSL configuration for Redis (when REDIS_USE_SSL=true)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SSL_CA_CERTS",
+      "key": "REDIS_SSL_CA_CERTS",
+      "value": "",
+      "description": "Options: CERT_NONE, CERT_OPTIONAL, CERT_REQUIRED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SSL_CERTFILE",
+      "key": "REDIS_SSL_CERTFILE",
+      "value": "",
+      "description": "Path to CA certificate file for SSL verification",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SSL_KEYFILE",
+      "key": "REDIS_SSL_KEYFILE",
+      "value": "",
+      "description": "Path to client certificate file for SSL authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_DB",
+      "key": "REDIS_DB",
+      "value": "0",
+      "description": "Path to client private key file for SSL authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_KEY_PREFIX",
+      "key": "REDIS_KEY_PREFIX",
+      "value": "",
+      "description": "Optional global prefix for Redis keys, topics, streams, and Celery Redis transport artifacts. Leave empty to preserve current unprefixed behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_MAX_CONNECTIONS",
+      "key": "REDIS_MAX_CONNECTIONS",
+      "value": "",
+      "description": "Optional: limit total Redis connections used by API/Worker (unset for default) Align with API&apos;s REDIS_MAX_CONNECTIONS in configs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_USE_SENTINEL",
+      "key": "REDIS_USE_SENTINEL",
+      "value": "false",
+      "description": "Whether to use Redis Sentinel mode. If set to true, the application will automatically discover and connect to the master node through Sentinel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SENTINELS",
+      "key": "REDIS_SENTINELS",
+      "value": "",
+      "description": "List of Redis Sentinel nodes. If Sentinel mode is enabled, provide at least one Sentinel IP and port. Format: `sentinel1_ip:sentinel1_port,sentinel2_ip:sentinel2_port,sentinel3_ip:sentinel3_port`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SENTINEL_SERVICE_NAME",
+      "key": "REDIS_SENTINEL_SERVICE_NAME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SENTINEL_USERNAME",
+      "key": "REDIS_SENTINEL_USERNAME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SENTINEL_PASSWORD",
+      "key": "REDIS_SENTINEL_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: REDIS_SENTINEL_SOCKET_TIMEOUT",
+      "key": "REDIS_SENTINEL_SOCKET_TIMEOUT",
+      "value": "0.1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_USE_CLUSTERS",
+      "key": "REDIS_USE_CLUSTERS",
+      "value": "false",
+      "description": "List of Redis Cluster nodes. If Cluster mode is enabled, provide at least one Cluster IP and port. Format: `Cluster1_ip:Cluster1_port,Cluster2_ip:Cluster2_port,Cluster3_ip:Cluster3_port`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_CLUSTERS",
+      "key": "REDIS_CLUSTERS",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_CLUSTERS_PASSWORD",
+      "key": "REDIS_CLUSTERS_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: REDIS_RETRY_RETRIES",
+      "key": "REDIS_RETRY_RETRIES",
+      "value": "3",
+      "description": "Redis connection and retry configuration max redis retry",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_RETRY_BACKOFF_BASE",
+      "key": "REDIS_RETRY_BACKOFF_BASE",
+      "value": "1.0",
+      "description": "Base delay (in seconds) for exponential backoff on retries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_RETRY_BACKOFF_CAP",
+      "key": "REDIS_RETRY_BACKOFF_CAP",
+      "value": "10.0",
+      "description": "Cap (in seconds) for exponential backoff on retries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SOCKET_TIMEOUT",
+      "key": "REDIS_SOCKET_TIMEOUT",
+      "value": "5.0",
+      "description": "Timeout (in seconds) for Redis socket operations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_SOCKET_CONNECT_TIMEOUT",
+      "key": "REDIS_SOCKET_CONNECT_TIMEOUT",
+      "value": "5.0",
+      "description": "Timeout (in seconds) for establishing a Redis connection",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: REDIS_HEALTH_CHECK_INTERVAL",
+      "key": "REDIS_HEALTH_CHECK_INTERVAL",
+      "value": "30",
+      "description": "Interval (in seconds) for Redis health checks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_BACKEND",
+      "key": "CELERY_BACKEND",
+      "value": "redis",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BROKER_USE_SSL",
+      "key": "BROKER_USE_SSL",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_USE_SENTINEL",
+      "key": "CELERY_USE_SENTINEL",
+      "value": "false",
+      "description": "If you are using Redis Sentinel for high availability, configure the following settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_SENTINEL_MASTER_NAME",
+      "key": "CELERY_SENTINEL_MASTER_NAME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_SENTINEL_PASSWORD",
+      "key": "CELERY_SENTINEL_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: CELERY_SENTINEL_SOCKET_TIMEOUT",
+      "key": "CELERY_SENTINEL_SOCKET_TIMEOUT",
+      "value": "0.1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CELERY_TASK_ANNOTATIONS",
+      "key": "CELERY_TASK_ANNOTATIONS",
+      "value": "null",
+      "description": "e.g. {&quot;tasks.add&quot;: {&quot;rate_limit&quot;: &quot;10/s&quot;}}",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WEB_API_CORS_ALLOW_ORIGINS",
+      "key": "WEB_API_CORS_ALLOW_ORIGINS",
+      "value": "*",
+      "description": "Specifies the allowed origins for cross-origin requests to the Web API, e.g. https://dify.app or * for all origins.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CONSOLE_CORS_ALLOW_ORIGINS",
+      "key": "CONSOLE_CORS_ALLOW_ORIGINS",
+      "value": "*",
+      "description": "Specifies the allowed origins for cross-origin requests to the console API, e.g. https://cloud.dify.ai or * for all origins.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: COOKIE_DOMAIN",
+      "key": "COOKIE_DOMAIN",
+      "value": "",
+      "description": "When the frontend and backend run on different subdomains, set COOKIE_DOMAIN to the site&apos;s top-level domain (e.g., `example.com`). Leading dots are optional.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: NEXT_PUBLIC_COOKIE_DOMAIN",
+      "key": "NEXT_PUBLIC_COOKIE_DOMAIN",
+      "value": "",
+      "description": "When the frontend and backend run on different subdomains, set NEXT_PUBLIC_COOKIE_DOMAIN=1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: NEXT_PUBLIC_BATCH_CONCURRENCY",
+      "key": "NEXT_PUBLIC_BATCH_CONCURRENCY",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VOLUME_TYPE",
+      "key": "CLICKZETTA_VOLUME_TYPE",
+      "value": "user",
+      "description": "Volume type selection (three types available): - user: Personal/small team use, simple config, user-level permissions - table: Enterprise multi-tenant, smart routing, table-level + user-level permissions - external: Data lake integration, external storage connection, volume-...",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VOLUME_NAME",
+      "key": "CLICKZETTA_VOLUME_NAME",
+      "value": "",
+      "description": "External Volume name (required only when TYPE=external)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VOLUME_TABLE_PREFIX",
+      "key": "CLICKZETTA_VOLUME_TABLE_PREFIX",
+      "value": "dataset_",
+      "description": "Table Volume table prefix (used only when TYPE=table)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VOLUME_DIFY_PREFIX",
+      "key": "CLICKZETTA_VOLUME_DIFY_PREFIX",
+      "value": "dify_km",
+      "description": "Dify file directory prefix (isolates from other apps, recommended to keep default)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: S3_ADDRESS_STYLE",
+      "key": "S3_ADDRESS_STYLE",
+      "value": "auto",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: S3_USE_AWS_MANAGED_IAM",
+      "key": "S3_USE_AWS_MANAGED_IAM",
+      "value": "false",
+      "description": "Whether to use AWS managed IAM roles for authenticating with the S3 service. If set to false, the access key and secret key must be provided.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_ENABLED",
+      "key": "ARCHIVE_STORAGE_ENABLED",
+      "value": "false",
+      "description": "Workflow run and Conversation archive storage (S3-compatible)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_ENDPOINT",
+      "key": "ARCHIVE_STORAGE_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_ARCHIVE_BUCKET",
+      "key": "ARCHIVE_STORAGE_ARCHIVE_BUCKET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_EXPORT_BUCKET",
+      "key": "ARCHIVE_STORAGE_EXPORT_BUCKET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_ACCESS_KEY",
+      "key": "ARCHIVE_STORAGE_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_SECRET_KEY",
+      "key": "ARCHIVE_STORAGE_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ARCHIVE_STORAGE_REGION",
+      "key": "ARCHIVE_STORAGE_REGION",
+      "value": "auto",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: AZURE_BLOB_ACCOUNT_NAME",
+      "key": "AZURE_BLOB_ACCOUNT_NAME",
+      "value": "difyai",
+      "description": "Azure Blob Configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: AZURE_BLOB_ACCOUNT_KEY",
+      "key": "AZURE_BLOB_ACCOUNT_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: AZURE_BLOB_CONTAINER_NAME",
+      "key": "AZURE_BLOB_CONTAINER_NAME",
+      "value": "difyai-container",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: AZURE_BLOB_ACCOUNT_URL",
+      "key": "AZURE_BLOB_ACCOUNT_URL",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: GOOGLE_STORAGE_BUCKET_NAME",
+      "key": "GOOGLE_STORAGE_BUCKET_NAME",
+      "value": "",
+      "description": "Google Storage Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: GOOGLE_STORAGE_SERVICE_ACCOUNT_JSON_BASE64",
+      "key": "GOOGLE_STORAGE_SERVICE_ACCOUNT_JSON_BASE64",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_BUCKET_NAME",
+      "key": "ALIYUN_OSS_BUCKET_NAME",
+      "value": "",
+      "description": "The Alibaba Cloud OSS configurations, Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_ACCESS_KEY",
+      "key": "ALIYUN_OSS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_SECRET_KEY",
+      "key": "ALIYUN_OSS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_ENDPOINT",
+      "key": "ALIYUN_OSS_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Official default: &apos;https://oss-ap-southeast-1-internal.aliyuncs.com&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_REGION",
+      "key": "ALIYUN_OSS_REGION",
+      "value": "ap-southeast-1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_AUTH_VERSION",
+      "key": "ALIYUN_OSS_AUTH_VERSION",
+      "value": "v4",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIYUN_OSS_PATH",
+      "key": "ALIYUN_OSS_PATH",
+      "value": "",
+      "description": "Don&apos;t start with &apos;/&apos;. OSS doesn&apos;t support leading slash in object names. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_BUCKET_NAME",
+      "key": "TENCENT_COS_BUCKET_NAME",
+      "value": "",
+      "description": "Tencent COS Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_SECRET_KEY",
+      "key": "TENCENT_COS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_SECRET_ID",
+      "key": "TENCENT_COS_SECRET_ID",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_REGION",
+      "key": "TENCENT_COS_REGION",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_SCHEME",
+      "key": "TENCENT_COS_SCHEME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_COS_CUSTOM_DOMAIN",
+      "key": "TENCENT_COS_CUSTOM_DOMAIN",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OCI_ENDPOINT",
+      "key": "OCI_ENDPOINT",
+      "value": "",
+      "description": "Oracle Storage Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OCI_BUCKET_NAME",
+      "key": "OCI_BUCKET_NAME",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OCI_ACCESS_KEY",
+      "key": "OCI_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: OCI_SECRET_KEY",
+      "key": "OCI_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: OCI_REGION",
+      "key": "OCI_REGION",
+      "value": "us-ashburn-1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_OBS_BUCKET_NAME",
+      "key": "HUAWEI_OBS_BUCKET_NAME",
+      "value": "",
+      "description": "Huawei OBS Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_OBS_SECRET_KEY",
+      "key": "HUAWEI_OBS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: HUAWEI_OBS_ACCESS_KEY",
+      "key": "HUAWEI_OBS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: HUAWEI_OBS_SERVER",
+      "key": "HUAWEI_OBS_SERVER",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_OBS_PATH_STYLE",
+      "key": "HUAWEI_OBS_PATH_STYLE",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VOLCENGINE_TOS_BUCKET_NAME",
+      "key": "VOLCENGINE_TOS_BUCKET_NAME",
+      "value": "",
+      "description": "Volcengine TOS Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VOLCENGINE_TOS_SECRET_KEY",
+      "key": "VOLCENGINE_TOS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: VOLCENGINE_TOS_ACCESS_KEY",
+      "key": "VOLCENGINE_TOS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: VOLCENGINE_TOS_ENDPOINT",
+      "key": "VOLCENGINE_TOS_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VOLCENGINE_TOS_REGION",
+      "key": "VOLCENGINE_TOS_REGION",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_OBS_BUCKET_NAME",
+      "key": "BAIDU_OBS_BUCKET_NAME",
+      "value": "",
+      "description": "Baidu OBS Storage Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_OBS_SECRET_KEY",
+      "key": "BAIDU_OBS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: BAIDU_OBS_ACCESS_KEY",
+      "key": "BAIDU_OBS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: BAIDU_OBS_ENDPOINT",
+      "key": "BAIDU_OBS_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SUPABASE_BUCKET_NAME",
+      "key": "SUPABASE_BUCKET_NAME",
+      "value": "",
+      "description": "Supabase Storage Configuration Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SUPABASE_API_KEY",
+      "key": "SUPABASE_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: SUPABASE_URL",
+      "key": "SUPABASE_URL",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VECTOR_INDEX_NAME_PREFIX",
+      "key": "VECTOR_INDEX_NAME_PREFIX",
+      "value": "Vector_index",
+      "description": "Prefix used to create collection name in vector database",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WEAVIATE_TOKENIZATION",
+      "key": "WEAVIATE_TOKENIZATION",
+      "value": "word",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: QDRANT_CLIENT_TIMEOUT",
+      "key": "QDRANT_CLIENT_TIMEOUT",
+      "value": "20",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: QDRANT_GRPC_ENABLED",
+      "key": "QDRANT_GRPC_ENABLED",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: QDRANT_GRPC_PORT",
+      "key": "QDRANT_GRPC_PORT",
+      "value": "6334",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: QDRANT_REPLICATION_FACTOR",
+      "key": "QDRANT_REPLICATION_FACTOR",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_URI",
+      "key": "MILVUS_URI",
+      "value": "http://host.docker.internal:19530",
+      "description": "Milvus configuration. Only available when VECTOR_STORE is `milvus`. The milvus uri.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_DATABASE",
+      "key": "MILVUS_DATABASE",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_TOKEN",
+      "key": "MILVUS_TOKEN",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: MILVUS_USER",
+      "key": "MILVUS_USER",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_PASSWORD",
+      "key": "MILVUS_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: MILVUS_ENABLE_HYBRID_SEARCH",
+      "key": "MILVUS_ENABLE_HYBRID_SEARCH",
+      "value": "False",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_ANALYZER_PARAMS",
+      "key": "MILVUS_ANALYZER_PARAMS",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSCALE_HOST",
+      "key": "MYSCALE_HOST",
+      "value": "",
+      "description": "MyScale configuration, only available when VECTOR_STORE is `myscale` For multi-language support, please set MYSCALE_FTS_PARAMS with referring to: https://myscale.com/docs/en/text-search/#understanding-fts-index-parameters Official default: &apos;myscale&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSCALE_PORT",
+      "key": "MYSCALE_PORT",
+      "value": "8123",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSCALE_USER",
+      "key": "MYSCALE_USER",
+      "value": "default",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSCALE_PASSWORD",
+      "key": "MYSCALE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: MYSCALE_DATABASE",
+      "key": "MYSCALE_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MYSCALE_FTS_PARAMS",
+      "key": "MYSCALE_FTS_PARAMS",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: COUCHBASE_CONNECTION_STRING",
+      "key": "COUCHBASE_CONNECTION_STRING",
+      "value": "",
+      "description": "Couchbase configurations, only available when VECTOR_STORE is `couchbase` The connection string must include hostname defined in the docker-compose file (couchbase-server in this case) Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: COUCHBASE_USER",
+      "key": "COUCHBASE_USER",
+      "value": "Administrator",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: COUCHBASE_PASSWORD",
+      "key": "COUCHBASE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: COUCHBASE_BUCKET_NAME",
+      "key": "COUCHBASE_BUCKET_NAME",
+      "value": "Embeddings",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: COUCHBASE_SCOPE_NAME",
+      "key": "COUCHBASE_SCOPE_NAME",
+      "value": "_default",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_HOST",
+      "key": "HOLOGRES_HOST",
+      "value": "",
+      "description": "Hologres configurations, only available when VECTOR_STORE is `hologres` access_key_id is used as the PG username, access_key_secret is used as the PG password",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_PORT",
+      "key": "HOLOGRES_PORT",
+      "value": "80",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_DATABASE",
+      "key": "HOLOGRES_DATABASE",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_ACCESS_KEY_ID",
+      "key": "HOLOGRES_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: HOLOGRES_ACCESS_KEY_SECRET",
+      "key": "HOLOGRES_ACCESS_KEY_SECRET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: HOLOGRES_SCHEMA",
+      "key": "HOLOGRES_SCHEMA",
+      "value": "public",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_TOKENIZER",
+      "key": "HOLOGRES_TOKENIZER",
+      "value": "jieba",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_DISTANCE_METHOD",
+      "key": "HOLOGRES_DISTANCE_METHOD",
+      "value": "Cosine",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_BASE_QUANTIZATION_TYPE",
+      "key": "HOLOGRES_BASE_QUANTIZATION_TYPE",
+      "value": "rabitq",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_MAX_DEGREE",
+      "key": "HOLOGRES_MAX_DEGREE",
+      "value": "64",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HOLOGRES_EF_CONSTRUCTION",
+      "key": "HOLOGRES_EF_CONSTRUCTION",
+      "value": "400",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTOR_MIN_CONNECTION",
+      "key": "PGVECTOR_MIN_CONNECTION",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTOR_MAX_CONNECTION",
+      "key": "PGVECTOR_MAX_CONNECTION",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTOR_PG_BIGM",
+      "key": "PGVECTOR_PG_BIGM",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTOR_PG_BIGM_VERSION",
+      "key": "PGVECTOR_PG_BIGM_VERSION",
+      "value": "1.2-20240606",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_HOST",
+      "key": "VASTBASE_HOST",
+      "value": "",
+      "description": "vastbase configurations, only available when VECTOR_STORE is `vastbase` Official default: &apos;vastbase&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_PORT",
+      "key": "VASTBASE_PORT",
+      "value": "5432",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_USER",
+      "key": "VASTBASE_USER",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_PASSWORD",
+      "key": "VASTBASE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: VASTBASE_DATABASE",
+      "key": "VASTBASE_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_MIN_CONNECTION",
+      "key": "VASTBASE_MIN_CONNECTION",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VASTBASE_MAX_CONNECTION",
+      "key": "VASTBASE_MAX_CONNECTION",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTO_RS_HOST",
+      "key": "PGVECTO_RS_HOST",
+      "value": "",
+      "description": "pgvecto-rs configurations, only available when VECTOR_STORE is `pgvecto-rs` Official default: &apos;pgvecto-rs&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTO_RS_PORT",
+      "key": "PGVECTO_RS_PORT",
+      "value": "5432",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTO_RS_USER",
+      "key": "PGVECTO_RS_USER",
+      "value": "postgres",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PGVECTO_RS_PASSWORD",
+      "key": "PGVECTO_RS_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PGVECTO_RS_DATABASE",
+      "key": "PGVECTO_RS_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_KEY_ID",
+      "key": "ANALYTICDB_KEY_ID",
+      "value": "",
+      "description": "analyticdb configurations, only available when VECTOR_STORE is `analyticdb` Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_KEY_SECRET",
+      "key": "ANALYTICDB_KEY_SECRET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_REGION_ID",
+      "key": "ANALYTICDB_REGION_ID",
+      "value": "cn-hangzhou",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_INSTANCE_ID",
+      "key": "ANALYTICDB_INSTANCE_ID",
+      "value": "gp-ab123456",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_ACCOUNT",
+      "key": "ANALYTICDB_ACCOUNT",
+      "value": "testaccount",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_PASSWORD",
+      "key": "ANALYTICDB_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_NAMESPACE",
+      "key": "ANALYTICDB_NAMESPACE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_NAMESPACE_PASSWORD",
+      "key": "ANALYTICDB_NAMESPACE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_HOST",
+      "key": "ANALYTICDB_HOST",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Official default: &apos;gp-test.aliyuncs.com&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_PORT",
+      "key": "ANALYTICDB_PORT",
+      "value": "5432",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_MIN_CONNECTION",
+      "key": "ANALYTICDB_MIN_CONNECTION",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ANALYTICDB_MAX_CONNECTION",
+      "key": "ANALYTICDB_MAX_CONNECTION",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_VECTOR_HOST",
+      "key": "TIDB_VECTOR_HOST",
+      "value": "",
+      "description": "TiDB vector configurations, only available when VECTOR_STORE is `tidb_vector` Official default: &apos;tidb&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_VECTOR_PORT",
+      "key": "TIDB_VECTOR_PORT",
+      "value": "4000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_VECTOR_USER",
+      "key": "TIDB_VECTOR_USER",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_VECTOR_PASSWORD",
+      "key": "TIDB_VECTOR_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TIDB_VECTOR_DATABASE",
+      "key": "TIDB_VECTOR_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MATRIXONE_HOST",
+      "key": "MATRIXONE_HOST",
+      "value": "",
+      "description": "Matrixone vector configurations. Official default: &apos;matrixone&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MATRIXONE_PORT",
+      "key": "MATRIXONE_PORT",
+      "value": "6001",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MATRIXONE_USER",
+      "key": "MATRIXONE_USER",
+      "value": "dump",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MATRIXONE_PASSWORD",
+      "key": "MATRIXONE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: MATRIXONE_DATABASE",
+      "key": "MATRIXONE_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_ON_QDRANT_URL",
+      "key": "TIDB_ON_QDRANT_URL",
+      "value": "",
+      "description": "Tidb on qdrant configuration, only available when VECTOR_STORE is `tidb_on_qdrant` Official default: &apos;http://127.0.0.1&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_ON_QDRANT_API_KEY",
+      "key": "TIDB_ON_QDRANT_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TIDB_ON_QDRANT_CLIENT_TIMEOUT",
+      "key": "TIDB_ON_QDRANT_CLIENT_TIMEOUT",
+      "value": "20",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_ON_QDRANT_GRPC_ENABLED",
+      "key": "TIDB_ON_QDRANT_GRPC_ENABLED",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TIDB_ON_QDRANT_GRPC_PORT",
+      "key": "TIDB_ON_QDRANT_GRPC_PORT",
+      "value": "6334",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_HOST",
+      "key": "CHROMA_HOST",
+      "value": "",
+      "description": "Chroma configuration, only available when VECTOR_STORE is `chroma` Official default: &apos;127.0.0.1&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_PORT",
+      "key": "CHROMA_PORT",
+      "value": "8000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_TENANT",
+      "key": "CHROMA_TENANT",
+      "value": "default_tenant",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_DATABASE",
+      "key": "CHROMA_DATABASE",
+      "value": "default_database",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_AUTH_PROVIDER",
+      "key": "CHROMA_AUTH_PROVIDER",
+      "value": "chromadb.auth.token_authn.TokenAuthClientProvider",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHROMA_AUTH_CREDENTIALS",
+      "key": "CHROMA_AUTH_CREDENTIALS",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ORACLE_USER",
+      "key": "ORACLE_USER",
+      "value": "dify",
+      "description": "Oracle configuration, only available when VECTOR_STORE is `oracle`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ORACLE_PASSWORD",
+      "key": "ORACLE_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ORACLE_DSN",
+      "key": "ORACLE_DSN",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ORACLE_CONFIG_DIR",
+      "key": "ORACLE_CONFIG_DIR",
+      "value": "/app/api/storage/wallet",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ORACLE_WALLET_LOCATION",
+      "key": "ORACLE_WALLET_LOCATION",
+      "value": "/app/api/storage/wallet",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ORACLE_WALLET_PASSWORD",
+      "key": "ORACLE_WALLET_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ORACLE_IS_AUTONOMOUS",
+      "key": "ORACLE_IS_AUTONOMOUS",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_HOST",
+      "key": "ALIBABACLOUD_MYSQL_HOST",
+      "value": "",
+      "description": "AlibabaCloud MySQL configuration, only available when VECTOR_STORE is `alibabacloud_mysql` Official default: &apos;127.0.0.1&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_PORT",
+      "key": "ALIBABACLOUD_MYSQL_PORT",
+      "value": "3306",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_USER",
+      "key": "ALIBABACLOUD_MYSQL_USER",
+      "value": "root",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_PASSWORD",
+      "key": "ALIBABACLOUD_MYSQL_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_DATABASE",
+      "key": "ALIBABACLOUD_MYSQL_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_MAX_CONNECTION",
+      "key": "ALIBABACLOUD_MYSQL_MAX_CONNECTION",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALIBABACLOUD_MYSQL_HNSW_M",
+      "key": "ALIBABACLOUD_MYSQL_HNSW_M",
+      "value": "6",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: RELYT_HOST",
+      "key": "RELYT_HOST",
+      "value": "",
+      "description": "relyt configurations, only available when VECTOR_STORE is `relyt` Official default: &apos;db&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: RELYT_PORT",
+      "key": "RELYT_PORT",
+      "value": "5432",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: RELYT_USER",
+      "key": "RELYT_USER",
+      "value": "postgres",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: RELYT_PASSWORD",
+      "key": "RELYT_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: RELYT_DATABASE",
+      "key": "RELYT_DATABASE",
+      "value": "postgres",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_HOST",
+      "key": "OPENSEARCH_HOST",
+      "value": "",
+      "description": "open search configuration, only available when VECTOR_STORE is `opensearch` Official default: &apos;opensearch&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_PORT",
+      "key": "OPENSEARCH_PORT",
+      "value": "9200",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_SECURE",
+      "key": "OPENSEARCH_SECURE",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_VERIFY_CERTS",
+      "key": "OPENSEARCH_VERIFY_CERTS",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_AUTH_METHOD",
+      "key": "OPENSEARCH_AUTH_METHOD",
+      "value": "basic",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_USER",
+      "key": "OPENSEARCH_USER",
+      "value": "admin",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_PASSWORD",
+      "key": "OPENSEARCH_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_AWS_REGION",
+      "key": "OPENSEARCH_AWS_REGION",
+      "value": "ap-southeast-1",
+      "description": "If using AWS managed IAM, e.g. Managed Cluster or OpenSearch Serverless",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENSEARCH_AWS_SERVICE",
+      "key": "OPENSEARCH_AWS_SERVICE",
+      "value": "aoss",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_URL",
+      "key": "TENCENT_VECTOR_DB_URL",
+      "value": "",
+      "description": "tencent vector configurations, only available when VECTOR_STORE is `tencent` Official default: &apos;http://127.0.0.1&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_API_KEY",
+      "key": "TENCENT_VECTOR_DB_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_TIMEOUT",
+      "key": "TENCENT_VECTOR_DB_TIMEOUT",
+      "value": "30",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_USERNAME",
+      "key": "TENCENT_VECTOR_DB_USERNAME",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_DATABASE",
+      "key": "TENCENT_VECTOR_DB_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_SHARD",
+      "key": "TENCENT_VECTOR_DB_SHARD",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_REPLICAS",
+      "key": "TENCENT_VECTOR_DB_REPLICAS",
+      "value": "2",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TENCENT_VECTOR_DB_ENABLE_HYBRID_SEARCH",
+      "key": "TENCENT_VECTOR_DB_ENABLE_HYBRID_SEARCH",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_HOST",
+      "key": "ELASTICSEARCH_HOST",
+      "value": "",
+      "description": "ElasticSearch configuration, only available when VECTOR_STORE is `elasticsearch` Official default: &apos;0.0.0.0&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_PORT",
+      "key": "ELASTICSEARCH_PORT",
+      "value": "9200",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_USERNAME",
+      "key": "ELASTICSEARCH_USERNAME",
+      "value": "elastic",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_PASSWORD",
+      "key": "ELASTICSEARCH_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_USE_CLOUD",
+      "key": "ELASTICSEARCH_USE_CLOUD",
+      "value": "false",
+      "description": "Using ElasticSearch Cloud Serverless, or not.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_CLOUD_URL",
+      "key": "ELASTICSEARCH_CLOUD_URL",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_API_KEY",
+      "key": "ELASTICSEARCH_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_VERIFY_CERTS",
+      "key": "ELASTICSEARCH_VERIFY_CERTS",
+      "value": "False",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_CA_CERTS",
+      "key": "ELASTICSEARCH_CA_CERTS",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_REQUEST_TIMEOUT",
+      "key": "ELASTICSEARCH_REQUEST_TIMEOUT",
+      "value": "100000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_RETRY_ON_TIMEOUT",
+      "key": "ELASTICSEARCH_RETRY_ON_TIMEOUT",
+      "value": "True",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ELASTICSEARCH_MAX_RETRIES",
+      "key": "ELASTICSEARCH_MAX_RETRIES",
+      "value": "10",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_ENDPOINT",
+      "key": "BAIDU_VECTOR_DB_ENDPOINT",
+      "value": "",
+      "description": "baidu vector configurations, only available when VECTOR_STORE is `baidu` Official default: &apos;http://127.0.0.1:5287&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_CONNECTION_TIMEOUT_MS",
+      "key": "BAIDU_VECTOR_DB_CONNECTION_TIMEOUT_MS",
+      "value": "30000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_ACCOUNT",
+      "key": "BAIDU_VECTOR_DB_ACCOUNT",
+      "value": "root",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_API_KEY",
+      "key": "BAIDU_VECTOR_DB_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_DATABASE",
+      "key": "BAIDU_VECTOR_DB_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_SHARD",
+      "key": "BAIDU_VECTOR_DB_SHARD",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_REPLICAS",
+      "key": "BAIDU_VECTOR_DB_REPLICAS",
+      "value": "3",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_INVERTED_INDEX_ANALYZER",
+      "key": "BAIDU_VECTOR_DB_INVERTED_INDEX_ANALYZER",
+      "value": "DEFAULT_ANALYZER",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_INVERTED_INDEX_PARSER_MODE",
+      "key": "BAIDU_VECTOR_DB_INVERTED_INDEX_PARSER_MODE",
+      "value": "COARSE_MODE",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT",
+      "key": "BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT",
+      "value": "500",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT_RATIO",
+      "key": "BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT_RATIO",
+      "value": "0.05",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: BAIDU_VECTOR_DB_REBUILD_INDEX_TIMEOUT_IN_SECONDS",
+      "key": "BAIDU_VECTOR_DB_REBUILD_INDEX_TIMEOUT_IN_SECONDS",
+      "value": "300",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VIKINGDB_ACCESS_KEY",
+      "key": "VIKINGDB_ACCESS_KEY",
+      "value": "",
+      "description": "VikingDB configurations, only available when VECTOR_STORE is `vikingdb` Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: VIKINGDB_SECRET_KEY",
+      "key": "VIKINGDB_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: VIKINGDB_REGION",
+      "key": "VIKINGDB_REGION",
+      "value": "cn-shanghai",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VIKINGDB_HOST",
+      "key": "VIKINGDB_HOST",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VIKINGDB_SCHEMA",
+      "key": "VIKINGDB_SCHEMA",
+      "value": "http",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VIKINGDB_CONNECTION_TIMEOUT",
+      "key": "VIKINGDB_CONNECTION_TIMEOUT",
+      "value": "30",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: VIKINGDB_SOCKET_TIMEOUT",
+      "key": "VIKINGDB_SOCKET_TIMEOUT",
+      "value": "30",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LINDORM_URL",
+      "key": "LINDORM_URL",
+      "value": "",
+      "description": "Lindorm configuration, only available when VECTOR_STORE is `lindorm` Official default: &apos;http://localhost:30070&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LINDORM_USERNAME",
+      "key": "LINDORM_USERNAME",
+      "value": "admin",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LINDORM_PASSWORD",
+      "key": "LINDORM_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: LINDORM_USING_UGC",
+      "key": "LINDORM_USING_UGC",
+      "value": "True",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LINDORM_QUERY_TIMEOUT",
+      "key": "LINDORM_QUERY_TIMEOUT",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_HOST",
+      "key": "OPENGAUSS_HOST",
+      "value": "",
+      "description": "opengauss configurations, only available when VECTOR_STORE is `opengauss` Official default: &apos;opengauss&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_PORT",
+      "key": "OPENGAUSS_PORT",
+      "value": "6600",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_USER",
+      "key": "OPENGAUSS_USER",
+      "value": "postgres",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_PASSWORD",
+      "key": "OPENGAUSS_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_DATABASE",
+      "key": "OPENGAUSS_DATABASE",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_MIN_CONNECTION",
+      "key": "OPENGAUSS_MIN_CONNECTION",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_MAX_CONNECTION",
+      "key": "OPENGAUSS_MAX_CONNECTION",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OPENGAUSS_ENABLE_PQ",
+      "key": "OPENGAUSS_ENABLE_PQ",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_CLOUD_HOSTS",
+      "key": "HUAWEI_CLOUD_HOSTS",
+      "value": "",
+      "description": "huawei cloud search service vector configurations, only available when VECTOR_STORE is `huawei_cloud` Official default: &apos;https://127.0.0.1:9200&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_CLOUD_USER",
+      "key": "HUAWEI_CLOUD_USER",
+      "value": "admin",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUAWEI_CLOUD_PASSWORD",
+      "key": "HUAWEI_CLOUD_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: UPSTASH_VECTOR_URL",
+      "key": "UPSTASH_VECTOR_URL",
+      "value": "",
+      "description": "Upstash Vector configuration, only available when VECTOR_STORE is `upstash` Upstream ships a placeholder value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPSTASH_VECTOR_TOKEN",
+      "key": "UPSTASH_VECTOR_TOKEN",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TABLESTORE_ENDPOINT",
+      "key": "TABLESTORE_ENDPOINT",
+      "value": "",
+      "description": "TableStore Vector configuration (only used when VECTOR_STORE is tablestore) Official default: &apos;https://instance-name.cn-hangzhou.ots.aliyuncs.com&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TABLESTORE_INSTANCE_NAME",
+      "key": "TABLESTORE_INSTANCE_NAME",
+      "value": "instance-name",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TABLESTORE_ACCESS_KEY_ID",
+      "key": "TABLESTORE_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TABLESTORE_ACCESS_KEY_SECRET",
+      "key": "TABLESTORE_ACCESS_KEY_SECRET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: TABLESTORE_NORMALIZE_FULLTEXT_BM25_SCORE",
+      "key": "TABLESTORE_NORMALIZE_FULLTEXT_BM25_SCORE",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_USERNAME",
+      "key": "CLICKZETTA_USERNAME",
+      "value": "",
+      "description": "Clickzetta configuration, only available when VECTOR_STORE is `clickzetta`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_PASSWORD",
+      "key": "CLICKZETTA_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_INSTANCE",
+      "key": "CLICKZETTA_INSTANCE",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_SERVICE",
+      "key": "CLICKZETTA_SERVICE",
+      "value": "api.clickzetta.com",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_WORKSPACE",
+      "key": "CLICKZETTA_WORKSPACE",
+      "value": "quick_start",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VCLUSTER",
+      "key": "CLICKZETTA_VCLUSTER",
+      "value": "default_ap",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_SCHEMA",
+      "key": "CLICKZETTA_SCHEMA",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_BATCH_SIZE",
+      "key": "CLICKZETTA_BATCH_SIZE",
+      "value": "100",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_ENABLE_INVERTED_INDEX",
+      "key": "CLICKZETTA_ENABLE_INVERTED_INDEX",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_ANALYZER_TYPE",
+      "key": "CLICKZETTA_ANALYZER_TYPE",
+      "value": "chinese",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_ANALYZER_MODE",
+      "key": "CLICKZETTA_ANALYZER_MODE",
+      "value": "smart",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CLICKZETTA_VECTOR_DISTANCE_FUNCTION",
+      "key": "CLICKZETTA_VECTOR_DISTANCE_FUNCTION",
+      "value": "cosine_distance",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_HOST",
+      "key": "IRIS_HOST",
+      "value": "",
+      "description": "InterSystems IRIS configuration, only available when VECTOR_STORE is `iris` Official default: &apos;iris&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_SUPER_SERVER_PORT",
+      "key": "IRIS_SUPER_SERVER_PORT",
+      "value": "1972",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_WEB_SERVER_PORT",
+      "key": "IRIS_WEB_SERVER_PORT",
+      "value": "52773",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_USER",
+      "key": "IRIS_USER",
+      "value": "_SYSTEM",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_PASSWORD",
+      "key": "IRIS_PASSWORD",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable. Upstream ships a sample value; the AIO template intentionally leaves it blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: IRIS_DATABASE",
+      "key": "IRIS_DATABASE",
+      "value": "USER",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_SCHEMA",
+      "key": "IRIS_SCHEMA",
+      "value": "dify",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_CONNECTION_URL",
+      "key": "IRIS_CONNECTION_URL",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_MIN_CONNECTION",
+      "key": "IRIS_MIN_CONNECTION",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_MAX_CONNECTION",
+      "key": "IRIS_MAX_CONNECTION",
+      "value": "3",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_TEXT_INDEX",
+      "key": "IRIS_TEXT_INDEX",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_TEXT_INDEX_LANGUAGE",
+      "key": "IRIS_TEXT_INDEX_LANGUAGE",
+      "value": "en",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: IRIS_TIMEZONE",
+      "key": "IRIS_TIMEZONE",
+      "value": "UTC",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_FILE_SIZE_LIMIT",
+      "key": "UPLOAD_FILE_SIZE_LIMIT",
+      "value": "15",
+      "description": "Upload file size limit, default 15M.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_FILE_BATCH_LIMIT",
+      "key": "UPLOAD_FILE_BATCH_LIMIT",
+      "value": "5",
+      "description": "The maximum number of files that can be uploaded at a time, default 5.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_FILE_EXTENSION_BLACKLIST",
+      "key": "UPLOAD_FILE_EXTENSION_BLACKLIST",
+      "value": "",
+      "description": "Comma-separated list of file extensions blocked from upload for security reasons. Extensions should be lowercase without dots (e.g., exe,bat,sh,dll). Empty by default to allow all file types. Recommended: exe,bat,cmd,com,scr,vbs,ps1,msi,dll",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ATTACHMENT_IMAGE_FILE_SIZE_LIMIT",
+      "key": "ATTACHMENT_IMAGE_FILE_SIZE_LIMIT",
+      "value": "2",
+      "description": "Maximum allowed image file size for attachments in megabytes, default 2.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ATTACHMENT_IMAGE_DOWNLOAD_TIMEOUT",
+      "key": "ATTACHMENT_IMAGE_DOWNLOAD_TIMEOUT",
+      "value": "60",
+      "description": "Timeout for downloading image attachments in seconds, default 60.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ETL_TYPE",
+      "key": "ETL_TYPE",
+      "value": "dify",
+      "description": "ETL type, support: `dify`, `Unstructured` `dify` Dify&apos;s proprietary file extraction scheme `Unstructured` Unstructured.io file extraction scheme",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UNSTRUCTURED_API_URL",
+      "key": "UNSTRUCTURED_API_URL",
+      "value": "",
+      "description": "Unstructured API path and API key, needs to be configured when ETL_TYPE is Unstructured Or using Unstructured for document extractor node for pptx. For example: http://unstructured:8000/general/v0/general",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UNSTRUCTURED_API_KEY",
+      "key": "UNSTRUCTURED_API_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PROMPT_GENERATION_MAX_TOKENS",
+      "key": "PROMPT_GENERATION_MAX_TOKENS",
+      "value": "512",
+      "description": "The maximum number of tokens allowed for prompt generation. This setting controls the upper limit of tokens that can be used by the LLM when generating a prompt in the prompt generation tool. Default: 512 tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_GENERATION_MAX_TOKENS",
+      "key": "CODE_GENERATION_MAX_TOKENS",
+      "value": "1024",
+      "description": "The maximum number of tokens allowed for code generation. This setting controls the upper limit of tokens that can be used by the LLM when generating code in the code generation tool. Default: 1024 tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MULTIMODAL_SEND_FORMAT",
+      "key": "MULTIMODAL_SEND_FORMAT",
+      "value": "base64",
+      "description": "The format of the image/video/audio/document sent when the multi-modal model is input, the default is base64, optional url. The delay of the call in url mode will be lower than that in base64 mode. It is generally recommended to use the more compatible base64 mode. If...",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_IMAGE_FILE_SIZE_LIMIT",
+      "key": "UPLOAD_IMAGE_FILE_SIZE_LIMIT",
+      "value": "10",
+      "description": "Upload image file size limit, default 10M.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_VIDEO_FILE_SIZE_LIMIT",
+      "key": "UPLOAD_VIDEO_FILE_SIZE_LIMIT",
+      "value": "100",
+      "description": "Upload video file size limit, default 100M.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: UPLOAD_AUDIO_FILE_SIZE_LIMIT",
+      "key": "UPLOAD_AUDIO_FILE_SIZE_LIMIT",
+      "value": "50",
+      "description": "Upload audio file size limit, default 50M.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SENTRY_DSN",
+      "key": "SENTRY_DSN",
+      "value": "",
+      "description": "Sentry Configuration Used for application monitoring and error log tracking.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_SENTRY_ENABLED",
+      "key": "PLUGIN_SENTRY_ENABLED",
+      "value": "false",
+      "description": "Plugin_daemon Service Sentry DSN address, default is empty, when empty, all monitoring information is not reported to Sentry. If not set, Sentry error reporting will be disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_SENTRY_DSN",
+      "key": "PLUGIN_SENTRY_DSN",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: NOTION_INTEGRATION_TYPE",
+      "key": "NOTION_INTEGRATION_TYPE",
+      "value": "public",
+      "description": "Configure as &quot;public&quot; or &quot;internal&quot;. Since Notion&apos;s OAuth redirect URL only supports HTTPS, if deploying locally, please use Notion&apos;s internal integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: NOTION_CLIENT_SECRET",
+      "key": "NOTION_CLIENT_SECRET",
+      "value": "",
+      "description": "Notion OAuth client secret (used for public integration type)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: NOTION_CLIENT_ID",
+      "key": "NOTION_CLIENT_ID",
+      "value": "",
+      "description": "Notion OAuth client id (used for public integration type)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: NOTION_INTERNAL_SECRET",
+      "key": "NOTION_INTERNAL_SECRET",
+      "value": "",
+      "description": "Notion internal integration secret. If the value of NOTION_INTEGRATION_TYPE is &quot;internal&quot;, you need to configure this variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: RESEND_API_URL",
+      "key": "RESEND_API_URL",
+      "value": "",
+      "description": "API-Key for the Resend email provider, used when MAIL_TYPE is `resend`. Official default: &apos;https://api.resend.com&apos;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SMTP_USE_TLS",
+      "key": "SMTP_USE_TLS",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SMTP_OPPORTUNISTIC_TLS",
+      "key": "SMTP_OPPORTUNISTIC_TLS",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SMTP_LOCAL_HOSTNAME",
+      "key": "SMTP_LOCAL_HOSTNAME",
+      "value": "",
+      "description": "Optional: override the local hostname used for SMTP HELO/EHLO",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH",
+      "key": "INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH",
+      "value": "4000",
+      "description": "Maximum length of segmentation tokens for indexing",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: INVITE_EXPIRY_HOURS",
+      "key": "INVITE_EXPIRY_HOURS",
+      "value": "72",
+      "description": "Member invitation link valid time (hours), Default: 72.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: RESET_PASSWORD_TOKEN_EXPIRY_MINUTES",
+      "key": "RESET_PASSWORD_TOKEN_EXPIRY_MINUTES",
+      "value": "5",
+      "description": "Reset password token valid time (minutes),",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: EMAIL_REGISTER_TOKEN_EXPIRY_MINUTES",
+      "key": "EMAIL_REGISTER_TOKEN_EXPIRY_MINUTES",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CHANGE_EMAIL_TOKEN_EXPIRY_MINUTES",
+      "key": "CHANGE_EMAIL_TOKEN_EXPIRY_MINUTES",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OWNER_TRANSFER_TOKEN_EXPIRY_MINUTES",
+      "key": "OWNER_TRANSFER_TOKEN_EXPIRY_MINUTES",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_SSL_VERIFY",
+      "key": "CODE_EXECUTION_SSL_VERIFY",
+      "value": "True",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_POOL_MAX_CONNECTIONS",
+      "key": "CODE_EXECUTION_POOL_MAX_CONNECTIONS",
+      "value": "100",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS",
+      "key": "CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS",
+      "value": "20",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY",
+      "key": "CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY",
+      "value": "5.0",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_CONNECT_TIMEOUT",
+      "key": "CODE_EXECUTION_CONNECT_TIMEOUT",
+      "value": "10",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_READ_TIMEOUT",
+      "key": "CODE_EXECUTION_READ_TIMEOUT",
+      "value": "60",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CODE_EXECUTION_WRITE_TIMEOUT",
+      "key": "CODE_EXECUTION_WRITE_TIMEOUT",
+      "value": "10",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_MAX_EXECUTION_STEPS",
+      "key": "WORKFLOW_MAX_EXECUTION_STEPS",
+      "value": "500",
+      "description": "Workflow runtime configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_MAX_EXECUTION_TIME",
+      "key": "WORKFLOW_MAX_EXECUTION_TIME",
+      "value": "1200",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_CALL_MAX_DEPTH",
+      "key": "WORKFLOW_CALL_MAX_DEPTH",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_FILE_UPLOAD_LIMIT",
+      "key": "WORKFLOW_FILE_UPLOAD_LIMIT",
+      "value": "10",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_LOG_CLEANUP_ENABLED",
+      "key": "WORKFLOW_LOG_CLEANUP_ENABLED",
+      "value": "false",
+      "description": "Workflow log cleanup configuration Enable automatic cleanup of workflow run logs to manage database size",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_LOG_RETENTION_DAYS",
+      "key": "WORKFLOW_LOG_RETENTION_DAYS",
+      "value": "30",
+      "description": "Number of days to retain workflow run logs (default: 30 days)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_LOG_CLEANUP_BATCH_SIZE",
+      "key": "WORKFLOW_LOG_CLEANUP_BATCH_SIZE",
+      "value": "100",
+      "description": "Batch size for workflow log cleanup operations (default: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_LOG_CLEANUP_SPECIFIC_WORKFLOW_IDS",
+      "key": "WORKFLOW_LOG_CLEANUP_SPECIFIC_WORKFLOW_IDS",
+      "value": "",
+      "description": "Comma-separated list of workflow IDs to clean logs for",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOGSTORE_DUAL_WRITE_ENABLED",
+      "key": "LOGSTORE_DUAL_WRITE_ENABLED",
+      "value": "false",
+      "description": "Enable dual-write to both SLS LogStore and SQL database (default: false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOGSTORE_DUAL_READ_ENABLED",
+      "key": "LOGSTORE_DUAL_READ_ENABLED",
+      "value": "true",
+      "description": "Enable dual-read fallback to SQL database when LogStore returns no results (default: true) Useful for migration scenarios where historical data exists only in SQL database",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: LOGSTORE_ENABLE_PUT_GRAPH_FIELD",
+      "key": "LOGSTORE_ENABLE_PUT_GRAPH_FIELD",
+      "value": "true",
+      "description": "Control flag for whether to write the `graph` field to LogStore. If LOGSTORE_ENABLE_PUT_GRAPH_FIELD is &quot;true&quot;, write the full `graph` field; otherwise write an empty {} instead. Defaults to writing the `graph` field.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_NODE_MAX_BINARY_SIZE",
+      "key": "HTTP_REQUEST_NODE_MAX_BINARY_SIZE",
+      "value": "10485760",
+      "description": "HTTP request node in workflow configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_NODE_MAX_TEXT_SIZE",
+      "key": "HTTP_REQUEST_NODE_MAX_TEXT_SIZE",
+      "value": "1048576",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_NODE_SSL_VERIFY",
+      "key": "HTTP_REQUEST_NODE_SSL_VERIFY",
+      "value": "True",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_MAX_CONNECT_TIMEOUT",
+      "key": "HTTP_REQUEST_MAX_CONNECT_TIMEOUT",
+      "value": "10",
+      "description": "HTTP request node timeout configuration Maximum timeout values (in seconds) that users can set in HTTP request nodes - Connect timeout: Time to wait for establishing connection (default: 10s) - Read timeout: Time to wait for receiving response data (default: 600s, 10 minutes)...",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_MAX_READ_TIMEOUT",
+      "key": "HTTP_REQUEST_MAX_READ_TIMEOUT",
+      "value": "600",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HTTP_REQUEST_MAX_WRITE_TIMEOUT",
+      "key": "HTTP_REQUEST_MAX_WRITE_TIMEOUT",
+      "value": "600",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: TEXT_GENERATION_TIMEOUT_MS",
+      "key": "TEXT_GENERATION_TIMEOUT_MS",
+      "value": "60000",
+      "description": "The timeout for the text generation in millisecond",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALLOW_INLINE_STYLES",
+      "key": "ALLOW_INLINE_STYLES",
+      "value": "false",
+      "description": "Allow inline style attributes in Markdown rendering. Enable this if your workflows use Jinja2 templates with styled HTML. Only recommended for self-hosted deployments with trusted content.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALLOW_UNSAFE_DATA_SCHEME",
+      "key": "ALLOW_UNSAFE_DATA_SCHEME",
+      "value": "false",
+      "description": "Allow rendering unsafe URLs which have &quot;data:&quot; scheme.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_GIN_MODE",
+      "key": "SANDBOX_GIN_MODE",
+      "value": "release",
+      "description": "The mode in which the Gin framework runs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ORACLE_PWD",
+      "key": "ORACLE_PWD",
+      "value": "Dify123456",
+      "description": "Environment Variables for Oracle Service (only used when VECTOR_STORE is oracle)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ORACLE_CHARACTERSET",
+      "key": "ORACLE_CHARACTERSET",
+      "value": "AL32UTF8",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: MILVUS_AUTHORIZATION_ENABLED",
+      "key": "MILVUS_AUTHORIZATION_ENABLED",
+      "value": "true",
+      "description": "Enable or disable security authorization",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_HTTP_PORT",
+      "key": "SSRF_HTTP_PORT",
+      "value": "3128",
+      "description": "Environment Variables for SSRF Proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_DEFAULT_TIME_OUT",
+      "key": "SSRF_DEFAULT_TIME_OUT",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_DEFAULT_CONNECT_TIME_OUT",
+      "key": "SSRF_DEFAULT_CONNECT_TIME_OUT",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_DEFAULT_READ_TIME_OUT",
+      "key": "SSRF_DEFAULT_READ_TIME_OUT",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_DEFAULT_WRITE_TIME_OUT",
+      "key": "SSRF_DEFAULT_WRITE_TIME_OUT",
+      "value": "5",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_POOL_MAX_CONNECTIONS",
+      "key": "SSRF_POOL_MAX_CONNECTIONS",
+      "value": "100",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS",
+      "key": "SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS",
+      "value": "20",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SSRF_POOL_KEEPALIVE_EXPIRY",
+      "key": "SSRF_POOL_KEEPALIVE_EXPIRY",
+      "value": "5.0",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_TOOL_PINS",
+      "key": "POSITION_TOOL_PINS",
+      "value": "",
+      "description": "Pin, include, and exclude tools Use comma-separated values with no spaces between items. Example: POSITION_TOOL_PINS=bing,google",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_TOOL_INCLUDES",
+      "key": "POSITION_TOOL_INCLUDES",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_TOOL_EXCLUDES",
+      "key": "POSITION_TOOL_EXCLUDES",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_PROVIDER_PINS",
+      "key": "POSITION_PROVIDER_PINS",
+      "value": "",
+      "description": "Pin, include, and exclude model providers Use comma-separated values with no spaces between items. Example: POSITION_PROVIDER_PINS=openai,openllm",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_PROVIDER_INCLUDES",
+      "key": "POSITION_PROVIDER_INCLUDES",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: POSITION_PROVIDER_EXCLUDES",
+      "key": "POSITION_PROVIDER_EXCLUDES",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: CSP_WHITELIST",
+      "key": "CSP_WHITELIST",
+      "value": "",
+      "description": "CSP https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_STORAGE_TYPE",
+      "key": "PLUGIN_STORAGE_TYPE",
+      "value": "local",
+      "description": "https://github.com/langgenius/dify-plugin-daemon/blob/main/.env.example Plugin storage type, local aws_s3 tencent_cos azure_blob aliyun_oss volcengine_tos",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_STORAGE_OSS_BUCKET",
+      "key": "PLUGIN_STORAGE_OSS_BUCKET",
+      "value": "",
+      "description": "Plugin oss bucket",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_S3_USE_AWS",
+      "key": "PLUGIN_S3_USE_AWS",
+      "value": "false",
+      "description": "Plugin oss s3 credentials",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_S3_USE_AWS_MANAGED_IAM",
+      "key": "PLUGIN_S3_USE_AWS_MANAGED_IAM",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_S3_ENDPOINT",
+      "key": "PLUGIN_S3_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_S3_USE_PATH_STYLE",
+      "key": "PLUGIN_S3_USE_PATH_STYLE",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_AWS_ACCESS_KEY",
+      "key": "PLUGIN_AWS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_AWS_SECRET_KEY",
+      "key": "PLUGIN_AWS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_AWS_REGION",
+      "key": "PLUGIN_AWS_REGION",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_AZURE_BLOB_STORAGE_CONTAINER_NAME",
+      "key": "PLUGIN_AZURE_BLOB_STORAGE_CONTAINER_NAME",
+      "value": "",
+      "description": "Plugin oss azure blob",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_AZURE_BLOB_STORAGE_CONNECTION_STRING",
+      "key": "PLUGIN_AZURE_BLOB_STORAGE_CONNECTION_STRING",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_TENCENT_COS_SECRET_KEY",
+      "key": "PLUGIN_TENCENT_COS_SECRET_KEY",
+      "value": "",
+      "description": "Plugin oss tencent cos",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_TENCENT_COS_SECRET_ID",
+      "key": "PLUGIN_TENCENT_COS_SECRET_ID",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_TENCENT_COS_REGION",
+      "key": "PLUGIN_TENCENT_COS_REGION",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_REGION",
+      "key": "PLUGIN_ALIYUN_OSS_REGION",
+      "value": "",
+      "description": "Plugin oss aliyun oss",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_ENDPOINT",
+      "key": "PLUGIN_ALIYUN_OSS_ENDPOINT",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID",
+      "key": "PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET",
+      "key": "PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_AUTH_VERSION",
+      "key": "PLUGIN_ALIYUN_OSS_AUTH_VERSION",
+      "value": "v4",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_ALIYUN_OSS_PATH",
+      "key": "PLUGIN_ALIYUN_OSS_PATH",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_VOLCENGINE_TOS_ENDPOINT",
+      "key": "PLUGIN_VOLCENGINE_TOS_ENDPOINT",
+      "value": "",
+      "description": "Plugin oss volcengine tos",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: PLUGIN_VOLCENGINE_TOS_ACCESS_KEY",
+      "key": "PLUGIN_VOLCENGINE_TOS_ACCESS_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_VOLCENGINE_TOS_SECRET_KEY",
+      "key": "PLUGIN_VOLCENGINE_TOS_SECRET_KEY",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dify Env: PLUGIN_VOLCENGINE_TOS_REGION",
+      "key": "PLUGIN_VOLCENGINE_TOS_REGION",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_EXPORTER_OTLP_PROTOCOL",
+      "key": "OTEL_EXPORTER_OTLP_PROTOCOL",
+      "value": "",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_EXPORTER_TYPE",
+      "key": "OTEL_EXPORTER_TYPE",
+      "value": "otlp",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_SAMPLING_RATE",
+      "key": "OTEL_SAMPLING_RATE",
+      "value": "0.1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_BATCH_EXPORT_SCHEDULE_DELAY",
+      "key": "OTEL_BATCH_EXPORT_SCHEDULE_DELAY",
+      "value": "5000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_MAX_QUEUE_SIZE",
+      "key": "OTEL_MAX_QUEUE_SIZE",
+      "value": "2048",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_MAX_EXPORT_BATCH_SIZE",
+      "key": "OTEL_MAX_EXPORT_BATCH_SIZE",
+      "value": "512",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_METRIC_EXPORT_INTERVAL",
+      "key": "OTEL_METRIC_EXPORT_INTERVAL",
+      "value": "60000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_BATCH_EXPORT_TIMEOUT",
+      "key": "OTEL_BATCH_EXPORT_TIMEOUT",
+      "value": "10000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: OTEL_METRIC_EXPORT_TIMEOUT",
+      "key": "OTEL_METRIC_EXPORT_TIMEOUT",
+      "value": "30000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ALLOW_EMBED",
+      "key": "ALLOW_EMBED",
+      "value": "false",
+      "description": "Prevent Clickjacking",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: DATASET_MAX_SEGMENTS_PER_REQUEST",
+      "key": "DATASET_MAX_SEGMENTS_PER_REQUEST",
+      "value": "0",
+      "description": "Maximum number of segments for dataset segments API (0 for unlimited)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_CLEAN_EMBEDDING_CACHE_TASK",
+      "key": "ENABLE_CLEAN_EMBEDDING_CACHE_TASK",
+      "value": "false",
+      "description": "Celery schedule tasks configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_CLEAN_UNUSED_DATASETS_TASK",
+      "key": "ENABLE_CLEAN_UNUSED_DATASETS_TASK",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_CLEAN_MESSAGES",
+      "key": "ENABLE_CLEAN_MESSAGES",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_WORKFLOW_RUN_CLEANUP_TASK",
+      "key": "ENABLE_WORKFLOW_RUN_CLEANUP_TASK",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_MAIL_CLEAN_DOCUMENT_NOTIFY_TASK",
+      "key": "ENABLE_MAIL_CLEAN_DOCUMENT_NOTIFY_TASK",
+      "value": "false",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_WORKFLOW_SCHEDULE_POLLER_TASK",
+      "key": "ENABLE_WORKFLOW_SCHEDULE_POLLER_TASK",
+      "value": "true",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_SCHEDULE_POLLER_INTERVAL",
+      "key": "WORKFLOW_SCHEDULE_POLLER_INTERVAL",
+      "value": "1",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_SCHEDULE_POLLER_BATCH_SIZE",
+      "key": "WORKFLOW_SCHEDULE_POLLER_BATCH_SIZE",
+      "value": "100",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: WORKFLOW_SCHEDULE_MAX_DISPATCH_PER_TICK",
+      "key": "WORKFLOW_SCHEDULE_MAX_DISPATCH_PER_TICK",
+      "value": "0",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_EXPIRED_RECORDS_CLEAN_GRACEFUL_PERIOD",
+      "key": "SANDBOX_EXPIRED_RECORDS_CLEAN_GRACEFUL_PERIOD",
+      "value": "21",
+      "description": "Sandbox expired records clean configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_SIZE",
+      "key": "SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_SIZE",
+      "value": "1000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL",
+      "key": "SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL",
+      "value": "200",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_EXPIRED_RECORDS_RETENTION_DAYS",
+      "key": "SANDBOX_EXPIRED_RECORDS_RETENTION_DAYS",
+      "value": "30",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: ENABLE_HUMAN_INPUT_TIMEOUT_TASK",
+      "key": "ENABLE_HUMAN_INPUT_TIMEOUT_TASK",
+      "value": "true",
+      "description": "Whether to Enable human input timeout check task",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: HUMAN_INPUT_TIMEOUT_TASK_INTERVAL",
+      "key": "HUMAN_INPUT_TIMEOUT_TASK_INTERVAL",
+      "value": "1",
+      "description": "Human input timeout check interval in minutes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dify Env: SANDBOX_EXPIRED_RECORDS_CLEAN_TASK_LOCK_TTL",
+      "key": "SANDBOX_EXPIRED_RECORDS_CLEAN_TASK_LOCK_TTL",
+      "value": "90000",
+      "description": "Upstream Dify self-hosted environment variable.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

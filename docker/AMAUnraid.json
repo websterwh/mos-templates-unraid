@@ -1,0 +1,401 @@
+{
+  "name": "AMA-Unraid",
+  "repo": "ghcr.io/crywolf203/ama-unraid:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/crywolf203/ama-unraid/pkgs/container/ama-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/crywolf203/unraid-templates/main/ama-unraid-icon.png",
+  "project": "https://github.com/crywolf203/ama-unraid",
+  "description": "AMA-Unraid is a community-maintained Unraid-focused fork of the archived RandomNinjaAtk/docker-ama project. AMA automates music archiving for Plex, Jellyfin, Emby, Kodi, Roon, and Lidarr. Recommended mode is Deemix Direct, which runs Deemix inside the AMA container and uses /downloads-ama/temp as a safe per-album working folder. The template uses ghcr.io/crywolf203/ama-Unraid:latest and keeps TemplateURL metadata so Unraid can track image and template updates. Use only with content and accounts you are authorized to access.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/ama-unraid",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent AMA-Unraid appdata. Stores scripts, logs, cache, artist lists, runtime Deemix Direct config, and helper files. Recommended: /mnt/cache/appdata/ama-unraid.",
+      "required": true
+    },
+    {
+      "name": "Downloads / Music Library",
+      "host": "/mnt/cache/media/music",
+      "container": "/downloads-ama",
+      "mode": "rw",
+      "description": "Final processed music library. AMA also creates and cleans /downloads-ama/temp internally as the safe per-album Deemix Direct working folder. Do not map /downloads-ama/temp separately.",
+      "required": true
+    },
+    {
+      "name": "Deemix Config",
+      "host": "",
+      "container": "/deemix-config",
+      "mode": "rw",
+      "description": "Optional host path containing Deemix login.json. Not needed when using ARL Token. Set this only if you intentionally want Deemix Direct or legacy API mode to read /deemix-config/login.json.",
+      "required": false
+    },
+    {
+      "name": "Legacy Deemix Downloads",
+      "host": "",
+      "container": "/deemix-downloads",
+      "mode": "rw",
+      "description": "Legacy/API-only host path for external Deemix API downloads. Not needed for Deemix Direct.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Download Client",
+      "key": "DOWNLOAD_CLIENT",
+      "value": "deemix_direct",
+      "description": "Download backend. Recommended: deemix_direct. Deemix Direct runs inside AMA and does not require a separate Deemix API/WebUI container. Legacy option: deemix_api.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mode",
+      "key": "MODE",
+      "value": "artist",
+      "description": "Artist processing mode. artist downloads albums listed directly under that artist. discography downloads albums listed under that artist plus albums where that artist appears as a contributor or featured artist. Recommended: artist for tighter libraries; discography for the broadest collection.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ARL Token",
+      "key": "ARL_TOKEN",
+      "value": "",
+      "description": "Deezer ARL token used by Deemix Direct. Recommended login method for new Direct-mode installs. Keep private. If left blank, Deemix Direct must be able to read /deemix-config/login.json instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Autostart",
+      "key": "AUTOSTART",
+      "value": "false",
+      "description": "true = run AMA automatically on container startup and repeat using Script Interval. false = manual runs only. Recommended: false until your configuration is tested.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Script Interval",
+      "key": "SCRIPTINTERVAL",
+      "value": "7d",
+      "description": "Time between automatic runs when Autostart is true. Examples: 15m, 1h, 1d, 7d.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Format",
+      "key": "FORMAT",
+      "value": "FLAC",
+      "description": "Preferred final audio format. Supported values: FLAC, ALAC, AAC, MP3, OPUS. FLAC is recommended for best quality. ALAC, AAC, MP3, and OPUS may trigger post-download conversion from FLAC when needed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitrate",
+      "key": "BITRATE",
+      "value": "320",
+      "description": "Lossy bitrate used for MP3, AAC, and OPUS conversion paths. Examples: 128, 192, 256, 320. Only matters for lossy formats or conversion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Convert",
+      "key": "FORCECONVERT",
+      "value": "false",
+      "description": "Force conversion to the requested Format when supported. Recommended: false to avoid unnecessary lossy-to-lossy conversion. Set true only when you intentionally want the final library to match the selected Format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Post Process Threads",
+      "key": "POSTPROCESSTHREADS",
+      "value": "8",
+      "description": "Number of threads used for conversion and post-processing tasks. Lower this on slower systems; raise it only if the server has CPU headroom.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Quality",
+      "key": "REQUIRE_QUALITY",
+      "value": "false",
+      "description": "Strict quality check after download. false lets AMA continue when Deemix fallback provides another available format. true is stricter and can skip or fail items that do not match the requested quality.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deemix Fallback Bitrate",
+      "key": "DEEMIX_FALLBACK_BITRATE",
+      "value": "true",
+      "description": "Allow Deemix Direct to fall back to another available bitrate or format when the requested quality is unavailable. Recommended: true so albums can complete when FLAC is missing. Set false for stricter behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deemix Direct Queue Concurrency",
+      "key": "DEEMIX_QUEUE_CONCURRENCY",
+      "value": "1",
+      "description": "Internal Deemix Direct queue and download concurrency. Recommended: 1 because AMA uses one shared /downloads-ama/temp working folder per album.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deemix Embedded Artwork Size",
+      "key": "DEEMIX_EMBEDDED_ARTWORK_SIZE",
+      "value": "1400",
+      "description": "Artwork size embedded into audio files by Deemix Direct. Recommended: 1400 for high-quality album art without very large embedded images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deemix Local Artwork Size",
+      "key": "DEEMIX_LOCAL_ARTWORK_SIZE",
+      "value": "1400",
+      "description": "Artwork size used for local cover files such as cover.jpg. Recommended: 1400.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deemix JPEG Image Quality",
+      "key": "DEEMIX_JPEG_IMAGE_QUALITY",
+      "value": "100",
+      "description": "JPEG quality used by Deemix Direct for saved and embedded artwork. Recommended: 100. Falls back to Embedded Cover Quality if unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedded Cover Quality",
+      "key": "EMBEDDED_COVER_QUALITY",
+      "value": "100",
+      "description": "Legacy and fallback artwork quality variable. Deemix Direct prefers Deemix JPEG Image Quality, but this remains available for compatibility with older AMA paths.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Album Type Filter",
+      "key": "ALBUM_TYPE_FILTER",
+      "value": "COMPILE",
+      "description": "Comma-separated Deezer album record types to skip. Common values: COMPILE, SINGLE, ALBUM, EP. Default COMPILE skips compilation albums. Leave blank to disable album type filtering.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore Artist Without Image",
+      "key": "IGNORE_ARTIST_WITHOUT_IMAGE",
+      "value": "true",
+      "description": "Skip related or discovered artists that appear to have a blank/default image. Recommended: true to reduce low-quality related-artist imports.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Complete My Artists",
+      "key": "COMPLETE_MY_ARTISTS",
+      "value": "false",
+      "description": "Add artist IDs discovered from your library that are not already in your list. Leave false unless you understand the original AMA complete-my-artists workflow.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Related Artist",
+      "key": "RELATED_ARTIST",
+      "value": "false",
+      "description": "Enable related artist discovery from your artist list. Leave false for a safer first setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Related Artist Related",
+      "key": "RELATED_ARTIST_RELATED",
+      "value": "false",
+      "description": "Enable recursive related artist discovery. Warning: this can greatly expand processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Related Count",
+      "key": "RELATED_COUNT",
+      "value": "0",
+      "description": "Maximum related artists to import per artist when related artist discovery is enabled. 0 keeps related importing effectively disabled in the default setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fan Count",
+      "key": "FAN_COUNT",
+      "value": "10",
+      "description": "Minimum Deezer fan count required for related artist processing. Higher values reduce smaller or less relevant related-artist imports.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Concurrent Downloads",
+      "key": "CONCURRENT_DOWNLOADS",
+      "value": "1",
+      "description": "AMA album processing concurrency. Recommended: 1 for Deemix Direct because /downloads-ama/temp is cleaned and reused per album.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ReplayGain",
+      "key": "REPLAYGAIN",
+      "value": "true",
+      "description": "Enable ReplayGain scanning and tagging after download. Helps compatible players normalize playback volume without changing the audio itself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Artist Tag Cleanup",
+      "key": "ENABLE_ARTIST_TAG_CLEANUP",
+      "value": "true",
+      "description": "Clean artist metadata after download so featured artists stay in titles while ARTIST and ALBUMARTIST remain library-friendly. Supports FLAC, MP3, M4A, and OPUS fallback files. Recommended: true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tag Normalizer",
+      "key": "ENABLE_TAG_NORMALIZER",
+      "value": "false",
+      "description": "Legacy broader tag normalizer. Disabled by default because Artist Tag Cleanup is the safer Plex/Roon-focused cleanup path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Permissions",
+      "key": "FILE_PERMISSIONS",
+      "value": "777",
+      "description": "File permissions applied to completed music files and temp files. Default 777 is permissive for Unraid shares; advanced users may prefer 644.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Folder Permissions",
+      "key": "FOLDER_PERMISSIONS",
+      "value": "777",
+      "description": "Folder permissions applied to completed music folders and temp folders. Default 777 is permissive for Unraid shares; advanced users may prefer 755.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership. 99 is the default Unraid nobody user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership. 100 is the default Unraid users group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone used for logs and scheduled intervals. Example: America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr List Import",
+      "key": "LIDARR_LIST_IMPORT",
+      "value": "false",
+      "description": "true = import artist IDs from Lidarr instead of only using files in /config/list. Requires Lidarr URL and Lidarr API Key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr URL",
+      "key": "LIDARR_URL",
+      "value": "",
+      "description": "Lidarr server URL. Only used when Lidarr List Import is true. Example: http://SERVER-IP:8686.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr API Key",
+      "key": "LIDARR_API_KEY",
+      "value": "",
+      "description": "Lidarr API key. Only used when Lidarr List Import is true.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify Plex",
+      "key": "NOTIFYPLEX",
+      "value": "false",
+      "description": "true = notify Plex after AMA imports music. Requires Plex Library Name, Plex URL, and Plex Token. Leave false if you use Jellyfin, Emby, Roon, manual scans, or do not want automatic Plex refreshes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Scan Path Override",
+      "key": "PLEXSCANPATH",
+      "value": "",
+      "description": "Optional path override when Plex sees the music folder differently than AMA. Example: AMA writes /downloads-ama but Plex sees /media/music. Only used when Notify Plex is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Library Name",
+      "key": "PLEXLIBRARYNAME",
+      "value": "Music",
+      "description": "Exact Plex music library name. Only used when Notify Plex is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEXURL",
+      "value": "",
+      "description": "Plex server URL. Only used when Notify Plex is true. Example: http://SERVER-IP:32400.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEXTOKEN",
+      "value": "",
+      "description": "Plex token. Only used when Notify Plex is true.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Deemix Config Path In Container",
+      "key": "DEEMIX_CONFIG_PATH",
+      "value": "/deemix-config",
+      "description": "Optional container path to a Deemix login/config folder containing login.json. Only needed when ARL Token is blank or when using legacy login.json workflows. Not required for ARL-only Deemix Direct.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Legacy Deemix API URL",
+      "key": "DEEMIX_API_URL",
+      "value": "",
+      "description": "Legacy/API-only Deemix API URL. Only used when Download Client is deemix_api. Not used by recommended Deemix Direct mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Legacy Deemix Download Path In Container",
+      "key": "DEEMIX_DOWNLOAD_PATH",
+      "value": "/deemix-downloads",
+      "description": "Legacy/API-only container path where an external Deemix API/WebUI container writes completed downloads. Only used when Download Client is deemix_api.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

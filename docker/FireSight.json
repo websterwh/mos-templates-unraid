@@ -1,0 +1,92 @@
+{
+  "name": "FireSight",
+  "repo": "ghcr.io/tjindarr/unifi-insights-hub:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/tjindarr/unifi-insights-hub",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8095]",
+  "icon": "https://raw.githubusercontent.com/Tjindarr/unifi-insights-hub/main/unraid/icon.png",
+  "project": "https://github.com/Tjindarr/unifi-insights-hub",
+  "description": "FireSight is a self-hosted firewall log analyzer and syslog dashboard for UniFi routers (UDR / UDM / UXG / Cloud Gateway). Acts as a syslog server on UDP/514, parses UniFi firewall, STA-tracker and internal events, enriches them with GeoIP and threat intelligence (AbuseIPDB + offline FireHOL/Spamhaus blocklists), and serves a fast dark NOC-style web UI with FTS5-backed search. Single container \u2014 no separate database, no extra services. SQLite (WAL + FTS5) keeps searches snappy even on large log volumes. Features: - Syslog UDP/514 listener with UniFi RFC3164 + CEF parser - Real-time firewall log viewer with pause/resume, country + ASN, threat level - Internal events viewer (Wi-Fi roam, auth, DHCP, admin actions) in plain English - Full-text search across raw syslog (SQLite FTS5) - Per-minute event charts driven by the global time range - Pie charts for actions, categories, and external IP threat level - Optional UniFi API polling (read-only) for client name resolution - Configurable retention by age + DB size cap, hourly VACUUM - First-login forced password change, session cookie auth - Local timezone support via the TZ env var (router timestamps lack a TZ field)",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/firesight",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage. Holds the SQLite database (unifi.db) and config.json (UniFi credentials, retention settings, auto-generated session secret).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8095",
+      "container": "8095",
+      "protocol": "tcp",
+      "description": "HTTP port for the FireSight web UI. Host networking is used so this also binds on the host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Syslog UDP Port",
+      "host": "514",
+      "container": "514",
+      "protocol": "udp",
+      "description": "UDP port the syslog listener binds to. Point your UniFi router's remote syslog here.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Stockholm",
+      "description": "Timezone for interpreting UniFi syslog timestamps (RFC3164 has no TZ field). Must match the timezone your router is configured in.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Admin User",
+      "key": "DASH_USER",
+      "value": "admin",
+      "description": "Seed username for the first login. You'll be forced to change the password on first login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Admin Password",
+      "key": "DASH_PASSWORD",
+      "value": "admin",
+      "description": "Seed password for the first login (forced change on first login).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Retention Days (Syslog)",
+      "key": "RETENTION_DAYS",
+      "value": "30",
+      "description": "Drop syslog rows older than N days. Can also be changed from Settings in the UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max DB Size (MB)",
+      "key": "RETENTION_MAX_DB_MB",
+      "value": "2048",
+      "description": "Hard cap on on-disk SQLite size. When exceeded, the oldest syslog rows are pruned to fit.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

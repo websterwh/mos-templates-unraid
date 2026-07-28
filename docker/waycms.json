@@ -1,0 +1,100 @@
+{
+  "name": "way-cms",
+  "repo": "drumsergio/way-cms:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/way-cms",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]/",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/way-cms.png",
+  "project": "https://github.com/GeiserX/Way-CMS",
+  "description": "Simple self-hosted CMS for editing HTML and CSS files with real-time preview. Edit your static website files through a clean web interface with syntax highlighting, auto-backups, and session management. No database required \u2014 works directly with your HTML files. Supports single-tenant (one website) and multi-tenant (multiple projects) modes. Built with Flask and nginx. More info: https://github.com/GeiserX/Way-CMS",
+  "paths": [
+    {
+      "name": "Website Files",
+      "host": "/mnt/cache/appdata/way-cms/website",
+      "container": "/var/www/html",
+      "mode": "rw",
+      "description": "Website HTML/CSS files",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/way-cms/backups",
+      "container": "/.way-cms-backups",
+      "mode": "rw",
+      "description": "Auto-backup storage",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "CMS Admin Port",
+      "host": "5001",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "CMS admin interface port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Website Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Public website port (nginx)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Password",
+      "key": "CMS_PASSWORD",
+      "value": "",
+      "description": "Admin password for the CMS interface",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Username",
+      "key": "CMS_USERNAME",
+      "value": "admin",
+      "description": "Admin username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website URL",
+      "key": "WEBSITE_URL",
+      "value": "",
+      "description": "Live website URL (shown in CMS header)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Website Name",
+      "key": "WEBSITE_NAME",
+      "value": "",
+      "description": "Website name (shown in breadcrumb and backups)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Read Only Mode",
+      "key": "READ_ONLY_MODE",
+      "value": "false",
+      "description": "Disable editing (view-only mode)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

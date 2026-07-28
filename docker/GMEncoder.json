@@ -1,0 +1,283 @@
+{
+  "name": "GM-Encoder",
+  "repo": "ghcr.io/turkushan490/gm-encoder:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/turkushan490/gm-encoder/pkgs/container/gm-encoder",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --device /dev/dri:/dev/dri/",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4805]/",
+  "icon": "https://raw.githubusercontent.com/turkushan490/gm-encoder/main/docs/logo.svg",
+  "project": "https://github.com/turkushan490/gm-encoder",
+  "description": "VMAF-targeted video encoder as a watch-folder daemon. Drop videos in the input share and it finds the optimal CRF for your target quality (terranvigil/dynamic-crf + ffmpeg/libvmaf), encodes, and remuxes all audio/subtitle/attachment/chapter streams from the original. Pick the encoder from the Codec dropdown, or leave it on 'auto' to detect the passed-through GPU. Supports NVIDIA NVENC, Intel QSV, AMD/Intel VAAPI and CPU. GPU ACCESS is controlled by Extra Parameters (below): - NVIDIA : --runtime=nvidia --device /dev/dri:/dev/dri/ (needs Nvidia-Driver plugin) - Intel/AMD (QSV/VAAPI) : --device /dev/dri:/dev/dri/ - CPU only : leave Extra Parameters empty",
+  "paths": [
+    {
+      "name": "Input share",
+      "host": "/mnt/cache/media/GM-Encoder/encode_in",
+      "container": "/input",
+      "mode": "rw",
+      "description": "Drop videos here to encode (scanned recursively).",
+      "required": true
+    },
+    {
+      "name": "Output share",
+      "host": "/mnt/cache/media/GM-Encoder/encode_out",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Encoded files land here.",
+      "required": true
+    },
+    {
+      "name": "Config/appdata",
+      "host": "/mnt/cache/appdata/gm-encoder",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Logs + state (processed/failed lists).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web GUI port",
+      "host": "4805",
+      "container": "4805",
+      "protocol": "tcp",
+      "description": "Open http://UNRAID-IP:PORT for the control panel (settings, live progress, manual encode, pause/stop).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Codec / GPU",
+      "key": "CODEC",
+      "value": "auto|nvidia|intel|amd|cpu|hevc_nvenc|av1_nvenc|h264_nvenc|hevc_qsv|av1_qsv|h264_qsv|hevc_vaapi|av1_vaapi|h264_vaapi|libx265|libsvtav1|libx264",
+      "description": "Pick your GPU vendor (nvidia/intel/amd/cpu) and it combines with Family below. auto = detect it. Or pick an explicit encoder. Make sure Extra Parameters passes the matching device/runtime.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Codec family",
+      "key": "FAMILY",
+      "value": "hevc|av1|h264",
+      "description": "Combined with the GPU vendor above (e.g. nvidia + hevc = hevc_nvenc). hevc = best support, av1 = smallest (needs newer GPU), h264 = most compatible.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Optimize (VMAF search)",
+      "key": "OPTIMIZE",
+      "value": "true|false",
+      "description": "true = find the best CRF for the VMAF target. false = fixed quality (Manual CRF).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VMAF minimum",
+      "key": "VMAF_TARGET",
+      "value": "93",
+      "description": "Minimum acceptable quality 0-100 (accepts anything from this up to 100; picks the smallest file that still meets it). 95 = archival, 93 = high (recommended), 90 = smaller.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial CRF",
+      "key": "INITIAL_CRF",
+      "value": "22",
+      "description": "Search starting point.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Min CRF (worst)",
+      "key": "MIN_CRF",
+      "value": "28",
+      "description": "Highest CRF number the search may use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max CRF (best)",
+      "key": "MAX_CRF",
+      "value": "18",
+      "description": "Lowest CRF number the search may use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Manual CRF/QP",
+      "key": "MANUAL_CRF",
+      "value": "23",
+      "description": "Used only when Optimize = false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scale height",
+      "key": "HEIGHT",
+      "value": "0",
+      "description": "0 = keep source resolution. e.g. 1080 downscales to 1080p.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remux original streams",
+      "key": "REMUX",
+      "value": "true|false",
+      "description": "Copy all audio/subs/attachments/chapters from the source.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output container",
+      "key": "OUTPUT_CONTAINER",
+      "value": "mkv|mp4",
+      "description": "Output file type.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output suffix",
+      "key": "OUTPUT_SUFFIX",
+      "value": "_gm",
+      "description": "Appended to the filename.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output subdirectory",
+      "key": "OUTPUT_SUBDIR",
+      "value": "SAME_AS_SRC",
+      "description": "SAME_AS_SRC = mirror the input folder structure. Empty = flat into /output. Or a fixed folder name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto watch-folder",
+      "key": "WATCH_ENABLED",
+      "value": "true|false",
+      "description": "true = auto-encode files dropped in the input share. false = GUI/manual only (you pick files in the web UI).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "After success",
+      "key": "SOURCE_ACTION",
+      "value": "move|keep|delete",
+      "description": "What to do with the source after a successful encode. move = to input/done.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep larger output",
+      "key": "KEEP_LARGER",
+      "value": "true|false",
+      "description": "false = discard the result if it is not smaller than the source.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poll interval (s)",
+      "key": "WATCH_INTERVAL",
+      "value": "15",
+      "description": "How often to scan the input share.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File stable (s)",
+      "key": "FILE_STABLE_SECONDS",
+      "value": "20",
+      "description": "Wait this long after the last write before encoding (avoids partial copies).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan existing on start",
+      "key": "SCAN_EXISTING",
+      "value": "true|false",
+      "description": "Process files already present when the container starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Input extensions",
+      "key": "INPUT_EXTENSIONS",
+      "value": "mp4,mkv,mov,avi,m4v,webm,ts,wmv,flv",
+      "description": "Comma-separated list of file types to watch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAAPI render device",
+      "key": "VAAPI_DEVICE",
+      "value": "/dev/dri/renderD128",
+      "description": "For *_vaapi codecs. Auto-falls back to the first real render node if this one is absent (Arc is often renderD129).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LIBVA_DRIVER_NAME",
+      "key": "LIBVA_DRIVER_NAME",
+      "value": "",
+      "description": "Intel/AMD QSV/VAAPI only. iHD = Intel Arc / recent iGPU, radeonsi = AMD. Leave empty to auto-detect. NOTE: pass /dev/dri via --device=/dev/dri in Extra Parameters, NOT as a Path mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Your GPU UUID from the Nvidia-Driver plugin page (e.g. GPU-xxxxxxxx-...), or 'all'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Leave as 'all' for NVENC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id for output files (Unraid = 99).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id for output files (Unraid = 100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Amsterdam",
+      "description": "Timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

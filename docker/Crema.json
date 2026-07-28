@@ -1,0 +1,132 @@
+{
+  "name": "Crema",
+  "repo": "lowess/crema:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/lowess/crema",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Lowess/docker-templates-unraid/main/Lowess/images/crema.png",
+  "project": "https://github.com/Aurel-Charles/crema",
+  "description": "Crema is a small Node.js LAN messenger for always-on displays. It serves a PWA, a display view, settings, history, and logs over HTTP.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/crema",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent Crema runtime state: replies, shortcuts, Do Not Disturb state, history database, and event logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web/PWA Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port used to access the Crema PWA, display, settings, history, and logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Embedded Broker Port",
+      "host": "4000",
+      "container": "4000",
+      "protocol": "tcp",
+      "description": "Socket.IO broker port. Other Crema peers can connect to ws://unraid-ip:[PORT].",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Owner Name",
+      "key": "CREMA_OWNER",
+      "value": "Unraid",
+      "description": "Display name for this Crema instance. Set a unique owner name for each peer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Transport",
+      "key": "CREMA_TRANSPORT",
+      "value": "broker",
+      "description": "Transport mode: broker, dual, or p2p. Broker is recommended for Docker because it avoids .local/mDNS peer resolution.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Embed Broker",
+      "key": "CREMA_EMBED_BROKER",
+      "value": "1",
+      "description": "Start Crema's lightweight broker inside this container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Broker URL",
+      "key": "CREMA_BROKER_URL",
+      "value": "ws://127.0.0.1:4000",
+      "description": "Socket.IO broker URL used by this Crema app. Keep ws://127.0.0.1:4000 to use the embedded broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Advertise Broker via mDNS",
+      "key": "CREMA_BROKER_ADVERTISE",
+      "value": "0",
+      "description": "Advertise this broker as _crema-broker._tcp via mDNS. Keep 0 for Docker and set other peers to ws://unraid-ip:4000 explicitly.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow P2P with Embedded Broker",
+      "key": "CREMA_ALLOW_P2P_IN_EMBEDDED_BROKER",
+      "value": "0",
+      "description": "Set to 1 only if you want embedded-broker containers to use dual/p2p mDNS discovery. Keep 0 for Docker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Resolve mDNS Addresses",
+      "key": "CREMA_MDNS_RESOLVE_ADDRESSES",
+      "value": "1",
+      "description": "In p2p/dual mode, prefer IPv4 addresses returned by mDNS over .local hostnames. Set to 0 to use hostname-only mDNS resolution.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Broker Token",
+      "key": "CREMA_BROKER_TOKEN",
+      "value": "",
+      "description": "Optional shared token. Must match the Crema Broker token when broker authentication is enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Latitude",
+      "key": "CREMA_LAT",
+      "value": "49.8941",
+      "description": "Latitude used for the display day/night theme schedule.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Longitude",
+      "key": "CREMA_LON",
+      "value": "2.2958",
+      "description": "Longitude used for the display day/night theme schedule.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

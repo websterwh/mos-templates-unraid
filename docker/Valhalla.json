@@ -1,0 +1,179 @@
+{
+  "name": "Valhalla",
+  "repo": "ghcr.io/valhalla/valhalla:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/valhalla/valhalla",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8002]",
+  "icon": "https://valhalla.github.io/valhalla/images/valhalla.png",
+  "project": "https://github.com/valhalla/valhalla",
+  "description": "An open source routing engine and accompanying libraries for use with OpenStreetMap data. Valhalla also includes tools like time+distance matrix computation, isochrones, elevation sampling, map matching and tour optimization (Travelling Salesman).",
+  "paths": [
+    {
+      "name": "Custom Files",
+      "host": "/mnt/cache/appdata/valhalla/custom_files",
+      "container": "/custom_files",
+      "mode": "rw",
+      "description": "Path to custom files.",
+      "required": true
+    },
+    {
+      "name": "GTFS Feeds",
+      "host": "/mnt/cache/appdata/valhalla/gtfs_feeds",
+      "container": "/gtfs_feeds",
+      "mode": "rw",
+      "description": "Path to GTFS feeds. Remove if Build Transit is disabled.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8002",
+      "container": "8002",
+      "protocol": "tcp",
+      "description": "Container Port: 8002",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Tile URLs",
+      "key": "tile_urls",
+      "value": "https://download.geofabrik.de/europe/andorra-latest.osm.pbf",
+      "description": "Space-separated list of URLs. Remove if Use Local Tiles is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Local Tiles",
+      "key": "use_tiles_ignore_pbf",
+      "value": "False|True",
+      "description": "Use a local tile.tar file instead of downloading and building",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Build Tar",
+      "key": "build_tar",
+      "value": "True|Force|False",
+      "description": "True creates a tarball of the tiles including an index which allows for extremely faster graph loading after reboots. Force will do the same, but first delete the existing tarball.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Force Rebuild",
+      "key": "force_rebuild",
+      "value": "False|True",
+      "description": "Force a rebuild of the routing tiles and sets (overrides Build Tar)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Build Elevation",
+      "key": "build_elevation",
+      "value": "False|True|Force",
+      "description": "True downloads elevation tiles which are covering the routing graph. Force will do the same, but first delete any existing elevation tiles.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Build Admins",
+      "key": "build_admins",
+      "value": "False|True|Force",
+      "description": "True builds the admin database needed for things like border-crossing penalties and detailed routing responses. Force will do the same, but first delete the existing database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Build Time Zones",
+      "key": "build_time_zones",
+      "value": "False|True|Force",
+      "description": "True builds the timezone database which is needed for time-dependent routing. Force will do the same, but first delete the existing database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Build Transit",
+      "key": "build_transit",
+      "value": "False|True|Force",
+      "description": "True will attempt to build transit tiles if none exist yet. Force will remove existing transit and routing tiles.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tileset Name",
+      "key": "tileset_name",
+      "value": "valhalla_tiles",
+      "description": "The name of the resulting graph on disk. Very useful in case you want to build multiple datasets in the same directory.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Traffic Name",
+      "key": "traffic_name",
+      "value": "traffic.tar",
+      "description": "The name of the traffic.tar. Again, useful for serving multiple traffic archives from the same directory. If empty, no traffic archive will be built.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Path Extensions",
+      "key": "path_extension",
+      "value": "",
+      "description": "This path will be appended to the custom_files path and will be the directory where all files will be created. Can be very useful in certain deployment scenarios. No leading/trailing path separator allowed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Existing Config",
+      "key": "update_existing_config",
+      "value": "True|False",
+      "description": "True updates missing keys in existing valhalla.json. Useful for updating stale config files to include newly introduced config parameters.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Default Speed Config",
+      "key": "use_default_speeds_config",
+      "value": "False|True",
+      "description": "True loads a JSON file used to enhance default speeds (or falls back to an existing custom_files/default_speeds.json) and sets the respective config entry. More details: https://github.com/OpenStreetMapSpeeds/schema",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Speed Config URL",
+      "key": "default_speeds_config_url",
+      "value": "https://raw.githubusercontent.com/OpenStreetMapSpeeds/schema/master/default_speeds.json",
+      "description": "Remote location of the default_speeds_config JSON.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Serve Tiles",
+      "key": "serve_tiles",
+      "value": "True|False",
+      "description": "Serve tiles from the container. If false, only build the graph.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Threads",
+      "key": "server_threads",
+      "value": "2",
+      "description": "Number of threads to use for the server",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

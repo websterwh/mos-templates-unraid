@@ -1,0 +1,131 @@
+{
+  "name": "FileManagerAPI",
+  "repo": "jandrop/file-manager-api:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/jandrop/file-manager-api",
+  "network": "file-manager-network",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --network-alias=file-manager-api",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/docs",
+  "icon": "https://raw.githubusercontent.com/jandrop/file_core_api_unraid/main/docs/icon.png",
+  "project": "https://github.com/jandrop/file_core_api_unraid",
+  "description": "File Manager API - Backend service for managing files on Unraid shares with a modern REST API.",
+  "paths": [
+    {
+      "name": "Data Volume",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "Mount Unraid user shares",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8765",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for API access (default: 8765)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Base Path",
+      "key": "BASE_PATH",
+      "value": "/mnt/user",
+      "description": "Base path for file operations (default: /mnt/user)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (default: 99 for nobody on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (default: 100 for users on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask (default: 022)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API Key",
+      "key": "API_KEY",
+      "value": "",
+      "description": "API key for authentication. REQUIRED for security - all endpoints need X-API-Key header when set. Generate with: openssl rand -base64 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Debug Mode",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Enable debug mode (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "CORS_ORIGINS",
+      "value": "[\"http://localhost\",\"http://localhost:8080\",\"http://localhost:3000\",\"http://localhost:8764\"]",
+      "description": "Allowed CORS origins (JSON array)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Upload Size",
+      "key": "MAX_UPLOAD_SIZE",
+      "value": "53687091200",
+      "description": "Maximum upload size in bytes (default: 50GB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Hidden Files",
+      "key": "SHOW_HIDDEN_FILES",
+      "value": "false",
+      "description": "Show hidden files (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable File Deletion",
+      "key": "ENABLE_FILE_DELETION",
+      "value": "true",
+      "description": "Enable file deletion (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Recursive Delete",
+      "key": "ENABLE_RECURSIVE_DELETE",
+      "value": "true",
+      "description": "Enable recursive directory deletion (true/false)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

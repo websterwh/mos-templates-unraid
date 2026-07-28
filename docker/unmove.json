@@ -1,0 +1,123 @@
+{
+  "name": "unmove",
+  "repo": "yusseiin/unmove:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/yusseiin/unmove",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/yusseiin/unraid-templates/main/img/unmove.png",
+  "project": "https://github.com/yusseiin/unmove",
+  "description": "File transfer application with TVDB/TMDB integration for organizing media files. Identify TV series and movies, rename them properly, and move them to your media library. This template uses a single /data mount for INSTANT file moves (no copy+delete). Your downloads and media folders should be subdirectories of the Data Path. NOTE: Instant moves only work if downloads and media are on the SAME physical disk. If they are on different disks, the app will automatically fall back to copy+delete. To guarantee instant moves, mount a specific disk (e.g., /mnt/disk1) instead of /mnt/user.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/user",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Parent directory containing downloads and media folders. Using a single mount enables INSTANT file moves instead of copy+delete.",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/unmove",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Path to store application config",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3213",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DOWNLOAD_PATH",
+      "key": "DOWNLOAD_PATH",
+      "value": "/data/downloads",
+      "description": "Path to downloads folder inside container (relative to Data Path /data/)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_PATH",
+      "key": "MEDIA_PATH",
+      "value": "/data/media",
+      "description": "Path to media folder inside container (relative to Data Path /data/)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CONFIG_PATH",
+      "key": "CONFIG_PATH",
+      "value": "/config",
+      "description": "Internal config path (don't change)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TVDB API Key",
+      "key": "TVDB_API_KEY",
+      "value": "",
+      "description": "Your TVDB API key (get one at https://thetvdb.com/api-information)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TMDB API Key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Your TMDB API key (get one at https://developer.themoviedb.org/docs/getting-started)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Your Plex server URL (e.g., http://192.168.1.100:32400)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Your Plex authentication token (see https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users on Unraid)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,388 @@
+{
+  "name": "HandBrake-for-Nvidia",
+  "repo": "zocker160/handbrake-nvenc:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/jlesage/handbrake",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --device /dev/dri:/dev/dri/",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]",
+  "icon": "https://raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/handbrake-icon.png",
+  "project": "https://handbrake.fr",
+  "description": "HandBrake is a tool for converting video from nearly any format to a selection of modern, widely supported codecs. The GUI of the application is accessed through a modern web browser (no installation or configuration needed on the client side) or via any VNC client. A fully automated mode is also available: drop files into a watch folder and let HandBrake process them without any user interaction. This is template for zocker160's container to simplify installation. You need to install ich777's nvidia driver before using this. For a complete documentation of this container, see https://github.com/jlesage/docker-handbrake#readme",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/user",
+      "container": "/storage",
+      "mode": "ro",
+      "description": "This location contains files from your host that need to be accessible to the application.",
+      "required": true
+    },
+    {
+      "name": "Watch Directory",
+      "host": "",
+      "container": "/watch",
+      "mode": "rw",
+      "description": "This is the watch folder of the automatic video converter. Any video copied into this folder will be automatically converted by HandBrake.",
+      "required": false
+    },
+    {
+      "name": "Output Directory",
+      "host": "",
+      "container": "/output",
+      "mode": "rw",
+      "description": "This is the default output folder for converted videos. Also used by the automatic video converter.",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/HandBrake",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is where the application stores its configuration, states, log and any files needing persistency.",
+      "required": true
+    },
+    {
+      "name": "Trash Directory",
+      "host": "",
+      "container": "/trash",
+      "mode": "rw",
+      "description": "When trash usage is enabled, this is where the automatic video converter moves converted files instead of deleting them.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEB Port for GUI (Bridge Network Type)",
+      "host": "7803",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port to access the application's GUI via the web interface. NOTE: This setting is relevant only when the Network Type is set to",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC Port for GUI (Bridge Network Type)",
+      "host": "7903",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port to access the application's GUI via VNC protocol. Optional if no VNC client is used. NOTE: This setting is relevant only when the Network Type is set to",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Automatic Video Converter: Preset",
+      "key": "AUTOMATED_CONVERSION_PRESET",
+      "value": "General/Very Fast 1080p30",
+      "description": "Preset used by the automatic video converter. Identification of the preset must follow the format 'CATEGORY/PRESET NAME'. Name of all available presets can be seen via the HandBrake GUI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Format",
+      "key": "AUTOMATED_CONVERSION_FORMAT",
+      "value": "mp4",
+      "description": "Video container format used by the automatic video converter for output files. This is typically the video filename extension.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Keep Source Files",
+      "key": "AUTOMATED_CONVERSION_KEEP_SOURCE",
+      "value": "1",
+      "description": "Set to 0 to remove successfully converted videos from the watch folder, 1 to keep them.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Non-Video File Action",
+      "key": "AUTOMATED_CONVERSION_NON_VIDEO_FILE_ACTION",
+      "value": "ignore",
+      "description": "Set to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Output directory",
+      "key": "AUTOMATED_CONVERSION_OUTPUT_DIR",
+      "value": "/output",
+      "description": "Root directory, inside the container, where converted videos should be written.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Output Subdirectory",
+      "key": "AUTOMATED_CONVERSION_OUTPUT_SUBDIR",
+      "value": "",
+      "description": "Subdirectory of the output folder into which converted videos should be written. Leave value empty to save converted videos directly into",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "ID of the user the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "ID of the group the application runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "0000",
+      "description": "Mask that controls how file permissions are set for newly created files. The value of the mask is in octal notation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Niceness (priority)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "Priority at which the application should run. A niceness value of -20 is the highest priority and 19 is the lowest priority. NOTE: Setting a negative value requires additional permissions. Thus,",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Width",
+      "key": "DISPLAY_WIDTH",
+      "value": "1920",
+      "description": "Width (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "1080",
+      "description": "Height (in pixels) of the application's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dark Mode",
+      "key": "DARK_MODE",
+      "value": "0",
+      "description": "When set to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Audio",
+      "key": "WEB_AUDIO",
+      "value": "0",
+      "description": "When set to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication",
+      "key": "WEB_AUTHENTICATION",
+      "value": "0",
+      "description": "When set to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication Username",
+      "key": "WEB_AUTHENTICATION_USERNAME",
+      "value": "",
+      "description": "Optional username to configure for the web authentication. This is a quick and easy way to configure credentials for a single user. To configure credentials in a more secure way, or to add more users, see the documentation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Authentication Password",
+      "key": "WEB_AUTHENTICATION_PASSWORD",
+      "value": "",
+      "description": "Optional password to configure for the web authentication. This is a quick and easy way to configure credentials for a single user. To configure credentials in a more secure way, or to add more users, see the documentation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "Whether or not an encrypted connection should be used to access the application's GUI. Set to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection VNC Method",
+      "key": "SECURE_CONNECTION_VNC_METHOD",
+      "value": "SSL",
+      "description": "Method used to perform the secure VNC connection. Possible values are",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Connection Certificate Check Interval",
+      "key": "SECURE_CONNECTION_CERTS_CHECK_INTERVAL",
+      "value": "60",
+      "description": "Interval, in seconds, at which the system verifies if web or VNC certificates have changed. When a change is detected, the affected services are automatically restarted. A value of",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Listening Port (Non-Bridge Network Type)",
+      "key": "WEB_LISTENING_PORT",
+      "value": "5800",
+      "description": "Port used by the web server to serve the UI of the application. This port is used internally by the container and it is usually not required to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC Listening Port (Non-Bridge Network Type)",
+      "key": "VNC_LISTENING_PORT",
+      "value": "5900",
+      "description": "Port used by the VNC server to serve the UI of the application. This port is used internally by the container and it is usually not required to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HandBrake GUI State",
+      "key": "HANDBRAKE_GUI",
+      "value": "1",
+      "description": "Setting this to 1 enables the HandBrake GUI, 0 disables it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: State",
+      "key": "AUTOMATED_CONVERSION",
+      "value": "1",
+      "description": "Setting this to 1 enables the automatic video converter, 0 disables it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Video File Extensions",
+      "key": "AUTOMATED_CONVERSION_VIDEO_FILE_EXTENSIONS",
+      "value": "",
+      "description": "Space-separated list of file extensions to be considered as video files. By default, this list is empty, meaning that the automatic video converter will let HandBrake automatically detects if a file, no matter its extension, is a video or not (note that extensions defined by the Non-Video File Extensions list are always considered as non-video files). Normally, this variable doesn't need to be set. Usage of this variable is useful when only specific video files need to converted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Non-Video File Extensions",
+      "key": "AUTOMATED_CONVERSION_NON_VIDEO_FILE_EXTENSIONS",
+      "value": "jpg jpeg bmp png gif txt nfo",
+      "description": "Space-separated list of file extensions to be considered as not being videos. Most non-video files are properly rejected by HandBrake. However, some files, like images, are convertible by HandBrake even if they are not video files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Overwrite Destination",
+      "key": "AUTOMATED_CONVERSION_OVERWRITE_OUTPUT",
+      "value": "0",
+      "description": "Setting this to 1 allows the final destination file to be overwritten if it already exists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Source File Stable Time",
+      "key": "AUTOMATED_CONVERSION_SOURCE_STABLE_TIME",
+      "value": "5",
+      "description": "Time (in seconds) during which properties (e.g. size, time, etc) of a video file in the watch folder need to remain the same. This is to avoid processing a file that is being copied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Minimum Title Duration",
+      "key": "AUTOMATED_CONVERSION_SOURCE_MIN_DURATION",
+      "value": "10",
+      "description": "Minimum title duration (in seconds). Shorter titles will be ignored. This applies only to video disc sources (ISO file, VIDEO_TS folder or BDMV folder).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Main Title Detection",
+      "key": "AUTOMATED_CONVERSION_SOURCE_MAIN_TITLE_DETECTION",
+      "value": "0",
+      "description": "Setting this to 1 enables HandBrake main feature title detection to try to guess and select the main title.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Check Interval",
+      "key": "AUTOMATED_CONVERSION_CHECK_INTERVAL",
+      "value": "5",
+      "description": "Interval (in seconds) at which the automatic video converter checks for new files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Number of Watch Folders",
+      "key": "AUTOMATED_CONVERSION_MAX_WATCH_FOLDERS",
+      "value": "5",
+      "description": "Maximum number of watch folders handled by the automatic video converter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Disable Progress in GUI",
+      "key": "AUTOMATED_CONVERSION_NO_GUI_PROGRESS",
+      "value": "0",
+      "description": "Set to 1 to disable display of the video conversion progress in HandBrake GUI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Custom HandBrake Arguments",
+      "key": "AUTOMATED_CONVERSION_HANDBRAKE_CUSTOM_ARGS",
+      "value": "",
+      "description": "Custom arguments to pass to HandBrake when performing a conversion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Install Packages",
+      "key": "AUTOMATED_CONVERSION_INSTALL_PKGS",
+      "value": "",
+      "description": "Space-separated list of Alpine Linux packages to install. This is useful when the automatic video converter's hooks require tools not available in the container image. See https://pkgs.alpinelinux.org for the list of available Alpine Linux packages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Video Converter: Use Trash Directory",
+      "key": "AUTOMATED_CONVERSION_USE_TRASH",
+      "value": "0",
+      "description": "Set to 1 to enable usage of the trash directory. So when the automatic video converter is configured to not keep sources, it will move files to the trash directory (/trash inside the container) instead of deleting them.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

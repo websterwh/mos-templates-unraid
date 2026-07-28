@@ -1,0 +1,118 @@
+{
+  "name": "electrumx",
+  "repo": "ofawx/electrumx",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/ofawx/electrumx/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:50001]",
+  "icon": "https://github.com/ofawx/unraid-templates/raw/master/img/electrum.png",
+  "project": "https://github.com/spesmilo/electrumx/",
+  "description": "Serve your Electrum clients from your own Bitcoin node! Avoid trusting public Electrum nodes, and maintain your own privacy. Expose ElectrumX to the public Internet to support other Electrum users who can't run their own nodes. See https://github.com/spesmilo/electrumx/blob/master/docs/environment.rst for full details on ElectrumX environment configuration.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/bitcoin/electrumx/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database Storage",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "TCP",
+      "host": "50001",
+      "container": "50001",
+      "protocol": "tcp",
+      "description": "Electrum TCP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSL",
+      "host": "50002",
+      "container": "50002",
+      "protocol": "tcp",
+      "description": "Electrum SSL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WSS",
+      "host": "50004",
+      "container": "50004",
+      "protocol": "tcp",
+      "description": "Electrum WSS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RPC",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "ElectrumX RPC",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Core RPC",
+      "key": "DAEMON_URL",
+      "value": "user:pass@host:8332",
+      "description": "Bitcoin RPC (Auth and Address)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Coin",
+      "key": "COIN",
+      "value": "BitcoinSegwit",
+      "description": "Container Variable: COIN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Banner File",
+      "key": "BANNER_FILE",
+      "value": "/data/banner.txt",
+      "description": "Place a text file to be displayed to clients in the data directory above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Donation Address",
+      "key": "DONATION_ADDRESS",
+      "value": "bc1q5g4e6auucmwzj5cwfc7870yn4cg0dselhpn47p",
+      "description": "Your Bitcoin address to display to clients for donations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Services",
+      "key": "SERVICES",
+      "value": "tcp://:50001,ssl://:50002,wss://:50004,rpc://0.0.0.0",
+      "description": "Services and ports to bind. Must match ports above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Report Services",
+      "key": "REPORT_SERVICES",
+      "value": "ssl://my.electrum.duckdns.org:50002,wss://my.electrum.duckdns.org:50004",
+      "description": "Optionally advertise FQDNs where your ElectrumX is available",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

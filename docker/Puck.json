@@ -1,0 +1,244 @@
+{
+  "name": "Puck",
+  "repo": "bgubs/puck-steamcmd:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/bgubs/puck-steamcmd",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://github.com/BryanGoble/docker-templates/blob/main/unraid/images/puck-icon.jpg?raw=true",
+  "project": "https://www.steampowered.com/",
+  "description": "This Dockerfile will download and install SteamCMD and the Puck Dedicated Server (PuckDS). ATTENTION: First startup can take a few minutes while the container updates, downloads, and installs SteamCMD and the relevant game server files. INFO: You can run multiple servers with only one SteadCMD directory. Be sure to modify the SERVER_DIR, GAME_PORT, and PING_PORT variable values as those can't be reused.",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/puck",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port - UDP",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ping Port - UDP",
+      "host": "7778",
+      "container": "7778",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server Name",
+      "key": "GAME_NAME",
+      "value": "My Puck Server",
+      "description": "This value is how your server will appear in the server list in game.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Password",
+      "key": "GAME_PASSWRD",
+      "value": "",
+      "description": "*Not Required*. You are encouraged to set a password to prevent griefing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Port",
+      "key": "GAME_PORT",
+      "value": "7777",
+      "description": "If this port is changed from the default, be sure to update the variable 'Game Port - UDP' under the 'Show more settings...' dropdown.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ping Port",
+      "key": "PING_PORT",
+      "value": "7778",
+      "description": "If this port is changed from the default, be sure to update the variable 'Ping Port - UDP' under the 'Show more settings...' dropdown.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "10",
+      "description": "Default 10 players. Alter this number based on how many players you want on at a time and what your system can handle.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VoIP",
+      "key": "VOIP",
+      "value": "false",
+      "description": "Default false. Enables In-game Voice Chat.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Is Public?",
+      "key": "IS_PUBLIC",
+      "value": "true",
+      "description": "Default true. Allows anyone to see and join the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin IDs",
+      "key": "ADMIN_ID",
+      "value": "76561198234976801",
+      "description": "Comma separated list of all Steam users who should be assigned an Admin role. (e.g. 76561198237436801,765611982379766802 )",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game ID",
+      "key": "GAME_ID",
+      "value": "3481440",
+      "description": "The GAME_ID that the container downloads at startup. (https://developer.valvesoftware.com/wiki/Dedicated_Servers_List)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Target Frame Rate",
+      "key": "TARGET_FR",
+      "value": "120",
+      "description": "Default 120. The actual FPS the server will attempt to run at. Recommended to set this value 10-20 above Tick Rate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Tick Rate",
+      "key": "SERVER_TR",
+      "value": "100",
+      "description": "Default 100. This is essentially the",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Client Tick Rate",
+      "key": "CLIENT_TR",
+      "value": "200",
+      "description": "Default 200. The rate at which players clients send input updates to the server (should improve input lag). Experiment with this value for best performance. Recommend starting equal to Server Tick Rate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reload Banned Steam IDs",
+      "key": "RELOAD_BAN_ID",
+      "value": "false",
+      "description": "Default false. Re-downloads global ban list on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Puck Banned Steam IDs",
+      "key": "USE_PUCK_BAN_ID",
+      "value": "true",
+      "description": "Default true. Use global ban list.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Print Metrics",
+      "key": "PRINT_METRIC",
+      "value": "true",
+      "description": "Default (true). Print metrics to the console/log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Kick Timeout",
+      "key": "KICK_TO",
+      "value": "300",
+      "description": "Default 300 seconds. Time before player is kicked for inactivity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Join Mid Match Delay",
+      "key": "JOIN_MM_DELAY",
+      "value": "10",
+      "description": "Default 10 seconds. Delay in seconds before player can join existing match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Voting",
+      "key": "ALLOW_VOTE",
+      "value": "true",
+      "description": "Default true. Enables player voting for all voting commands.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Start Paused",
+      "key": "START_PAUSE",
+      "value": "false",
+      "description": "Default false. Start the match in a paused state.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sleep Timeout",
+      "key": "SLEEP_TO",
+      "value": "60",
+      "description": "Default 60 seconds. Seconds before server enters sleep state when no players/matches are active. Server only responds to pings and player joins. Once a player joins, the server enters a WarmUp stage before being fully available.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

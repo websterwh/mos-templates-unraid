@@ -1,0 +1,91 @@
+{
+  "name": "Qwen3-ASR-API",
+  "repo": "ghcr.io/hsiang-han/qwen3-asr-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --shm-size=4g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/docs",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/qwen3-asr-api-icon.png",
+  "project": "https://github.com/hsiang-han/Qwen3-ASR-API",
+  "description": "Pure OpenAI-compatible Speech-to-Text API powered by Qwen3-ASR via vLLM. State-of-the-art Chinese (22 dialects), English, and 50+ languages. No bloat \u2014 just the model and API. Switch between 0.6B (~2-3GB VRAM) and 1.7B (~4-6GB VRAM) via MODEL_ID. CUDA 12.8 (Blackwell/Ada). First start downloads model from HuggingFace. China users: set HF_ENDPOINT to https://hf-mirror.com for faster downloads. Requires NVIDIA GPU with driver 550+.",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/qwen3-asr-api/models",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Model download cache. Persists across container recreates (~1-3GB).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8000",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible API port. Swagger docs at /docs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Model ID",
+      "key": "MODEL_ID",
+      "value": "Qwen/Qwen3-ASR-0.6B",
+      "description": "Qwen/Qwen3-ASR-0.6B (fast, ~2-3GB VRAM) or Qwen/Qwen3-ASR-1.7B (accurate, ~4-6GB VRAM). Restart required after change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HuggingFace Endpoint",
+      "key": "HF_ENDPOINT",
+      "value": "https://huggingface.co",
+      "description": "HuggingFace download endpoint. China users: change to https://hf-mirror.com for faster downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GPU Memory Utilization",
+      "key": "GPU_MEMORY_UTILIZATION",
+      "value": "0.8",
+      "description": "Fraction of GPU memory to allocate (0.0-1.0). Lower if sharing GPU with other containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Model Length",
+      "key": "MAX_MODEL_LEN",
+      "value": "8192",
+      "description": "Max sequence length for KV cache. 8192 supports ~10min audio. Lower to save VRAM, raise for very long audio.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU selection (all, 0, 1, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA driver capabilities",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

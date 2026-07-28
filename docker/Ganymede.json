@@ -1,0 +1,283 @@
+{
+  "name": "Ganymede",
+  "repo": "ghcr.io/zibbp/ganymede:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/zibbp/ganymede",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4000]/",
+  "icon": "https://raw.githubusercontent.com/Zibbp/ganymede/main/.github/ganymede-logo.png",
+  "project": "https://github.com/Zibbp/ganymede",
+  "description": "A Twitch VOD and Live Stream archiving platform with a real-time chat experience. Every archive includes a rendered chat for viewing outside of Ganymede. Files are saved in a friendly format allowing for use without Ganymede.",
+  "paths": [
+    {
+      "name": "Video Path",
+      "host": "",
+      "container": "/data/videos",
+      "mode": "rw",
+      "description": "Mount for video storage",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/ganymede/config",
+      "container": "/data/config",
+      "mode": "rw",
+      "description": "Mount for config storage",
+      "required": true
+    },
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/ganymede/logs",
+      "container": "/data/logs",
+      "mode": "rw",
+      "description": "Mount for log storage",
+      "required": true
+    },
+    {
+      "name": "Temp Data Path",
+      "host": "/mnt/cache/appdata/ganymede/temp",
+      "container": "/data/temp",
+      "mode": "rw",
+      "description": "Mount to store temporary files during the archive process.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "4000",
+      "container": "4000",
+      "protocol": "tcp",
+      "description": "Container Port: 4000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Twitch - Client ID",
+      "key": "TWITCH_CLIENT_ID",
+      "value": "",
+      "description": "Twitch Client ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Twitch - Client Secret",
+      "key": "TWITCH_CLIENT_SECRET",
+      "value": "",
+      "description": "Twitch Client Secret",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres - Host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Postgres host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Postgres port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Database",
+      "key": "DB_NAME",
+      "value": "ganymede",
+      "description": "Postgres database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - User",
+      "key": "DB_USER",
+      "value": "",
+      "description": "Postgres user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Password",
+      "key": "DB_PASS",
+      "value": "",
+      "description": "Postgres password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres - Use SSL",
+      "key": "DB_SSL",
+      "value": "disable|enable",
+      "description": "Use SSL for Postgres connection. Details: https://github.com/Zibbp/ganymede/wiki/DB-SSL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - SSL Root Cert",
+      "key": "DB_SSL_ROOT_CERT",
+      "value": "",
+      "description": "Postgres SSL root certificate. Remove if not needed. Details: https://github.com/Zibbp/ganymede/wiki/DB-SSL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Login",
+      "key": "REQUIRE_LOGIN",
+      "value": "false|true",
+      "description": "Require users to be logged in to view videos.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Enable",
+      "key": "OAUTH_ENABLED",
+      "value": "false|true",
+      "description": "Enable OAuth",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Provider",
+      "key": "OAUTH_PROVIDER_URL",
+      "value": "",
+      "description": "URL for OAuth provider. Details: https://github.com/Zibbp/ganymede/wiki/SSO---OpenID-Connect",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Client ID",
+      "key": "OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "OAuth client ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Client Secret",
+      "key": "OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "OAuth client secret",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OAuth - Redirect URL",
+      "key": "OAUTH_REDIRECT_URL",
+      "value": "",
+      "description": "OAuth redirect URL. Details: https://github.com/Zibbp/ganymede/wiki/SSO---OpenID-Connect",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Enable Sign-in Button",
+      "key": "SHOW_SSO_LOGIN_BUTTON",
+      "value": "false|true",
+      "description": "Show a 'login via sso' button on the login page.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAuth - Force SSO",
+      "key": "FORCE_SSO_AUTH",
+      "value": "false|true",
+      "description": "Force users to login via SSO by bypassing the login page.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Limits - Chat Downloads",
+      "key": "MAX_CHAT_DOWNLOAD_EXECUTIONS",
+      "value": "1",
+      "description": "Maximum number of chat downloads that can be running at once. Live streams bypass this limit.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Limits - Chat Renders",
+      "key": "MAX_CHAT_RENDER_EXECUTIONS",
+      "value": "1",
+      "description": "Maximum number of chat renders that can be running at once.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Limits - Video Downloads",
+      "key": "MAX_VIDEO_DOWNLOAD_EXECUTIONS",
+      "value": "1",
+      "description": "Maximum number of video downloads that can be running at once. Live streams bypass this limit.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Limits - Video Conversions",
+      "key": "MAX_VIDEO_CONVERT_EXECUTIONS",
+      "value": "1",
+      "description": "Maximum number of video conversions that can be running at once.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug",
+      "key": "DEBUG",
+      "value": "false|true",
+      "description": "Enable debug logging",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Videos Path",
+      "key": "VIDEOS_DIR",
+      "value": "/data/videos",
+      "description": "Internal path to videos. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Temporary Data Path",
+      "key": "TEMP_DIR",
+      "value": "/data/temp",
+      "description": "Internal path to temporary data. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Logs Path",
+      "key": "LOGS_DIR",
+      "value": "/data/logs",
+      "description": "Internal path to logs. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Config Path",
+      "key": "CONFIG_DIR",
+      "value": "/data/config",
+      "description": "Internal path to config. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path Migration at Startup",
+      "key": "PATH_MIGRATION_ENABLED",
+      "value": "true|false",
+      "description": "Enable path migration at startup",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,137 @@
+{
+  "name": "binhex-plex",
+  "repo": "ghcr.io/binhex/arch-plex",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/binhex/arch-plex/pkgs/container/arch-plex",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:32400]/web",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/plex-icon.png",
+  "project": "https://plex.tv/",
+  "description": "The Plex Media Server enriches your life by organizing all your personal media, presenting it beautifully and streaming it to all of your devices. It's easy to use, it's awesome, and it's free!",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/plex",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "This is the container path to your media files, e.g. movies, tv, music, pictures etc.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Variable: TRANS_DIR",
+      "key": "TRANS_DIR",
+      "value": "/config/transcode",
+      "description": "Specify the path to store temporary transcode files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Specify whether this container can use all Nvidia driver capabilities for transcoding, if you have a Nvidia card set this to 'all'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Specify the Nvidia GPU device id for transcoding, format will be 'GPU-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: CLAIM_SERVER",
+      "key": "CLAIM_SERVER",
+      "value": "no|yes",
+      "description": "Specify whether to claim the Plex server on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PLEX_CLAIM",
+      "key": "PLEX_CLAIM",
+      "value": "",
+      "description": "Specify the Plex Claim Code to retrieve your Plex Server, Claim Codes can be generated from https://plex.tv/claim - Note Claim Codes expire after 4 minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

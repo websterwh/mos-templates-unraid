@@ -1,0 +1,121 @@
+{
+  "name": "FFmpeg-Easy-Unraid",
+  "repo": "metronade/ffmpeg-easy-unraid",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/metronade/ffmpeg-easy-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=SYS_NICE",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/metronade/ffmpeg-easy-unraid/main/icon.png",
+  "project": "https://github.com/metronade/ffmpeg-easy-unraid",
+  "description": "FFmpeg-Easy-Unraid is a \"Set and Forget\" Batch Transcoder designed for Unraid. Features: * Run-Once Workflow: This container scans /import on startup, processes the queue, and stops. To process new files, simply restart the container. It does not monitor continuously. * Structure: Recursively scans directories and preserves the exact folder structure (Great for TV Series). * Codecs: H.265 (HEVC) and AV1. (Note: AV1 requires modern GPU hardware like RTX 40xx or Intel Arc). * Hardware: CPU, Nvidia (NVENC), Intel (QuickSync/Arc). * Safety: Detects CPU pinning. Limits threads to 50% if no pinning is detected to prevent server freeze. IMPORTANT FOR NVIDIA USERS: To enable GPU support, you MUST enable \"Advanced View\" (top right) and add --runtime=nvidia to the \"Extra Parameters\" field! You must also set the \"Nvidia Visible Devices\" variable. IMPORTANT FOR INTEL GPU USERS: To enable QuickSync/Arc support, you must pass the device /dev/dri to the container (Add Device -> /dev/dri).",
+  "paths": [
+    {
+      "name": "Input Path (Source)",
+      "host": "/mnt/cache/import/",
+      "container": "/import",
+      "mode": "rw",
+      "description": "Path to source files. Originals move to /finished after success.",
+      "required": true
+    },
+    {
+      "name": "Output Path (Destination)",
+      "host": "/mnt/cache/export/",
+      "container": "/export",
+      "mode": "rw",
+      "description": "Destination for converted files.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Encoding Method",
+      "key": "ENCODE_METHOD",
+      "value": "cpu_h265",
+      "description": "cpu_h265 (Best Quality), cpu_av1, nvidia_h265, nvidia_av1 (Requires RTX 40xx), intel_h265, intel_av1",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Preset",
+      "key": "ENCODE_PRESET",
+      "value": "default",
+      "description": "'default' (recommended) or manual (slow, fast, p1-p7).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Quality (CRF - CPU/Intel)",
+      "key": "ENCODE_CRF",
+      "value": "",
+      "description": "Lower = Better. Empty = Smart Default (18/24).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Quality (CQ - Nvidia)",
+      "key": "ENCODE_CQ",
+      "value": "",
+      "description": "Lower = Better. Empty = Smart Default (19/24).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CPU Threads",
+      "key": "ENCODE_THREADS",
+      "value": "0",
+      "description": "0 = Auto (Safety Mode: 50% if no pinning). Set number to force.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom FFmpeg Args",
+      "key": "FFMPEG_CUSTOM_ARGS",
+      "value": "",
+      "description": "Override audio/sub args (Default: -c:a copy -c:s copy).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Set your GPU UUID here (e.g. GPU-xxxx) or leave as 'all'. REQUIRED for Nvidia encoding.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Keep this as 'all' or 'compute,video,utility'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Unraid User ID",
+      "key": "UNRAID_UID",
+      "value": "99",
+      "description": "UID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Unraid Group ID",
+      "key": "UNRAID_GID",
+      "value": "100",
+      "description": "GID",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

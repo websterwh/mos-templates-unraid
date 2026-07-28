@@ -1,0 +1,75 @@
+{
+  "name": "Maintainerr",
+  "repo": "ghcr.io/maintainerr/maintainerr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Maintainerr/Maintainerr/pkgs/container/maintainerr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 1000:1000",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6246]",
+  "icon": "https://raw.githubusercontent.com/Maintainerr/unraid-templates/main/logo.png",
+  "project": "https://github.com/Maintainerr/Maintainerr",
+  "description": "Maintainerr is the janitor your media server doesn't have. Libraries fill up. Users request a movie, watch it once, and never touch it again. Half-finished shows sit around for years. And somehow you're the one who has to decide what to delete. Maintainerr does the deciding for you. Write rules for the stuff that's just taking up space - unwatched, unrequested, gathering dust - and it gathers those titles into a collection, gives everyone a grace period to catch up, then clears them from your media server, the *arrs and Seerr. Set it up once and forget it. Everything is automated!",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/maintainerr",
+      "container": "/opt/data",
+      "mode": "rw",
+      "description": "Persistent storage for the Maintainerr database and logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "6246",
+      "container": "6246",
+      "protocol": "tcp",
+      "description": "HTTP port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone used for rule schedules and logs, e.g. Europe/Brussels.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base Path",
+      "key": "BASE_PATH",
+      "value": "",
+      "description": "Set only when serving Maintainerr from a subdirectory behind a reverse proxy, e.g. /maintainerr.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UI Hostname",
+      "key": "UI_HOSTNAME",
+      "value": "",
+      "description": "Address the web server listens on inside the container. Leave empty for 0.0.0.0; set :: for IPv6.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Token",
+      "key": "GITHUB_TOKEN",
+      "value": "",
+      "description": "Optional GitHub Personal Access Token for higher API rate limits when checking for updates (60/hr without, 5000/hr with).",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

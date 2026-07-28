@@ -1,0 +1,243 @@
+{
+  "name": "subarr",
+  "repo": "ghcr.io/coaxk/subarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/coaxk/subarr/pkgs/container/subarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9922]",
+  "icon": "https://raw.githubusercontent.com/coaxk/unraid-templates/main/images/subarr-icon.png",
+  "project": "https://github.com/coaxk/subarr",
+  "description": "The coordination layer for the *arr subtitle stack. Subarr stands beside Bazarr, never instead of it: Bazarr finds and downloads, subgen transcribes, and subarr coordinates. It decides what subtitles are actually missing across Sonarr/Radarr/Bazarr per language, keeps a provenance ledger, schedules Whisper walks with backpressure, and verifies the spoken audio language by ear (it tells a mislabeled track from a bilingual one from \"genuinely unsure\", with one-click fixes that flow back into coverage). A built-in Tuning Lab finds the Whisper settings that win on your hardware. REQUIRES a subgen container for transcription (ghcr.io/coaxk/subarr-subgen recommended; vanilla mccloudS/subgen works in compat mode). Benefits from Bazarr plus Sonarr/Radarr, and optionally Tautulli, Plex, and Ollama. The onboarding wizard auto-detects these on your Docker network on first run at the WebUI; manual entry is available at every step. Subarr itself is CPU-only, no GPU required (that is subgen's job). First run: open the WebUI and complete the onboarding wizard. Anonymous telemetry is on by default; opt out in one click in the wizard or in Settings.",
+  "paths": [
+    {
+      "name": "Config (appdata)",
+      "host": "/mnt/cache/appdata/subarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the SQLite database (subarr.db) and persisted settings. The SUBARR_DB_PATH variable below points the DB into this folder.",
+      "required": true
+    },
+    {
+      "name": "Media Library",
+      "host": "/mnt/cache/Media",
+      "container": "/media/library",
+      "mode": "rw",
+      "description": "Your media root. MUST be the same path Bazarr and subgen see. Switch Mode to read-only and set SUBARR_SIDECAR_RENAME=0 if you do not want subarr writing sidecars.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket (optional, auto-discovery)",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "OPTIONAL. Read-only Docker access lets the onboarding wizard auto-detect your arr stack. Prefer pointing SUBARR_DOCKER_PROXY_URL at a tecnativa docker-socket-proxy instead of mounting the raw socket. Leave blank if you enter integration URLs manually.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9922",
+      "container": "9922",
+      "protocol": "tcp",
+      "description": "Web interface / API port. If you change this, also set the SUBARR_PORT variable below to match.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SUBARR_PORT",
+      "key": "SUBARR_PORT",
+      "value": "9922",
+      "description": "Port the app listens on inside the container. Keep equal to the WebUI host port mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUBARR_DB_PATH",
+      "key": "SUBARR_DB_PATH",
+      "value": "/config/subarr.db",
+      "description": "SQLite path. Must live inside the Config (appdata) volume above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUBARR_MEDIA_ROOT",
+      "key": "SUBARR_MEDIA_ROOT",
+      "value": "/media/library",
+      "description": "Container path of the media root (matches the Media Library path target above).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUBGEN_URL",
+      "key": "SUBGEN_URL",
+      "value": "http://subgen:9000",
+      "description": "Base URL of your subgen container's API. Default assumes a container named 'subgen' on the same Docker network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SUBGEN_CONTAINER",
+      "key": "SUBGEN_CONTAINER",
+      "value": "subgen",
+      "description": "Name of the subgen container (used for log/restart actions from the UI).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID (Unraid 'nobody' = 99).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID (Unraid 'users' = 100).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File-creation umask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone, e.g. Australia/Sydney.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BAZARR_URL",
+      "key": "BAZARR_URL",
+      "value": "",
+      "description": "Optional. e.g. http://bazarr:6767",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BAZARR_API_KEY",
+      "key": "BAZARR_API_KEY",
+      "value": "",
+      "description": "Optional. Bazarr API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SONARR_URL",
+      "key": "SONARR_URL",
+      "value": "",
+      "description": "Optional. e.g. http://sonarr:8989",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SONARR_API_KEY",
+      "key": "SONARR_API_KEY",
+      "value": "",
+      "description": "Optional. Sonarr API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RADARR_URL",
+      "key": "RADARR_URL",
+      "value": "",
+      "description": "Optional. e.g. http://radarr:7878",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RADARR_API_KEY",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Optional. Radarr API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TAUTULLI_URL",
+      "key": "TAUTULLI_URL",
+      "value": "",
+      "description": "Optional. e.g. http://tautulli:8181 - adds playback-priority signal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TAUTULLI_API_KEY",
+      "key": "TAUTULLI_API_KEY",
+      "value": "",
+      "description": "Optional. Tautulli API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PLEX_URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Optional. e.g. http://192.168.1.10:32400 - enables instant library refresh on sub write.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Optional. Plex X-Plex-Token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OLLAMA_URL",
+      "key": "OLLAMA_URL",
+      "value": "",
+      "description": "Optional. e.g. http://ollama:11434 - enables language enrichment + vision pre-filter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SUBARR_DOCKER_PROXY_URL",
+      "key": "SUBARR_DOCKER_PROXY_URL",
+      "value": "",
+      "description": "Optional. URL of a tecnativa docker-socket-proxy for read-only auto-discovery (preferred over mounting the raw socket).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SUBARR_USER",
+      "key": "SUBARR_USER",
+      "value": "",
+      "description": "Optional. HTTP Basic auth user (single-admin fallback; prefer a reverse proxy).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SUBARR_PASS",
+      "key": "SUBARR_PASS",
+      "value": "",
+      "description": "Optional. HTTP Basic auth password.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

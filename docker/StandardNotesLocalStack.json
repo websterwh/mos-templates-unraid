@@ -1,0 +1,67 @@
+{
+  "name": "StandardNotes-LocalStack",
+  "repo": "localstack/localstack:3.0",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/localstack/localstack",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --hostname=localstack",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4566]",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/standardnotes-server/icon.png",
+  "project": "https://github.com/localstack/localstack",
+  "description": "LocalStack companion for the Standard Notes self-hosted backend. Provides the SNS and SQS endpoints the standardnotes/server image expects at \"localstack:4566\". Required side container. Without it, files-worker.log fills with \"SQSError: SQS receive message failed: getaddrinfo ENOTFOUND localstack\" and notes can duplicate. Hostname resolution. The server resolves the literal name \"localstack\". Pick one: User-defined Docker network: put both containers on the same custom bridge and set this container's network alias to \"localstack\". Docker's embedded DNS handles the rest. br0 / macvlan / VLAN / static-IP install: assign this container a fixed IP on the same VLAN as StandardNotes-Server, then append --add-host=localstack:LocalStack-IP to StandardNotes-Server's Extra Parameters and restart it. Verify from the Unraid host: docker exec StandardNotes-Server getent hosts localstack Must print a non-empty line. Required init script. LocalStack starts empty. The server expects a fixed set of SNS topics and SQS queues. The \"LocalStack Bootstrap Script\" path mapping below mounts the bootstrap script into /etc/localstack/init/ready.d/ where LocalStack runs it on ready. Automatic bootstrap on container start runs ONLY when ALL THREE of the following are true at first start: a) the host file /mnt/user/appdata/standardnotes/localstack_bootstrap.sh exists, b) it is executable (chmod +x), c) the \"LocalStack Bootstrap Script\" Path mapping is left at its default (mapped to /etc/localstack/init/ready.d/localstack_bootstrap.sh). LocalStack's init/ready.d/ hook fires ONCE per container lifetime. If the script was missing on first start, restart the container or use the README emergency-bootstrap one-liner to populate it in place. Before first start, on the Unraid host: mkdir -p /mnt/user/appdata/standardnotes curl -fsSL -o /mnt/user/appdata/standardnotes/localstack_bootstrap.sh \\ https://raw.githubusercontent.com/junkerderprovinz/Unraid-apps/main/standardnotes-server/scripts/localstack_bootstrap.sh chmod +x /mnt/user/appdata/standardnotes/localstack_bootstrap.sh Verify after start: docker exec StandardNotes-LocalStack awslocal \\ --endpoint-url=http://localhost:4566 sqs list-queues docker exec StandardNotes-LocalStack awslocal \\ --endpoint-url=http://localhost:4566 sns list-topics Both must list the *-local-queue / *-local-topic entries. Detailed README (full setup & options): https://github.com/junkerderprovinz/Unraid-apps/blob/main/standardnotes-server/README.md",
+  "paths": [
+    {
+      "name": "LocalStack Bootstrap Script",
+      "host": "/mnt/cache/appdata/standardnotes/localstack_bootstrap.sh",
+      "container": "/etc/localstack/init/ready.d/localstack_bootstrap.sh",
+      "mode": "ro",
+      "description": "Required bootstrap script. Creates Standard Notes SNS topics and SQS queues. See Overview for the curl + chmod host-prep commands.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "LocalStack Edge Port",
+      "host": "4566",
+      "container": "4566",
+      "protocol": "tcp",
+      "description": "Edge port for SNS / SQS. Reachable from the server container on the same network. Publishing to the host is optional.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Services (SERVICES)",
+      "key": "SERVICES",
+      "value": "sns,sqs",
+      "description": "Required services. Keep sns,sqs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Hostname (HOSTNAME_EXTERNAL)",
+      "key": "HOSTNAME_EXTERNAL",
+      "value": "localstack",
+      "description": "Keep localstack. Server resolves this name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level (LS_LOG)",
+      "key": "LS_LOG",
+      "value": "warn",
+      "description": "Log level. Default warn.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

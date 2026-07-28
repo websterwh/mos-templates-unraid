@@ -1,0 +1,299 @@
+{
+  "name": "binhex-official-metube",
+  "repo": "ghcr.io/alexta69/metube",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/alexta69/metube/pkgs/container/metube",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8081]/",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/official-metube-icon.png",
+  "project": "https://github.com/alexta69/metube",
+  "description": "MeTube is a web GUI for youtube-dl with playlist support. Allows you to download videos from YouTube and dozens of other sites. Features: Download videos from YouTube, Vimeo, and many other sites, Queue downloads and track progress, Playlist support, Dark/light themes, Custom output directories, Audio-only downloads, and much more.",
+  "paths": [
+    {
+      "name": "Path: /downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "This is the path to store downloaded videos",
+      "required": true
+    },
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/metube",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the path to store MeTube configuration files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "8333",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "This is the TCP port for the WebUI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: CUSTOM_DIRS",
+      "key": "CUSTOM_DIRS",
+      "value": "true|false",
+      "description": "Whether to enable downloading videos into custom directories",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DOWNLOAD_MODE",
+      "key": "DOWNLOAD_MODE",
+      "value": "sequential|concurrent|limited",
+      "description": "Controls how downloads are scheduled and executed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MAX_CONCURRENT_DOWNLOADS",
+      "key": "MAX_CONCURRENT_DOWNLOADS",
+      "value": "3",
+      "description": "Maximum number of simultaneous downloads (used with limited mode)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DOWNLOAD_DIR",
+      "key": "DOWNLOAD_DIR",
+      "value": "/downloads",
+      "description": "Path to where the downloads will be saved",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: AUDIO_DOWNLOAD_DIR",
+      "key": "AUDIO_DOWNLOAD_DIR",
+      "value": "/downloads",
+      "description": "Path to where audio-only downloads will be saved",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DEFAULT_THEME",
+      "key": "DEFAULT_THEME",
+      "value": "auto|light|dark",
+      "description": "Default theme to use for the UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DOWNLOAD_DIRS_INDEXABLE",
+      "key": "DOWNLOAD_DIRS_INDEXABLE",
+      "value": "true|false",
+      "description": "If true, the download dirs are indexable on the webserver",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: CREATE_CUSTOM_DIRS",
+      "key": "CREATE_CUSTOM_DIRS",
+      "value": "true|false",
+      "description": "Whether to support automatically creating directories if they do not exist",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: CUSTOM_DIRS_EXCLUDE_REGEX",
+      "key": "CUSTOM_DIRS_EXCLUDE_REGEX",
+      "value": "",
+      "description": "Regular expression to exclude some custom directories from the drop-down",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: STATE_DIR",
+      "key": "STATE_DIR",
+      "value": "/config/.metube",
+      "description": "Path to where the queue persistence files will be saved",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TEMP_DIR",
+      "key": "TEMP_DIR",
+      "value": "/downloads",
+      "description": "Path where intermediary download files will be saved",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DELETE_FILE_ON_TRASHCAN",
+      "key": "DELETE_FILE_ON_TRASHCAN",
+      "value": "true|false",
+      "description": "If true, downloaded files are deleted when trashed from the UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: URL_PREFIX",
+      "key": "URL_PREFIX",
+      "value": "/",
+      "description": "Base path for the web server (for reverse proxy use)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUBLIC_HOST_URL",
+      "key": "PUBLIC_HOST_URL",
+      "value": "",
+      "description": "Base URL for download links shown in the UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPS",
+      "key": "HTTPS",
+      "value": "false|true",
+      "description": "Use HTTPS instead of HTTP (requires CERTFILE and KEYFILE)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: CERTFILE",
+      "key": "CERTFILE",
+      "value": "",
+      "description": "HTTPS certificate file path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: KEYFILE",
+      "key": "KEYFILE",
+      "value": "",
+      "description": "HTTPS key file path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUBLIC_HOST_AUDIO_URL",
+      "key": "PUBLIC_HOST_AUDIO_URL",
+      "value": "",
+      "description": "Base URL for audio download links",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OUTPUT_TEMPLATE",
+      "key": "OUTPUT_TEMPLATE",
+      "value": "%(title)s.%(ext)s",
+      "description": "Template for downloaded video filenames",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OUTPUT_TEMPLATE_CHAPTER",
+      "key": "OUTPUT_TEMPLATE_CHAPTER",
+      "value": "%(title)s - %(section_number)s %(section_title)s.%(ext)s",
+      "description": "Template for chapter filenames",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OUTPUT_TEMPLATE_PLAYLIST",
+      "key": "OUTPUT_TEMPLATE_PLAYLIST",
+      "value": "%(playlist_title)s/%(title)s.%(ext)s",
+      "description": "Template for playlist video filenames",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DEFAULT_OPTION_PLAYLIST_STRICT_MODE",
+      "key": "DEFAULT_OPTION_PLAYLIST_STRICT_MODE",
+      "value": "true|false",
+      "description": "If true, strict playlist mode is enabled by default",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT",
+      "key": "DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT",
+      "value": "0",
+      "description": "Maximum number of playlist items that can be downloaded (0 = no limit)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: YTDL_OPTIONS",
+      "key": "YTDL_OPTIONS",
+      "value": "{}",
+      "description": "Additional options to pass to yt-dlp in JSON format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: YTDL_OPTIONS_FILE",
+      "key": "YTDL_OPTIONS_FILE",
+      "value": "",
+      "description": "Path to JSON file for yt-dlp options",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ROBOTS_TXT",
+      "key": "ROBOTS_TXT",
+      "value": "",
+      "description": "Path to robots.txt file mounted in the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: LOGLEVEL",
+      "key": "LOGLEVEL",
+      "value": "DEBUG|INFO|WARNING|ERROR|CRITICAL|NONE",
+      "description": "Log level for the application",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_ACCESSLOG",
+      "key": "ENABLE_ACCESSLOG",
+      "value": "true|false",
+      "description": "Whether to enable access log",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID under which MeTube will run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID under which MeTube will run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Umask value used by MeTube",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

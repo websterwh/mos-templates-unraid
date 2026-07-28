@@ -1,0 +1,132 @@
+{
+  "name": "Imgburn",
+  "repo": "ghcr.io/jwolvers/imgburn-wine-container:main-ubuntu22",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/JWolvers/imgburn-wine-container/pkgs/container/imgburn-wine-container/190926179?tag=main-ubuntu22",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--init",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]/",
+  "icon": "https://upload.wikimedia.org/wikipedia/en/f/fc/ImgBurn_logo.png",
+  "project": "https://github.com/JWolvers/imgburn-wine-container",
+  "description": "This Docker container runs ImgBurn client via WINE, so that you can back up your optical disks with the separation and portability capabilities of Docker on Linux. It runs Imgburn and starts a virtual X server and a VNC server with Web GUI, so that you can interact with it. This container needs additional installation steps after running the docker, which can be found here: https://github.com/JWolvers/imgburn-wine-container/?tab=readme-ov-file#installation",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/",
+      "container": "/drive_d/",
+      "mode": "rw",
+      "description": "This will be exposed to WINE / ImgBurn as drive D",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/ImgBurn/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container Path: /config/",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Http VNC GUI",
+      "host": "5888",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port used to access the application's GUI via the web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC",
+      "host": "5999",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port used to access the application's GUI via the VNC protocol. Optional if no VNC client is used.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "When set to 1, an encrypted connection is used to access the application's GUI (either via a web browser or VNC client). See the Security section in the README for more details.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Width",
+      "key": "DISPLAY_WIDTH",
+      "value": "900",
+      "description": "Width (in pixels) of the virtual screen's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "700",
+      "description": "Height (in pixels) of the virtual screen's window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC Password",
+      "key": "VNC_PASSWORD",
+      "value": "",
+      "description": "Password needed to connect to the application's GUI. See the VNC Password section in the README for more details.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "X11VNC_EXTRA_OPTS",
+      "key": "X11VNC_EXTRA_OPTS",
+      "value": "",
+      "description": "Extra options to pass to the x11vnc server running in the Docker container. WARNING: For advanced users. Do not use unless you know what you are doing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_CJK_FONT",
+      "key": "ENABLE_CJK_FONT",
+      "value": "",
+      "description": "When set to 1, open-source computer font WenQuanYi Zen Hei is installed. This font contains a large range of Chinese/Japanese/Korean characters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "When mounting docker-volumes, permission issues can arise between the docker host and the container. You can pass the User_ID permissions to the container with this variable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "When mounting docker-volumes, permission issues can arise between the docker host and the container. You can pass the Group_ID permissions to the container with this variable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Clean Temp Directory",
+      "key": "CLEAN_TMP_DIR",
+      "value": "1",
+      "description": "When set to 1, all files in the /tmp directory are deleted during the container startup.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

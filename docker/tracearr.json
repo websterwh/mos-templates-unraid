@@ -1,0 +1,99 @@
+{
+  "name": "tracearr",
+  "repo": "ghcr.io/connorgallopo/tracearr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/connorgallopo/tracearr/pkgs/container/tracearr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/connorgallopo/tracearr-unraid-template/main/img/tracearr-icon.png",
+  "project": "https://github.com/connorgallopo/tracearr",
+  "description": "Tracearr monitors your Plex, Jellyfin, and Emby servers from a single dashboard. REQUIRES: External TimescaleDB (PostgreSQL 15+) and Redis. For a simpler setup, use Tracearr Supervised instead (all-in-one image). Features: - Multi-server support (Plex, Jellyfin, Emby) - Session tracking with full history - Stream analytics (transcoding, bandwidth, codecs) - Live TV and music tracking - Geolocation and interactive stream map - Sharing detection rules (impossible travel, simultaneous locations, device velocity, concurrent streams, geo restriction) - Trust scores and real-time alerts - Discord + Webhook notifications GeoIP database (GeoLite2-City) is bundled for geolocation features.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/tracearr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Application data. Place GeoLite2-City.mmdb here for geolocation.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the Tracearr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "PostgreSQL/TimescaleDB connection string. Example: postgresql://user:pass@192.168.1.100:5432/tracearr",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Redis connection string. Example: redis://192.168.1.100:6379",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "JWT signing key (32 hex chars). Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cookie Secret",
+      "key": "COOKIE_SECRET",
+      "value": "",
+      "description": "Cookie signing key (32 hex chars). Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity: debug, info, warn, error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone (e.g., America/New_York, Europe/London)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origin",
+      "key": "CORS_ORIGIN",
+      "value": "*",
+      "description": "Allowed origins for CORS. Use * for all origins, or specify a domain (e.g., https://example.com).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

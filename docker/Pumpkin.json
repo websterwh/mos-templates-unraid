@@ -1,0 +1,78 @@
+{
+  "name": "Pumpkin",
+  "repo": "ghcr.io/pumpkin-mc/pumpkin:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/Pumpkin-MC/Pumpkin/pkgs/container/pumpkin",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --read-only --cap-drop=ALL --security-opt=no-new-privileges:true --interactive --tty",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:25565]",
+  "icon": "https://raw.githubusercontent.com/maybegrim/unraid-templates/main/Pumpkin/icon.png",
+  "project": "https://github.com/Pumpkin-MC/Pumpkin",
+  "description": "Pumpkin is a high-performance Minecraft server written entirely in Rust. It supports current Java Edition clients and includes work-in-progress Bedrock Edition support, TOML configuration, world saving, Query, RCON, permissions, and an evolving plugin system. No Java runtime or Mojang server JAR is required. Pumpkin is under heavy development and the official latest image tracks the upstream development branch. Back up the complete data directory before upgrading. Game behavior, configuration, plugins, and world compatibility may change before the 1.0 release. On first launch, Pumpkin creates its configuration and world data beneath /pumpkin. Stop the container before editing generated TOML files in the config directory. Java Edition listens on TCP 25565 by default. Query uses UDP 25565, Bedrock uses UDP 19132, and RCON can optionally use TCP 25575 after it is enabled and secured in the generated configuration. This template runs Pumpkin as Unraid's nobody/users account and applies upstream's read-only root filesystem, dropped capabilities, and no-new-privileges settings. The /pumpkin data mount remains writable.",
+  "paths": [
+    {
+      "name": "Server Data Path",
+      "host": "/mnt/cache/appdata/pumpkin",
+      "container": "/pumpkin",
+      "mode": "rw",
+      "description": "Persistent storage for generated TOML configuration, worlds, player data, plugins, logs, and crash reports. Back up this entire directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Java Edition Port",
+      "host": "25565",
+      "container": "25565",
+      "protocol": "tcp",
+      "description": "Primary Java Edition Minecraft server port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Java Query Port",
+      "host": "25565",
+      "container": "25565",
+      "protocol": "udp",
+      "description": "Legacy Minecraft Query UDP port. Query is enabled by default in Pumpkin; remove this mapping if Query is disabled in the generated configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bedrock Edition Port",
+      "host": "19132",
+      "container": "19132",
+      "protocol": "udp",
+      "description": "Bedrock Edition UDP port. Bedrock support is currently work in progress; remove this mapping if Bedrock is disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RCON Port",
+      "host": "25575",
+      "container": "25575",
+      "protocol": "tcp",
+      "description": "Optional RCON port. RCON is disabled by default; enable it and set a strong password in the generated Pumpkin configuration before exposing this port. Restrict it to trusted networks.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Rust Log Level",
+      "key": "RUST_LOG",
+      "value": "info",
+      "description": "Runtime log filter. Common values include info, debug, and trace. Debug and trace can produce substantial logs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

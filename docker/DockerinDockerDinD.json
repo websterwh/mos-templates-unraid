@@ -1,0 +1,68 @@
+{
+  "name": "Docker-in-Docker-DinD",
+  "repo": "docker:dind",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/_/docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2376]",
+  "icon": "https://avatars.githubusercontent.com/u/11618900?s=120&v=4",
+  "project": "https://github.com/docker-library/docker",
+  "description": "Unraid template for the official Docker-in-Docker (aka DinD) image. Build docker images directly using your Unraid server as a node i.e. without needing to run a VM - just expose TCP port like you would for a network build node. This is NOT a start-it-and-forget-it set up so PLEASE READ THE NOTES. NOTES: (1) I'm not affiliated with Docker. I just realised nobody created an Unraid template for this really useful image that I have been using for a while (e.g. all my Unraid docker images are built on this via buildx node) so I share this for the community. If Docker ever has an official template then I'll deprecate this one. (2) Must be run in Bridge network mode. Don't bother doing macvlan (aka \"br0\" / \"br1\" Unraid docker network), the child dockers will always fail due to lack DNS resolving errors. Don't bother with host network, it crashes my whole docker network every time, requiring a reboot to reset. (3) It is possible to run this rootless / without privileged with the appropriate image tag and config but I could never get it to work properly. Hence, this template requires to run docker with root in privileged mode - with all the usual warning about it. (4) I do NOT recommend mapping /var/lib/docker (i.e. the equivalent to Unraid docker image) unless you actually need it. I don't map it and just delete dangling volume using user scripts. (5) This template has TLS enabled by default and the certs will be saved at wherever you map /certs to on the host. If the /certs is empty, a script will automatically create certificates for you. Port 2376 is used to access docker service through TCP with TLS. As always, buildx will require the full set of certificates to authenticate but note VERY IMPORTANTLY: you have to set it up using DNS name (e.g. by adding the docker name and the Unraid server IP to /etc/hosts and set buildx to use docker_name:2376) and not directly by IP. (5a) Alternatively, once the certificates have been generated (i.e. docker was run at least once), you need to map the FILE /certs/server/openssl.conf to a host file as READ-ONLY (to prevent the docker TLS generator script from overwriting it) + make your appropriate edits + delete the rest of the /certs folder content and let the certificate generator script run again for new certs. You can even do wildcard and stuff like that but I'm not going into details here. (5b) If the above is too complicated for you, just run it without TLS (set DOCKER_TLS_CERTDIR variable to blank). But be mindful that docker has been screaming that this will be deprecated in a (yet-undetermined) future version. And you will need to map 2375 port. (6) You don't need to map both 2375 and 2376. 2375 for non-TLS. 2376 for TLS.",
+  "paths": [
+    {
+      "name": "Certificate",
+      "host": "/mnt/cache/appdata/dind/certs",
+      "container": "/certs",
+      "mode": "rw",
+      "description": "Container Path: /certs",
+      "required": false
+    },
+    {
+      "name": "Docker storage",
+      "host": "/mnt/cache/appdata/dind/docker",
+      "container": "/var/lib/docker",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/docker",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "TLS TCP Port",
+      "host": "2376",
+      "container": "2376",
+      "protocol": "tcp",
+      "description": "Container Port: 2376",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Non-TLS TCP Port",
+      "host": "2375",
+      "container": "2375",
+      "protocol": "tcp",
+      "description": "Container Port: 2375",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DOCKER_TLS_CERTDIR",
+      "key": "DOCKER_TLS_CERTDIR",
+      "value": "/certs",
+      "description": "Container Variable: DOCKER_TLS_CERTDIR",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

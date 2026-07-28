@@ -1,0 +1,75 @@
+{
+  "name": "Zipline",
+  "repo": "ghcr.io/diced/zipline:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/diced/zipline/pkgs/container/zipline",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/ImSkully/unraid-templates/master/Zipline/zipline.png",
+  "project": "https://zipline.diced.sh/",
+  "description": "The next generation ShareX/File upload server. Packed with features and a great dashboard - what more could you want? This Unraid configuration is setup and ready to deploy and use instantly, the only configuration necessary is providing your PostgreSQL database connection string. **An external PostgreSQL (16 or higher) database is required!** Once the container has started you can visit Zipline's webUI (default port 8092) and create an administrator account to get started. As of Zipline v4, most configuration options can be managed through the settings dashboard. However, some settings require a server restart. To access the settings dashboard, navigate to /dashboard/admin/settings on your Zipline instance.",
+  "paths": [
+    {
+      "name": "Uploads Directory",
+      "host": "/mnt/cache/appdata/zipline/uploads",
+      "container": "/zipline/uploads",
+      "mode": "rw",
+      "description": "The directory to store all user uploads.",
+      "required": true
+    },
+    {
+      "name": "Public Uploads Directory",
+      "host": "/mnt/cache/appdata/zipline/public",
+      "container": "/zipline/public",
+      "mode": "rw",
+      "description": "The directory to store publicly shared assets.",
+      "required": true
+    },
+    {
+      "name": "Themes Directory",
+      "host": "/mnt/cache/appdata/zipline/themes",
+      "container": "/zipline/themes",
+      "mode": "rw",
+      "description": "Folder containing custom themes for Zipline.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8092",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The port to serve the Zipline frontend WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "CORE_SECRET",
+      "value": "RANDOM_LONG_STRING_HERE",
+      "description": "(MUST be greater than 32 characters) The secret key used to sign sensitive data, enter a random string here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Connection String",
+      "key": "DATABASE_URL",
+      "value": "postgresql://USERNAME:PASSWORD@HOSTNAME:PORT/DATABASE",
+      "description": "The PostgreSQL connection string for the Postgres database to use.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "FileFlows",
+  "repo": "revenz/fileflows:stable",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/revenz/fileflows/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/revenz/FileFlowsUnraid/master/icon.png?raw=true",
+  "project": "https://fileflows.com/",
+  "description": "FileFlows lets you process files in a rule flow like system. Primary focus is for video file processing, including coverting videos to standard format (hevc/ac3 etc), and other function for example, removing black bars from videos, adding chapter points for comskip/edl files and many more features It supports a Server and mutliple node setup, where you can have one server (with an internal processing node) and additional computers/machines as additional processing nodes. For NVIDIA GPU setup see https://github.com/revenz/FileFlows/wiki/Unraid-NVIDIA-Setup",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/fileflows/data",
+      "container": "/app/Data",
+      "mode": "rw",
+      "description": "Location of the database file, best to set this in appdata",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/fileflows/logs",
+      "container": "/app/Logs",
+      "mode": "rw",
+      "description": "logging directory, best to store this with the appdata",
+      "required": true
+    },
+    {
+      "name": "Temp Directory",
+      "host": "/mnt/cache/temp/fileflows",
+      "container": "/temp",
+      "mode": "rw",
+      "description": "Where temporary files will be created during the file flow process Best to put this on a cache drive or a faster ssd/nvme",
+      "required": true
+    },
+    {
+      "name": "/media/",
+      "host": "/mnt/user",
+      "container": "/media/",
+      "mode": "rw",
+      "description": "Mapping to a folder in unRAID. this is optional and you can add as many as you like.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8585",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port used to access the WebUI. The container uses port 5000 this can forward any port to that in the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TimeZone",
+      "key": "TZ",
+      "value": "Pacific/Auckland",
+      "description": "TimeZone for the container refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of possible timezones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "If you have multiple NVIDIA GPUs set a specific ID from the settings page",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

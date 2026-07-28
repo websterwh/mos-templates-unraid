@@ -1,0 +1,243 @@
+{
+  "name": "WorldMonitorAIO-Unofficial",
+  "repo": "ghcr.io/imzenreally/worldmonitor-unraid-aio:beta",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/users/imzenreally/packages/container/package/worldmonitor-unraid-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --tmpfs /tmp:rw,nosuid,nodev,size=256m --tmpfs /run:rw,nosuid,nodev,size=32m --security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=FOWNER --cap-add=SETUID --cap-add=SETGID --pids-limit=512 --log-opt max-size=25m --log-opt max-file=2",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/koala73/worldmonitor/main/src-tauri/icons/icon.png",
+  "project": "https://github.com/imzenreally/worldmonitor-unraid-aio",
+  "description": "Unofficial all-in-one self-hosted World Monitor global intelligence dashboard with its local API, private Valkey cache, optional AIS relay, and scheduled data seeders.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/worldmonitor-aio",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Generated internal secrets, Valkey data, and seeder state. Use a dedicated directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "3300",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "World Monitor HTTP interface. Change the host port if 3300 is already in use.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Seed on startup",
+      "key": "SEED_ON_START",
+      "value": "true",
+      "description": "Run the upstream data seeders after startup.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seed interval minutes",
+      "key": "SEED_INTERVAL_MINUTES",
+      "value": "30",
+      "description": "Minutes between seed passes. Set to 0 to disable recurring seeding.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Per-seeder timeout seconds",
+      "key": "SEED_TIMEOUT",
+      "value": "1800",
+      "description": "Maximum runtime for eligible individual seeders. Set to 0 to disable the outer timeout.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis memory limit",
+      "key": "REDIS_MAXMEMORY",
+      "value": "256mb",
+      "description": "Maximum Redis cache memory inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AISStream API key",
+      "key": "AISSTREAM_API_KEY",
+      "value": "",
+      "description": "Optional live AIS vessel tracking.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenSky client ID",
+      "key": "OPENSKY_CLIENT_ID",
+      "value": "",
+      "description": "Optional OpenSky OAuth client ID for authenticated military flight data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenSky client secret",
+      "key": "OPENSKY_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional OpenSky OAuth client secret for authenticated military flight data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NASA FIRMS API key",
+      "key": "NASA_FIRMS_API_KEY",
+      "value": "",
+      "description": "Optional NASA FIRMS wildfire data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Finnhub API key",
+      "key": "FINNHUB_API_KEY",
+      "value": "",
+      "description": "Optional market data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "FRED API key",
+      "key": "FRED_API_KEY",
+      "value": "",
+      "description": "Optional Federal Reserve economic data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EIA API key",
+      "key": "EIA_API_KEY",
+      "value": "",
+      "description": "Optional US energy data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Aviationstack API key",
+      "key": "AVIATIONSTACK_API",
+      "value": "",
+      "description": "Optional aviation data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Travelpayouts API token",
+      "key": "TRAVELPAYOUTS_API_TOKEN",
+      "value": "",
+      "description": "Optional travel and flight data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloudflare API token",
+      "key": "CLOUDFLARE_API_TOKEN",
+      "value": "",
+      "description": "Optional Cloudflare Radar data; account access may be restricted or paid.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ACLED access token",
+      "key": "ACLED_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional ACLED conflict data token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ACLED email",
+      "key": "ACLED_EMAIL",
+      "value": "",
+      "description": "Optional ACLED account email when required by the upstream API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACLED password",
+      "key": "ACLED_PASSWORD",
+      "value": "",
+      "description": "Optional ACLED account password when required by the upstream API.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Groq API key",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "Optional Groq-backed AI summaries.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenRouter API key",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "Optional OpenRouter-backed AI summaries.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LLM API URL",
+      "key": "LLM_API_URL",
+      "value": "",
+      "description": "Optional OpenAI-compatible endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM API key",
+      "key": "LLM_API_KEY",
+      "value": "",
+      "description": "Optional OpenAI-compatible endpoint key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LLM model",
+      "key": "LLM_MODEL",
+      "value": "",
+      "description": "Optional model name for the compatible endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama API URL",
+      "key": "OLLAMA_API_URL",
+      "value": "",
+      "description": "Preferred OpenAI-compatible Ollama endpoint URL used by the seeders.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama API key",
+      "key": "OLLAMA_API_KEY",
+      "value": "",
+      "description": "Optional authentication key for the Ollama-compatible endpoint.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama model",
+      "key": "OLLAMA_MODEL",
+      "value": "",
+      "description": "Model name used by the Ollama-compatible endpoint.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

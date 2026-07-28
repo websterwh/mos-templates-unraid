@@ -1,0 +1,635 @@
+{
+  "name": "romm",
+  "repo": "rommapp/romm:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/rommapp/romm",
+  "network": "romm_net",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/rommapp/romm/master/.github/resources/isotipo.png",
+  "project": "https://github.com/rommapp/romm",
+  "description": "A beautiful, powerful, self-hosted rom manager RomM (ROM Manager) allows you to scan, enrich, and browse your game collection with a clean and resonsive interface. With support for multiple platforms, various naming schemes, and custom tags, RomM is a must-have for anyone who plays on emulators. Features: \u2022 Scans your existing games library and enhances it with metadata from IGDB and MobyGames \u2022 Supports a large number of platforms \u2022 Play games directly from the browser using EmulatorJS \u2022 Share your library with friends while limiting access and permissions \u2022 View, upload, update, and delete games from any modern web browser Before starting, generate your IGDB and Mobygames API keys: https://docs.romm.app/latest/Getting-Started/Generate-API-Keys/ Instructions for setting up RomM can be found at https://docs.romm.app/latest/System-Setup/Unraid-Setup-Guide/",
+  "paths": [
+    {
+      "name": "Library",
+      "host": "/mnt/cache/appdata/romm/library",
+      "container": "/romm/library/",
+      "mode": "rw",
+      "description": "Game files",
+      "required": true
+    },
+    {
+      "name": "Resources",
+      "host": "/mnt/cache/appdata/romm/resources",
+      "container": "/romm/resources/",
+      "mode": "rw",
+      "description": "Metadata storage (covers, screenshots, etc.)",
+      "required": true
+    },
+    {
+      "name": "Assets",
+      "host": "/mnt/cache/appdata/romm/assets",
+      "container": "/romm/assets/",
+      "mode": "rw",
+      "description": "Uploaded saves, states, etc.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/romm/config",
+      "container": "/romm/config/",
+      "mode": "rw",
+      "description": "Folder for config.yml",
+      "required": false
+    },
+    {
+      "name": "Redis",
+      "host": "/mnt/cache/appdata/romm/redis-data",
+      "container": "/redis-data",
+      "mode": "rw",
+      "description": "Stores in-memory data",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ROMM_DB_DRIVER",
+      "key": "ROMM_DB_DRIVER",
+      "value": "mariadb",
+      "description": "Database driver to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "mariadb",
+      "description": "Host name of database instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "Port number of database instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_NAME",
+      "key": "DB_NAME",
+      "value": "romm",
+      "description": "Should match MYSQL_DATABASE in MariaDB",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "romm",
+      "description": "Database username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWD",
+      "key": "DB_PASSWD",
+      "value": "",
+      "description": "Database password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_QUERY_JSON",
+      "key": "DB_QUERY_JSON",
+      "value": "",
+      "description": "Extra query parameters for the database connection, in JSON format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_HOST",
+      "key": "REDIS_HOST",
+      "value": "",
+      "description": "Host name of Redis/Valkey instance",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PORT",
+      "key": "REDIS_PORT",
+      "value": "",
+      "description": "Port number of Redis/Valkey instance",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_USERNAME",
+      "key": "REDIS_USERNAME",
+      "value": "",
+      "description": "Username for Redis/Valkey instance",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PASSWORD",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Password for Redis/Valkey instance",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "REDIS_DB",
+      "key": "REDIS_DB",
+      "value": "",
+      "description": "Database number for Redis/Valkey instance",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_SSL",
+      "key": "REDIS_SSL",
+      "value": "",
+      "description": "Enable SSL for Redis/Valkey instance",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ROMM_AUTH_SECRET_KEY",
+      "key": "ROMM_AUTH_SECRET_KEY",
+      "value": "",
+      "description": "Generate a key with `openssl rand -hex 32`",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DISABLE_CSRF_PROTECTION",
+      "key": "DISABLE_CSRF_PROTECTION",
+      "value": "false",
+      "description": "Disables CSRF protection (not recommended)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_DOWNLOAD_ENDPOINT_AUTH",
+      "key": "DISABLE_DOWNLOAD_ENDPOINT_AUTH",
+      "value": "false",
+      "description": "Disable auth on download endpoint",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_USERPASS_LOGIN",
+      "key": "DISABLE_USERPASS_LOGIN",
+      "value": "false",
+      "description": "Disables login with username and password",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_MAX_AGE_SECONDS",
+      "key": "SESSION_MAX_AGE_SECONDS",
+      "value": "",
+      "description": "Maximum age of a session (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "KIOSK_MODE",
+      "key": "KIOSK_MODE",
+      "value": "false",
+      "description": "Read-only mode for public displays or kiosks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ENABLED",
+      "key": "OIDC_ENABLED",
+      "value": "false",
+      "description": "Enable OpenID Connect (OIDC) authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_PROVIDER",
+      "key": "OIDC_PROVIDER",
+      "value": "",
+      "description": "Name of the OIDC provider in use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for OIDC authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret for OIDC authentication",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_REDIRECT_URI",
+      "key": "OIDC_REDIRECT_URI",
+      "value": "",
+      "description": "Absolute redirect URI for OIDC authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_SERVER_APPLICATION_URL",
+      "key": "OIDC_SERVER_APPLICATION_URL",
+      "value": "",
+      "description": "Absolute URL of the OIDC server application",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_TLS_CACERTFILE",
+      "key": "OIDC_TLS_CACERTFILE",
+      "value": "",
+      "description": "Path to a file containing trusted CA certificates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGDB_CLIENT_ID",
+      "key": "IGDB_CLIENT_ID",
+      "value": "",
+      "description": "Client ID for IGDB API",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGDB_CLIENT_SECRET",
+      "key": "IGDB_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret for IGDB API",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SCREENSCRAPER_USER",
+      "key": "SCREENSCRAPER_USER",
+      "value": "",
+      "description": "Screenscraper username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCREENSCRAPER_PASSWORD",
+      "key": "SCREENSCRAPER_PASSWORD",
+      "value": "",
+      "description": "Screenscraper password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MOBYGAMES_API_KEY",
+      "key": "MOBYGAMES_API_KEY",
+      "value": "",
+      "description": "MobyGames secret API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STEAMGRIDDB_API_KEY",
+      "key": "STEAMGRIDDB_API_KEY",
+      "value": "",
+      "description": "SteamGridDB secret API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RETROACHIEVEMENTS_API_KEY",
+      "key": "RETROACHIEVEMENTS_API_KEY",
+      "value": "",
+      "description": "Retroachievements secret API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "REFRESH_RETROACHIEVEMENTS_CACHE_DAYS",
+      "key": "REFRESH_RETROACHIEVEMENTS_CACHE_DAYS",
+      "value": "",
+      "description": "Retroachievements metadata cache refresh (in days)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LAUNCHBOX_API_ENABLED",
+      "key": "LAUNCHBOX_API_ENABLED",
+      "value": "false",
+      "description": "Enable LaunchBox API integration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLAYMATCH_API_ENABLED",
+      "key": "PLAYMATCH_API_ENABLED",
+      "value": "false",
+      "description": "Enable PlayMatch API integration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HASHEOUS_API_ENABLED",
+      "key": "HASHEOUS_API_ENABLED",
+      "value": "false",
+      "description": "Enable Hasheous API integration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLASHPOINT_API_ENABLED",
+      "key": "FLASHPOINT_API_ENABLED",
+      "value": "false",
+      "description": "Enable Flashpoint API integration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HLTB_API_ENABLED",
+      "key": "HLTB_API_ENABLED",
+      "value": "false",
+      "description": "Enable HowLongToBeat API integration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_CONCURRENCY",
+      "key": "WEB_SERVER_CONCURRENCY",
+      "value": "",
+      "description": "Number of processes running the app",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_KEEPALIVE",
+      "key": "WEB_SERVER_KEEPALIVE",
+      "value": "",
+      "description": "Waiting time for requests on a Keep-Alive connection (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_MAX_REQUESTS",
+      "key": "WEB_SERVER_MAX_REQUESTS",
+      "value": "",
+      "description": "Maximum number of requests a worker will process before restarting",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_MAX_REQUESTS_JITTER",
+      "key": "WEB_SERVER_MAX_REQUESTS_JITTER",
+      "value": "",
+      "description": "Random jitter to add to the maximum number of requests a worker will process before restarting",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_TIMEOUT",
+      "key": "WEB_SERVER_TIMEOUT",
+      "value": "",
+      "description": "Timeout for web server requests (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_SERVER_WORKER_CONNECTIONS",
+      "key": "WEB_SERVER_WORKER_CONNECTIONS",
+      "value": "",
+      "description": "Maximum number of simultaneous clients a single process can handle",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FORCE_COLOR",
+      "key": "FORCE_COLOR",
+      "value": "",
+      "description": "Forces color output",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NO_COLOR",
+      "key": "NO_COLOR",
+      "value": "",
+      "description": "Disables color output",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_EMULATOR_JS",
+      "key": "DISABLE_EMULATOR_JS",
+      "value": "false",
+      "description": "Disables playing in browser with EmulatorJS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_RUFFLE_RS",
+      "key": "DISABLE_RUFFLE_RS",
+      "value": "false",
+      "description": "Disables playing flash games with RuffleRS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YOUTUBE_BASE_URL",
+      "key": "YOUTUBE_BASE_URL",
+      "value": "",
+      "description": "Base URL for alternate frontends",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPLOAD_TIMEOUT",
+      "key": "UPLOAD_TIMEOUT",
+      "value": "",
+      "description": "Timeout for file uploads (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCAN_TIMEOUT",
+      "key": "SCAN_TIMEOUT",
+      "value": "",
+      "description": "Timeout for the background scan/rescan tasks (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCAN_WORKERS",
+      "key": "SCAN_WORKERS",
+      "value": "",
+      "description": "Number of worker processes for scanning tasks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TASK_TIMEOUT",
+      "key": "TASK_TIMEOUT",
+      "value": "",
+      "description": "Timeout for the rest of the background tasks (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TASK_RESULT_TTL",
+      "key": "TASK_RESULT_TTL",
+      "value": "",
+      "description": "How long to keep task results in Valkey (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SEVEN_ZIP_TIMEOUT",
+      "key": "SEVEN_ZIP_TIMEOUT",
+      "value": "",
+      "description": "Timeout for 7-Zip operations (in seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_RESCAN_ON_FILESYSTEM_CHANGE",
+      "key": "ENABLE_RESCAN_ON_FILESYSTEM_CHANGE",
+      "value": "false",
+      "description": "Enable re-scanning of library when filesystem changes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RESCAN_ON_FILESYSTEM_CHANGE_DELAY",
+      "key": "RESCAN_ON_FILESYSTEM_CHANGE_DELAY",
+      "value": "",
+      "description": "Delay before re-scanning library when filesystem changes (in minutes)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SCHEDULED_RESCAN",
+      "key": "ENABLE_SCHEDULED_RESCAN",
+      "value": "false",
+      "description": "Enable scheduled re-scanning of library",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULED_RESCAN_CRON",
+      "key": "SCHEDULED_RESCAN_CRON",
+      "value": "",
+      "description": "Cron expression for scheduled re-scanning",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SCHEDULED_UPDATE_SWITCH_TITLEDB",
+      "key": "ENABLE_SCHEDULED_UPDATE_SWITCH_TITLEDB",
+      "value": "false",
+      "description": "Enable scheduled updating of Switch TitleDB index",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULED_UPDATE_SWITCH_TITLEDB_CRON",
+      "key": "SCHEDULED_UPDATE_SWITCH_TITLEDB_CRON",
+      "value": "",
+      "description": "Cron expression for scheduled updating of Switch TitleDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA",
+      "key": "ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA",
+      "value": "false",
+      "description": "Enable scheduled updating of LaunchBox metadata",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULED_UPDATE_LAUNCHBOX_METADATA_CRON",
+      "key": "SCHEDULED_UPDATE_LAUNCHBOX_METADATA_CRON",
+      "value": "",
+      "description": "Cron expression for scheduled updating of LaunchBox metadata",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SCHEDULED_CONVERT_IMAGES_TO_WEBP",
+      "key": "ENABLE_SCHEDULED_CONVERT_IMAGES_TO_WEBP",
+      "value": "false",
+      "description": "Enable scheduled conversion of images to WebP format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULED_CONVERT_IMAGES_TO_WEBP_CRON",
+      "key": "SCHEDULED_CONVERT_IMAGES_TO_WEBP_CRON",
+      "value": "",
+      "description": "Cron expression for scheduled conversion of images to WebP format",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC",
+      "key": "ENABLE_SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC",
+      "value": "false",
+      "description": "Enable scheduled syncing of Retroachievements progress",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC_CRON",
+      "key": "SCHEDULED_RETROACHIEVEMENTS_PROGRESS_SYNC_CRON",
+      "value": "",
+      "description": "Cron expression for scheduled syncing of Retroachievements progress",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGLEVEL",
+      "key": "LOGLEVEL",
+      "value": "INFO",
+      "description": "Logging level for the app",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SENTRY_DSN",
+      "key": "SENTRY_DSN",
+      "value": "",
+      "description": "DSN for Sentry error tracking",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

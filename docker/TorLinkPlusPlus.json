@@ -1,0 +1,107 @@
+{
+  "name": "TorLink-PlusPlus",
+  "repo": "calmasacow/torlink-plusplus",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/calmasacow/torlink-plusplus",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9117]/",
+  "icon": "https://raw.githubusercontent.com/calmasacow/TorLink-PlusPlus/main/web/torlink-plusplus-logo.png",
+  "project": "https://github.com/calmasacow/TorLink-PlusPlus",
+  "description": "TorLink++ is a self-hosted Torznab + torrent-download gateway built on top of the original Torlink terminal torrent finder/downloader. The original Torlink project, its terminal TUI, curated search experience, source integrations, and downloader foundation were created by bairon / baairon. Full credit for that original work belongs to the original author. This repository is a fork that adds a LAN-friendly web layer and automation integrations around that foundation.",
+  "paths": [
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads/torlink",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Host path where TorLink++ writes built-in downloader files. The container path must remain /downloads.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI / Torznab Port",
+      "host": "19117",
+      "container": "9117",
+      "protocol": "tcp",
+      "description": "Browser Web UI and Torznab API port. Host port 19117 avoids the common Jackett conflict on 9117. Use http:// :[PORT:9117]/ for the Web UI and http:// :[PORT:9117]/api?apikey=YOUR_KEY for Radarr/Sonarr.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Torznab API Key",
+      "key": "TORLINK_API_KEY",
+      "value": "",
+      "description": "Long random API key for Radarr/Sonarr/Torznab access. You can also generate/rotate this from the trusted Web UI after install.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Web UI",
+      "key": "TORLINK_WEBUI_TRUSTED",
+      "value": "true",
+      "description": "Allows same-origin browser Web UI requests without manually entering the API key. Only enable on a trusted LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torznab Empty Query",
+      "key": "TORLINK_TORZNAB_EMPTY_QUERY",
+      "value": "avatar",
+      "description": "Fallback broad query used when Radarr/Sonarr validates Torznab without a search term.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Web UI URL",
+      "key": "TORLINK_QBIT_URL",
+      "value": "",
+      "description": "Optional. qBittorrent Web UI URL for manual QBT button handoff, for example http://qbittorrent:8080. Radarr/Sonarr should normally use their own download-client settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Username",
+      "key": "TORLINK_QBIT_USERNAME",
+      "value": "",
+      "description": "Optional qBittorrent username for manual QBT button handoff.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Password",
+      "key": "TORLINK_QBIT_PASSWORD",
+      "value": "",
+      "description": "Optional qBittorrent password or API key for manual QBT button handoff.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Category",
+      "key": "TORLINK_QBIT_CATEGORY",
+      "value": "torlink",
+      "description": "Optional qBittorrent category for manual QBT button handoff.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent Save Path",
+      "key": "TORLINK_QBIT_SAVE_PATH",
+      "value": "",
+      "description": "Optional qBittorrent save path override for manual QBT button handoff. Leave blank to use qBittorrent defaults.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

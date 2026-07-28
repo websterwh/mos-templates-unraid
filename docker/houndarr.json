@@ -1,0 +1,107 @@
+{
+  "name": "houndarr",
+  "repo": "ghcr.io/av1155/houndarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/av1155/houndarr/pkgs/container/houndarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8877]",
+  "icon": "https://raw.githubusercontent.com/av1155/houndarr/main/src/houndarr/static/img/houndarr-logo-dark.png",
+  "project": "https://github.com/av1155/houndarr",
+  "description": "Houndarr is a self-hosted companion for Radarr, Sonarr, Lidarr, Readarr, and Whisparr that schedules missing, cutoff-unmet, and optional upgrade searches in small, rate-limited batches. It triggers searches through your *arr apps but does not download media, manage indexers, or modify files.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/houndarr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for the SQLite database and master key. Back this up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8877",
+      "container": "8877",
+      "protocol": "tcp",
+      "description": "Port for the Houndarr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (e.g. America/New_York, Europe/London).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "HOUNDARR_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set to true when running behind a reverse proxy with HTTPS termination.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "HOUNDARR_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Comma-separated list of trusted reverse-proxy IPs or CIDR subnets for X-Forwarded-For (e.g. 172.18.0.0/16). Required for accurate rate limiting behind a proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Mode",
+      "key": "HOUNDARR_AUTH_MODE",
+      "value": "builtin",
+      "description": "Authentication mode: builtin (default) or proxy (delegate auth to reverse proxy/SSO).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Proxy Header",
+      "key": "HOUNDARR_AUTH_PROXY_HEADER",
+      "value": "",
+      "description": "Username header from reverse proxy in proxy mode (for example Remote-User). Required when Auth Mode is proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Retention Days",
+      "key": "HOUNDARR_LOG_RETENTION_DAYS",
+      "value": "30",
+      "description": "Days of search log rows Houndarr keeps before the daily retention sweep deletes older entries. 0 disables automatic purges; 7 to 365 overrides the default. Lower this if the dashboard feels slow on a long-running instance.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

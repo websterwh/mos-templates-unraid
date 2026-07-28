@@ -1,0 +1,107 @@
+{
+  "name": "PhotoStructure",
+  "repo": "photostructure/server:stable",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/photostructure/server/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout=120 --restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1787]",
+  "icon": "https://photostructure.com/img/logo-circle-gradient-256.png",
+  "project": "https://photostructure.com/",
+  "description": "PhotoStructure is your new home for all your photos and videos. Cross-platform libraries that you can move seamlessly across Docker, Windows, macOS, and Linux Fast, fun mobile-friendly UI Support for very large (250,000+ asset) libraries Support for almost all RAW and video formats (thanks to LibRaw and FFmpeg) Robust metadata support, including Google Takeouts, XMP sidecars, and sibling inference Robust image and video deduplication PhotoStructure is extremely configurable. See the documentation for details. Be sure to visit PhotoStructure's forum for tips, support, and to vote on what features you want to see next. We also have a discord! To import additional directories or volumes: click \"Add another Path\" enter a Container path (like \"/photos\") click Host Path and pick the directory you want to import click \"Add\", then click \"Apply\". PhotoStructure will find the new directory automatically if you leave the \"Where else are your photos and videos?\" section set to \"Automatic\", which is the default. Initial template by Spants (thanks!)",
+  "paths": [
+    {
+      "name": "Library",
+      "host": "/mnt/cache/Photos",
+      "container": "/ps/library",
+      "mode": "rw",
+      "description": "This is where your PhotoStructure Library will be stored. It needs to have sufficient free space to hold preview images, and transcoded videos.",
+      "required": true
+    },
+    {
+      "name": "Extra Import Source",
+      "host": "",
+      "container": "/mnt/to-import-photos",
+      "mode": "rw",
+      "description": "Optionally, set a mount path of extra photos to import. You can remove this if you don't need it",
+      "required": false
+    },
+    {
+      "name": "Temp/Scratch disk",
+      "host": "/mnt/cache/appdata/photostructure/tmp",
+      "container": "/ps/tmp",
+      "mode": "rw",
+      "description": "This must be fast, local disk.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/photostructure/logs",
+      "container": "/ps/logs",
+      "mode": "rw",
+      "description": "Logfiles will be written into this directory. Set environment variable",
+      "required": true
+    },
+    {
+      "name": "System config",
+      "host": "/mnt/cache/appdata/photostructure/config",
+      "container": "/ps/config",
+      "mode": "rw",
+      "description": "System configuration is written into this directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "1787",
+      "container": "1787",
+      "protocol": "tcp",
+      "description": "Port to access the HTTP UI. Can be modified by setting the PS_HTTP_PORT environment variable.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "This is the userid that PhotoStructure will run under, instead of the default of root (userid 0). Files copied into your library will be owned by this userid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "This is the groupid that PhotoStructure will run under.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "0002",
+      "description": "Files written by PhotoStructure will be applied with this umask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logging level",
+      "key": "PS_LOG_LEVEL",
+      "value": "error",
+      "description": "Valid values are debug, info, warn, and error. Default is error, which (should be) quiet.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

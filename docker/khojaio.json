@@ -1,0 +1,571 @@
+{
+  "name": "khoj-aio",
+  "repo": "jsonbored/khoj-aio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/khoj-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:42110]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/khoj.png",
+  "project": "https://github.com/JSONbored/khoj-aio",
+  "description": "Khoj is a self-hosted AI second brain for chatting with your docs, the web, and local or hosted LLMs. All-In-One Unraid Edition `khoj-aio` packages the Khoj server with an internally managed PostgreSQL database so beginners can get a clean first boot on Unraid without wiring a separate database container. Quick Install (Beginners) 1. Install the template and leave the default appdata paths in place. 2. Optionally set [code]KHOJ_ADMIN_EMAIL[/code], [code]KHOJ_ADMIN_PASSWORD[/code], and [code]KHOJ_DJANGO_SECRET_KEY[/code]. 3. Leave [code]KHOJ_ANONYMOUS_MODE=true[/code] for the simplest private LAN-first install, then click Apply. 4. Wait for first boot to finish, open [code]http://SERVER_IP:42110[/code], and restart the container once after the initial setup so all settings are applied cleanly. 5. If you left the password or secret blank, the container generates secure values and saves them in your mapped config folder at [code]/root/.khoj/aio/generated.env[/code]. Power Users (Advanced View) - Advanced View exposes the practical upstream self-hosted environment surface plus AIO-specific controls. - You can keep the bundled internal PostgreSQL default, or point Khoj at external PostgreSQL, search providers, code sandboxes, identity providers, upload storage, Twilio/Notion integrations, and OpenAI-compatible local or hosted LLM endpoints. - Leave defaults in place for the easiest install. Only set the overrides you actually need. Important Notes - This image intentionally keeps PostgreSQL bundled because that is the critical first-boot dependency for Khoj on Unraid. Search, sandbox, and provider integrations remain optional advanced add-ons. - If you expose Khoj outside your LAN, set strong admin credentials, configure [code]KHOJ_DOMAIN[/code] and [code]KHOJ_ALLOWED_DOMAIN[/code] correctly, and strongly consider disabling anonymous mode. - Upstream currently documents Google OAuth mainly against the prod [code]khoj-cloud[/code] image, so the Google auth variables below should be treated as expert-only and tested carefully in this standard self-host image flow.",
+  "paths": [
+    {
+      "name": "AppData - Khoj Config",
+      "host": "/mnt/cache/appdata/khoj-aio/config",
+      "container": "/root/.khoj",
+      "mode": "rw",
+      "description": "Stores generated credentials, uploads, and Khoj configuration state.",
+      "required": true
+    },
+    {
+      "name": "AppData - PostgreSQL Data",
+      "host": "/mnt/cache/appdata/khoj-aio/postgres",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Internal PostgreSQL database storage for the AIO deployment.",
+      "required": true
+    },
+    {
+      "name": "AppData - Hugging Face Cache",
+      "host": "/mnt/cache/appdata/khoj-aio/models/huggingface",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Persistent cache for Hugging Face downloads and model assets.",
+      "required": true
+    },
+    {
+      "name": "AppData - SentenceTransformers Cache",
+      "host": "/mnt/cache/appdata/khoj-aio/models/sentence-transformers",
+      "container": "/root/.cache/torch/sentence_transformers",
+      "mode": "rw",
+      "description": "Persistent cache for SentenceTransformers embeddings and related model files.",
+      "required": true
+    },
+    {
+      "name": "[Code] Docker Socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Optional Docker socket mount for advanced operator/computer workflows. Do not enable this unless you understand the security tradeoff.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "42110",
+      "container": "42110",
+      "protocol": "tcp",
+      "description": "The main Khoj web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Email",
+      "key": "KHOJ_ADMIN_EMAIL",
+      "value": "admin@khoj.local",
+      "description": "Admin login email for the Khoj admin panel. You can change it later.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "KHOJ_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional. Leave blank to auto-generate a secure admin password on first boot and save it in the mapped config folder.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Django Secret Key",
+      "key": "KHOJ_DJANGO_SECRET_KEY",
+      "value": "",
+      "description": "Optional but recommended. Leave blank to auto-generate a secure secret key on first boot and save it in the mapped config folder.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anonymous Mode",
+      "key": "KHOJ_ANONYMOUS_MODE",
+      "value": "true",
+      "description": "Leave true for the simplest single-user LAN-first install. Set false if you want user sign-in and multi-user auth flows.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Internal PostgreSQL",
+      "key": "KHOJ_USE_INTERNAL_POSTGRES",
+      "value": "true",
+      "description": "Default single-container mode. Set false only if you are intentionally using an external PostgreSQL database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind Host",
+      "key": "KHOJ_HOST",
+      "value": "0.0.0.0",
+      "description": "Container bind address. Leave at 0.0.0.0 for standard Unraid bridge networking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Non-Interactive Startup",
+      "key": "KHOJ_NON_INTERACTIVE",
+      "value": "true",
+      "description": "Recommended for unattended container startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra CLI Args",
+      "key": "KHOJ_EXTRA_ARGS",
+      "value": "",
+      "description": "Optional extra arguments appended to the Khoj startup command.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Mode",
+      "key": "KHOJ_DEBUG",
+      "value": "false",
+      "description": "Set true only when troubleshooting with more verbose upstream debug behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Gunicorn Workers",
+      "key": "GUNICORN_WORKERS",
+      "value": "",
+      "description": "Optional worker-process override. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Gunicorn Timeout",
+      "key": "GUNICORN_TIMEOUT",
+      "value": "",
+      "description": "Optional request timeout in seconds. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Gunicorn Graceful Timeout",
+      "key": "GUNICORN_GRACEFUL_TIMEOUT",
+      "value": "",
+      "description": "Optional graceful shutdown timeout in seconds. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Gunicorn Keep Alive",
+      "key": "GUNICORN_KEEP_ALIVE",
+      "value": "",
+      "description": "Optional keep-alive timeout in seconds. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] LLM Seed",
+      "key": "KHOJ_LLM_SEED",
+      "value": "",
+      "description": "Optional deterministic seed for supported model providers. Useful for repeatable debugging and testing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Research Iterations",
+      "key": "KHOJ_RESEARCH_ITERATIONS",
+      "value": "",
+      "description": "Optional cap for research-mode iterations. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] PostgreSQL Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "Optional external PostgreSQL host. When set, the bundled PostgreSQL stays idle.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] PostgreSQL Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "External PostgreSQL port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] PostgreSQL Database",
+      "key": "POSTGRES_DB",
+      "value": "postgres",
+      "description": "External PostgreSQL database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] PostgreSQL User",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "External PostgreSQL username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] PostgreSQL Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "External PostgreSQL password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "API key for OpenAI itself or other OpenAI-compatible gateways that require auth.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic API key for Claude models. Also required for Khoj operator/computer workflows.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Google Gemini API key for Gemini chat or image workflows.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] OpenAI-Compatible Base URL",
+      "key": "OPENAI_BASE_URL",
+      "value": "",
+      "description": "Use this for Ollama, vLLM, LM Studio, LiteLLM, LocalAI, or any OpenAI-compatible endpoint. Example: http://host.docker.internal:11434/v1/.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Default Chat Model",
+      "key": "KHOJ_DEFAULT_CHAT_MODEL",
+      "value": "",
+      "description": "Optional default chat model name for your configured OpenAI-compatible endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] External SearxNG URL",
+      "key": "KHOJ_SEARXNG_URL",
+      "value": "",
+      "description": "Optional SearxNG endpoint for online search. Example: http://192.168.1.20:8080.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] Serper API Key",
+      "key": "SERPER_DEV_API_KEY",
+      "value": "",
+      "description": "Optional paid web-search API key from Serper.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Search] Google Search API Key",
+      "key": "GOOGLE_SEARCH_API_KEY",
+      "value": "",
+      "description": "Optional Google Custom Search JSON API key for expert search routing.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Search] Google Search Engine ID",
+      "key": "GOOGLE_SEARCH_ENGINE_ID",
+      "value": "",
+      "description": "Optional Google Programmable Search Engine ID paired with GOOGLE_SEARCH_API_KEY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] OloStep API Key",
+      "key": "OLOSTEP_API_KEY",
+      "value": "",
+      "description": "Optional webpage-read API key from OloStep.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Search] OloStep API URL",
+      "key": "OLOSTEP_API_URL",
+      "value": "",
+      "description": "Optional OloStep API base URL override. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] Firecrawl API Key",
+      "key": "FIRECRAWL_API_KEY",
+      "value": "",
+      "description": "Optional Firecrawl API key for search and webpage reading.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Search] Firecrawl API URL",
+      "key": "FIRECRAWL_API_URL",
+      "value": "",
+      "description": "Optional Firecrawl API base URL override. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] Exa API Key",
+      "key": "EXA_API_KEY",
+      "value": "",
+      "description": "Optional Exa API key for search and webpage reading.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Search] Exa API URL",
+      "key": "EXA_API_URL",
+      "value": "",
+      "description": "Optional Exa API base URL override. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Search] Auto Read Search Result Pages",
+      "key": "KHOJ_AUTO_READ_WEBPAGE",
+      "value": "false",
+      "description": "Set true to have Khoj automatically read a small number of search result pages while researching online.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Code] Terrarium URL",
+      "key": "KHOJ_TERRARIUM_URL",
+      "value": "",
+      "description": "Optional external Terrarium sandbox URL for code execution. Example: http://192.168.1.30:8080.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Code] E2B API Key",
+      "key": "E2B_API_KEY",
+      "value": "",
+      "description": "Optional E2B API key if you want remote code sandboxing instead of Terrarium.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Code] E2B Template",
+      "key": "E2B_TEMPLATE",
+      "value": "",
+      "description": "Optional E2B template override. Leave blank for Khoj's upstream default template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Operator] Enable Computer Tool",
+      "key": "KHOJ_OPERATOR_ENABLED",
+      "value": "false",
+      "description": "Set true only if you intentionally enable Khoj's operator/computer features and understand the extra security and resource cost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Operator] Max Iterations",
+      "key": "KHOJ_OPERATOR_ITERATIONS",
+      "value": "",
+      "description": "Optional max-iteration cap for operator runs. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Operator] External Browser CDP URL",
+      "key": "KHOJ_CDP_URL",
+      "value": "",
+      "description": "Optional Chrome DevTools Protocol URL for expert external-browser operator setups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Public Domain or IP",
+      "key": "KHOJ_DOMAIN",
+      "value": "",
+      "description": "Required for remote access through a custom hostname or IP. Do not include http:// or https://.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Allowed Internal Domain",
+      "key": "KHOJ_ALLOWED_DOMAIN",
+      "value": "",
+      "description": "Optional internal hostname/IP for reverse proxy or load balancer setups. If blank, Khoj defaults to KHOJ_DOMAIN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Access] Disable HTTPS Enforcement",
+      "key": "KHOJ_NO_HTTPS",
+      "value": "true",
+      "description": "Set true when intentionally serving over plain HTTP on a trusted LAN or behind a reverse proxy that terminates TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Resend API Key",
+      "key": "RESEND_API_KEY",
+      "value": "",
+      "description": "Optional. Enables emailed magic-link login for multi-user access.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Resend Sender Email",
+      "key": "RESEND_EMAIL",
+      "value": "",
+      "description": "Optional sender address used for magic-link authentication emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Resend Audience ID",
+      "key": "RESEND_AUDIENCE_ID",
+      "value": "",
+      "description": "Optional Resend audience ID if you want Khoj to add users to a Resend audience after welcome email flows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google Client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Expert-only Google OAuth client ID. Upstream currently documents Google auth mainly against the prod khoj-cloud image.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google Client Secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Expert-only Google OAuth client secret paired with GOOGLE_CLIENT_ID.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Voice] ElevenLabs API Key",
+      "key": "ELEVEN_LABS_API_KEY",
+      "value": "",
+      "description": "Optional. Enables text-to-speech voice responses using ElevenLabs.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Integrations] Notion OAuth Client ID",
+      "key": "NOTION_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Optional Notion OAuth client ID for advanced self-hosted Notion integration flows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Integrations] Notion OAuth Client Secret",
+      "key": "NOTION_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional Notion OAuth client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Integrations] Notion Redirect URI",
+      "key": "NOTION_REDIRECT_URI",
+      "value": "",
+      "description": "Optional Notion OAuth redirect URI registered with your integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] AWS Access Key",
+      "key": "AWS_ACCESS_KEY",
+      "value": "",
+      "description": "Optional object-storage access key for advanced image upload offload paths.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage] AWS Secret Key",
+      "key": "AWS_SECRET_KEY",
+      "value": "",
+      "description": "Optional object-storage secret key paired with AWS_ACCESS_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage] Khoj Images Bucket",
+      "key": "AWS_IMAGE_UPLOAD_BUCKET",
+      "value": "",
+      "description": "Optional bucket name for Khoj-generated image uploads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] User Upload Bucket",
+      "key": "AWS_USER_UPLOADED_IMAGES_BUCKET_NAME",
+      "value": "",
+      "description": "Optional bucket name for user-uploaded images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Twilio] Account SID",
+      "key": "TWILIO_ACCOUNT_SID",
+      "value": "",
+      "description": "Optional Twilio Account SID for Twilio-backed verification or messaging flows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Twilio] Auth Token",
+      "key": "TWILIO_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional Twilio auth token paired with TWILIO_ACCOUNT_SID.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Twilio] Verification Service SID",
+      "key": "TWILIO_VERIFICATION_SID",
+      "value": "",
+      "description": "Optional Twilio Verify service SID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Privacy] Disable Telemetry",
+      "key": "KHOJ_TELEMETRY_DISABLE",
+      "value": "false",
+      "description": "Set true to opt out of Khoj's anonymous self-hosted telemetry.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

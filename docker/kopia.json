@@ -1,0 +1,131 @@
+{
+  "name": "kopia",
+  "repo": "ghcr.io/imagegenius/kopia",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/orgs/imagegenius/packages/container/package/kopia",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname=kopia --cap-add=SYS_ADMIN",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:51515]",
+  "icon": "https://raw.githubusercontent.com/imagegenius/templates/main/unraid/img/kopia.png",
+  "project": "https://kopia.io/",
+  "description": "Kopia is a fast and secure open-source backup/restore tool that allows you to create encrypted snapshots of your data and save the snapshots to remote or cloud storage of your choice, to network-attached storage or server, or locally on your machine.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Appdata Path",
+      "required": true
+    },
+    {
+      "name": "Path: /source",
+      "host": "",
+      "container": "/source",
+      "mode": "rw",
+      "description": "Backup Source Path",
+      "required": true
+    },
+    {
+      "name": "Path: /cache",
+      "host": "",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "Temporary Uploads Path (Cache)",
+      "required": true
+    },
+    {
+      "name": "Path: /local",
+      "host": "",
+      "container": "/local",
+      "mode": "rw",
+      "description": "Path for local filesystem repositories",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "51515",
+      "container": "51515",
+      "protocol": "tcp",
+      "description": "WebUI Port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "USERNAME",
+      "key": "USERNAME",
+      "value": "kopia",
+      "description": "Specify a username to access the WebUI, this can be removed after first setup",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PASSWORD",
+      "key": "PASSWORD",
+      "value": "kopia",
+      "description": "Specify a password to access the WebUI, this can be removed after first setup",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "KOPIA_PERSIST_CREDENTIALS_ON_CONNECT",
+      "key": "KOPIA_PERSIST_CREDENTIALS_ON_CONNECT",
+      "value": "true",
+      "description": "Automatically connect to repository",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLI_ARGS",
+      "key": "CLI_ARGS",
+      "value": "",
+      "description": "Overwrite CLI arguments",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "UMASK for newly created files. Do not change unless you know what you're doing.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "/dev/fuse",
+      "host": "/dev/fuse",
+      "container": "",
+      "description": "Allows fuse mounts to function",
+      "required": true
+    }
+  ],
+  "labels": []
+}

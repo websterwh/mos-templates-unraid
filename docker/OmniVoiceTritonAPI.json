@@ -1,0 +1,83 @@
+{
+  "name": "OmniVoice-Triton-API",
+  "repo": "ghcr.io/hsiang-han/omnivoice-triton-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --shm-size=4g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/docs",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/omnivoice-triton-api-icon.png",
+  "project": "https://github.com/hsiang-han/OmniVoice-Triton-API",
+  "description": "OpenAI-compatible TTS API powered by OmniVoice with Triton kernel fusion + CUDA Graph acceleration. 646 languages, voice cloning, voice design. Up to 3.4x faster than stock OmniVoice, ~170ms per utterance. Supports RTX 50-series (Blackwell) GPUs. First start downloads model (~2GB) from HuggingFace. China users: set HF_ENDPOINT to https://hf-mirror.com for faster downloads. Requires NVIDIA GPU with driver 550+.",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/omnivoice-triton-api/models",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Model download cache. First run downloads ~2GB. Persists across container recreates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible TTS API port. Swagger docs at /docs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Runner Mode",
+      "key": "RUNNER_MODE",
+      "value": "triton",
+      "description": "Inference mode: triton (default, fast, ~3-4GB VRAM, stable), triton+sage (triton + SageAttention), base (slowest, ~2-3GB). EXPERIMENTAL: hybrid (fastest ~170ms but has VRAM leak bug \u2014 memory grows until OOM, see github.com/newgrit1004/omnivoice-triton/issues/8), hybrid+sage, faster. We are tracking the fix.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Diffusion Steps",
+      "key": "NUM_STEPS",
+      "value": "32",
+      "description": "Number of diffusion steps. 32 = best quality. 16 = faster with slightly lower quality.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HuggingFace Endpoint",
+      "key": "HF_ENDPOINT",
+      "value": "https://huggingface.co",
+      "description": "HuggingFace download endpoint. China users: change to https://hf-mirror.com for faster downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU selection (all, 0, 1, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA driver capabilities",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

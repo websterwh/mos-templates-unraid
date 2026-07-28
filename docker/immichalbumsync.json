@@ -1,0 +1,131 @@
+{
+  "name": "immich-album-sync",
+  "repo": "ghcr.io/nightcrawler1016/immich-album-sync:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/NightCrawler1016/immich-album-sync/pkgs/container/immich-album-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/NightCrawler1016/immich-album-sync/main/icon.png",
+  "project": "https://github.com/NightCrawler1016/immich-album-sync",
+  "description": "One-way album sync between two Immich servers with a responsive web UI. Designed for Unraid users who run a private Immich server (full library) and a public/family-facing Immich server (curated albums only). Configure sync jobs, schedules, and API keys entirely through the browser \u2014 no config files or environment variables needed after the initial setup. Features: - Web UI with password protection - Multiple sync jobs with independent schedules - Preserves original files, EXIF, GPS, and Apple Live Photos (.HEIC + .MOV) - Duplicate-safe (uses immich-go for smart detection) - Real-time log streaming in the browser - Run history with a 30-day (configurable) window, filterable by job and status - Webhook notifications on sync start/success/failure (Discord, Slack, or any JSON endpoint) - Mobile-responsive design - Add-only mode by default (safe for family sharing)",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/immich-album-sync",
+      "container": "/app/appdata",
+      "mode": "rw",
+      "description": "Persistent storage for the database (config.db), download cache, and sync logs. Map to a location on your array.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Immich Album Sync web interface. Open this in your browser after the container starts.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "change-me-to-a-unique-random-32-64-char-string",
+      "description": "REQUIRED: Change to a unique random string used to sign session cookies and encrypt stored API keys. The container WILL NOT START while this is left at the default/placeholder value (any value starting with 'change-me') or shorter than 16 characters. Key length: minimum 16 characters | recommended 32\u201364 characters | maximum 128 characters (longer values provide no extra security). Generate a strong key at: https://1password.com/password-generator/ \u2014 select 32\u201364 characters, all character types. WARNING: changing this key after initial setup will invalidate all stored API keys and log out all active sessions \u2014 you will need to re-enter API keys for every sync job.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone. Used for log timestamps. Examples: America/New_York, America/Chicago, America/Los_Angeles, Europe/London, UTC. Full list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app process runs as (the container no longer runs as root). The default 99 is Unraid's 'nobody' user, which matches standard appdata ownership \u2014 leave it unless your appdata/cache is owned by a different user. If the container logs permission errors writing to appdata, set this to the owner UID of your appdata share.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app process runs as. The default 100 is Unraid's 'users' group, which matches standard appdata ownership. Change only if your appdata/cache is owned by a different group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cleanup Cache After Upload",
+      "key": "CLEANUP_CACHE",
+      "value": "false",
+      "description": "Set to 'true' to automatically delete downloaded originals from the cache directory after they have been successfully uploaded. Saves disk space but files will be re-downloaded on the next sync run. Can also be toggled per-job in the Web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Directory Path",
+      "key": "CACHE_PATH",
+      "value": "/app/appdata/cache",
+      "description": "Path inside the container where original files are temporarily staged before uploading to the destination server. The default stores the cache inside the App Data directory. To store the cache on a different disk, SSD pool, or network share (recommended for large first-time syncs): 1. In the Docker template, add a second Path mapping: Container path: /app/cache Host path: /mnt/user/YourDisk/immich-sync-cache (or any writable path) 2. Set this field to: /app/cache This lets you route multi-GB or multi-TB downloads to a large array disk or NAS share without filling your primary Unraid cache pool. The container must have write access to whatever path you choose.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Cache Batch Size (MB)",
+      "key": "BATCH_SIZE_MB",
+      "value": "10240",
+      "description": "Maximum amount of data (in megabytes) to download before uploading a batch to the destination server. After each batch is uploaded it is cleared from the cache, then the next batch begins. This prevents the local cache from growing too large during first-time syncs of very large albums. Default: 10240 (10 GB). Set to 0 to download all files before uploading (disables size-based batching).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Files Per Batch",
+      "key": "BATCH_FILE_COUNT",
+      "value": "0",
+      "description": "Maximum number of files to stage per batch before uploading. Works alongside Max Cache Batch Size \u2014 whichever limit is reached first triggers an upload cycle. Default: 0 (no file-count limit; only the size limit applies). Example: set to 500 to process albums in groups of 500 files regardless of total size.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log File Path",
+      "key": "LOG_PATH",
+      "value": "/app/appdata/logs/sync.log",
+      "description": "Internal path for the sync log file. Viewable live in the Web UI under 'Live Logs'. Leave blank to use the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Path",
+      "key": "DB_PATH",
+      "value": "/app/appdata/config.db",
+      "description": "Internal path for the SQLite database that stores sync job configurations and run history. Leave blank to use the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Run History Retention (days)",
+      "key": "RUN_HISTORY_RETENTION_DAYS",
+      "value": "90",
+      "description": "How many days of sync run history to keep. Older runs are pruned automatically once a day; the 10 most recent runs of each job are always kept regardless of age. Default: 90 (matches the widest filter on the Run History page). Set to 0 to keep all history forever (the database will grow over time, especially with frequent schedules).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

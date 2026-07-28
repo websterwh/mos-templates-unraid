@@ -1,0 +1,147 @@
+{
+  "name": "bindery",
+  "repo": "ghcr.io/vavallee/bindery:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/vavallee/bindery/pkgs/container/bindery",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]/",
+  "icon": "https://raw.githubusercontent.com/vavallee/bindery/main/.github/assets/logo.png",
+  "project": "https://github.com/vavallee/bindery",
+  "description": "Bindery is a self-hosted ebook and audiobook automation server. Search OpenLibrary, Hardcover, and DNB for books and authors; monitor authors and series; hand requests to your *arr-style indexers and download client (NZB or torrent); import completed files into your library with proper metadata; serve an OPDS 1.2 catalogue to e-readers. Distroless image, Apache 2.0. First-run: open the WebUI to create an admin account. No env vars required for auth. Default user is 99:100. If you change PUID/PGID, also change the --user value in Extra Parameters; the container will fail fast if they don't match.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/bindery",
+      "container": "/config",
+      "mode": "rw",
+      "description": "SQLite database, image cache, and backups. Must persist across container restarts.",
+      "required": true
+    },
+    {
+      "name": "Books",
+      "host": "",
+      "container": "/books",
+      "mode": "rw",
+      "description": "Imported ebook library root. Bindery moves/copies/hardlinks files here from Downloads after import.",
+      "required": true
+    },
+    {
+      "name": "Audiobooks",
+      "host": "",
+      "container": "/audiobooks",
+      "mode": "rw",
+      "description": "Optional separate root for imported audiobook folders. Leave blank to keep audiobooks under /books. If you map a path here, also set BINDERY_AUDIOBOOK_DIR=/audiobooks below.",
+      "required": false
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Watch folder for completed downloads. Should match the path SABnzbd / qBittorrent writes to.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "HTTP port for the web interface, API, and OPDS catalogue.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Log Level",
+      "key": "BINDERY_LOG_LEVEL",
+      "value": "info|debug|warn|error",
+      "description": "Log verbosity: debug, info, warn, error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "BINDERY_PUID",
+      "value": "99",
+      "description": "UID the container will validate against. Must match the UID half of the --user flag in Extra Parameters. Default 99 = Unraid 'nobody'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "BINDERY_PGID",
+      "value": "100",
+      "description": "GID the container will validate against. Must match the GID half of the --user flag in Extra Parameters. Default 100 = Unraid 'users'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Audiobook Directory",
+      "key": "BINDERY_AUDIOBOOK_DIR",
+      "value": "",
+      "description": "Set to /audiobooks if you mapped a separate Audiobooks path above. If blank, audiobooks are imported into /books alongside ebooks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "URL Base",
+      "key": "BINDERY_URL_BASE",
+      "value": "",
+      "description": "Subpath prefix when hosting behind a reverse proxy at /bindery (e.g. SWAG / Nginx Proxy Manager). Leave blank for root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "BINDERY_TRUSTED_PROXY",
+      "value": "",
+      "description": "Comma-separated CIDR list of reverse proxies allowed to set X-Forwarded-* headers. Required if you rely on X-Forwarded-For for auth or rate limits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Secure",
+      "key": "BINDERY_COOKIE_SECURE",
+      "value": "auto|always|never",
+      "description": "Session cookie Secure flag: auto (detect TLS via X-Forwarded-Proto), always, or never.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Path Remap",
+      "key": "BINDERY_DOWNLOAD_PATH_REMAP",
+      "value": "",
+      "description": "Comma-separated from:to pairs, used when SABnzbd / qBittorrent reports a path that doesn't match what Bindery sees. Example: /downloads:/data/downloads",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Private Webhook URLs",
+      "key": "BINDERY_NOTIFICATIONS_ALLOW_PRIVATE",
+      "value": "false",
+      "description": "Set to 1 to allow webhook destinations on RFC1918 networks (ntfy / Home Assistant on the LAN). Default false blocks them as SSRF protection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API Key Seed",
+      "key": "BINDERY_API_KEY",
+      "value": "",
+      "description": "One-time seed for the persisted API key. Leave blank to let Bindery generate one on first boot; rotate from the WebUI afterwards.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,131 @@
+{
+  "name": "Sure-Web",
+  "repo": "ghcr.io/we-promise/sure:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/we-promise/sure/pkgs/container/sure",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Skylinar/unraid_templates/refs/heads/main/images/sure-web.png?raw=true",
+  "project": "https://github.com/we-promise/sure",
+  "description": "Sure is a community-driven fork of the former Maybe Finance application, continuing its mission to help users manage personal finances by tracking expenses, budgeting, and supporting wealth management. Note: \"Maybe\" is a trademark of Maybe Finance, Inc.. This is the 1 of 2 containers required to run Sure finance; **please review the additional requirements.** After Installing: To ensure correct user permissions for the app-storage folder, run 'chown -R 1000:1000 /mnt/user/appdata/sure/app-storage' after the initial startup.",
+  "paths": [
+    {
+      "name": "Config data",
+      "host": "/mnt/cache/appdata/sure/app-storage",
+      "container": "/rails/storage",
+      "mode": "rw",
+      "description": "Config data for application. Should be the same dir as Sure Worker.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY_BASE",
+      "value": "",
+      "description": "Secret key. Run `openssl rand -hex 64` to generate a secret",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres - Host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Postgres database host. Suggested: {YOUR-POSTGRES-IP}",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Postgres database port. Default: 5432",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Username",
+      "key": "POSTGRES_USER",
+      "value": "",
+      "description": "Postgres database username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Postgres - Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Postgres database password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres - Database",
+      "key": "POSTGRES_DB",
+      "value": "",
+      "description": "Postgres database name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis - URL",
+      "key": "REDIS_URL",
+      "value": "redis://{YOUR-REDIS-IP}:6379/1",
+      "description": "The Redis host URL. Suggested: redis://{YOUR-REDIS-IP}:6379/1",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Token",
+      "key": "OPENAI_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional - NOTE: enabling OpenAI will incur costs when you use AI-related features in the app (chat, rules). Make sure you have set appropriate spend limits on your account before adding this.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Is Self-Hosted",
+      "key": "SELF_HOSTING_ENABLED",
+      "value": "true",
+      "description": "Is the application self-hosted. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enforce SSL",
+      "key": "RAILS_FORCE_SSL",
+      "value": "false",
+      "description": "Enforce SSL connections. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Assume SSL",
+      "key": "RAILS_ASSUME_SSL",
+      "value": "false",
+      "description": "Assume SSL connections. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

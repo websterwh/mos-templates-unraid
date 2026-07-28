@@ -1,0 +1,123 @@
+{
+  "name": "SteamBee",
+  "repo": "ghcr.io/ill-yes/steam-bee:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/ill-yes/steam-bee/pkgs/container/steam-bee",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--entrypoint=/usr/local/bin/steam-bee-entrypoint --user=0:0 --pids-limit=256 --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_READ_SEARCH --cap-add=SETGID --cap-add=SETPCAP --cap-add=SETUID --security-opt=no-new-privileges=true --read-only --tmpfs=/tmp:rw,noexec,nosuid,nodev,size=64m --stop-timeout=30 --log-opt=max-size=10m --log-opt=max-file=3",
+  "post_parameters": "node dist/index.js",
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/ill-yes/steam-bee/main/icon.png",
+  "project": "https://github.com/ill-yes/steam-bee",
+  "description": "SteamBee is a self-hosted operations console for managing your own Steam accounts, with a browser UI, multi-account control, QR/mobile approval, encrypted refresh-token storage, recovery tooling, notifications, schedules, and local logs. Legacy playtime boosting is a high-risk compatibility feature and may violate Steam or game-service rules.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/steambee",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Dedicated SteamBee data directory. Ownership is validated and initialized automatically for PUID/PGID; do not select the appdata parent.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port for the SteamBee management UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Numeric user ID used after appdata initialization. Unraid default: 99 (nobody).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Numeric group ID used after appdata initialization. Unraid default: 100 (users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Automatic Appdata Permissions",
+      "key": "STEAM_BEE_DATA_INIT",
+      "value": "true",
+      "description": "Initialize /data ownership for PUID/PGID, then permanently drop root privileges. Keep enabled on Unraid.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Set to 1 for exactly one trusted reverse proxy, or provide trusted IP addresses/CIDRs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set to true when SteamBee is served through HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging level: fatal, error, warn, info, debug, trace, or silent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Request Logging",
+      "key": "LOG_REQUESTS",
+      "value": "true",
+      "description": "Log incoming HTTP requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Quiet Request Logging",
+      "key": "LOG_QUIET_REQUESTS",
+      "value": "true",
+      "description": "Suppress routine health and status requests in the logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Token",
+      "key": "SETUP_TOKEN",
+      "value": "",
+      "description": "Optional fixed setup token of 8 to 256 characters. Leave empty to generate one automatically.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Event Retention Days",
+      "key": "EVENT_RETENTION_DAYS",
+      "value": "90",
+      "description": "Days to retain events. Set to 0 to disable automatic cleanup.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

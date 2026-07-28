@@ -1,0 +1,75 @@
+{
+  "name": "Magazarr",
+  "repo": "ghcr.io/rix1337/magazarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io/rix1337/magazarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--log-opt max-size=50m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8090]",
+  "icon": "https://raw.githubusercontent.com/rix1337/Magazarr/main/assets/magazarr-icon.png",
+  "project": "https://github.com/rix1337/Magazarr/",
+  "description": "Magazarr is a magazine-only companion for Quasarr. It keeps a free-text magazine list, periodically searches Quasarr for recent issues, sends matching releases back to Quasarr for download, imports completed PDFs, and exposes the library through OPDS. Configure Quasarr URL, API key, search/import intervals, import root, library path, OPDS auth, and Discord webhook from the Magazarr Web UI after first start. Mount the same completed-download path used by JDownloader/Quasarr to /output. If JDownloader runs in a separate container, keep the host path and container path consistent so Magazarr can safely import and clean completed package folders.",
+  "paths": [
+    {
+      "name": "Config folder",
+      "host": "/mnt/cache/appdata/magazarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent Magazarr settings, database, and state.",
+      "required": true
+    },
+    {
+      "name": "Library folder",
+      "host": "/mnt/cache/media/magazines",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Imported magazine PDFs are stored here. Set Library Dir to /library in Magazarr settings.",
+      "required": true
+    },
+    {
+      "name": "JDownloader output folder",
+      "host": "/mnt/cache/downloads",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Completed JDownloader/Quasarr downloads. Set Import Root to /output in Magazarr settings.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8090",
+      "container": "8090",
+      "protocol": "tcp",
+      "description": "Port for the Magazarr Web UI and OPDS endpoint.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Optional timezone (for example Europe/Berlin).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Optional log level (DEBUG, INFO, WARNING, ERROR).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

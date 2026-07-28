@@ -1,0 +1,83 @@
+{
+  "name": "ollama-intel-gpu",
+  "repo": "spaceinvaderone/ollama-intel-gpu",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/spaceinvaderone/ollama-intel-gpu/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--device=/dev/dri",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:11434]/",
+  "icon": "https://raw.githubusercontent.com/SpaceinvaderOne/Docker-Templates-Unraid/master/spaceinvaderone/docker_icons/ollama-intel.png",
+  "project": "https://github.com/SpaceinvaderOne/ollama-intel-gpu",
+  "description": "Ollama for Intel Arc GPUs (B580, A770, A750, etc.) powered by Intel IPEX-LLM. Drop-in replacement for the standard Ollama container \u2014 exposes the same API on port 11434. Requires an Intel Arc GPU",
+  "paths": [
+    {
+      "name": "Model Storage",
+      "host": "/mnt/cache/appdata/ollama-intel-gpu",
+      "container": "/root/.ollama",
+      "mode": "rw",
+      "description": "Path on the host for persistent model storage. Models are large (4-20 GB each).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Ollama API Port",
+      "host": "11434",
+      "container": "11434",
+      "protocol": "tcp",
+      "description": "Port for the Ollama API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OLLAMA_ORIGINS",
+      "key": "OLLAMA_ORIGINS",
+      "value": "*",
+      "description": "Allowed origins for CORS. Set to * to allow Open WebUI and other frontends to connect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONEAPI_DEVICE_SELECTOR",
+      "key": "ONEAPI_DEVICE_SELECTOR",
+      "value": "level_zero:0",
+      "description": "Select which Intel GPU to use. Use level_zero:0 for the first GPU. Change only if you have multiple Intel GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NUM_PARALLEL",
+      "key": "OLLAMA_NUM_PARALLEL",
+      "value": "1",
+      "description": "Number of parallel inference requests. Set to 1 for 12 GB VRAM cards (B580). Increase only if you have more VRAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NUM_CTX",
+      "key": "OLLAMA_NUM_CTX",
+      "value": "4096",
+      "description": "Context window size in tokens. Larger values use more VRAM. Default 4096 is a good balance for 12 GB cards.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_KEEP_ALIVE",
+      "key": "OLLAMA_KEEP_ALIVE",
+      "value": "5m",
+      "description": "How long to keep a model loaded in VRAM after the last request. Use 5m for 5 minutes, -1 for forever, 0 to unload immediately.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,243 @@
+{
+  "name": "bambulab-metrics-exporter",
+  "repo": "ghcr.io/theblackbush/bambulab_metrics_exporter:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9109]/",
+  "icon": "https://raw.githubusercontent.com/TheBlackBush/bambulab_metrics_exporter/main/docs/logo.png",
+  "project": "https://github.com/TheBlackBush/bambulab_metrics_exporter",
+  "description": "Prometheus exporter for Bambu Lab printers on Unraid. Exposes /metrics, /health, and /ready. Quick setup: 1) Set required values: BAMBULAB_TRANSPORT, BAMBULAB_SERIAL, BAMBULAB_SECRET_KEY (example: openssl rand -base64 48). 2) cloud_mqtt: set BAMBULAB_CLOUD_EMAIL (code/token fields can be left empty for first run and may auto-populate). 3) local_mqtt: set BAMBULAB_HOST and BAMBULAB_ACCESS_CODE. Then start the container and open WebUI for status. Scrape /metrics from Prometheus.",
+  "paths": [
+    {
+      "name": "Config Dir",
+      "host": "/mnt/cache/appdata/bambulab-metrics-exporter",
+      "container": "/config/bambulab-metrics-exporter",
+      "mode": "rw",
+      "description": "Persistent config and encrypted credentials",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "9109",
+      "container": "9109",
+      "protocol": "tcp",
+      "description": "Exporter HTTP port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Listen Host",
+      "key": "LISTEN_HOST",
+      "value": "0.0.0.0",
+      "description": "HTTP bind host",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen Port",
+      "key": "LISTEN_PORT",
+      "value": "9109",
+      "description": "HTTP bind port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transport",
+      "key": "BAMBULAB_TRANSPORT",
+      "value": "cloud_mqtt",
+      "description": "Select transport mode",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Printer Serial",
+      "key": "BAMBULAB_SERIAL",
+      "value": "",
+      "description": "Printer device serial (required)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "BAMBULAB_SECRET_KEY",
+      "value": "",
+      "description": "Strong key for encrypted credentials. Generate example: openssl rand -base64 48",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cloud Email",
+      "key": "BAMBULAB_CLOUD_EMAIL",
+      "value": "",
+      "description": "Used only when Transport=cloud_mqtt. Recommended/required for automatic cloud auth flow.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloud One-Time Code",
+      "key": "BAMBULAB_CLOUD_CODE",
+      "value": "",
+      "description": "Used only when Transport=cloud_mqtt. Optional verification code from email; if empty, startup can trigger code flow and ask for restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud User ID",
+      "key": "BAMBULAB_CLOUD_USER_ID",
+      "value": "",
+      "description": "Used only when Transport=cloud_mqtt. Usually auto-filled by startup auth process; can stay empty on first run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloud Access Token",
+      "key": "BAMBULAB_CLOUD_ACCESS_TOKEN",
+      "value": "",
+      "description": "Used only when Transport=cloud_mqtt. Usually auto-filled by startup auth process; leave empty unless setting manually.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud Refresh Token",
+      "key": "BAMBULAB_CLOUD_REFRESH_TOKEN",
+      "value": "",
+      "description": "Used only when Transport=cloud_mqtt. Auto-filled when available by startup auth process; optional for manual setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud MQTT Host",
+      "key": "BAMBULAB_CLOUD_MQTT_HOST",
+      "value": "us.mqtt.bambulab.com",
+      "description": "Cloud MQTT host",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloud MQTT Port",
+      "key": "BAMBULAB_CLOUD_MQTT_PORT",
+      "value": "8883",
+      "description": "Cloud MQTT port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local Host/IP",
+      "key": "BAMBULAB_HOST",
+      "value": "",
+      "description": "Used only when Transport=local_mqtt. Required printer IP/hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local Access Code",
+      "key": "BAMBULAB_ACCESS_CODE",
+      "value": "",
+      "description": "Used only when Transport=local_mqtt. Required LAN access code from printer settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Local MQTT Port",
+      "key": "BAMBULAB_PORT",
+      "value": "8883",
+      "description": "Used only when Transport=local_mqtt. Usually keep default 8883.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local MQTT Username",
+      "key": "BAMBULAB_USERNAME",
+      "value": "bblp",
+      "description": "Used only when Transport=local_mqtt. Usually keep default bblp.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run container as (Unraid: usually 99)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run container as (Unraid: usually 100)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "File creation mask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Dir Env",
+      "key": "BAMBULAB_CONFIG_DIR",
+      "value": "/config/bambulab-metrics-exporter",
+      "description": "Internal config path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Credentials File",
+      "key": "BAMBULAB_CREDENTIALS_FILE",
+      "value": "credentials.enc.json",
+      "description": "Encrypted credentials filename",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Polling Interval",
+      "key": "POLLING_INTERVAL_SECONDS",
+      "value": "10",
+      "description": "Polling interval in seconds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Request Timeout",
+      "key": "REQUEST_TIMEOUT_SECONDS",
+      "value": "8",
+      "description": "Request timeout in seconds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG/INFO/WARNING/ERROR",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Name Label",
+      "key": "PRINTER_NAME",
+      "value": "",
+      "description": "Prometheus label value; leave empty to auto-fill from printer serial",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

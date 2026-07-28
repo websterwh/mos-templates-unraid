@@ -1,0 +1,73 @@
+{
+  "name": "Pomerium-Route-Sync",
+  "repo": "lowess/yasha",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/lowess/yasha/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "/templates/routes.yaml.j2 -o /render/config.yaml",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Lowess/docker-templates-unraid/main/Lowess/images/pomerium-route-sync.png",
+  "project": "https://github.com/kblomqvist/yasha",
+  "description": "Yasha template engine used to make refreshing Pomerium routes a breeze !",
+  "paths": [
+    {
+      "name": "PomeriumRouteSync templates folder",
+      "host": "/mnt/cache/appdata/PomeriumRouteSync/templates/routes.yaml.j2",
+      "container": "/templates/routes.yaml.j2",
+      "mode": "ro",
+      "description": "Path to the Jinja2 template to use to render Pomerium routes. Please find the template here https://github.com/Lowess/docker-templates-unraid/blob/main/templates/pomerium/routes.yaml.j2",
+      "required": true
+    },
+    {
+      "name": "Pomerium config",
+      "host": "/mnt/cache/appdata/Pomerium/config.yaml",
+      "container": "/render/config.yaml",
+      "mode": "rw",
+      "description": "Pomerium config.yaml file to store rendered routes in.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Pomerium Domain",
+      "key": "POMERIUM_ROUTES_DOMAIN",
+      "value": "example.duckdns.org",
+      "description": "Use the same domain as the one configured on your reverse proxy. If you use a DuckDNS wildcard domain, please put it here eg 'example.duckdns.org'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pomerium Authorized Emails",
+      "key": "POMERIUM_ROUTES_AUTHORIZED_EMAILS",
+      "value": "email@acme.com",
+      "description": "A comma separated value (CSV) list of email adresses authorized to access Pomerium protected routes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pomerium Routes",
+      "key": "POMERIUM_ROUTES",
+      "value": "",
+      "description": "A comma separated value (CSV) list of routes. a route is expressed in the form of {from}=>{to} eg 'http://proxy.acme.duckdns.org => http://192.168.1.100:20443 ,",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pomerium Routes Authorized Domains",
+      "key": "POMERIUM_ROUTES_AUTHORIZED_DOMAINS",
+      "value": "",
+      "description": "A comma separated value (CSV) list of domains authorized to access Pomerium protected routes",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,131 @@
+{
+  "name": "PrintStash-API",
+  "repo": "ghcr.io/xiao-villamor/printstash-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/xiao-villamor/PrintStash/pkgs/container/printstash-api",
+  "network": "printstash",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--network-alias api",
+  "post_parameters": "/bin/sh -c uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log --proxy-headers",
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/xiao-villamor/PrintStash/main/icon.svg",
+  "project": "https://www.printstash.org",
+  "description": "Backend for PrintStash, an open-source self-hosted 3D print library and G-code vault. Stores STL, 3MF, OBJ, STEP/STP, G-code, and BGCODE files plus searchable metadata, thumbnails, collections, tags, revisions, print history, user access, printer connections, and backups. PrintStash adds content-hash duplicate detection, slicer metadata extraction, NAS/shared-volume indexing, G-code outcome tracking, printer workflows, measured usage, cost tracking, and optional Spoolman integration. Install with PrintStash-Frontend on the same user-defined Docker network named \"printstash\"; the frontend reaches this container as hostname \"api\". Set a strong VAULT_JWT_SECRET before first start. Configure local or S3-compatible storage and backups in the setup wizard.",
+  "paths": [
+    {
+      "name": "Data (models/files)",
+      "host": "/mnt/cache/appdata/printstash/files",
+      "container": "/data/files",
+      "mode": "rw",
+      "description": "Uploaded model and G-code files.",
+      "required": true
+    },
+    {
+      "name": "Thumbnails",
+      "host": "/mnt/cache/appdata/printstash/thumbs",
+      "container": "/data/thumbs",
+      "mode": "rw",
+      "description": "Generated thumbnails.",
+      "required": true
+    },
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/printstash/db",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "SQLite database directory.",
+      "required": true
+    },
+    {
+      "name": "Staging",
+      "host": "/mnt/cache/appdata/printstash/staging",
+      "container": "/data/staging",
+      "mode": "rw",
+      "description": "Temporary staging area for uploads/imports.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/printstash/backups",
+      "container": "/data/backups",
+      "mode": "rw",
+      "description": "Local backup archives.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Optional. Only needed if you want to hit the API or /metrics directly. The frontend reaches it internally via the printstash network.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT secret",
+      "key": "VAULT_JWT_SECRET",
+      "value": "",
+      "description": "REQUIRED. A long random string used to sign auth tokens. Generate one, e.g. `openssl rand -hex 32`.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Max upload (MB)",
+      "key": "VAULT_MAX_UPLOAD_MB",
+      "value": "512",
+      "description": "Maximum upload size in MB. Keep in sync with the frontend NGINX_CLIENT_MAX_BODY_SIZE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup retention (days)",
+      "key": "VAULT_BACKUP_RETENTION_DAYS",
+      "value": "30",
+      "description": "0 keeps backups forever.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access token expiry (min)",
+      "key": "VAULT_ACCESS_TOKEN_EXPIRE_MINUTES",
+      "value": "60",
+      "description": "JWT lifetime in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics token",
+      "key": "VAULT_METRICS_TOKEN",
+      "value": "",
+      "description": "Optional. If set, the Prometheus /metrics endpoint requires this bearer token. Leave empty to keep it open on your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log level",
+      "key": "VAULT_LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING, ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

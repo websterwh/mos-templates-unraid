@@ -1,0 +1,1109 @@
+{
+  "name": "Gluetun-Full",
+  "repo": "qmcgaw/gluetun:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/qmcgaw/gluetun",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device /dev/net/tun",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/FiddlyRumpus/unraid-community-apps/refs/heads/main/icons/gluetun-full/Icon.png",
+  "project": "https://github.com/passteque/gluetun",
+  "description": "Gluetun - Lightweight swiss-army-knife-like VPN client to multiple VPN service providers. VPN client in a thin Docker container for multiple VPN providers, written in Go, and using OpenVPN or Wireguard, DNS over TLS, with a few proxy servers built-in. 'Gluetun-Full' is an attempt to: include ALL of the published paths, ports, & variables available for Gluetun (set to their defaults) from the upstream project, repo, & wiki; to keep them ALL up-to-date as much as possible; and to include Gluetun-Wiki URLs for each config item; all presented in a useful template for the Unraid community.",
+  "paths": [
+    {
+      "name": "Host Path",
+      "host": "/mnt/cache/appdata/gluetun",
+      "container": "/gluetun",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Proxy - Listening Address",
+      "host": ":8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "OPT: Internal listening address for the HTTP proxy (A listening address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks - Listening Address",
+      "host": ":8388",
+      "container": "8388",
+      "protocol": "tcp",
+      "description": "OPT: Internal listening address for Shadowsocks (Listening address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/shadowsocks.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Control Server - Address",
+      "host": ":8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "OPT: Listening address for the HTTP control server (Valid listening address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/control-server.md",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "VPN - Service Provider",
+      "key": "VPN_SERVICE_PROVIDER",
+      "value": "private internet access",
+      "description": "REQ: Specify a supported VPN provider to use (Valid VPN provider) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/vpn.md",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN - Type",
+      "key": "VPN_TYPE",
+      "value": "openvpn",
+      "description": "REQ: VPN protocol to use. Not all providers support Wireguard. (openvpn or wireguard) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/vpn.md",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN - Interface",
+      "key": "VPN_INTERFACE",
+      "value": "tun0",
+      "description": "REQ: Specify a custom network interface name to use (Any interface name) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/vpn.md",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN - Up Command",
+      "key": "VPN_UP_COMMAND",
+      "value": "",
+      "description": "OPT: Command to run when the VPN connection goes up. You can use the following template variables if needed: {{VPN_INTERFACE}} (Shell command) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/vpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN - Down Command",
+      "key": "VPN_DOWN_COMMAND",
+      "value": "",
+      "description": "OPT: Command to run when the VPN connection goes down. You can use the following template variables if needed: {{VPN_INTERFACE}} (Shell command) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/vpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - User",
+      "key": "OPENVPN_USER",
+      "value": "",
+      "description": "REQ: OpenVPN username . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Password",
+      "key": "OPENVPN_PASSWORD",
+      "value": "",
+      "description": "REQ: OpenVPN password . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenVPN - Protocol",
+      "key": "OPENVPN_PROTOCOL",
+      "value": "udp",
+      "description": "OPT: Network protocol to use, only valid for OpenVPN (udp or tcp) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Version",
+      "key": "OPENVPN_VERSION",
+      "value": "2.6",
+      "description": "OPT: Set the OpenVPN version to run (2.5 or 2.6) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Endpoint IP",
+      "key": "OPENVPN_ENDPOINT_IP",
+      "value": "",
+      "description": "OPT: Specify a generally optional target VPN server IP address to use (valid IP address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Endpoint Port",
+      "key": "OPENVPN_ENDPOINT_PORT",
+      "value": "",
+      "description": "OPT: Specify a generally optional target VPN server port number to use (valid port number) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Verbosity",
+      "key": "OPENVPN_VERBOSITY",
+      "value": "1",
+      "description": "OPT: OpenVPN verbosity level (0 to 6). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Flags",
+      "key": "OPENVPN_FLAGS",
+      "value": "",
+      "description": "OPT: Space delimited OpenVPN flags to pass to openvpn (Openvpn flags) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Root",
+      "key": "OPENVPN_ROOT",
+      "value": "no",
+      "description": "OPT: Run OpenVPN as root (yes or no) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Ciphers",
+      "key": "OPENVPN_CIPHERS",
+      "value": "",
+      "description": "OPT: Specify a custom cipher to use. It will also set ncp-disable if using AES GCM for PIA (i.e. aes-256-gcm) . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Auth",
+      "key": "OPENVPN_AUTH",
+      "value": "",
+      "description": "OPT: Specify a custom auth algorithm to use (i.e. sha256) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - MSS Fix",
+      "key": "OPENVPN_MSSFIX",
+      "value": "0",
+      "description": "OPT: Set the MSS fix parameter. Set to 0 to use the defaults. (0 to 9999) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Cert",
+      "key": "OPENVPN_CERT",
+      "value": "",
+      "description": "OPT: OpenVPN certificate content ( (https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/openvpn-client-certificate.md)) (base64 PEM) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Key",
+      "key": "OPENVPN_KEY",
+      "value": "",
+      "description": "OPT: OpenVPN key ( (https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/openvpn-client-encrypted-key.md)) (base64 PEM). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Encrypted Key",
+      "key": "OPENVPN_ENCRYPTED_KEY",
+      "value": "",
+      "description": "OPT: OpenVPN encrypted key ( (https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/openvpn-client-key.md)) (base64 PEM) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Key Passphrase",
+      "key": "OPENVPN_KEY_PASSPHRASE",
+      "value": "",
+      "description": "OPT: Specify a key passphrase to decrypt an encrypted key . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenVPN - Process User",
+      "key": "OPENVPN_PROCESS_USER",
+      "value": "root",
+      "description": "OPT: Specify a user to run the OpenVPN subprocess (Valid OS user) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenVPN - Custom Config",
+      "key": "OPENVPN_CUSTOM_CONFIG",
+      "value": "",
+      "description": "OPT: Specify a custom OpenVPN configuration file to use for [the custom VPN provider](https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/custom.md). (Empty or path to file) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/openvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Private Key",
+      "key": "WIREGUARD_PRIVATE_KEY",
+      "value": "",
+      "description": "REQ: Wireguard client private key to use. This is usually always needed. (Valid base 58 Wireguard key) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Addresses",
+      "key": "WIREGUARD_ADDRESSES",
+      "value": "",
+      "description": "REQ: This is usually needed. (Valid IP network interface address in the format xx.xx.xx.xx/xx) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Public Key",
+      "key": "WIREGUARD_PUBLIC_KEY",
+      "value": "",
+      "description": "REQ/OPT: Wireguard server public key to use. This may or may not be needed. (Valid base 58 Wireguard key) . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Endpoint IP",
+      "key": "WIREGUARD_ENPOINT_IP",
+      "value": "",
+      "description": "OPT/REQ: Specify a generally optional target VPN server IP address to use (Valid IP address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Endpoint Port",
+      "key": "WIREGUARD_ENPOINT_PORT",
+      "value": "",
+      "description": "OPT/REQ: Specify a generally optional target VPN server port number to use (Valid port number) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Preshared Key",
+      "key": "WIREGUARD_PRESHARED_KEY",
+      "value": "",
+      "description": "OPT: Wireguard pre-shared key (Base64 pre-shared key) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Allowed IPs",
+      "key": "WIREGUARD_ALLOWED_IPS",
+      "value": "0.0.0.0/0,::/0",
+      "description": "OPT: Wireguard peer allowed ips (CSV of IP address ranges) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Implementation",
+      "key": "WIREGUARD_IMPLEMENTATION",
+      "value": "auto",
+      "description": "Wireguard implementation to use (auto, kernelspace or userspace) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - MTU",
+      "key": "WIREGUARD_MTU",
+      "value": "1320",
+      "description": "OPT: Wireguard MTU (Any positive value generally up to 1440) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wireguard - Persistant Keepalive Interval",
+      "key": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "",
+      "description": "OPT: Wireguard persistent keepalive interval (Any duration, for example 25s) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/wireguard.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Private Key",
+      "key": "AMNEZIAWG_PRIVATE_KEY",
+      "value": "",
+      "description": "REQ: Amneziawg client private key to use. This is usually always needed. (Valid base 58 Amneziawg key) . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Addresses",
+      "key": "AMNEZIAWG_ADDRESSES",
+      "value": "",
+      "description": "REQ: This is usually needed. (Valid IP network interface address in the format xx.xx.xx.xx/xx) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Public Key",
+      "key": "AMNEZIAWG_PUBLIC_KEY",
+      "value": "",
+      "description": "REQ/OPT: Amneziawg server public key to use. This may or may not be needed. (Valid base 58 Amneziawg key) . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Endpoint IP",
+      "key": "AMNEZIAWG_ENDPOINT_IP",
+      "value": "",
+      "description": "OPT/REQ: Specify a generally optional target VPN server IP address to use (Valid IP address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Endpoint Port",
+      "key": "AMNEZIAWG_ENDPOINT_PORT",
+      "value": "",
+      "description": "OPT/REQ: Specify a generally optional target VPN server port number to use (Valid port number) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Preshared Key",
+      "key": "AMNEZIAWG_PRESHARED_KEY",
+      "value": "",
+      "description": "OPT: Amneziawg pre-shared key (Base64 pre-shared key) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Allowed IPs",
+      "key": "AMNEZIAWG_ALLOWED_IPS",
+      "value": "0.0.0.0/0,::/0",
+      "description": "OPT: Amneziawg peer allowed ips (CSV of IP address ranges) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - MTU",
+      "key": "AMNEZIAWG_MTU",
+      "value": "1320",
+      "description": "OPT: Amneziawg MTU (Any positive value generally up to 1440, probably lower with Amneziawg) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Persistant Keepalive Interval",
+      "key": "AMNEZIAWG_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "",
+      "description": "OPT: Amneziawg persistent keepalive interval (Any duration, for example 25s) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Junk Count",
+      "key": "AMNEZIAWG_JC",
+      "value": "0",
+      "description": "OPT: Number of junk packets following I1-I5 and sent before the actual handshake initiation (Any positive integer) . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Junk Min",
+      "key": "AMNEZIAWG_JMIN",
+      "value": "0",
+      "description": "OPT: Minimum size in bytes of the random junk data prefixed to the handshake packet (Any positive integer and must be less than or equal to AMNEZIAWG_JMAX) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - Junk Max",
+      "key": "AMNEZIAWG_JMAX",
+      "value": "0",
+      "description": "OPT: Maximum size in bytes of the random junk data prefixed to the handshake packet (Any positive integer and must be greater than or equal to AMNEZIAWG_JMIN) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - S1",
+      "key": "AMNEZIAWG_S1",
+      "value": "0",
+      "description": "OPT: Random bytes to pad the handshake initiation packets (Any positive integer) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - S2",
+      "key": "AMNEZIAWG_S2",
+      "value": "0",
+      "description": "OPT: Random bytes to pad the handshake response packets (Any positive integer) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - S3",
+      "key": "AMNEZIAWG_S3",
+      "value": "0",
+      "description": "OPT: Random bytes to pad the handshake cookie reply packets (Any positive integer) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - S4",
+      "key": "AMNEZIAWG_S4",
+      "value": "0",
+      "description": "OPT: Random bytes to pad the encrypted transport data packets (Any positive integer) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - H1",
+      "key": "AMNEZIAWG_H1",
+      "value": "0",
+      "description": "OPT: header range of the handshake initiation message (n or range n-m, with values from 0 to 4294967295) . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - H2",
+      "key": "AMNEZIAWG_H2",
+      "value": "0",
+      "description": "OPT: header range of the handshake response message (n or range n-m, with values from 0 to 4294967295) . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - H3",
+      "key": "AMNEZIAWG_H3",
+      "value": "0",
+      "description": "OPT: header range of the handshake cookie reply message (n or range n-m, with values from 0 to 4294967295) . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - H4",
+      "key": "AMNEZIAWG_H4",
+      "value": "0",
+      "description": "OPT: header range of the transport data message (n or range n-m, with values from 0 to 4294967295) . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - I1",
+      "key": "AMNEZIAWG_I1",
+      "value": "",
+      "description": "OPT: See [custom signature packets](https://github.com/amnezia-vpn/amneziawg-go?tab=readme-ov-file#custom-signature-packets) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - I2",
+      "key": "AMNEZIAWG_I2",
+      "value": "",
+      "description": "OPT: See [custom signature packets](https://github.com/amnezia-vpn/amneziawg-go?tab=readme-ov-file#custom-signature-packets) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - I3",
+      "key": "AMNEZIAWG_I3",
+      "value": "",
+      "description": "OPT: See [custom signature packets](https://github.com/amnezia-vpn/amneziawg-go?tab=readme-ov-file#custom-signature-packets) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - I4",
+      "key": "AMNEZIAWG_I4",
+      "value": "",
+      "description": "OPT: See [custom signature packets](https://github.com/amnezia-vpn/amneziawg-go?tab=readme-ov-file#custom-signature-packets) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AmneziaWG - I5",
+      "key": "AMNEZIAWG_I5",
+      "value": "",
+      "description": "OPT: See [custom signature packets](https://github.com/amnezia-vpn/amneziawg-go?tab=readme-ov-file#custom-signature-packets) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/amneziawg.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding",
+      "key": "VPN_PORT_FORWARDING",
+      "value": "off",
+      "description": "OPT: Enable custom port forwarding code for supported providers (off or on) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Provider",
+      "key": "VPN_PORT_FORWARDING_PROVIDER",
+      "value": "private internet access|perfect privacy|privatevpn|protonvpn",
+      "description": "OPT: Choose the custom port forwarding code to use. This is useful when using the custom provider with Wireguard. For PIA, make sure you set SERVER_NAMES. (private-internet-access, perfect-privacy, privatevpn, protonvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Ports Count",
+      "key": "VPN_PORT_FORWARDING_PORTS_COUNT",
+      "value": "1",
+      "description": "OPT: Number of TCP+UDP ports to forward. Can be up to 5 for ProtonVPN. (Depends on VPN provider) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Status File",
+      "key": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "value": "/gluetun/forwarded_port",
+      "description": "OPT: File path to use for writing the forwarded port obtained. (Valid filepath) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Listening Ports",
+      "key": "VPN_PORT_FORWARDING_LISTENING_PORTS",
+      "value": "",
+      "description": "OPT: Port redirections to redirect incoming traffic to. Do not use with torrent clients. Specify 0 or N ports for VPN_PORT_FORWARDING_PORTS_COUNT=N (Comma separated list of port numbers) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Up Command",
+      "key": "VPN_PORT_FORWARDING_UP_COMMAND",
+      "value": "",
+      "description": "OPT: Command to run when port forwarding has finished setting up. (Shell command) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port Forwarding - Down Command",
+      "key": "VPN_PORT_FORWARDING_DOWN_COMMAND",
+      "value": "",
+      "description": "OPT: Command to run when port forwarding has finished tearing down. (Shell command) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/port-forwarding.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Countries",
+      "key": "SERVER_COUNTRIES",
+      "value": "",
+      "description": "OPT: Comma separated list of countries (USED BY: airvpn, cyberghost, expressvpn, fastestvpn, hidemyass, ipvanish, ivpn, mullvad, nordvpn, privado, privatevpn, protonvpn, purevpn, slickvpn, surfshark, torguard, vpn-unlimited) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Regions",
+      "key": "SERVER_REGIONS",
+      "value": "",
+      "description": "OPT: Comma separated list of regions (USED BY: airvpn, giganews, hidemyass, nordvpn, privado, private-internet-access, protonvpn, purevpn, slickvpn, surfshark, vpn-secure, vpn-unlimited, vyprvpn, windscribe) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Cities",
+      "key": "SERVER_CITIES",
+      "value": "",
+      "description": "OPT: Comma separated list of cities (USED BY: airvpn, expressvpn, fastestvpn, hidemyass, ipvanish, ivpn, mullvad, nordvpn, perfect-privacy, privado, privatevpn, protonvpn, purevpn, slickvpn, surfshark, torguard, vpn-secure, vpn-unlimited, windscribe) . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Names",
+      "key": "SERVER_NAMES",
+      "value": "",
+      "description": "OPT: Comma separated list of server names (USED BY: airvpn, private-internet-access) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Hostnames",
+      "key": "SERVER_HOSTNAMES",
+      "value": "",
+      "description": "OPT: Comma separated list of server hostnames. Beware this is the narrowest filter, so if you set this to a single hostname and this hostname disappears from the Gluetun servers data due to an update, your container will no longer work until this filter is changed. I would suggest avoiding it unless you know this reliability risk. (USED BY: all EXCEPT perfect privacy) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - ISP",
+      "key": "ISP",
+      "value": "",
+      "description": "OPT: Comma separated list of ISPs (USED BY: ivpn, mullvad) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Owned Only",
+      "key": "OWNED_ONLY",
+      "value": "no",
+      "description": "OPT: If the VPN server is owned by Mullvad. It defaults to no, meaning it includes all servers. It can be set to yes. (USED BY: mullvad) . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/mullvad.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Server Categories",
+      "key": "SERVER_CATEGORIES",
+      "value": "",
+      "description": "OPT: Comma separated list of server categories (USED BY: nordvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/nordvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Port Forward Only",
+      "key": "PORT_FORWARD_ONLY",
+      "value": "false",
+      "description": "OPT: Set to true to select servers with port forwarding only. It defaults to false (USED BY: private-internet-access) (true or false) . . . . . . . Filter only port-forwarding enabled (aka p2p) servers by setting it to on. It defaults to off. (USED BY: protonvpn) (off or on) . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Private Internet Access OpenVPN Encryption Preset",
+      "key": "PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET",
+      "value": "strong",
+      "description": "OPT: Encryption preset, defaulting to strong, which can be set to normal or strong (USED BY: private-internet-access) . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/private-internet-access.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Free Only",
+      "key": "FREE_ONLY",
+      "value": "off",
+      "description": "OPT: Filter only free tier servers by setting it to on. It defaults to off (USED BY: protonvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/protonvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Stream Only",
+      "key": "STREAM_ONLY",
+      "value": "off",
+      "description": "OPT: Filter only streaming servers by setting it to on. It defaults to off (USED BY: protonvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/protonvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Secure Core Only",
+      "key": "SECURE_CORE_ONLY",
+      "value": "off",
+      "description": "OPT: Filter only secure core servers by setting it to on. It defaults to off. (USED BY: protonvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/protonvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - TOR Only",
+      "key": "TOR_ONLY",
+      "value": "off",
+      "description": "OPT: Filter only TOR servers by setting it to on. It defaults to off (USED BY: protonvpn) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/protonvpn.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Providers - Premium Only",
+      "key": "PREMIUM_ONLY",
+      "value": "no|yes",
+      "description": "OPT: yes or no (USED BY: vpn-secure) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers/vpn-secure.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firewall - VPN Input Ports",
+      "key": "FIREWALL_VPN_INPUT_PORTS",
+      "value": "",
+      "description": "OPT: Comma separated list of ports to allow from the VPN server side (i.e. 1000,8080) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/firewall.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firewall - Input Ports",
+      "key": "FIREWALL_INPUT_PORTS",
+      "value": "",
+      "description": "OPT: Comma separated list of ports to allow through the default interface. This seems needed for Kubernetes sidecars. (i.e. 1000,8000) . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/firewall.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firewall - iptables Log Level",
+      "key": "FIREWALL_IPTABLES_LOG_LEVEL",
+      "value": "",
+      "description": "OPT: Sets the log level for iptables commands. Use debug for detailed logging. (debug, info, warn, error) . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/firewall.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firewall - Outbound Subnets",
+      "key": "FIREWALL_OUTBOUND_SUBNETS",
+      "value": "",
+      "description": "OPT: Comma separated subnets that Gluetun and the containers sharing its network stack are allowed to access. This involves firewall and routing modifications. (i.e. 192.168.1.0/24,192.168.10.121/32,10.0.0.5/28) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/firewall.md",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Health Check - Target Addresses",
+      "key": "HEALTH_TARGET_ADDRESSES",
+      "value": "cloudflare.com:443,github.com:443",
+      "description": "OPT: Addresses to TCP+TLS dial on connection establishment and then every 5 minutes. Extra addresses are used as fallbacks. . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/healthcheck.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health Check - ICMP Target IPs",
+      "key": "HEALTH_ICMP_TARGET_IPS",
+      "value": "1.1.1.1,8.8.8.8",
+      "description": "OPT: Addresses to ICMP ping every minute after connection. Extra addresses are used as fallbacks. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/healthcheck.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health Check - Server Address",
+      "key": "HEALTH_SERVER_ADDRESS",
+      "value": "127.0.0.1:9999",
+      "description": "OPT: Internal health check server listening address . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/healthcheck.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health Check - Restart VPN",
+      "key": "HEALTH_RESTART_VPN",
+      "value": "on",
+      "description": "OPT: Auto healing feature. I highly suggest keeping this on. You can keep it off to debug why your connection goes unstable. . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/healthcheck.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Upstream Resolver Type",
+      "key": "DNS_UPSTREAM_RESOLVER_TYPE",
+      "value": "dot",
+      "description": "OPT: How to connect to the upstream DNS servers. dot means DNS over TLS, doh means DNS over HTTPS, plain means plain UDP DNS. (dot, doh or plain) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Upstream Resolvers",
+      "key": "DNS_UPSTREAM_RESOLVERS",
+      "value": "cloudflare,google",
+      "description": "Comma delimited list of DNS over TLS providers (cira family, cira private, cira protected, cleanbrowsing adult, cleanbrowsing family, cleanbrowsing security, cloudflare, cloudflare family, cloudflare security, google, libredns, opendns, quad9, quad9 secured, quad9 unsecured, quadrant) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Caching",
+      "key": "DNS_CACHING",
+      "value": "on",
+      "description": "OPT: DNS caching (on,off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Upstream IPv6",
+      "key": "DNS_UPSTREAM_IPV6",
+      "value": "off",
+      "description": "OPT: DNS IPv6 resolution . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Block IPs",
+      "key": "DNS_BLOCK_IPS",
+      "value": "",
+      "description": "OPT: Comma separated list of IP addresses to not resolve public domains to. (Any valid IP address) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Block IP Prefixes",
+      "key": "DNS_BLOCK_IP_PREFIXES",
+      "value": "",
+      "description": "OPT: Comma separated list of CIDRs to not resolve public domains to. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Rebinding Protection Protection Exempt Hostnames",
+      "key": "DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES",
+      "value": "",
+      "description": "OPT: Public domain names to exclude from DNS rebinding protection (Comma separated list of public domain names) . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Update Period",
+      "key": "DNS_UPDATE_PERIOD",
+      "value": "24h",
+      "description": "OPT: Period to update block lists and cryptographic files and restart Unbound. Set to 0 to deactivate updates. (i.e. 0, 30s, 5m, 24h) . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Block Malicious",
+      "key": "BLOCK_MALICIOUS",
+      "value": "on",
+      "description": "OPT: Block malicious hostnames and IPs (on, off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Block Ads",
+      "key": "BLOCK_ADS",
+      "value": "off",
+      "description": "OPT: Block ads hostnames and IPs (on, off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Unblock Hostnames",
+      "key": "DNS_UNBLOCK_HOSTNAMES",
+      "value": "",
+      "description": "OPT: Comma separated list of domain names to leave unblocked from the filtering (i.e. domain1.com,x.domain2.co.uk) . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS - Upstream Plain Addresses",
+      "key": "DNS_UPSTREAM_PLAIN_ADDRESSES",
+      "value": "",
+      "description": "OPT: (Warning: prefer NOT using this) If set, the internal DNS server will forward queries to the addresses specified over plaintext. Ideally do NOT use the VPN provider DNS, see why [here](https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md#warning-on-dns_upstream_plain_addresses). If you set this to a private IP address on your Docker bridge network or your LAN, your DNS queries will leak out of the VPN tunnel! (Comma separated list of ip:port addresses) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy",
+      "key": "HTTPPROXY",
+      "value": "off",
+      "description": "OPT: Enable the internal HTTP proxy (on,off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy - Log",
+      "key": "HTTPPROXY_LOG",
+      "value": "off",
+      "description": "OPT: Logs every tunnel requests . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy - User",
+      "key": "HTTPPROXY_USER",
+      "value": "",
+      "description": "OPT: Username to use to connect to the HTTP proxy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy - Password",
+      "key": "HTTPPROXY_PASSWORD",
+      "value": "",
+      "description": "OPT: Password to use to connect to the HTTP proxy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTP Proxy - Stealth",
+      "key": "HTTPPROXY_STEALTH",
+      "value": "off",
+      "description": "OPT: Stealth mode means HTTP proxy headers are not added to your requests . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/http-proxy.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks",
+      "key": "SHADOWSOCKS",
+      "value": "off",
+      "description": "OPT: Enable the internal Shadowsocks proxy (on,off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/shadowsocks.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks - Log",
+      "key": "SHADOWSOCKS_LOG",
+      "value": "off",
+      "description": "OPT: Enable Shadowsocks logging (on,off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/shadowsocks.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks - Password",
+      "key": "SHADOWSOCKS_PASSWORD",
+      "value": "",
+      "description": "OPT: Password to use to connect to Shadowsocks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/shadowsocks.md",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Shadowsocks - Cipher",
+      "key": "SHADOWSOCKS_CIPHER",
+      "value": "chacha20-ietf-poly1305",
+      "description": "OPT: AEAD Cipher to use for Shadowsocks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/shadowsocks.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Control Server - Log",
+      "key": "HTTP_CONTROL_SERVER_LOG",
+      "value": "on",
+      "description": "OPT: Enable logging of HTTP requests (on or off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/control-server.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Control Server - Auth Config Filepath",
+      "key": "HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH",
+      "value": "",
+      "description": "OPT: Path to a TOML file containing authentication configuration (Valid path) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/control-server.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Control Server - Auth Default Role",
+      "key": "HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE",
+      "value": "{\"auth\":\"basic\",\"username\":\"controlserver\",\"password\":\"controlserver\"}",
+      "description": "ADV: For the lazies not willing to setup a configuration file (Valid JSON string) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - Prefer Direct Download",
+      "key": "UPDATER_PREFER_DIRECT_DOWNLOAD",
+      "value": "no",
+      "description": "OPT: Whether to prefer direct download of servers data from [gluetun-servers](https://github.com/qdm12/gluetun-servers/tree/main/pkg/servers), instead of using the Gluetun code to fetch, parse and process servers data. This is notably faster and more reliable, but defaults to no to avoid breaking compatibility. (yes or no) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - Period",
+      "key": "UPDATER_PERIOD",
+      "value": "0",
+      "description": "OPT: Period to update the VPN servers data in memory and to /gluetun/servers/. Set to 0 to disable. This does a burst of DNS over HTTPs requests, which may be blocked if you set BLOCK_MALICIOUS=on for example. (Valid duration string such as 480h) . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - Min Ratio",
+      "key": "UPDATER_MIN_RATIO",
+      "value": "0.8",
+      "description": "OPT: Ratio of servers to be found for the update to succeed, compared to the servers already built in the program (Ratio between 0 (excluded) and 1) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - Service Providers",
+      "key": "UPDATER_VPN_SERVICE_PROVIDERS",
+      "value": "",
+      "description": "OPT: List of providers to update servers data for, when the updater triggers periodically. If left empty, it defaults to the current VPN provider used at start. (Any valid VPN provider name) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - ProtonVPN Email",
+      "key": "UPDATER_PROTONVPN_EMAIL",
+      "value": "",
+      "description": "OPT: If you need paid servers data, you must use a paid account. Otherwise I recommend creating a free throwaway account for this. (Your Proton email) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Updater - ProtonVPN Password",
+      "key": "UPDATER_PROTONVPN_PASSWORD",
+      "value": "",
+      "description": "OPT: If you need paid servers data, you must use a paid account. Otherwise I recommend creating a free throwaway account for this. (Your Proton password) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/updater.md",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Others - Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "OPT: Set the logging level verbosity (debug,info,warn,error) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "OPT: Specify a [timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List) to use to have correct log times (i.e. Europe/London) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "OPT: User ID to run as non root and for ownership of files written (99) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "OPT: Group ID to run as non root and for ownership of files written (100) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Public IP Enabled",
+      "key": "PUBLICIP_ENABLED",
+      "value": "true",
+      "description": "OPT: Check for public IP address information on VPN connection (true,false) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Public IP API",
+      "key": "PUBLICIP_API",
+      "value": "ipinfo,ifconfigco,ip2location,cloudflare",
+      "description": "OPT: Public IP echo service API to use or an echoip URL in the form echoip#https://xyz (ipinfo,ifconfigco,ip2location,cloudflare or custom URL) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Public IP Token",
+      "key": "PUBLICIP_API_TOKEN",
+      "value": "",
+      "description": "OPT: Optional API token for the public IP echo service to increase rate limiting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Public IP File",
+      "key": "PUBLICIP_FILE",
+      "value": "/gluetun/ip",
+      "description": "OPT: Filepath to store the public IP address assigned. This will be removed in the v4 program, instead you might want to use the [control server](https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Version Information",
+      "key": "VERSION_INFORMATION",
+      "value": "on",
+      "description": "OPT: Logs a message indicating if a newer version is available once the VPN is connected (on,off) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Others - Boring Poll Gluetun[dot]com",
+      "key": "BORINGPOLL_GLUETUNCOM",
+      "value": "off",
+      "description": "OPT: Fight AI slop and help the Gluetun community by [polling periodically every few minutes a 500KB file](https://github.com/qdm12/gluetun/blob/master/internal/boringpoll/boringpoll.go) from gluetun[dot]com to make it unsustainable to host due to egress costs. (off,on) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/others.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage - Enabled",
+      "key": "STORAGE_SERVERS_ENABLED",
+      "value": "yes",
+      "description": "OPT: Enable or disable reading and writing servers to disk (yes or no) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/storage.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage - Directory Path",
+      "key": "STORAGE_SERVERS_DIRECTORY_PATH",
+      "value": "/gluetun/servers",
+      "description": "OPT: Path to the directory where server files are stored (Valid directory path) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/storage.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tailscale Fallback State Directory",
+      "key": "CA_TS_FALLBACK_DIR",
+      "value": "/gluetun",
+      "description": "Fallback container directory for tailscale state information",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

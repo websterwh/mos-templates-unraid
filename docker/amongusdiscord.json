@@ -1,0 +1,83 @@
+{
+  "name": "amongusdiscord",
+  "repo": "denverquane/amongusdiscord",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/denverquane/amongusdiscord/",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8123]",
+  "icon": "https://github.com/denverquane/amongusdiscord/raw/master/assets/botProfilePicture.jpg",
+  "project": "https://github.com/denverquane/amongusdiscord",
+  "description": "Discord Bot to harness Among Us game data, and automatically mute/unmute players during the course of the game! Works in conjunction with amonguscapture This program is in Beta. While we are confident about the basic functionality, there will still be issues or pecularities with how the program functions! We are actively working to resolve these issues! Have any questions, concerns, bug reports, or just want to chat? Join the discord at https://discord.gg/ZkqZSWF! Unraid template by Argash Updates: 2020-10-20 - Updated template with new environment variables rework in bot version 2.4.0",
+  "paths": [
+    {
+      "name": "CONFIG_PATH",
+      "host": "/mnt/cache/appdata/amongusdiscord/",
+      "container": "/config",
+      "mode": "rw,slave",
+      "description": "Container Path: /config",
+      "required": true
+    },
+    {
+      "name": "LOG_PATH",
+      "host": "/mnt/cache/appdata/amongusdiscord/log_path",
+      "container": "/config/log_path",
+      "mode": "rw,slave",
+      "description": "The path where the bot will store it's log files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "8123",
+      "container": "8123",
+      "protocol": "tcp",
+      "description": "The port the Bot will use for incoming Socket.io communications from the capture client. Defaults to 8123. You must specify more (comma-delimited ports) if you are running with NUM_SHARDS &gt; 1. For example, with 3 shards, PORT = 8123,8124,8125",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "The Bot Token used by the bot to authenticate with Discord.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "HOST",
+      "key": "HOST",
+      "value": "http://au.yourdomain.com:8123",
+      "description": "The externally-accessible URL for this instance of the discord bot. For example, http://test.com:8123 (NOTE: The EXTERNAL PORT of the bot must be included at the end of the URL This is used to provide the linking URI to the capture, via the Direct Message the bot sends you when typing .au new (in conjunction with the PORT above). You must specify http:// or https:// accordingly as part of the URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN_2",
+      "key": "DISCORD_BOT_TOKEN_2",
+      "value": "",
+      "description": "(Optional) A second Bot Token to be used to distribute the mute/deafen requests to Discord. If you play in larger groups of 8+ people, this is recommended to not be rate-limited (delayed) by Discord when rounds change!",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NUM_SHARDS",
+      "key": "NUM_SHARDS",
+      "value": "",
+      "description": "How many total bot shard instances you'll be running in your current stack.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

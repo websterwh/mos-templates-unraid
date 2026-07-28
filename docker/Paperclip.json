@@ -1,0 +1,99 @@
+{
+  "name": "Paperclip",
+  "repo": "bitcryptic/paperclip:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/bitcryptic/paperclip",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3100]/",
+  "icon": "https://raw.githubusercontent.com/paperclipai/paperclip/master/doc/assets/avatars/gradient-cool.png",
+  "project": "https://github.com/paperclipai/paperclip",
+  "description": "Paperclip is an open-source AI coding agent platform. This image is maintained by BitCryptic and built from the official Paperclip source with Unraid compatibility in mind. Requires a PostgreSQL database (e.g. a separate Postgres container). Set DATABASE_URL to your connection string before starting. BETTER_AUTH_SECRET must be set to a securely generated random string (e.g. openssl rand -base64 32). ANTHROPIC_API_KEY is required for Claude-based agents. PAPERCLIP_PUBLIC_URL should be set to the URL users will access Paperclip from (e.g. http://your-server-ip:3100).",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/paperclip",
+      "container": "/paperclip",
+      "mode": "rw",
+      "description": "Persistent storage for Paperclip data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3100",
+      "container": "3100",
+      "protocol": "tcp",
+      "description": "Port to access the Paperclip web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgres://paperclip:password@postgres-paperclip:5432/paperclip",
+      "description": "PostgreSQL connection string.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Random secret for session signing. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic API key for Claude-based agents.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PAPERCLIP_PUBLIC_URL",
+      "key": "PAPERCLIP_PUBLIC_URL",
+      "value": "http://your-server-ip:3100",
+      "description": "The URL users will access Paperclip from. Must match your reverse proxy or direct IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PAPERCLIP_DEPLOYMENT_MODE",
+      "key": "PAPERCLIP_DEPLOYMENT_MODE",
+      "value": "authenticated",
+      "description": "Set to 'authenticated' for private use or 'public' for open access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SERVE_UI",
+      "key": "SERVE_UI",
+      "value": "true",
+      "description": "Serve the web UI from the same process.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "key": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated list of trusted origins for auth (e.g. http://your-server-ip:3100). Required if accessing from multiple URLs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

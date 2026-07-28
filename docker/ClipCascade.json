@@ -1,0 +1,307 @@
+{
+  "name": "ClipCascade",
+  "repo": "sathvikrao/clipcascade:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/sathvikrao/clipcascade",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Sathvik-Rao/ClipCascade/refs/heads/main/logo/logo.png",
+  "project": "https://clipcascade.sathvik.dev",
+  "description": "Automatically sync your clipboard across multiple devices, no key press required. Ensures seamless clipboard sharing between devices, prioritizing privacy with end-to-end encryption. See documentation for set-up details: https://github.com/Sathvik-Rao/ClipCascade",
+  "paths": [
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/clipcascade/database",
+      "container": "/database",
+      "mode": "rw",
+      "description": "Path to the database fi5259600000mle",
+      "required": true
+    },
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/clipcascade/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Path to the logs directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container Port: 8080",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database - Driver",
+      "key": "CC_SERVER_DB_DRIVER",
+      "value": "org.h2.Driver",
+      "description": "The database driver. Default uses H2 file mode. Example for PostgreSQL: org.postgresql.Driverset",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Dialect",
+      "key": "CC_SERVER_DB_HIBERNATE_DIALECT",
+      "value": "org.hibernate.dialect.H2Dialect",
+      "description": "The database dialect. Default uses H2 file mode. Example for PostgreSQL: org.hibernate.dialect.PostgreSQLDialect",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - URL",
+      "key": "CC_SERVER_DB_URL",
+      "value": "jdbc:h2:file:./database/clipcascade;CIPHER=AES;MODE=PostgreSQL",
+      "description": "The database URL. Default uses H2 file mode. Example for PostgreSQL: jdbc:postgresql://localhost:5432/clipcascade",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Username",
+      "key": "CC_SERVER_DB_USERNAME",
+      "value": "clipcascade",
+      "description": "The database username. Default uses H2 file mode. Once set, you must use the same username whenever you migrate the database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Password",
+      "key": "CC_SERVER_DB_PASSWORD",
+      "value": "QjuGlhE3uwylBBANMkX1 o2MdEoFgbU5XkFvTftky",
+      "description": "Sets a password for encrypting the user database. Once set, you must use the same password whenever you migrate the database. Pattern: FILE_PASSWORD USER_PASSWORD",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Allow Signups",
+      "key": "CC_SIGNUP_ENABLED",
+      "value": "false|true",
+      "description": "Toggle to enable or disable the signup feature/page for public users.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Accounts",
+      "key": "CC_MAX_USER_ACCOUNTS",
+      "value": "-1",
+      "description": "Sets the maximum number of user accounts that can be created on the server. Set to -1 for unlimited.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Donations",
+      "key": "CC_DONATIONS_ENABLED",
+      "value": "false|true",
+      "description": "Enables or disables the donations feature.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Broker - Enable",
+      "key": "CC_EXTERNAL_BROKER_ENABLED",
+      "value": "false|true",
+      "description": "Enables or disables the external STOMP broker feature for P2S mode.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Broker - Host",
+      "key": "CC_BROKER_HOST",
+      "value": "localhost",
+      "description": "The external STOMP broker URL for P2S mode.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Broker - Port",
+      "key": "CC_BROKER_PORT",
+      "value": "61613",
+      "description": "The external STOMP broker port for P2S mode.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Broker - Username",
+      "key": "CC_BROKER_USERNAME",
+      "value": "admin",
+      "description": "The external STOMP broker username for P2S mode.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Broker - Password",
+      "key": "CC_BROKER_PASSWORD",
+      "value": "admin",
+      "description": "The external STOMP broker password for P2S mode.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Inactive Account Purge Time",
+      "key": "CC_ACCOUNT_PURGE_TIMEOUT_SECONDS",
+      "value": "-1",
+      "description": "Purge/delete inactive accounts after a specified number of seconds. Set to -1 to disable this feature.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Message Size",
+      "key": "CC_MAX_MESSAGE_SIZE_IN_BYTES",
+      "value": "1048576",
+      "description": "Maximum message size, in bytes. Recommend less than 25 for desktop, approx. 1 for mobile",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Peer-To-Peer",
+      "key": "CC_P2P_ENABLED",
+      "value": "false|true",
+      "description": "This feature decrease the load on the server and allows unlimited data transfer. If enabled, the Max Message Size value is ignored. NOTE: Some networks may not support Peer-to-Peer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "P2P STUN URL",
+      "key": "CC_P2P_STUN_URL",
+      "value": "stun:stun.l.google.com:19302",
+      "description": "STUN server URL for Peer-to-Peer connections. Required if P2P is enabled. Only change if you know what this is.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed Origins",
+      "key": "CC_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Specifies which domains are allowed to connect to the WebSocket (CORS policy). Replace with your domain. If not set, all origins are allowed by default, which may be less secure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Timeout",
+      "key": "CC_SESSION_TIMEOUT",
+      "value": "525960m",
+      "description": "Sets the session timeout duration.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Max Unique IPs",
+      "key": "CC_MAX_UNIQUE_IP_ATTEMPTS",
+      "value": "15",
+      "description": "The maximum number of attempts from different IP addresses before an account is blocked for a given timeout.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Max Attempts Per IP",
+      "key": "CC_MAX_ATTEMPTS_PER_IP",
+      "value": "30",
+      "description": "The maximum number of attempts per IP address before blocking the IP address for a given timeout and will scale if continued.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Timeout",
+      "key": "CC_LOCK_TIMEOUT_SECONDS",
+      "value": "60",
+      "description": "The lockout timeout for failed login attempts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Timeout Scaling",
+      "key": "CC_LOCK_TIMEOUT_SCALING_FACTOR",
+      "value": "2",
+      "description": "The scaling factor for the lockout timeout. Determines how the lockout duration increases with each repeated failed attempt.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Tracker Cache",
+      "key": "CC_BFA_CACHE_ENABLED",
+      "value": "false|true",
+      "description": "Enables or disables caching for the BFA tracker. If enabled, the server caches BFA tracker data in memory and disk.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Tracker Cache Max Entries",
+      "key": "CC_BFA_TRACKER_CACHE_MAX_JVM_ENTRIES",
+      "value": "50",
+      "description": "The maximum number of entries in the BFA tracker cache (JVM RAM).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Tracker Cache RAM Percentage",
+      "key": "CC_BFA_TRACKER_CACHE_RAM_PERCENTAGE",
+      "value": "0",
+      "description": "The percentage of the BFA tracker cache allocated to off-heap RAM.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Tracker Cache Disk Percentage",
+      "key": "CC_BFA_TRACKER_CACHE_DISK_PERCENTAGE",
+      "value": "40",
+      "description": "The percentage of the BFA tracker cache allocated to disk storage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Brute Force Protection - Tracker Logging",
+      "key": "CC_LOG_BRUTE_FORCE_TRACKER_ENABLED",
+      "value": "false|true",
+      "description": "Enables or disables logging of the BFA tracker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Logging Level",
+      "key": "CC_SERVER_LOGGING_LEVEL",
+      "value": "INFO|DEBUG|TRACE",
+      "description": "Sets the logging level for the server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Retention",
+      "key": "CC_SERVER_LOG_HISTORY_MAX_DAYS",
+      "value": "30",
+      "description": "The maximum number of days to retain server logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Capacity",
+      "key": "CC_SERVER_LOG_MAX_CAPACITY",
+      "value": "1GB",
+      "description": "The maximum capacity of server logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Server Port",
+      "key": "CC_PORT",
+      "value": "8080",
+      "description": "Internal port for the server. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Kokoro-FastAPI-zh",
+  "repo": "ghcr.io/hsiang-han/kokoro-fastapi-zh-cpu:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8880]/web",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/unraid-icon.png",
+  "project": "https://github.com/hsiang-han/Kokoro-FastAPI-zh",
+  "description": "OpenAI-compatible TTS API based on Kokoro-82M-v1.1-zh. Default uses CPU image. For GPU: change Repository to ghcr.io/hsiang-han/kokoro-fastapi-zh-gpu:latest, set USE_GPU=true, and add Extra Parameters: --gpus=all --runtime=nvidia (do not set as default on CPU hosts).",
+  "paths": [
+    {
+      "name": "Models Path",
+      "host": "/mnt/cache/appdata/kokoro-fastapi-zh/models",
+      "container": "/app/api/src/models",
+      "mode": "rw",
+      "description": "Host path for model files",
+      "required": true
+    },
+    {
+      "name": "Voices Path",
+      "host": "/mnt/cache/appdata/kokoro-fastapi-zh/voices",
+      "container": "/app/api/src/voices",
+      "mode": "rw",
+      "description": "Host path for voice .pt files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8880",
+      "container": "8880",
+      "protocol": "tcp",
+      "description": "Web/API exposed port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Python Path",
+      "key": "PYTHONPATH",
+      "value": "/app:/app/api",
+      "description": "Python import path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Python Unbuffered",
+      "key": "PYTHONUNBUFFERED",
+      "value": "1",
+      "description": "Enable unbuffered Python logs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Repo ID",
+      "key": "REPO_ID",
+      "value": "hexgrad/Kokoro-82M-v1.1-zh",
+      "description": "HuggingFace model repo",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Voice",
+      "key": "DEFAULT_VOICE",
+      "value": "zf_094",
+      "description": "Default voice name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Voice Code",
+      "key": "DEFAULT_VOICE_CODE",
+      "value": "z",
+      "description": "Optional language code override. Set z to force zh pipeline.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Model File",
+      "key": "KOKORO_V1_FILE",
+      "value": "v1_1_zh/kokoro-v1_1-zh.pth",
+      "description": "Model path relative to /app/api/src/models",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Voices Dir",
+      "key": "VOICES_DIR",
+      "value": "/app/api/src/voices/v1_1_zh",
+      "description": "Voice directory in container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API Log Level",
+      "key": "API_LOG_LEVEL",
+      "value": "DEBUG",
+      "description": "API logging level",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use GPU",
+      "key": "USE_GPU",
+      "value": "false",
+      "description": "CPU default=false. For NVIDIA GPU set true and switch Repository to *-gpu image.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Only needed for GPU mode",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Caps",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "Only needed for GPU mode",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

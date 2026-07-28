@@ -1,0 +1,73 @@
+{
+  "name": "deskmon-agent",
+  "repo": "ghcr.io/neur0map/deskmon-agent:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/neur0map/deskmon-agent/pkgs/container/deskmon-agent",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--pid=host",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/neur0map/deskmon-unraid-templates/main/icons/deskmon-agent.png",
+  "project": "https://github.com/neur0map/deskmon-agent",
+  "description": "Lightweight system monitoring agent for the Deskmon macOS menu bar app. Streams live CPU, memory, disk, network, and Docker container stats to the Deskmon app on your Mac via SSH tunnel. No cloud, no accounts, no telemetry. What it monitors: - CPU usage and temperature - Memory usage - All mounted disks (array, cache, parity, unassigned) - Network upload/download speed - Docker containers with per-container CPU, memory, network, and disk I/O - Top processes by CPU/memory Container actions: Start, stop, and restart Docker containers from your Mac. The host filesystem is mounted read-only. The agent makes zero outbound connections. Requires the free Deskmon macOS app: [a href=\"https://github.com/neur0map/deskmon\"]github.com/neur0map/deskmon[/a]",
+  "paths": [
+    {
+      "name": "Host Filesystem",
+      "host": "/",
+      "container": "/hostfs",
+      "mode": "ro,rslave",
+      "description": "Host root filesystem mount for disk usage stats. Mounted read-only.",
+      "required": true
+    },
+    {
+      "name": "Host Sysfs",
+      "host": "/sys",
+      "container": "/host/sys",
+      "mode": "ro",
+      "description": "Host /sys mount for CPU temperature sensors. Mounted read-only.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for container stats, start/stop/restart.",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/etc/deskmon",
+      "container": "/etc/deskmon",
+      "mode": "ro",
+      "description": "Agent config file. Survives container updates.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DESKMON_HOST_ROOT",
+      "key": "DESKMON_HOST_ROOT",
+      "value": "/hostfs",
+      "description": "Tells the agent where the host filesystem is mounted.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DESKMON_HOST_SYS",
+      "key": "DESKMON_HOST_SYS",
+      "value": "/host/sys",
+      "description": "Tells the agent where the host sysfs is mounted.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

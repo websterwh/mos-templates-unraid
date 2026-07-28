@@ -1,0 +1,187 @@
+{
+  "name": "openclaw",
+  "repo": "ghcr.io/cookiesncache/openclaw:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/cookiesncache/docker-openclaw/pkgs/container/openclaw",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:18789]/",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/openclaw.png",
+  "project": "https://github.com/cookiesncache/docker-openclaw",
+  "description": "Unofficial, LinuxServer.io-style Docker image for the OpenClaw AI assistant gateway (upstream: https://github.com/openclaw/openclaw) - not affiliated with OpenClaw or LinuxServer.io. Uses the PUID/PGID + s6-overlay model so /config is owned by your chosen UID/GID with no manual chown; on Unraid keep PUID=99 / PGID=100 to match appdata ownership. Provide a gateway token and (optionally) an Anthropic API key. The Control UI is served on port 18789. The gateway serves plain HTTP and relies on a front TLS terminator (Tailscale serve or a reverse proxy) for HTTPS - do not expose port 18789 directly to the internet. For a hardened setup set OPENCLAW_ALLOW_INSECURE_AUTH=false and OPENCLAW_CONTROL_UI_ALLOWED_ORIGINS to your UI URL, and open the UI via its https URL. amd64 only; image tracks upstream and is rebuilt weekly.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/openclaw",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent config, state and workspace (the container's ~/.openclaw lives here)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "18789",
+      "container": "18789",
+      "protocol": "tcp",
+      "description": "OpenClaw gateway / Control UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns /config. Unraid default: 99 (nobody).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns /config. Unraid default: 100 (users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Umask for files the container creates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone (e.g. America/New_York).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_TOKEN",
+      "key": "OPENCLAW_GATEWAY_TOKEN",
+      "value": "",
+      "description": "Auth token for the gateway. Generate one with: openssl rand -hex 24",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic API key (sk-ant-...). Leave blank if configured another way.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENCLAW_ALLOW_INSECURE_AUTH",
+      "key": "OPENCLAW_ALLOW_INSECURE_AUTH",
+      "value": "true",
+      "description": "Allow the Control UI to authenticate over plain HTTP. Default true for direct LAN-HTTP access. Set false (recommended) when behind a TLS terminator (Tailscale serve / reverse proxy) and open the UI via its https URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENCLAW_CONTROL_UI_ALLOWED_ORIGINS",
+      "key": "OPENCLAW_CONTROL_UI_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated allowed origins for the Control UI (CSRF/origin protection on a non-loopback bind). Set to the URL you reach the UI from, e.g. https://openclaw.YOUR-TAILNET.ts.net. Strongly recommended.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional. OpenAI API key, if using OpenAI models.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENROUTER_API_KEY",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "Optional. OpenRouter API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GEMINI_API_KEY",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Optional. Google Gemini API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GROQ_API_KEY",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "Optional. Groq API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "XAI_API_KEY",
+      "key": "XAI_API_KEY",
+      "value": "",
+      "description": "Optional. xAI (Grok) API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ZAI_API_KEY",
+      "key": "ZAI_API_KEY",
+      "value": "",
+      "description": "Optional. Z.AI API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "COPILOT_GITHUB_TOKEN",
+      "key": "COPILOT_GITHUB_TOKEN",
+      "value": "",
+      "description": "Optional. GitHub token for Copilot models.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "Optional. Discord bot token for the Discord channel.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Optional. Telegram bot token for the Telegram channel.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BRAVE_API_KEY",
+      "key": "BRAVE_API_KEY",
+      "value": "",
+      "description": "Optional. Brave Search API key for web search.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

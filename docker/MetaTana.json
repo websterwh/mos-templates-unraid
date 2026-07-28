@@ -1,0 +1,83 @@
+{
+  "name": "MetaTana",
+  "repo": "ghcr.io/metatana/metatana-app:stable",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/orgs/metatana/packages/container/package/metatana-app",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://metatana.com/catalog/icon-128.png",
+  "project": "https://metatana.com",
+  "description": "MetaTana is an AI-powered media manager for the library you already own. Point it at a folder and it identifies every movie, show, and anime title using AI vision and trusted metadata providers, then enriches everything with artwork, subtitles, trailers, cast, and crew. It renames and organizes files into a clean, consistent structure and writes sidecar metadata your player can read. It fixes the things that make a library feel broken: wrong matches, missing posters, duplicate copies, inconsistent naming, and half-identified seasons. A health score shows what still needs attention. MetaTana is metadata-only and downloader-agnostic. It works alongside any media server, including Plex, Jellyfin, Kodi, and Emby. Setup notes: - Map App Data to /app/data so your library, settings, and thumbnails survive a container update. - Map your media share under /media. Use Read/Write so MetaTana can organize files, or Read Only to scan without changing anything. - PUID 99 and PGID 100 are Unraid's usual nobody:users identity for share access. - Sign in with an email code on first run. A free account is enough for local library features. - Full guide: https://metatana.com/install/Unraid",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/metatana",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent MetaTana state: database, settings, thumbnails, and logs. Must stay mapped to /app/data.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/Media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media library. Use Read/Write so MetaTana can rename files and write artwork and NFOs, or switch to Read Only to scan without changing anything. Map only the shares MetaTana needs. Unraid paths are case-sensitive.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the MetaTana web interface. Change only the host side if 3000 is already in use.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. 99 is Unraid's usual nobody account. Use an ID that already has access to your media share.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. 100 is Unraid's usual users group. Use an ID that already has access to your media share.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Install Channel",
+      "key": "METATANA_INSTALL_CHANNEL",
+      "value": "unraid",
+      "description": "Tells MetaTana it was installed from Unraid Community Applications. Leave as is.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Roots",
+      "key": "MEDIA_DIRS",
+      "value": "/media",
+      "description": "Optional. Comma-separated media roots inside the container. The image already defaults to /media, so leave this blank unless you map media somewhere else. This does not create a source; add sources in the web interface.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

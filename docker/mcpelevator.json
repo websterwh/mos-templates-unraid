@@ -1,0 +1,113 @@
+{
+  "name": "mcpelevator",
+  "repo": "ghcr.io/pacnpal/mcpelevator:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/pacnpal/mcpelevator/pkgs/container/mcpelevator",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:8080/",
+  "icon": "https://raw.githubusercontent.com/pacnpal/mcpelevator/main/assets/mcpelevator.png",
+  "project": "https://github.com/pacnpal/mcpelevator",
+  "description": "Elevate MCP servers into authenticated HTTP endpoints - self-hosted, in one container. Most MCP servers ship as stdio programs (npx/uvx commands) that phones and remote clients can't spawn. mcpelevator runs them for you and exposes each as a remote Streamable HTTP endpoint that Claude mobile (or any MCP client) on your network can connect to: add a server in the web UI, press start, copy the URL. Batteries included (Node/npx + Python/uv preinstalled), with process supervision, live logs, a registry browser for one-click installs, bearer-token auth, and a Host/Origin guard. Already-remote MCP servers can be proxied behind the same auth too. DOCKER RUNNER (advanced, opt-in, requires mcpelevator 1.1.0+): mcpelevator can also run MCP servers packaged as Docker images. It is OFF by default and ROOT-EQUIVALENT - to use it, set the Docker Runner variable to true AND give it a Docker endpoint, EITHER by adding a Path mapping /var/run/docker.sock -> /var/run/docker.sock (sibling model, hands the host daemon to mcpelevator) OR by setting the Docker Host variable to a separate dind daemon (stronger isolation, no host-socket mount; because this container uses HOST networking, point Docker Host at localhost or the host IP where dind publishes its port, NOT a container name like 'dind'). The docker runner and CLI ship in 1.1.0 - on an older image the toggle does nothing. See the Unraid guide for the walkthrough. FIRST LOGIN: this template enables LAN access, which turns control-plane auth on - the admin token is minted on first start and printed ONCE to the container log. Open the log, copy the token, and log in at http:// :8080. Host networking is used so the LAN-access gate sees real client IPs (with bridge + port publishing every client would look like the Docker gateway). Full guide: https://github.com/pacnpal/mcpelevator/blob/main/docs/Unraid.md",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/mcpelevator",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data: SQLite database (servers, tokens, settings) and the npm/uv package caches so installed MCP servers survive restarts.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "WebUI Port",
+      "key": "MCPE_PORT",
+      "value": "8080",
+      "description": "Port the control plane binds on the host. Host networking has no port mapping, so this variable IS the host port - change it if 8080 is already taken, and update the container's WebUI field to match so the WebUI link keeps working.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow LAN Access",
+      "key": "MCPE_ALLOW_PRIVATE_LAN",
+      "value": "true",
+      "description": "First-boot seed for the 'allow access from devices on your local network' setting, so this headless box is reachable at http:// :8080 right away. Enabling it turns control-plane auth ON: the admin token is printed ONCE to the container log on first start - copy it there to log in. Only seeds the first boot; the toggle in Settings is authoritative afterwards.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Token (break-glass)",
+      "key": "MCPE_ADMIN_TOKEN",
+      "value": "",
+      "description": "Optional. A control-plane token that is always accepted on /api. Leave empty normally (a token is minted and printed to the log on first start); set it to recover from a lost token or for automation, then remove it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public Base URL",
+      "key": "MCPE_PUBLIC_BASE_URL",
+      "value": "",
+      "description": "Optional. Absolute URL clients use to reach this instance when it sits behind a tunnel or reverse proxy (e.g. https://mcp.example.com). The copy menu hands out endpoint URLs based on it, and its hostname is trusted by the Host/Origin guard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Allowed Hosts",
+      "key": "MCPE_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional. Comma-separated extra hostnames the Host/Origin guard always trusts (e.g. a reverse-proxy hostname that resolves to this box). Not needed for plain LAN access by IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker Runner (root-equivalent)",
+      "key": "MCPE_DOCKER_RUNNER",
+      "value": "false",
+      "description": "OPT-IN and ROOT-EQUIVALENT. Requires mcpelevator 1.1.0 or newer (the docker runner and CLI ship in 1.1.0; on an older image this toggle does nothing). First-boot seed for the docker runner, which launches MCP servers packaged as Docker images on a mounted Docker daemon. Anything that can reach the Docker socket is effectively root on the host, so enable this only if you trust every image you run. It needs a Docker endpoint - EITHER add a Path mount manually (click 'Add another Path, Port, Variable...' at the bottom of this page) with Container Path and Host Path both set to /var/run/docker.sock (sibling-container model), OR set the 'Docker Host' variable below to a separate dind daemon (stronger isolation, no host-socket mount). OFF by default; the Settings toggle is authoritative after first boot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker Host (docker runner, optional)",
+      "key": "DOCKER_HOST",
+      "value": "",
+      "description": "Optional, and only used by the Docker Runner. Leave EMPTY for the sibling model - the runner then uses the mounted /var/run/docker.sock (empty behaves exactly like unset; no effect). Set it to a separate/dind daemon endpoint (e.g. tcp://localhost:2375) to run launched images on that daemon instead of the host's, so images never touch Unraid's own Docker (stronger isolation, no host-socket mount). NOTE: this container uses HOST networking, so it can't resolve Docker service names like 'dind' - point it at localhost or the host's IP where the dind container publishes its port. SECURITY: a plaintext tcp://...:2375 endpoint is unauthenticated and root-equivalent - only use it on a strictly private, non-routable network and never publish it; for anything less contained front dind with TLS on 2376.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mint Admin Token On Boot",
+      "key": "MCPE_MINT_ADMIN_TOKEN",
+      "value": "false",
+      "description": "Recovery hatch: set to true to mint a fresh admin token on boot and print it to the container log (existing tokens keep working). Set back to false after grabbing it, or a new token is minted on every restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Running Servers",
+      "key": "MCPE_MAX_RUNNING",
+      "value": "50",
+      "description": "Cap on concurrently running MCP servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Start Timeout (seconds)",
+      "key": "MCPE_START_TIMEOUT_S",
+      "value": "120",
+      "description": "Readiness timeout per server start - generous by default to cover npx/uvx cold-start package installs. Raise it for very large packages.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

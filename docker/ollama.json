@@ -1,0 +1,219 @@
+{
+  "name": "ollama",
+  "repo": "ollama/ollama",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/ollama/ollama/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:11434]/",
+  "icon": "https://ollama.ai/public/ollama.png",
+  "project": null,
+  "description": "Official Ollama images for Nvidia or AMD GPUs. Intel Arc GPUs could potentially work with Vulkan enabled. NOTE: Extra Parameters needed for Nvidia: --gpus=all Additionally you can add a Variable called CUDA_VISIBLE_DEVICES to only use specific Nvidia GPU(s) by ID. Example: 0 or 0,1 Extra Parameters needed for AMD: --device='/dev/kfd' --device='/dev/dri' Additionally you can add a Variable called ROCR_VISIBLE_DEVICES to only use specific AMD GPU(s) by UUID. Example: GPU-67246603a11f0a21 or GPU-XXXXXXX,GPU-YYYYYYY Docs: https://docs.ollama.com/",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/ollama",
+      "container": "/root/.ollama",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Interface Port",
+      "host": "11434",
+      "container": "11434",
+      "protocol": "tcp",
+      "description": "Port number where ollama listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OLLAMA_HOST",
+      "key": "OLLAMA_HOST",
+      "value": "0.0.0.0:11434",
+      "description": "IP and Port the server binds to. Set to 127.0.0.1:11434 for internal only access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_ORIGINS",
+      "key": "OLLAMA_ORIGINS",
+      "value": "*",
+      "description": "Comma-separated list of allowed CORS origins.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_KEEP_ALIVE",
+      "key": "OLLAMA_KEEP_ALIVE",
+      "value": "5m",
+      "description": "How long a model stays in VRAM, e.g. 60m or 24h (Set to -1 for infinite, 0 for none).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_LOAD_TIMEOUT",
+      "key": "OLLAMA_LOAD_TIMEOUT",
+      "value": "5m",
+      "description": "Timeout for stall detection during model loads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NUM_PARALLEL",
+      "key": "OLLAMA_NUM_PARALLEL",
+      "value": "1",
+      "description": "Max number of parallel requests a single model can handle.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_CONTEXT_LENGTH",
+      "key": "OLLAMA_CONTEXT_LENGTH",
+      "value": "4096",
+      "description": "Default context window (tokens) if not specified by the model.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_KV_CACHE_TYPE",
+      "key": "OLLAMA_KV_CACHE_TYPE",
+      "value": "f16",
+      "description": "Quantization type for the K/V cache, e.g. f16, q8_0, q4_0.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_MODELS",
+      "key": "OLLAMA_MODELS",
+      "value": "/root/.ollama/models",
+      "description": "The path where model weights and blobs are stored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_MAX_LOADED_MODELS",
+      "key": "OLLAMA_MAX_LOADED_MODELS",
+      "value": "0",
+      "description": "Maximum number of models loaded per GPU at once (Set to 0 for infinite).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_MAX_QUEUE",
+      "key": "OLLAMA_MAX_QUEUE",
+      "value": "512",
+      "description": "Max requests that can wait in line when the server is busy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_DEBUG",
+      "key": "OLLAMA_DEBUG",
+      "value": "0|1|2",
+      "description": "Log detail level: 0 for INFO, 1 for DEBUG, 2 for TRACE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_GPU_OVERHEAD",
+      "key": "OLLAMA_GPU_OVERHEAD",
+      "value": "0",
+      "description": "Reserved VRAM (in bytes) to leave empty on each GPU.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_FLASH_ATTENTION",
+      "key": "OLLAMA_FLASH_ATTENTION",
+      "value": "false|true",
+      "description": "Enables experimental Flash Attention optimizations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_SCHED_SPREAD",
+      "key": "OLLAMA_SCHED_SPREAD",
+      "value": "false|true",
+      "description": "If true, always spreads model layers across all visible GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_MULTIUSER_CACHE",
+      "key": "OLLAMA_MULTIUSER_CACHE",
+      "value": "false|true",
+      "description": "Optimizes prompt caching when multiple users share a model.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NOPRUNE",
+      "key": "OLLAMA_NOPRUNE",
+      "value": "false|true",
+      "description": "If true, does not delete unused model blobs on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NOHISTORY",
+      "key": "OLLAMA_NOHISTORY",
+      "value": "false|true",
+      "description": "Disables the readline history in the interactive CLI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_NEW_ENGINE",
+      "key": "OLLAMA_NEW_ENGINE",
+      "value": "false|true",
+      "description": "Enables the experimental new Ollama engine.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_VULKAN",
+      "key": "OLLAMA_VULKAN",
+      "value": "false|true",
+      "description": "Enables experimental Vulkan hardware acceleration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_PROXY",
+      "key": "HTTP_PROXY",
+      "value": "",
+      "description": "Proxy for downloading models over HTTP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS_PROXY",
+      "key": "HTTPS_PROXY",
+      "value": "",
+      "description": "Proxy for downloading models over HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NO_PROXY",
+      "key": "NO_PROXY",
+      "value": "",
+      "description": "Comma-separate list of hosts/IPs that bypass the proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

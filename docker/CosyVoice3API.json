@@ -1,0 +1,91 @@
+{
+  "name": "CosyVoice3-API",
+  "repo": "ghcr.io/hsiang-han/cosyvoice3-api:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --shm-size=2g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/docs",
+  "icon": "https://raw.githubusercontent.com/hsiang-han/unraid_templates/main/assets/cosyvoice3-api-icon.png",
+  "project": "https://github.com/hsiang-han/CosyVoice3-API",
+  "description": "OpenAI-compatible Text-to-Speech API powered by CosyVoice 3 (Alibaba FunAudioLLM). State-of-the-art Chinese TTS with 18 dialects and 9 languages. NOTE: This model has NO built-in voices. You must register a voice first by uploading a 3-second reference audio via the /v1/voices/register endpoint, or use /v1/audio/speech/clone for one-off cloning. CUDA 12.8 (Blackwell/Ada/Ampere). First start downloads model files (~10GB) from HuggingFace. Supports RTX 50-series GPUs. China users: set HF_ENDPOINT to https://hf-mirror.com for faster downloads. Requires NVIDIA GPU with driver 550+.",
+  "paths": [
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/cosyvoice3-api/models",
+      "container": "/root/.cache/models",
+      "mode": "rw",
+      "description": "Model download cache. First run downloads ~10GB. Persists across container recreates.",
+      "required": true
+    },
+    {
+      "name": "ModelScope Cache",
+      "host": "/mnt/cache/appdata/cosyvoice3-api/modelscope",
+      "container": "/root/.cache/modelscope/hub",
+      "mode": "rw",
+      "description": "ModelScope cache for wetext (text normalization). Small (~5MB), downloaded once.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible TTS API port. Swagger docs at /docs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Model ID",
+      "key": "MODEL_DIR",
+      "value": "FunAudioLLM/Fun-CosyVoice3-0.5B-2512",
+      "description": "HuggingFace model ID. Restart required after change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HuggingFace Endpoint",
+      "key": "HF_ENDPOINT",
+      "value": "https://huggingface.co",
+      "description": "HuggingFace download endpoint. China users: change to https://hf-mirror.com for faster downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FP16",
+      "key": "FP16",
+      "value": "true",
+      "description": "Half-precision inference. Reduces VRAM by ~50%. Disable (false) only if you experience quality issues.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU selection (all, 0, 1, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA driver capabilities",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

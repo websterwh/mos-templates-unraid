@@ -1,0 +1,211 @@
+{
+  "name": "emby-watchparty-legacy",
+  "repo": "ghcr.io/oratorian/emby-watchparty:legacy",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/oratorian/emby-watchparty",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/Oratorian/unraid-templates/refs/heads/main/emby-watchparty-legacy/emby-watchparty-icon.png",
+  "project": "https://github.com/Oratorian/emby-watchparty",
+  "description": "LEGACY Flask+SocketIO build of emby-watchparty (v1.6.x, single shared HLS stream). Pinned to the `:legacy` image tag, which tracks the `legacy` branch (formerly `main`, republished after the 2.0 cutover). New deployments should install the current `emby-watchparty` template (Vue 3 + FastAPI, per-user streams, admin panel). This template exists so existing users can keep their v1.x install running while the 2.0 series takes over `:latest`. A synchronized watch party application for Emby media servers -- all HLS is proxied through the container so your Emby server can stay on your internal network.",
+  "paths": [
+    {
+      "name": "ENV File Path (optional)",
+      "host": "/mnt/cache/appdata/emby-watchparty/.env",
+      "container": "/app/.env",
+      "mode": "ro",
+      "description": "Optional: mount a .env file into the container. If set, values in this file will be used. Individual env vars above take precedence.",
+      "required": false
+    },
+    {
+      "name": "App Config Directory",
+      "host": "/mnt/cache/appdata/emby-watchparty",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Path on the host where emby-watchparty will store any persistent config or state.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for the emby-watchparty web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Emby Server URL",
+      "key": "EMBY_SERVER_URL",
+      "value": "http://192.168.1.x:8096",
+      "description": "Full URL to your Emby server, e.g. http://192.168.1.100:8096",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emby API Key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Your Emby API key. Generate one in Emby Dashboard > Advanced > API Keys.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Emby Username",
+      "key": "EMBY_USERNAME",
+      "value": "",
+      "description": "Emby username used to authenticate and proxy HLS streams.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emby Password",
+      "key": "EMBY_PASSWORD",
+      "value": "",
+      "description": "Password for the Emby user above.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App Prefix",
+      "key": "APP_PREFIX",
+      "value": "",
+      "description": "URL prefix for reverse proxy deployments (e.g. /watchparty). Leave empty for root deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Login",
+      "key": "REQUIRE_LOGIN",
+      "value": "false",
+      "description": "Require Emby login to access the web UI (true/false). Leave false for open guest access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Expiry (seconds)",
+      "key": "SESSION_EXPIRY",
+      "value": "86400",
+      "description": "Session expiry in seconds. Default 86400 (24 hours).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Static Session Enabled",
+      "key": "STATIC_SESSION_ENABLED",
+      "value": "false",
+      "description": "Keep a single persistent party alive across restarts (true/false). Users navigating to / are redirected straight into the party.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Static Session ID",
+      "key": "STATIC_SESSION_ID",
+      "value": "PARTY",
+      "description": "Fixed party ID used when Static Session Enabled is true. Uppercase.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging level: DEBUG, INFO, WARNING, or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Console Log Level",
+      "key": "CONSOLE_LOG_LEVEL",
+      "value": "WARNING",
+      "description": "Log level for stdout/console output. Default WARNING keeps Docker logs quiet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log To File",
+      "key": "LOG_TO_FILE",
+      "value": "false",
+      "description": "Set to false (recommended for Docker) to output logs to stdout only. Set to true to write logs to a file inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log File Path",
+      "key": "LOG_FILE",
+      "value": "logs/emby-watchparty.log",
+      "description": "Path to the log file inside the container. Only used when Log To File is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Max Size (MB)",
+      "key": "LOG_MAX_SIZE",
+      "value": "10",
+      "description": "Maximum size of the log file in megabytes before rotation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Users Per Party",
+      "key": "MAX_USERS_PER_PARTY",
+      "value": "0",
+      "description": "Maximum users per watch party. 0 means unlimited.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable HLS Token Validation",
+      "key": "ENABLE_HLS_TOKEN_VALIDATION",
+      "value": "true",
+      "description": "Validate HLS stream tokens so only party members can fetch segments (true/false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HLS Token Expiry (seconds)",
+      "key": "HLS_TOKEN_EXPIRY",
+      "value": "86400",
+      "description": "How long HLS tokens remain valid, in seconds. Default 86400 (24 hours).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Rate Limiting",
+      "key": "ENABLE_RATE_LIMITING",
+      "value": "true",
+      "description": "Enable per-IP rate limiting on API endpoints (true/false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit: Party Creations Per Hour",
+      "key": "RATE_LIMIT_PARTY_CREATION",
+      "value": "5",
+      "description": "Maximum party creations per IP per hour.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit: API Calls Per Minute",
+      "key": "RATE_LIMIT_API_CALLS",
+      "value": "1000",
+      "description": "Maximum API calls per IP per minute.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

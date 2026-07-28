@@ -1,0 +1,107 @@
+{
+  "name": "music-librarian",
+  "repo": "ghcr.io/asherflynt/music-librarian:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/asherflynt/music-librarian",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8730]",
+  "icon": "https://raw.githubusercontent.com/asherflynt/music-librarian/main/icon.png",
+  "project": "https://github.com/asherflynt/music-librarian",
+  "description": "Self-hosted, taste-driven, resumable FLAC-preferred auto-fill for a Navidrome + Soulbeet music library. Music Librarian seeds from what your household actually plays \u2014 Navidrome and Plex/Plexamp play counts (Plex via Tautulli), plus YouTube Music Takeout history \u2014 expands that taste via Last.fm, and downloads through your existing Soulbeet API using a FLAC-preferred, high-quality-lossy fallback ladder. It keeps favorited artists' full discographies current via MusicBrainz (new releases arrive on their own) and can re-acquire lossy albums as FLAC on a schedule, verifying every staged FLAC before it replaces anything. All progress lives in SQLite, so a restart resumes exactly where it left off. Every knob is editable live in the web UI (no restart). COMPANION APP: this is not a standalone downloader. It drives an existing Soulbeet instance and reads an existing Navidrome library \u2014 you need both already running. Tautulli (Plex plays) and a Last.fm API key are optional/required as noted below. SECURITY: the web UI is LAN-only and unauthenticated by design (same posture as slskd/Soulbeet/Navidrome). It can change download targets and, with upgrades enabled, delete files \u2014 do NOT expose port 8730 through a reverse proxy or tunnel. POSTs are CSRF/Origin-guarded, but that is hardening, not auth. FIRST RUN: /config starts empty and is auto-seeded with config.env, secrets.env, exclude.txt and favorites.txt. Edit /config/secrets.env with your LASTFM_API_KEY, SOULBEET_USER and SOULBEET_PASS (Navidrome/Soulbeet login). The container waits \u2014 it does not crash \u2014 until those are filled; no restart is needed once you save.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/music-librarian",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings, secrets and Google Takeout drop-folder. Auto-seeded on first run; your edits are preserved across updates.",
+      "required": true
+    },
+    {
+      "name": "State",
+      "host": "/mnt/cache/appdata/music-librarian/state",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite progress database and live status snapshot. Keep this to resume exactly where you left off.",
+      "required": true
+    },
+    {
+      "name": "Music library (read-only)",
+      "host": "/mnt/cache/Media/Music",
+      "container": "/music",
+      "mode": "ro",
+      "description": "Your existing music library, mounted read-only for size / track-count / quality measurement only. Downloads land via Soulbeet, not through this mount.",
+      "required": true
+    },
+    {
+      "name": "Free-space pool (read-only)",
+      "host": "/mnt/user",
+      "container": "/cluster",
+      "mode": "ro",
+      "description": "The pool that holds the library. Its free space is measured against MIN_FREE_GB \u2014 the librarian stops adding music if this pool drops below that floor. Point it at your bulk pool (e.g. /mnt/cluster) or /mnt/user.",
+      "required": true
+    },
+    {
+      "name": "Staging pool (read-only)",
+      "host": "/mnt/cache",
+      "container": "/cache",
+      "mode": "ro",
+      "description": "The fast pool Soulbeet downloads land on before beets imports them. Measured against STAGING_MIN_FREE_GB to protect the cache SSD. Point it at the same pool Soulbeet/slskd stage into.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8730",
+      "container": "8730",
+      "protocol": "tcp",
+      "description": "Web UI / API port. LAN only \u2014 do not expose it through a reverse proxy or tunnel.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SOULBEET_URL",
+      "key": "SOULBEET_URL",
+      "value": "http://192.168.1.10:9765",
+      "description": "Where Soulbeet's API is reachable from inside this container. On bridge networking use the Unraid host's LAN IP and Soulbeet's host port, NOT localhost or a container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NAVIDROME_URL",
+      "key": "NAVIDROME_URL",
+      "value": "http://192.168.1.10:4533",
+      "description": "Where your Navidrome server is reachable from inside this container. On bridge networking use the host's LAN IP, not localhost.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TAUTULLI_URL",
+      "key": "TAUTULLI_URL",
+      "value": "",
+      "description": "OPTIONAL. Tautulli base URL, to count Plex/Plexamp plays toward your taste. Leave blank to skip the Plex signal (never an error). The API key itself goes in /config/secrets.env.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TARGET_FOLDER",
+      "key": "TARGET_FOLDER",
+      "value": "/music",
+      "description": "Advanced. The library path as SOULBEET sees it (passed to Soulbeet's download queue), not as this container sees it. Only change it if Soulbeet mounts your library somewhere other than /music.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

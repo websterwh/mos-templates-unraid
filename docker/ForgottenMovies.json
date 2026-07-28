@@ -1,0 +1,291 @@
+{
+  "name": "Forgotten-Movies",
+  "repo": "pyroghostx/forgottenmovies:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/pyroghostx/forgottenmovies",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8741]/",
+  "icon": "https://raw.githubusercontent.com/PyroghostX/ForgottenMovies/main/files/logo.png",
+  "project": "https://github.com/PyroghostX/ForgottenMovies",
+  "description": "Forgotten Movies keeps Plex requests from gathering dust. It watches Overseerr for requests that have been fulfilled, checks Tautulli to see whether the requester actually watched them, and sends a friendly email reminder when something has been available for too long.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/forgotten_movies/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Path to the application data folder",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8741",
+      "container": "8741",
+      "protocol": "tcp",
+      "description": "Container Port: 8741",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "FLASK_SECRET_KEY",
+      "value": "",
+      "description": "Random secret key for Flask sessions",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Request Portal URL",
+      "key": "REQUEST_URL",
+      "value": "",
+      "description": "Base URL to your request portal (e.g., https://overseerr.example.com)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tautulli - URL",
+      "key": "TAUTULLI_URL",
+      "value": "http://IP_ADDRESS:8181/api/v2",
+      "description": "API URL to your Tautulli instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tautulli - API Key",
+      "key": "TAUTULLI_API_KEY",
+      "value": "",
+      "description": "API Key for your Tautulli instance",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Overseerr - URL",
+      "key": "OVERSEERR_URL",
+      "value": "http://IP_ADDRESS:5055/api/v1",
+      "description": "API URL to your Overseerr instance",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Overseerr - API Key",
+      "key": "OVERSEERR_API_KEY",
+      "value": "",
+      "description": "API Key for your Overseerr instance",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Overseerr - Number of Requests",
+      "key": "OVERSEERR_NUM_OF_HISTORY_RECORDS",
+      "value": "200",
+      "description": "Number of completed requests to fetch from Overseerr",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TMDb - API Key",
+      "key": "THEMOVIEDB_API_KEY",
+      "value": "",
+      "description": "API Key for The Movie Database (TMDb)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Server",
+      "key": "SMTP_SERVER",
+      "value": "",
+      "description": "SMTP server address for sending emails",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "587",
+      "description": "SMTP server port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Encryption",
+      "key": "SMTP_ENCRYPTION",
+      "value": "STARTTLS|SSL|NONE",
+      "description": "SMTP encryption method",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Username",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "Username for SMTP authentication",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - From Name",
+      "key": "FROM_NAME",
+      "value": "Plex Forgotten Movies",
+      "description": "Name displayed in the 'From' field of the email",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - From Address",
+      "key": "FROM_ADDRESS",
+      "value": "",
+      "description": "Email address used in the 'From' field",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - Password",
+      "key": "EMAIL_PASSWORD",
+      "value": "",
+      "description": "Password for the email account",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Email - BBC",
+      "key": "BCC_EMAIL_ADDRESS",
+      "value": "",
+      "description": "Optional BCC email address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - Admin Name",
+      "key": "ADMIN_NAME",
+      "value": "",
+      "description": "What name in the email do you want shown",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing - Days Until Expired",
+      "key": "DAYS_SINCE_REQUEST",
+      "value": "90",
+      "description": "Request age, in days, to trigger an email reminder",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing - Days Until Expired Human-Readable",
+      "key": "DAYS_SINCE_REQUEST_EMAIL_TEXT",
+      "value": "3 months",
+      "description": "Human readable version DAYS_SINCE_REQUEST for email body",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing - Hours Between Emails",
+      "key": "HOURS_BETWEEN_EMAILS",
+      "value": "168",
+      "description": "Minimum hours between reminder emails to the same user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing - Job Interval",
+      "key": "JOB_INTERVAL_SECONDS",
+      "value": "3600",
+      "description": "Interval, in seconds, between checking for forgotten movies",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing - Startup Delay",
+      "key": "INITIAL_DELAY_SECONDS",
+      "value": "3600",
+      "description": "Delay, in seconds, before the first check for forgotten movies after container start",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tautulli - Max Number of New Metadata Requests",
+      "key": "TAUTULLI_NEW_REQUEST_METADATA_LIMIT",
+      "value": "50",
+      "description": "Maximum new Seerr requests per run that can ask Tautulli for title metadata when Seerr did not provide a title (default 50).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tautulli - Max Number of Recent Unknown Metadata Requests",
+      "key": "TAUTULLI_RECENT_UNKNOWN_METADATA_LIMIT",
+      "value": "30",
+      "description": "Maximum existing unknown-title requests per run that can ask Tautulli for title metadata/watch history (default 30)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO|DEBUG|WARNING|ERROR|CRITICAL",
+      "description": "Logging level for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug Mode",
+      "key": "DEBUG_MODE",
+      "value": "false|true",
+      "description": "Enable or disable debug mode",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug Email",
+      "key": "DEBUG_EMAIL",
+      "value": "",
+      "description": "Email address to send to when in debug mode",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Max Email Count",
+      "key": "DEBUG_MAX_EMAILS",
+      "value": "2",
+      "description": "Maximum number of emails to send in debug mode",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable Scheduler",
+      "key": "DISABLE_SCHEDULER",
+      "value": "false|true",
+      "description": "Disable the internal scheduler, avoid hitting APIs or triggering emails",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

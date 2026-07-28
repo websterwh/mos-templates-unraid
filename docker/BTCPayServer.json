@@ -1,0 +1,155 @@
+{
+  "name": "BTCPayServer",
+  "repo": "btcpayserver/btcpayserver:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/btcpayserver/btcpayserver",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:49392]",
+  "icon": "https://raw.githubusercontent.com/btcpayserver/btcpayserver/master/BTCPayServer/wwwroot/img/logo.png",
+  "project": "https://github.com/btcpayserver/btcpayserver",
+  "description": "BTCPay Server is a free and open-source Bitcoin payment processor for self-hosted stores, invoices, checkout, wallets, point-of-sale flows, plugins, and webhooks without third-party payment processor fees.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/btcpayserver",
+      "container": "/datadir",
+      "mode": "rw",
+      "description": "Persistent BTCPay Server data directory. Back this directory up before processing real payments.",
+      "required": true
+    },
+    {
+      "name": "Plugins",
+      "host": "/mnt/cache/appdata/btcpayserver/plugins",
+      "container": "/root/.btcpayserver/Plugins",
+      "mode": "rw",
+      "description": "Persistent BTCPay Server plugins directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "49392",
+      "container": "49392",
+      "protocol": "tcp",
+      "description": "BTCPay Server web interface and internal API port. Container port: 49392.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Bind Address",
+      "key": "BTCPAY_BIND",
+      "value": "0.0.0.0:49392",
+      "description": "Address and port BTCPay binds to inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Network",
+      "key": "BTCPAY_NETWORK",
+      "value": "mainnet",
+      "description": "Bitcoin network. Use mainnet, testnet, signet, or regtest.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Chains",
+      "key": "BTCPAY_CHAINS",
+      "value": "btc",
+      "description": "Comma-separated crypto chains enabled in BTCPay. This template defaults to Bitcoin only.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Host",
+      "key": "BTCPAY_HOST",
+      "value": "",
+      "description": "Optional public hostname, for example btcpay.example.com. Use a reverse proxy for HTTPS when exposing BTCPay outside your LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Root Path",
+      "key": "BTCPAY_ROOTPATH",
+      "value": "/",
+      "description": "BTCPay root path when served from a subpath. Use / for normal deployments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Connection",
+      "key": "BTCPAY_POSTGRES",
+      "value": "User ID=postgres;Host=postgres;Port=5432;Application Name=btcpayserver;Database=btcpayservermainnet",
+      "description": "Required Postgres connection string for the BTCPay Server database.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Explorer Postgres Connection",
+      "key": "BTCPAY_EXPLORERPOSTGRES",
+      "value": "User ID=postgres;Host=postgres;Port=5432;Application Name=btcpayserver;MaxPoolSize=80;Database=nbxplorermainnet",
+      "description": "Required Postgres connection string for NBXplorer data, used by BTCPay to read explorer state.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "BTC Explorer URL",
+      "key": "BTCPAY_BTCEXPLORERURL",
+      "value": "http://nbxplorer:32838/",
+      "description": "Required NBXplorer URL for Bitcoin, for example http://nbxplorer:32838/ on a custom Docker network or http://UNRAID-IP:32838/.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Docker Deployment Mode",
+      "key": "BTCPAY_DOCKERDEPLOYMENT",
+      "value": "true",
+      "description": "Marks this BTCPay instance as Docker-deployed. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "No Default Chain",
+      "key": "BTCPAY_NODEFAULTCHAIN",
+      "value": "true",
+      "description": "Prevents BTCPay from assuming a chain without explicit chain variables. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update URL",
+      "key": "BTCPAY_UPDATEURL",
+      "value": "https://api.github.com/repos/btcpayserver/btcpayserver/releases/latest",
+      "description": "Release URL used by BTCPay to check for new versions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Log",
+      "key": "BTCPAY_DEBUGLOG",
+      "value": "btcpay.log",
+      "description": "Debug log filename under the BTCPay data directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lightning Connection",
+      "key": "BTCPAY_BTCLIGHTNING",
+      "value": "",
+      "description": "Optional Bitcoin Lightning connection string. For example, type=clightning;server=unix://etc/clightning_bitcoin/lightning-rpc, or leave blank to configure later in BTCPay.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

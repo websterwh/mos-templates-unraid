@@ -1,0 +1,211 @@
+{
+  "name": "Eyeris",
+  "repo": "ghcr.io/vonhex/eyeris:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/vonhex/Eyeris/pkgs/container/eyeris",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/vonhex/Eyeris/main/eyeris-logo-icon2.png",
+  "project": "https://github.com/vonhex/Eyeris",
+  "description": "Self-hosted photo manager for NAS and local libraries. Eyeris scans your photos, generates thumbnails, and gives you a fast searchable gallery \u2014 all on your own hardware. AI-powered image descriptions and tagging are offloaded to a connected A-Eye instance; Eyeris imports the results automatically. No cloud, no subscriptions, no local LLM required. Features include: A-Eye integration for AI descriptions and tags, EXIF and GPS metadata, duplicate and blurry photo detection, album organisation, SearXNG web image search, and a real-time dashboard.",
+  "paths": [
+    {
+      "name": "Photo Directory",
+      "host": "/mnt/cache/Pictures/",
+      "container": "/data/images",
+      "mode": "rw",
+      "description": "Your photo library \u2014 local folder or SMB/NFS mount point.",
+      "required": true
+    },
+    {
+      "name": "Thumbnails",
+      "host": "/mnt/cache/appdata/eyeris/thumbnails/",
+      "container": "/data/thumbnails",
+      "mode": "rw",
+      "description": "Where Eyeris stores generated thumbnails and face crop cache.",
+      "required": true
+    },
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/eyeris/db/",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "SQLite database storage. Ignored if DB_HOST is set.",
+      "required": true
+    },
+    {
+      "name": "Config file (.env)",
+      "host": "/mnt/cache/appdata/eyeris/eyeris.env",
+      "container": "/app/.env",
+      "mode": "rw",
+      "description": "Persistent config file \u2014 Eyeris reads and writes settings here. Create an empty file at this path before first run.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the Eyeris web interface and API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NAS Host",
+      "key": "SMB_HOST",
+      "value": "",
+      "description": "IP or hostname of your NAS. Leave empty if photos are already accessible via the Photo Directory path above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NAS Username",
+      "key": "SMB_USERNAME",
+      "value": "",
+      "description": "SMB/CIFS username for your NAS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NAS Password",
+      "key": "SMB_PASSWORD",
+      "value": "",
+      "description": "SMB/CIFS password for your NAS.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NAS Shares",
+      "key": "SMB_SHARES",
+      "value": "",
+      "description": "Comma-separated share names to scan, e.g. photos,media,camera-uploads",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "A-Eye URL",
+      "key": "AEYE_URL",
+      "value": "",
+      "description": "URL of your A-Eye instance, e.g. http://192.168.1.100:7171. Connect A-Eye to enable AI image descriptions and automatic tagging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "A-Eye Username",
+      "key": "AEYE_USER",
+      "value": "",
+      "description": "Username for HTTP Basic Auth on your A-Eye instance. Leave empty if A-Eye is unauthenticated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "A-Eye Password",
+      "key": "AEYE_PASS",
+      "value": "",
+      "description": "Password for HTTP Basic Auth on your A-Eye instance.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SearXNG URL",
+      "key": "SEARXNG_URL",
+      "value": "",
+      "description": "URL of a SearXNG instance for the web image search feature (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Workers",
+      "key": "SCAN_CONCURRENCY",
+      "value": "2",
+      "description": "Number of parallel scan workers. Raise to 3-4 on fast systems; lower if your system struggles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Interval (minutes)",
+      "key": "SCAN_INTERVAL_MINUTES",
+      "value": "60",
+      "description": "How often Eyeris rescans for new photos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Schedule Enabled",
+      "key": "SCAN_SCHEDULE_ENABLED",
+      "value": "false",
+      "description": "Set to true to restrict scanning to a time window (e.g. overnight only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Schedule Start",
+      "key": "SCAN_SCHEDULE_START",
+      "value": "22:00",
+      "description": "Start of the allowed scan window (24-hour HH:MM). Only used when SCAN_SCHEDULE_ENABLED=true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan Schedule End",
+      "key": "SCAN_SCHEDULE_END",
+      "value": "06:00",
+      "description": "End of the allowed scan window (24-hour HH:MM). An end time before the start time crosses midnight.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "MariaDB host IP or hostname. Leave empty to use the built-in SQLite database (recommended for most users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Port",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "MariaDB port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB User",
+      "key": "DB_USER",
+      "value": "root",
+      "description": "MariaDB username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "MariaDB password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MariaDB Database",
+      "key": "DB_NAME",
+      "value": "image_catalog",
+      "description": "MariaDB database name.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "x265-butler",
+  "repo": "ghcr.io/masterjb/x265-butler:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/users/masterjb/packages/container/package/x265-butler",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/masterjb/unraid-templates/main/x265-butler/icon.png",
+  "project": "https://github.com/masterjb/x265-butler",
+  "description": "x265-butler reclaims disk space on Unraid by automatically transcoding video files to HEVC (x265). Scans library shares for non-x265 files, transcodes them in the background using ffmpeg, tracks results in a dashboard, and never re-encodes the same file twice. Lighter-weight than Tdarr / FileFlows / Unmanic. Recent highlights: Stats + Dashboard / UI Redesign / Encoder-Benchmark with Pareto-Frontier / Encoder-Profile-Editor / Multi-Share / Storage-Analyzer / Auto-Scan-on-Change. See full release notes: https://github.com/masterjb/x265-butler/blob/main/CHANGELOG.md [!] Auto-update notice: This template now uses the :latest image tag, which auto-deploys every release including potentially-breaking Major version transitions (v2.x to v3.x). For production stability, edit the Container's Repository field to pin an exact version (e.g. ghcr.io/masterjb/x265-butler:2.16.0). Release notes for every version: https://github.com/masterjb/x265-butler/blob/main/CHANGELOG.md Live release feed (all versions): https://github.com/masterjb/x265-butler/blob/main/CHANGELOG.md",
+  "paths": [
+    {
+      "name": "Library",
+      "host": "/mnt/cache/Media",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Path containing video files to scan + transcode",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/x265-butler",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent config + database directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port for the x265-butler dashboard",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID (typically 99 on unRAID)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID (typically 100 on unRAID)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

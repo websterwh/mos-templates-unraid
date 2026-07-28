@@ -1,0 +1,187 @@
+{
+  "name": "media-preview-generator",
+  "repo": "stevezzau/media_preview_generator:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/stevezzau/media_preview_generator",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/stevezau/media_preview_generator/main/docs/images/icon.png",
+  "project": "https://github.com/stevezau/media_preview_generator",
+  "description": "Generate video preview thumbnails for Plex, Emby and Jellyfin with GPU acceleration support. One FFmpeg pass writes the right format for each server (Plex BIF bundle, Emby sidecar BIF, Jellyfin trickplay tiles). This template seeds a Plex connection below; add Emby/Jellyfin servers (any mix) from the web UI after first start. Features: - Web UI with setup wizard for easy configuration - Plex OAuth authentication (no manual token needed) - GPU acceleration (NVIDIA, Intel QuickSync, AMD) - Background processing with job queue - Real-time progress display - Scheduled generation via cron expressions - Browser notifications when jobs complete The web interface is available at http:// :8080 after starting the container. A setup wizard will guide you through connecting to your Plex server. IMPORTANT - NETWORKING: If your Plex container uses a custom network (like br1 or macvlan), this container must use the SAME network to communicate with Plex. Change the Network Type setting to match your Plex container's network. GPU SETUP \u2014 pick ONE path: Pass /dev/dri through (already configured below \u2014 no further action needed). [NVIDIA] \u2014 REQUIRED STEPS, in this order: 1. Install the Nvidia-Driver plugin from Community Applications (bundles the NVIDIA driver and nvidia-container-toolkit needed for --runtime=nvidia). 2. Add --runtime=nvidia to \"Extra Parameters\" on this template (NOT --gpus all). 3. Set the NVIDIA_VISIBLE_DEVICES and NVIDIA_DRIVER_CAPABILITIES variables below. 4. Optional: if your host has no Intel iGPU and the container fails with a /dev/dri error, remove the Intel GPU Device field. Common error: \"docker: Error response from daemon: AMD CDI spec not found\" -> You're using --gpus all on Unraid. Replace it with --runtime=nvidia. Why NVIDIA_DRIVER_CAPABILITIES=all? The 'graphics' capability is required for Dolby Vision Profile 5 thumbnails (libplacebo Vulkan tone-mapping). 'compute,video,utility' alone covers only CUDA/NVDEC and nvidia-smi.",
+  "paths": [
+    {
+      "name": "Media Path",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Path to your media files on Unraid (read-only)",
+      "required": true
+    },
+    {
+      "name": "Plex Data Path",
+      "host": "/mnt/cache/appdata/plex/Library/Application Support/Plex Media Server",
+      "container": "/plex",
+      "mode": "rw",
+      "description": "Path to Plex application data where previews will be stored",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/media-preview-generator",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Path to store configuration, schedules, and job history",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "http://192.168.1.100:32400",
+      "description": "URL to your Plex Media Server (use IP address, not localhost)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Plex authentication token. Find it at: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/ (or use OAuth via Web UI)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Local Videos Path",
+      "key": "PLEX_LOCAL_VIDEOS_PATH_MAPPING",
+      "value": "/media",
+      "description": "How this container sees media (usually /media)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Videos Path",
+      "key": "PLEX_VIDEOS_PATH_MAPPING",
+      "value": "",
+      "description": "How Plex sees media (if different from this container's path)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frame Interval (seconds)",
+      "key": "PLEX_BIF_FRAME_INTERVAL",
+      "value": "5",
+      "description": "Seconds between each preview frame (default: 5). Migrated to settings.json on first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Quality",
+      "key": "THUMBNAIL_QUALITY",
+      "value": "4",
+      "description": "Preview image quality 1-10, higher = better quality but larger files (default: 4). Migrated to settings.json on first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CPU Threads",
+      "key": "CPU_THREADS",
+      "value": "1",
+      "description": "Number of parallel CPU workers for fallback (default: 1). Migrated to settings.json on first start. GPU config (enable/disable, workers per GPU) is in Web UI Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Token Override",
+      "key": "WEB_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional: Override the authentication token. If empty, use the token set during the setup wizard (or auto-generated if skipped). Left unmasked because Unraid's masked password fields can silently fail to save the value (issue #263).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Port",
+      "key": "WEB_PORT",
+      "value": "8080",
+      "description": "Internal port for web server (usually matches Web UI Port)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody on Unraid)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users on Unraid)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File permission mask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities (requires --runtime=nvidia in Extra Parameters)",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "REQUIRES --runtime=nvidia in Extra Parameters \u2014 without it, this variable is ignored and the container will either fail to start (e.g. 'AMD CDI spec not found') or fall back to CPU. Recommended value: 'all' (includes the 'graphics' capability needed for Dolby Vision Profile 5 thumbnails via libplacebo Vulkan tone-mapping). 'compute,video,utility' alone covers only CUDA/NVDEC and will NOT give you DV5 support.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices (requires --runtime=nvidia in Extra Parameters)",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "REQUIRES --runtime=nvidia in Extra Parameters \u2014 without it, this variable is ignored. Which NVIDIA GPUs to expose to the container, e.g. 'all' or a specific GPU UUID. Do NOT use --gpus all on Unraid; that triggers CDI resolution and fails with 'AMD CDI spec not found'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging level: DEBUG, INFO, WARNING, ERROR",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel GPU Device",
+      "host": "/dev/dri",
+      "container": "/dev/dri",
+      "description": "Pass through Intel GPU for QuickSync acceleration",
+      "required": false
+    }
+  ],
+  "labels": []
+}

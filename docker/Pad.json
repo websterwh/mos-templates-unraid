@@ -1,0 +1,107 @@
+{
+  "name": "Pad",
+  "repo": "ghcr.io/perpetualsoftware/pad:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/PerpetualSoftware/pad/pkgs/container/pad",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]/",
+  "icon": "https://raw.githubusercontent.com/PerpetualSoftware/unraid-templates/main/pad/icon.png",
+  "project": "https://getpad.dev",
+  "description": "Pad is local-first project management for developers and AI coding agents. Single Go binary, SQLite by default, MCP-ready (Claude Code / Cursor / Windsurf). Your data stays on your Unraid box \u2014 no telemetry, no account required, no cloud lock-in. After install, click the container's Logs button to grab the first-run bootstrap token, then visit the WebUI to claim the first admin. See the install guide for screenshots: https://getpad.dev/docs/self-hosting/Unraid",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/pad/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Pad's persistent data: SQLite database, attachments, encryption key, logs, and config. Back this up to keep your workspace safe.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "tcp",
+      "description": "Pad web UI. Browse to http://[your-tower]:[port]/ after install.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the pad process runs as. Default 99 (nobody) matches Unraid's appdata permissions. Change only if you know what you're doing \u2014 must be a positive integer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the pad process runs as. Default 100 (users) matches Unraid's appdata permissions. Change only if you know what you're doing \u2014 must be a positive integer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "PAD_LOG_LEVEL",
+      "value": "info",
+      "description": "Verbosity for the server log. One of: debug, info, warn, error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bypass Setup Token",
+      "key": "PAD_BYPASS_SETUP_TOKEN",
+      "value": "false",
+      "description": "If true, the first admin account can be created directly from the web UI (browse to http://[your-tower]:[port]/setup) without copying a bootstrap token from the container logs. Convenient for trusted home networks. Default false (token required from logs). WARNING: while no users exist, anyone who can reach the WebUI port can claim the first admin account \u2014 only set true on networks you trust (LAN behind a firewall, Tailscale, etc.). Once an admin exists this setting has no effect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "PAD_URL",
+      "value": "",
+      "description": "External URL when pad is behind a reverse proxy (SWAG / NGINX Proxy Manager / etc.). Required for emailed invitation links to point at the right host. Example: https://pad.example.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Maileroo API Key",
+      "key": "PAD_MAILEROO_API_KEY",
+      "value": "",
+      "description": "Optional. Enables transactional email (workspace invitations). Without it, invites use copyable join codes via the CLI. Sign up at maileroo.com.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email From",
+      "key": "PAD_EMAIL_FROM",
+      "value": "",
+      "description": "Sender address for invitation emails. Required if Maileroo API Key is set. Must be on a domain you control.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email From Name",
+      "key": "PAD_EMAIL_FROM_NAME",
+      "value": "Pad",
+      "description": "Display name on outbound emails (the human-friendly part before the address). Defaults to 'Pad'.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

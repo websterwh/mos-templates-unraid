@@ -1,0 +1,83 @@
+{
+  "name": "onlyoffice-mysql-server",
+  "repo": "xternet/onlyoffice-mysql-5.7",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/xternet/onlyoffice-mysql-5.7",
+  "network": "onlyoffice",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3306]",
+  "icon": "https://raw.githubusercontent.com/AMJidovu/unraid-repository/master/img/mysql.png",
+  "project": "https://www.mysql.com/",
+  "description": "External database for OnlyOffice. ( MySQL 5.7 ) The database needs initialization. Read the support thread on how to initialize it: https://forums.Unraid.net/topic/85643-support-amjidovu-onlyoffice-community-server/",
+  "paths": [
+    {
+      "name": "Onlyoffice MySQL Config (onlyoffice.cnf created before mysql container is started )",
+      "host": "/mnt/cache/appdata/onlyoffice/mysql/conf.d",
+      "container": "/etc/mysql/conf.d",
+      "mode": "rw",
+      "description": "Container Path: /etc/mysql/conf.d",
+      "required": false
+    },
+    {
+      "name": "Mounted Folder for MySQL Database",
+      "host": "/mnt/cache/appdata/onlyoffice/mysql/data",
+      "container": "/var/lib/mysql",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/mysql",
+      "required": false
+    },
+    {
+      "name": "Onlyoffice entrypoint for MySQL database setup ( setup.sql created before mysql container is started )",
+      "host": "/mnt/cache/appdata/onlyoffice/mysql/initdb",
+      "container": "/docker-entrypoint-initdb.d",
+      "mode": "rw",
+      "description": "Container Path: /docker-entrypoint-initdb.d",
+      "required": false
+    },
+    {
+      "name": "Mounted MySQL Logs",
+      "host": "/mnt/cache/appdata/onlyoffice/mysql/logs",
+      "container": "/var/log/mysql",
+      "mode": "rw",
+      "description": "Container Path: /var/log/mysql",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "MySQL Port",
+      "host": "3306",
+      "container": "3306",
+      "protocol": "tcp",
+      "description": "Container Port: 3306",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MySQL root password ( match the root password with the one in the setup.sql script )",
+      "key": "MYSQL_ROOT_PASSWORD",
+      "value": "my-secret-pw",
+      "description": "Container Variable: MYSQL_ROOT_PASSWORD",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default OnlyOffice Community Server MySQL Database",
+      "key": "MYSQL_DATABASE",
+      "value": "onlyoffice",
+      "description": "Container Variable: MYSQL_DATABASE",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

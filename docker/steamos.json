@@ -1,0 +1,177 @@
+{
+  "name": "steamos",
+  "repo": "lscr.io/linuxserver/steamos",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/steamos",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --shm-size=1gb --security-opt seccomp=unconfined",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/steamos-logo.png",
+  "project": "https://www.steamdeck.com/",
+  "description": "SteamOS(https://www.steamdeck.com/) is an Arch based Linux distribution made by Valve Software. This container is a vanilla Arch install with Steam repositories added for software support. **This container will only work with modern AMD/Intel GPUs on a real Linux Host**",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Users home directory in the container, stores all files and games.",
+      "required": true
+    },
+    {
+      "name": "Path: /dev/input",
+      "host": "",
+      "container": "/dev/input",
+      "mode": "rw",
+      "description": "Optional for gamepad support. *Only working for Steam Remote Play",
+      "required": false
+    },
+    {
+      "name": "Path: /run/udev/data",
+      "host": "",
+      "container": "/run/udev/data",
+      "mode": "rw",
+      "description": "Optional for gamepad support. *Only working for Steam Remote Play",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "SteamOS desktop gui.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: 3001",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "HTTPS SteamOS desktop gui.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: 27031-27036",
+      "host": "27031-27036",
+      "container": "27031-27036",
+      "protocol": "udp",
+      "description": "Steam Remote Play Ports (UDP).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: 27031-27036",
+      "host": "27031-27036",
+      "container": "27031-27036",
+      "protocol": "tcp",
+      "description": "Steam Remote Play Ports (TCP).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: 47984-47990",
+      "host": "47984-47990",
+      "container": "47984-47990",
+      "protocol": "tcp",
+      "description": "Sunshine Ports (TCP).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: 48010-48010",
+      "host": "48010-48010",
+      "container": "48010-48010",
+      "protocol": "tcp",
+      "description": "Sunshine Ports (TCP).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: 47998-48000",
+      "host": "47998-48000",
+      "container": "47998-48000",
+      "protocol": "udp",
+      "description": "Sunshine Ports (UDP).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DRINODE",
+      "key": "DRINODE",
+      "value": "/dev/dri/renderD128",
+      "description": "Specify the render device (GPU) for the contianer to use.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HOST_IP",
+      "key": "HOST_IP",
+      "value": "192.168.100.10",
+      "description": "Specify the IP of the host, needed for LAN Remote Play.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STARTUP",
+      "key": "STARTUP",
+      "value": "KDE",
+      "description": "KDE to boot into desktop mode, BIGPICTURE to boot into gamescope.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RESOLUTION",
+      "key": "RESOLUTION",
+      "value": "1920x1080",
+      "description": "When booting into BIGPICTURE mode the screen resolution will be bound to this value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Container Variable: UMASK",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "/dev/dri",
+      "host": "/dev/dri",
+      "container": "",
+      "description": "Video card passthrough to Steam.",
+      "required": true
+    }
+  ],
+  "labels": []
+}

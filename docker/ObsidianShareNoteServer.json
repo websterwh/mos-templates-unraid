@@ -1,0 +1,139 @@
+{
+  "name": "Obsidian-ShareNote-Server",
+  "repo": "ghcr.io/note-sx/server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/note-sx/server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/mackid1993/unraid-templates/refs/heads/main/obsidian-share-note/note-sx.png",
+  "project": "https://github.com/note-sx/server",
+  "description": "Instantly share a note, with the full theme and content exactly like you see it in Obsidian. Data is shared encrypted by default, and only you and the person you send it to have the key. More info: https://share.note.sx and https://github.com/alangrainger/share-note This is the selfhosted backend for the Obsidian Plugin. I did not create this, I am only creating a template for Unraid users. This is well paired with a Cloudflare tunnel. One could also set up Cloudflare Access: https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/security/secure-with-access/ to \"https://your-share-domain.com/v1/account\" to prevent someone unauthorized from creating an account.",
+  "paths": [
+    {
+      "name": "/notesx/db",
+      "host": "/mnt/cache/appdata/notesx/db",
+      "container": "/notesx/db",
+      "mode": "rw",
+      "description": "Database",
+      "required": true
+    },
+    {
+      "name": "/notesx/userfiles",
+      "host": "/mnt/cache/appdata/notesx/userfiles",
+      "container": "/notesx/userfiles",
+      "mode": "rw",
+      "description": "User Files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "BASE_WEB_URL",
+      "key": "BASE_WEB_URL",
+      "value": "",
+      "description": "The base public URL for your server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HASH_SALT",
+      "key": "HASH_SALT",
+      "value": "",
+      "description": "REQUIRED: Any random string.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MAXIMUM_UPLOAD_SIZE_MB",
+      "key": "MAXIMUM_UPLOAD_SIZE_MB",
+      "value": "",
+      "description": "The maximum allowed size for user uploads in megabytes (MB).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CLOUDFLARE_TURNSTILE_KEY",
+      "key": "CLOUDFLARE_TURNSTILE_KEY",
+      "value": "",
+      "description": "OPTIONAL. If you want to use Turnstile to show a captcha when someone creates an account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLOUDFLARE_TURNSTILE_SECRET",
+      "key": "CLOUDFLARE_TURNSTILE_SECRET",
+      "value": "",
+      "description": "OPTIONAL. If you want to use Turnstile to show a captcha when someone creates an account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLOUDFLARE_ZONE_ID",
+      "key": "CLOUDFLARE_ZONE_ID",
+      "value": "",
+      "description": "OPTIONAL. If you want to use Cloudflare proxy in front of your server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLOUDFLARE_API_KEY",
+      "key": "CLOUDFLARE_API_KEY",
+      "value": "",
+      "description": "OPTIONAL. If you want to use Cloudflare proxy in front of your server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FOLDER_PREFIX",
+      "key": "FOLDER_PREFIX",
+      "value": "",
+      "description": "OPTIONAL. Set this to 1 or 2 if you want user files to be split into subfolders based on the first N characters of the filename.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

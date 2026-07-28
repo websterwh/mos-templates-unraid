@@ -1,0 +1,230 @@
+{
+  "name": "tuliprox-vpn",
+  "repo": "ghcr.io/brycelarge/tuliprox-vpn:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/brycelarge/tuliprox-vpn/pkgs/container/tuliprox-vpn",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device=/dev/net/tun",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8901]/",
+  "icon": "https://raw.githubusercontent.com/brycelarge/unraid-templates/main/images/tuliprox-vpn.png",
+  "project": "https://github.com/brycelarge/tuliprox-vpn",
+  "description": "Tuliprox with built-in OpenVPN support. Proxies and filters IPTV M3U playlists and EPG data through a VPN tunnel. Supports NordVPN, PIA, Surfshark, IPVanish, VyprVPN, ProtonVPN, and custom OpenVPN configs.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/tuliprox-vpn/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Tuliprox config directory. Place config.yml and source.yml here.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/tuliprox-vpn/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Tuliprox runtime data and database",
+      "required": true
+    },
+    {
+      "name": "Backup",
+      "host": "/mnt/cache/appdata/tuliprox-vpn/backup",
+      "container": "/app/backup",
+      "mode": "rw",
+      "description": "Tuliprox backup directory",
+      "required": false
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/appdata/tuliprox-vpn/downloads",
+      "container": "/app/downloads",
+      "mode": "rw",
+      "description": "Video download directory",
+      "required": false
+    },
+    {
+      "name": "EPG Data",
+      "host": "/mnt/cache/appdata/tuliprox-vpn/epg",
+      "container": "/app/epg",
+      "mode": "rw",
+      "description": "EPG scraper data directory. Contains channels.xml (your channel list) and the generated guide.xml. Only needed if EPG_SCRAPER_ENABLED=true.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8901",
+      "container": "8901",
+      "protocol": "tcp",
+      "description": "Tuliprox web UI and API",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HDHomeRun Port 1",
+      "host": "5004",
+      "container": "5004",
+      "protocol": "tcp",
+      "description": "HDHomeRun device port. Must match the port value set in config.yml hdhomerun.devices. Add additional port mappings for each extra device.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Privoxy Port",
+      "host": "8118",
+      "container": "8118",
+      "protocol": "tcp",
+      "description": "Privoxy HTTP proxy port (only needed if PRIVOXY_ENABLED=true)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EPG Scraper Port",
+      "host": "3002",
+      "container": "3002",
+      "protocol": "tcp",
+      "description": "EPG scraper guide server port (only needed if EPG_SCRAPER_ENABLED=true)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "VPN Enabled",
+      "key": "VPN_ENABLED",
+      "value": "true",
+      "description": "Enable OpenVPN tunnel",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN Provider",
+      "key": "OPENVPN_PROVIDER",
+      "value": "NORDVPN",
+      "description": "VPN provider: NORDVPN, PIA, SURFSHARK, IPVANISH, VYPRVPN, PROTONVPN, CUSTOM",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN Username",
+      "key": "OPENVPN_USERNAME",
+      "value": "",
+      "description": "VPN service username (for NordVPN: use service credentials from my.nordaccount.com)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN Password",
+      "key": "OPENVPN_PASSWORD",
+      "value": "",
+      "description": "VPN service password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "VPN Config",
+      "key": "OPENVPN_CONFIG",
+      "value": "",
+      "description": "Specific .ovpn config name to use (e.g. us9196.nordvpn.com.udp). Leave blank to use first available.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN Protocol",
+      "key": "OPENVPN_PROTOCOL",
+      "value": "udp",
+      "description": "OpenVPN protocol: udp or tcp",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra OpenVPN Options",
+      "key": "OPENVPN_OPTIONS",
+      "value": "",
+      "description": "Additional OpenVPN CLI flags (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local Network",
+      "key": "LOCAL_NETWORK",
+      "value": "",
+      "description": "IMPORTANT: Set to your LAN subnet (e.g. 192.168.1.0/24) so the web UI stays accessible when VPN is connected. Comma-separated for multiple subnets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Servers",
+      "key": "NAME_SERVERS",
+      "value": "",
+      "description": "Comma-separated DNS servers to use inside the container (optional, e.g. 1.1.1.1,8.8.8.8)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Privoxy Enabled",
+      "key": "PRIVOXY_ENABLED",
+      "value": "false",
+      "description": "Enable Privoxy HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Privoxy Port (internal)",
+      "key": "PRIVOXY_PORT",
+      "value": "8118",
+      "description": "Privoxy internal port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (use Unraid's nobody: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (use Unraid's users: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation umask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone (e.g. America/New_York)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Enable debug logging",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

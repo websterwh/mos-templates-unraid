@@ -1,0 +1,299 @@
+{
+  "name": "Make-A-Wrapped",
+  "repo": "ghcr.io/devmatei/make-a-wrapped:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/devmatei/make-a-wrapped",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/make-a-wrapped-icon.png",
+  "project": "https://wrapped.devmatei.com/",
+  "description": "Spotify Wrapped style recap generator for ListenBrainz, Last.fm, and Navidrome.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/make_a_wrapped/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Path to application data",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Secret key. Generate a random string.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App Limit Salt",
+      "key": "APP_RATE_LIMIT_SALT",
+      "value": "",
+      "description": "Salt for app rate limiting. Generate a random string.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Last.fm - API Key",
+      "key": "LASTFM_API_KEY",
+      "value": "",
+      "description": "Last.fm API key. Required for higher quality artist artwork",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Count Since",
+      "key": "WRAPPED_COUNT_SINCE",
+      "value": "2024-12-01",
+      "description": "Start date for counting listens (YYYY-MM-DD)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy Headers",
+      "key": "APP_TRUST_PROXY_HEADERS",
+      "value": "0|1",
+      "description": "Whether to trust proxy headers (0 = False, 1 = True)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare Turnstile - Site Key",
+      "key": "TURNSTILE_SITE_KEY",
+      "value": "",
+      "description": "Cloudflare Turnstile site key for CAPTCHA protection",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloudflare Turnstile - Secret Key",
+      "key": "TURNSTILE_SECRET_KEY",
+      "value": "",
+      "description": "Cloudflare Turnstile secret key for CAPTCHA protection",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Internal Metrics File",
+      "key": "WRAPPED_COUNT_FILE",
+      "value": "data/wrapped-count.txt",
+      "description": "Path to internal metrics file. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz - API",
+      "key": "LISTENBRAINZ_API",
+      "value": "https://api.listenbrainz.org/1",
+      "description": "ListenBrainz API URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz - User Agent",
+      "key": "LISTENBRAINZ_USER_AGENT",
+      "value": "wrapped-listenbrainz/1.0",
+      "description": "User agent for ListenBrainz API requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz - Range",
+      "key": "LISTENBRAINZ_RANGE",
+      "value": "this_year",
+      "description": "ListenBrainz listening range",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MusicBrainz - API",
+      "key": "MUSICBRAINZ_API",
+      "value": "https://musicbrainz.org/ws/2",
+      "description": "MusicBrainz API URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MusicBrainz - User Agent",
+      "key": "MUSICBRAINZ_USER_AGENT",
+      "value": "wrapped-listenbrainz/1.0",
+      "description": "User agent for MusicBrainz API requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cover Art Archive - API",
+      "key": "COVER_ART_API",
+      "value": "https://coverartarchive.org/release",
+      "description": "Cover Art Archive API URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Last.fm - API",
+      "key": "LASTFM_API",
+      "value": "https://ws.audioscrobbler.com/2.0/",
+      "description": "Last.fm API URL",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Last.fm - User Agent",
+      "key": "LASTFM_USER_AGENT",
+      "value": "wrapped-listenbrainz/1.0",
+      "description": "User agent for Last.fm API requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Flask Environment",
+      "key": "FLASK_ENV",
+      "value": "production",
+      "description": "Flask environment. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Timeout",
+      "key": "HTTP_TIMEOUT",
+      "value": "10",
+      "description": "Timeout for HTTP requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Pool Size",
+      "key": "HTTP_POOL_MAXSIZE",
+      "value": "40",
+      "description": "Maximum number of connections in the HTTP connection pool",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz - Cache TTL",
+      "key": "LISTENBRAINZ_CACHE_TTL",
+      "value": "60",
+      "description": "Time-to-live for ListenBrainz API cache",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz - Cache Size",
+      "key": "LISTENBRAINZ_CACHE_SIZE",
+      "value": "256",
+      "description": "Maximum size of the ListenBrainz API cache",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Rate Limit",
+      "key": "APP_RATE_LIMIT",
+      "value": "90 per minute",
+      "description": "Rate limit for the application",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Stats Rate Limit",
+      "key": "APP_STATS_RATE_LIMIT",
+      "value": "45 per minute",
+      "description": "Rate limit for application statistics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Image Rate Limit",
+      "key": "APP_IMAGE_RATE_LIMIT",
+      "value": "15 per minute",
+      "description": "Rate limit for image requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Max Top Results",
+      "key": "APP_MAX_TOP_RESULTS",
+      "value": "15",
+      "description": "Maximum number of top results to return",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Image Concurrency",
+      "key": "APP_IMAGE_CONCURRENCY",
+      "value": "2",
+      "description": "Number of concurrent image requests",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Image Queue Limit",
+      "key": "APP_IMAGE_QUEUE_LIMIT",
+      "value": "10",
+      "description": "Maximum number of images in the queue",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App - Image Queue Timeout",
+      "key": "APP_IMAGE_QUEUE_TIMEOUT",
+      "value": "15",
+      "description": "Timeout for image queue",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Temp Artwork TTL",
+      "key": "TEMP_ARTWORK_TTL_SECONDS",
+      "value": "3600",
+      "description": "Time-to-live for temporary artwork files",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Temp Artwork Max Bytes",
+      "key": "TEMP_ARTWORK_MAX_BYTES",
+      "value": "6291456",
+      "description": "Maximum size of temporary artwork files, in bytes",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare Turnstile - Cache TTL",
+      "key": "TURNSTILE_CACHE_TTL",
+      "value": "120",
+      "description": "Time-to-live for Cloudflare Turnstile cache",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare Turnstile - Timeout",
+      "key": "TURNSTILE_TIMEOUT",
+      "value": "5",
+      "description": "Timeout for Cloudflare Turnstile requests",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

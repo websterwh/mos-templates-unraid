@@ -1,0 +1,107 @@
+{
+  "name": "tagr",
+  "repo": "ghcr.io/suitux/tagr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/suitux/tagr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/suitux/tagr/main/docs/tagr-logo.webp",
+  "project": "https://github.com/suitux/tagr",
+  "description": "Tagr is a self-hosted music metadata editor with a modern web UI. Browse, edit, and manage audio file tags from any browser \u2014 desktop or mobile. Just point it at your music folders and get a clean three-panel interface for organizing your library. Edit 40+ metadata fields, manage album art, fetch metadata from MusicBrainz, and more.",
+  "paths": [
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/tagr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Path to store the SQLite database and app data.",
+      "required": true
+    },
+    {
+      "name": "Music Folder 1",
+      "host": "",
+      "container": "/music/folder1",
+      "mode": "rw",
+      "description": "Path to a music folder on the host. Add more paths as needed.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "file:/data/tagr.db",
+      "description": "SQLite database path inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_SECRET",
+      "key": "AUTH_SECRET",
+      "value": "change-me",
+      "description": "Secret key for session encryption. Change this to a random string.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AUTH_USER",
+      "key": "AUTH_USER",
+      "value": "admin",
+      "description": "Login username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_PASSWORD",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Login password as a bcrypt hash. Generate with: docker exec tagr node -e &quot;require('bcrypt').hash('yourpassword',12).then(console.log)&quot;",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AUTH_URL",
+      "key": "AUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Public URL of the app (used by NextAuth).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

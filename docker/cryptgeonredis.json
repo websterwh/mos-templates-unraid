@@ -1,0 +1,74 @@
+{
+  "name": "cryptgeon_redis",
+  "repo": "cupcakearmy/cryptgeon",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/cupcakearmy/cryptgeon",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://github.com/cupcakearmy/cryptgeon/blob/main/design/favicon.png?raw=1",
+  "project": null,
+  "description": "cryptgeon is a secure, open source sharing note or file service inspired by PrivNote. each note has a generated id (256bit) and key 256(bit). The id is used to save & retrieve the note. the note is then encrypted with aes in gcm mode on the client side with the key and then sent to the server. data is stored in memory and never persisted to disk. the server never sees the encryption key and cannot decrypt the contents of the notes even if it tried to. This container was built using SmartPhoneLover's cryptgeon but runs using Redis instead of memcache. Also has extra variables that can be configured. This requires Redis to be already running. I obtained SSL certificate through NGINX proxy manager and let's encrypt.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "REDIS",
+      "key": "REDIS",
+      "value": "redis://&lt;serverip&gt;:6379",
+      "description": "This assumes you did not setup a username/password when setting up your Redis container. The default port is 6379 for Redis. If you do have a username/pwd follow syntax here https://docs.rs/redis/latest/redis/#connection-parameters",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SIZE_LIMIT",
+      "key": "SIZE_LIMIT",
+      "value": "1 KiB",
+      "description": "Max size for body (Default: 1KiB). Accepted values according to byte-unit. 512 MiB is the maximum allowed. The frontend will show that number including the ~35% encoding overhead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_VIEWS",
+      "key": "MAX_VIEWS",
+      "value": "1",
+      "description": "Maximal number of views.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_EXPIRATION",
+      "key": "MAX_EXPIRATION",
+      "value": "360",
+      "description": "Maximal expiration in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_ADVANCED",
+      "key": "ALLOW_ADVANCED",
+      "value": "true",
+      "description": "Allow custom configuration. If set to false all notes will be one view only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,260 @@
+{
+  "name": "llamaMan",
+  "repo": "nullata/llamaman",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/nullata/llamaman",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--publish 8000-8020:9000-9020",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/nullata/llamaMan/refs/heads/main/static/images/logo.svg",
+  "project": "https://github.com/nullata/llamaMan",
+  "description": "A browser-based UI for launching, monitoring, and managing multiple llama.cpp server instances. Spawns llama-server as sibling Docker containers using official llama.cpp images. Includes an Ollama-compatible API proxy for use with Open WebUI. Universal GPU support for NVIDIA, AMD (ROCm), Intel Arc, and CPU. Auto-detects GPU vendor at startup. Optional multi-node clustering with shared database. For full documentation, please visit: https://github.com/nullata/llamaman/",
+  "paths": [
+    {
+      "name": "Models",
+      "host": "/mnt/cache/appdata/llamaman/models",
+      "container": "/models",
+      "mode": "rw",
+      "description": "Directory containing GGUF model files",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/llamaman/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data directory (state, presets, users, settings)",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/llamaman/logs",
+      "container": "/tmp/llama-logs",
+      "mode": "rw",
+      "description": "Directory for instance and download logs",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket \u2014 required for llamaMan to spawn llama-server containers",
+      "required": true
+    },
+    {
+      "name": "GPU Sysfs (AMD/Intel)",
+      "host": "/sys/class/drm",
+      "container": "/sys/class/drm",
+      "mode": "ro",
+      "description": "GPU monitoring via sysfs (AMD + Intel Arc). Safe on NVIDIA hosts \u2014 ignored when pynvml is available.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Management UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for the llamaMan management web UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Proxy Port",
+      "host": "42069",
+      "container": "42069",
+      "protocol": "tcp",
+      "description": "Ollama-compatible API proxy port (for OpenWebUI integration)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Sofia",
+      "description": "Timezone. List of available TZs: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLAMAMAN_NODE_NAME",
+      "key": "LLAMAMAN_NODE_NAME",
+      "value": "srv1",
+      "description": "**Required.** Unique, stable identity for this deployment. It is the partition key for instances, downloads, and per-node settings. Pick once and keep it \u2014 changing it later orphans stored state.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HOST_MODELS_DIR",
+      "key": "HOST_MODELS_DIR",
+      "value": "/mnt/user/appdata/llamaman/models",
+      "description": "Real host path to the models directory. llamaMan passes this to the Docker daemon when spawning sibling containers, so it must resolve on the host. **Must match the host path of the Models mount above** \u2014 if you change one, change both.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HOST_LOGS_DIR",
+      "key": "HOST_LOGS_DIR",
+      "value": "/mnt/user/appdata/llamaman/logs",
+      "description": "Real host path to the logs directory. Same requirement as HOST_MODELS_DIR \u2014 must resolve on the Docker host. **Must match the host path of the Logs mount above.**",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLAMAMAN_MAX_MODELS",
+      "key": "LLAMAMAN_MAX_MODELS",
+      "value": "1",
+      "description": "Maximum number of chat models the proxy keeps loaded simultaneously. 0 = disabled (no eviction, launches on demand).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMAMAN_PROXY_PORT",
+      "key": "LLAMAMAN_PROXY_PORT",
+      "value": "42069",
+      "description": "Internal proxy port (must match the Proxy Port config above)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMAMAN_IDLE_TIMEOUT",
+      "key": "LLAMAMAN_IDLE_TIMEOUT",
+      "value": "0",
+      "description": "Minutes of inactivity before proxy-managed instances are stopped. 0 = disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_CHECK_TIMEOUT",
+      "key": "HEALTH_CHECK_TIMEOUT",
+      "value": "3",
+      "description": "Seconds to wait for a llama-server container health check before timing out",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MODEL_LOAD_TIMEOUT",
+      "key": "MODEL_LOAD_TIMEOUT",
+      "value": "300",
+      "description": "Seconds to wait for a model to fully load before timing out",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REQUEST_TIMEOUT",
+      "key": "REQUEST_TIMEOUT",
+      "value": "300",
+      "description": "Seconds before a proxied inference request times out",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMA_IMAGE",
+      "key": "LLAMA_IMAGE",
+      "value": "ghcr.io/ggml-org/llama.cpp:server-cuda",
+      "description": "llama.cpp server image for spawned containers. Auto-detected from GPU vendor if unset. NVIDIA: ghcr.io/ggml-org/llama.cpp:server-cuda AMD ROCm: ghcr.io/ggml-org/llama.cpp:server-rocm Intel Arc: ghcr.io/ggml-org/llama.cpp:server-sycl CPU: ghcr.io/ggml-org/llama.cpp:server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMA_NETWORK",
+      "key": "LLAMA_NETWORK",
+      "value": "llamaman-net",
+      "description": "Docker network used by llamaMan and spawned containers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMA_CONTAINER_PREFIX",
+      "key": "LLAMA_CONTAINER_PREFIX",
+      "value": "llamaman-",
+      "description": "Prefix for spawned llama-server container names",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GPU_TYPE",
+      "key": "GPU_TYPE",
+      "value": "",
+      "description": "Override GPU auto-detection. Values: cuda, rocm, intel. Leave blank to auto-detect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLAMA_GPU_DEVICES",
+      "key": "LLAMA_GPU_DEVICES",
+      "value": "",
+      "description": "Comma-separated GPU indices visible to all llama-server containers (e.g. 0,1,3). Leave blank to expose all GPUs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "NVIDIA hosts only \u2014 set to 'all' (or a specific GPU UUID) to give the llamaMan container native VRAM monitoring (pynvml). Also requires '--runtime=nvidia' in Extra Parameters and NVIDIA_DRIVER_CAPABILITIES below, plus the Unraid Nvidia-Driver plugin. Leave blank on AMD/Intel/CPU hosts \u2014 GPU stats then fall back to nvidia-smi/rocm-smi inside a running instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "",
+      "description": "NVIDIA hosts only \u2014 set to 'utility' for native VRAM monitoring. Pairs with NVIDIA_VISIBLE_DEVICES and '--runtime=nvidia' in Extra Parameters. Leave blank on AMD/Intel/CPU hosts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Optional MariaDB/MySQL connection string for database backend. Example: mysql+pymysql://llamaman:password@host:3306/llamaman. Leave blank for JSON file storage (default).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Flask session secret. Required for multi-replica deployments. Leave blank for auto-generated per restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLUSTER_ENABLED",
+      "key": "CLUSTER_ENABLED",
+      "value": "",
+      "description": "Enable multi-node clustering. Set to true when running multiple llamaMan deployments as one cluster. Requires shared DATABASE_URL and CLUSTER_SECRET.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLUSTER_SECRET",
+      "key": "CLUSTER_SECRET",
+      "value": "",
+      "description": "Shared bearer token for node-to-node HTTP calls. Must be identical on every cluster node.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CLUSTER_ADVERTISE_URL",
+      "key": "CLUSTER_ADVERTISE_URL",
+      "value": "",
+      "description": "How peers reach this node (e.g. http://srv1:5000). A hostname/IP routable from other cluster hosts.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

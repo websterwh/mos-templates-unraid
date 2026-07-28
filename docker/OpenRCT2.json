@@ -1,0 +1,107 @@
+{
+  "name": "OpenRCT2",
+  "repo": "ghcr.io/ich777/openrct2server",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/openrct2server/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:11753]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/openrct2.png",
+  "project": "https://openrct2.org/",
+  "description": "This Docker will download and install the preferred version of OpenRCT2 (don't forget to put in the server version to download). ATTENTION: First Startup can take very long since it downloads the gameserver files! Manual Installation: You can also install a version manually but please be sure to put in the right version number of the file: \u2018v0.2.3-develop-e4a2b1f9c\u2019 if the source file is named like this: \u2018OpenRCT2-0.2.3-develop-e4a2b1f9c-linux-x86_64.tar\u2019, drop the file into the openrct2 directory and eventually restart the container to install it. Update Notice: If you want to update or downgrade the game simply change the version number. ATTENTION: The variables Admin Name & Admin Hash will only work on the first time you enter these, after that you must change it manually in \u2018/SERVER_DIR/user-data/users.json\u2019. NOTICE: If you got no IPv6 you will get an Error and a Warning in the log about that, you can ignore that the server runs just fine on IPv4.",
+  "paths": [
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/openrct2",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Container Path: /serverdata/serverfiles",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "TCP - Game Port",
+      "host": "11753",
+      "container": "11753",
+      "protocol": "tcp",
+      "description": "TCP Game Port (if you need another port, please delete this entry and create a new TCP Port with the required port number, also don't forget to change it in the 'Show more settings ...' section below)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Game Version",
+      "key": "GAME_VERSION",
+      "value": "latest",
+      "description": "Preferred game version to install or set to 'latest' to check on every start if there is a newer version available (If you want to install a custom version the version number must look like this: 'v0.2.3-develop-e4a2b1f9c' if the source file is named like this: 'OpenRCT2-0.2.3-develop-e4a2b1f9c-linux-x86_64.tar')",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Extra Startup Parameters",
+      "key": "GAME_CONFIG",
+      "value": "--password Docker",
+      "description": "Enter you Extra Startup Parameters if needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Savegame Name",
+      "key": "GAME_SAVE_NAME",
+      "value": "docker.sv6",
+      "description": "Enter here the name of the savegame to load (located for example: /saves/docker.sav)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Name",
+      "key": "ADMIN_NAME",
+      "value": "",
+      "description": "Name of the user who should become the admin (Note: this must be the username that connects to the server from the client machine)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Hash",
+      "key": "ADMIN_HASH",
+      "value": "",
+      "description": "The hash of the admin user (you find it on the client computer in the 'user-data/keys' folder from OpenRCT2 - if nothing is in there try to connect to any server and the game will create the hash, it\u2019s the numbers and letters after the username without \u2018-\u2019 and without the ending \u2018.pubkey\u2019 or just turn on \u2018log_server_actions\u2019 in the \u2018config.ini\u2019 on the server and you\u2019ll find it in the logs)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GAME_PORT",
+      "key": "GAME_PORT",
+      "value": "11753",
+      "description": "Container Variable: GAME_PORT",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Container Variable: UID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Container Variable: GID",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

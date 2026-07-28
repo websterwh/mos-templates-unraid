@@ -1,0 +1,107 @@
+{
+  "name": "photomigrator",
+  "repo": "jaimetur/photomigrator:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/jaimetur/photomigrator/",
+  "network": "immich_internal",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6078]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/photomigrator-logo.png",
+  "project": "https://github.com/jaimetur/PhotoMigrator",
+  "description": "PhotoMigrator lets you interact with and migrate between photo services such as Google Photos, Synology Photos, Immich Photos, NextCloud Photos, and Google Takeout. Features include automatic migration between services/accounts, Google Takeout analysis with EXIF metadata embedding, album/asset management (upload, download, delete, rename), library organization (duplicates, folder structures), and multi-account support. Includes a web interface (FastAPI) and CLI. For setup instructions and documentation, see: https://github.com/jaimetur/PhotoMigrator",
+  "paths": [
+    {
+      "name": "Path: Config",
+      "host": "/mnt/cache/appdata/photomigrator/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent config directory (Config.ini, docker.conf).",
+      "required": true
+    },
+    {
+      "name": "Path: Takeout Data",
+      "host": "/mnt/cache/immich/Takeout",
+      "container": "/app/data/admin",
+      "mode": "rw",
+      "description": "Source directory for the admin user's file browser. For Google Takeout migration, point this to your extracted Takeout folder (e.g. /mnt/user/immich/Takeout). Files will be browsable via Home (data) in the web UI.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web UI",
+      "host": "6078",
+      "container": "6078",
+      "protocol": "tcp",
+      "description": "HTTP port for the PhotoMigrator web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone for the container. Important for correct timestamps in logs and file suffixes. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- User &amp; Permissions ---",
+      "key": "--- User &amp; Permissions ---",
+      "value": "",
+      "description": "Set PUID/PGID to match your Unraid user. Find yours with: id $user",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the container as (default: 99 for nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the container as (default: 100 for users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Web Interface (Advanced) ---",
+      "key": "--- Web Interface (Advanced) ---",
+      "value": "",
+      "description": "Advanced settings for the PhotoMigrator web interface.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PHOTOMIGRATOR_WEB_DELETE_ROOTS",
+      "key": "PHOTOMIGRATOR_WEB_DELETE_ROOTS",
+      "value": "",
+      "description": "Comma-separated list of allowed base folders for the 'Remove Selected' feature in the web UI. Leave empty to disable deletion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PHOTOMIGRATOR_WEB_MAX_JOB_OUTPUT_LINES",
+      "key": "PHOTOMIGRATOR_WEB_MAX_JOB_OUTPUT_LINES",
+      "value": "100000",
+      "description": "Maximum number of log output lines to buffer per job in the web UI.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,107 @@
+{
+  "name": "NASearch",
+  "repo": "ghcr.io/dewgenenny/nasearch:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/dewgenenny/nasearch",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/dewgenenny/nasearch/main/icon.png",
+  "project": "https://github.com/dewgenenny/nasearch",
+  "description": "NASearch \u2014 a lightweight, self-hosted file search UI for your Unraid array. Powered by plocate, it indexes your entire array in seconds and delivers instant search across millions of files \u2014 directly in your browser. FEATURES \u2022 Rich file previews \u2014 images, video (with seek), audio, PDF, rendered Markdown, interactive 3D STL models (WebGL, no plugins), and ZIP contents browser \u2014 all inline. \u2022 Folder browsing \u2014 click any result to explore its directory tree; download individual files or whole folders as ZIP archives. \u2022 Secure login \u2014 session-cookie authentication with CSRF protection and rate limiting. No credentials in URLs. \u2022 Themes & colour customisation \u2014 built-in dark, purple, slate, and light themes; set your own background, text, and accent colours; optional scanline overlay. \u2022 Auto-indexing \u2014 configurable scheduler (1 h to 7 days) or manual trigger via the UI; real-time progress indicator. No Elasticsearch. No Node. No build step. One container, one volume. IMPORTANT: You must set either AUTH_USER + AUTH_PASS (recommended) or NOAUTH=true before the app will start.",
+  "paths": [
+    {
+      "name": "Array Path",
+      "host": "/mnt/user",
+      "container": "/data",
+      "mode": "ro",
+      "description": "Root of your Unraid array, mounted read-only. NASearch will index and serve files from here.",
+      "required": true
+    },
+    {
+      "name": "Index &amp; Config Storage",
+      "host": "/mnt/cache/appdata/nasearch",
+      "container": "/index",
+      "mode": "rw",
+      "description": "Persistent storage for the plocate database and settings.json.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port to access the NASearch web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Auth Username",
+      "key": "AUTH_USER",
+      "value": "",
+      "description": "Login username. Set both AUTH_USER and AUTH_PASS to enable authentication (recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Password",
+      "key": "AUTH_PASS",
+      "value": "",
+      "description": "Login password. Set both AUTH_USER and AUTH_PASS to enable authentication (recommended).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Auth",
+      "key": "NOAUTH",
+      "value": "",
+      "description": "Set to 'true' to explicitly disable authentication. Only use on a fully trusted, firewalled network. Either AUTH_USER+AUTH_PASS or NOAUTH=true must be set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prune Paths",
+      "key": "PRUNE_PATHS",
+      "value": "/data/appdata /data/system /data/domains /data/isos",
+      "description": "Space-separated list of paths to skip during indexing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Results",
+      "key": "MAX_RESULTS",
+      "value": "500",
+      "description": "Maximum number of search results returned per query.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": [
+    {
+      "name": "Homepage: Name",
+      "value": "NASearch",
+      "description": "Display name shown on your Homepage dashboard. Leave blank if you are not using Homepage (https://gethomepage.dev)."
+    },
+    {
+      "name": "Homepage: Group",
+      "value": "",
+      "description": "Dashboard group/category to place NASearch in (e.g. Tools, Media, System). Leave blank if not using Homepage."
+    },
+    {
+      "name": "Homepage: URL",
+      "value": "",
+      "description": "Full URL Homepage should link to (e.g. http://192.168.1.10:8000 or your reverse-proxy address). Leave blank if not using Homepage."
+    }
+  ]
+}

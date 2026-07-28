@@ -1,0 +1,171 @@
+{
+  "name": "LocalDeepResearch",
+  "repo": "localdeepresearch/local-deep-research:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/localdeepresearch/local-deep-research",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/LearningCircuit/local-deep-research/main/src/local_deep_research/web/static/favicon.png",
+  "project": "https://github.com/LearningCircuit/local-deep-research",
+  "description": "Local Deep Research (LDR) is an AI-powered research assistant that performs systematic research by breaking down complex questions, searching multiple sources in parallel, verifying information across sources, and creating comprehensive reports with proper citations. It runs entirely locally with Ollama + SearXNG for privacy, or can use cloud LLM providers. Features: - Privacy-focused: Run entirely locally with Ollama - Multiple research modes (Quick Summary, Detailed Research) - Per-user encrypted databases (SQLCipher with AES-256) - Real-time progress tracking via WebSocket - Export to PDF or Markdown - REST API with authentication - Analytics dashboard This template includes the main LDR service. For full functionality, you may also want to install the companion containers (Ollama and SearXNG) or configure external LLM/search providers. Community & Support: - Discord: https://discord.gg/ttcqQeFcJ3 - Reddit: https://www.reddit.com/r/LocalDeepResearch/ - GitHub Issues: https://github.com/LearningCircuit/local-deep-research/issues",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/local-deep-research/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Primary data directory containing user databases, research outputs, cache, and logs. All user data is stored here.",
+      "required": true
+    },
+    {
+      "name": "Scripts Directory",
+      "host": "/mnt/cache/appdata/local-deep-research/scripts",
+      "container": "/scripts",
+      "mode": "rw",
+      "description": "Directory for startup scripts. Required for multi-container setups with Ollama.",
+      "required": true
+    },
+    {
+      "name": "Personal Notes (Optional)",
+      "host": "",
+      "container": "/local_collections/personal_notes",
+      "mode": "ro",
+      "description": "Optional: Mount a directory containing personal notes/documents to search. Leave empty if not needed.",
+      "required": false
+    },
+    {
+      "name": "Project Docs (Optional)",
+      "host": "",
+      "container": "/local_collections/project_docs",
+      "mode": "ro",
+      "description": "Optional: Mount a directory containing project documentation to search. Leave empty if not needed.",
+      "required": false
+    },
+    {
+      "name": "Research Papers (Optional)",
+      "host": "",
+      "container": "/local_collections/research_papers",
+      "mode": "ro",
+      "description": "Optional: Mount a directory containing research papers to search. Leave empty if not needed.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for accessing the Local Deep Research web interface. Change the host port (left side) if 5000 is already in use. Do NOT change the container port (right side).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Web Host",
+      "key": "LDR_WEB_HOST",
+      "value": "0.0.0.0",
+      "description": "Web server host binding. MUST be 0.0.0.0 for Docker. Do NOT change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web Port (Internal)",
+      "key": "LDR_WEB_PORT",
+      "value": "5000",
+      "description": "Internal container port. MUST be 5000. Do NOT change this. To change the external port, modify the Port mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Directory (Internal)",
+      "key": "LDR_DATA_DIR",
+      "value": "/data",
+      "description": "Internal data directory path. MUST be /data. Do NOT change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ollama URL",
+      "key": "LDR_LLM_OLLAMA_URL",
+      "value": "http://ollama:11434",
+      "description": "Ollama API URL. Use 'http://ollama:11434' if running Ollama container on ldr-network, or 'http:// :11434' for external Ollama instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SearXNG URL",
+      "key": "LDR_SEARCH_ENGINE_WEB_SEARXNG_DEFAULT_PARAMS_INSTANCE_URL",
+      "value": "http://searxng:8080",
+      "description": "SearXNG instance URL. Use 'http://searxng:8080' if running SearXNG container on ldr-network, or configure external search engine in WebUI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Provider",
+      "key": "LDR_LLM_PROVIDER",
+      "value": "",
+      "description": "Optional: Force LLM provider (ollama, openai, anthropic, google). Leave empty to configure via WebUI Settings page. Only set this to LOCK the provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Model",
+      "key": "LDR_LLM_MODEL",
+      "value": "",
+      "description": "Optional: Force specific model name. Leave empty to configure via WebUI Settings page. Only set this to LOCK the model.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "LDR_LLM_OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional: OpenAI API key. Can also be configured via WebUI Settings page. Only set here to LOCK it (prevents UI changes).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "LDR_LLM_ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional: Anthropic API key. Can also be configured via WebUI Settings page. Only set here to LOCK it (prevents UI changes).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google API Key",
+      "key": "LDR_LLM_GOOGLE_API_KEY",
+      "value": "",
+      "description": "Optional: Google API key. Can also be configured via WebUI Settings page. Only set here to LOCK it (prevents UI changes).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions. Default 99 (nobody) is recommended for Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions. Default 100 (users) is recommended for Unraid.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

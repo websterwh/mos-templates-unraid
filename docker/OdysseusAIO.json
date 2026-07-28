@@ -1,0 +1,283 @@
+{
+  "name": "Odysseus-AIO",
+  "repo": "realitymolder/odysseus-aio:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://registry.hub.docker.com",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]",
+  "icon": "https://raw.githubusercontent.com/realitymolder/odysseus-ca-templates/main/templates/img/odysseus.svg",
+  "project": "https://github.com/realitymolder/odysseus-aio",
+  "description": "Self-hosted AI workspace \u2014 master container that auto-deploys the full stack (Odysseus, ChromaDB, SearXNG, ntfy). One install, full environment.",
+  "paths": [
+    {
+      "name": "AIO Data",
+      "host": "/mnt/cache/appdata/odysseus-aio/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "AIO master container persistent state",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required for managing sibling containers. Must map to host /var/run/docker.sock",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Management Port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "AIO management web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App Data",
+      "key": "ODYSSEUS_APP_DATA",
+      "value": "/mnt/user/appdata/odysseus-aio/data",
+      "description": "Host path for app data (DB, uploads, user data). Leave blank for Docker volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App SSH Keys",
+      "key": "ODYSSEUS_APP_SSH",
+      "value": "/mnt/user/appdata/odysseus-aio/ssh",
+      "description": "Host path for SSH keys (Cookbook remote servers). Leave blank for Docker volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ChromaDB Data",
+      "key": "ODYSSEUS_CHROMADB_DATA",
+      "value": "/mnt/user/appdata/odysseus-aio/chromadb",
+      "description": "Host path for ChromaDB vector index data. Leave blank for Docker volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Image",
+      "key": "ODYSSEUS_APP_IMAGE",
+      "value": "realitymolder/odysseus:stable",
+      "description": "Docker image for the Odysseus app container. Use 'stable' for production or 'dev' for latest development builds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Port",
+      "key": "ODYSSEUS_APP_PORT",
+      "value": "7000",
+      "description": "Host port for the Odysseus web UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ChromaDB Port",
+      "key": "ODYSSEUS_CHROMADB_PORT",
+      "value": "8100",
+      "description": "Host port for ChromaDB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SearXNG Port",
+      "key": "ODYSSEUS_SEARXNG_PORT",
+      "value": "8080",
+      "description": "Host port for SearXNG",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ntfy Port",
+      "key": "ODYSSEUS_NTFY_PORT",
+      "value": "8091",
+      "description": "Host port for ntfy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Container Port",
+      "key": "ODYSSEUS_APP_CONTAINER_PORT",
+      "value": "7000",
+      "description": "Internal port Odysseus listens on (change only if using a custom image)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ChromaDB Container Port",
+      "key": "ODYSSEUS_CHROMADB_CONTAINER_PORT",
+      "value": "8000",
+      "description": "Internal port ChromaDB listens on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SearXNG Container Port",
+      "key": "ODYSSEUS_SEARXNG_CONTAINER_PORT",
+      "value": "8080",
+      "description": "Internal port SearXNG listens on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ntfy Container Port",
+      "key": "ODYSSEUS_NTFY_CONTAINER_PORT",
+      "value": "80",
+      "description": "Internal port ntfy listens on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "ODYSSEUS_PUID",
+      "value": "99",
+      "description": "User ID for file permissions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "ODYSSEUS_PGID",
+      "value": "100",
+      "description": "Group ID for file permissions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Enabled",
+      "key": "ODYSSEUS_AUTH_ENABLED",
+      "value": "true",
+      "description": "Enable authentication",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin User",
+      "key": "ODYSSEUS_ADMIN_USER",
+      "value": "admin",
+      "description": "First admin account username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ODYSSEUS_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Pre-seed admin password (leave blank for auto-generated)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DNS Servers",
+      "key": "ODYSSEUS_DNS_SERVERS",
+      "value": "8.8.8.8,1.1.1.1",
+      "description": "DNS servers for managed containers (comma-separated)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA GPU",
+      "key": "ODYSSEUS_NVIDIA_ENABLED",
+      "value": "false",
+      "description": "Enable NVIDIA GPU passthrough for the Odysseus app container (requires NVIDIA Container Toolkit)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Host",
+      "key": "ODYSSEUS_LLM_HOST",
+      "value": "",
+      "description": "Primary LLM server hostname or IP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "ODYSSEUS_OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama URL",
+      "key": "ODYSSEUS_OLLAMA_BASE_URL",
+      "value": "",
+      "description": "Ollama server URL (e.g. http://host.docker.internal:11434)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HF Token",
+      "key": "ODYSSEUS_HF_TOKEN",
+      "value": "",
+      "description": "HuggingFace token for gated models",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SearXNG Secret",
+      "key": "ODYSSEUS_SEARXNG_SECRET",
+      "value": "",
+      "description": "SearXNG secret key (auto-generated if empty)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ntfy Base URL",
+      "key": "ODYSSEUS_NTFY_BASE_URL",
+      "value": "",
+      "description": "Public ntfy URL for push notifications",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brave API Key",
+      "key": "ODYSSEUS_DATA_BRAVE_API_KEY",
+      "value": "",
+      "description": "Brave Search API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google API Key",
+      "key": "ODYSSEUS_GOOGLE_API_KEY",
+      "value": "",
+      "description": "Google Custom Search API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Tavily API Key",
+      "key": "ODYSSEUS_TAVILY_API_KEY",
+      "value": "",
+      "description": "Tavily Search API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Serper API Key",
+      "key": "ODYSSEUS_SERPER_API_KEY",
+      "value": "",
+      "description": "Serper API key",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

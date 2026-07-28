@@ -1,0 +1,115 @@
+{
+  "name": "Cruncharr",
+  "repo": "ghcr.io/mediavybz/cruncharr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/mediavybz/cruncharr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8585]/",
+  "icon": "https://raw.githubusercontent.com/mediavybz/Cruncharr/master/icon.png",
+  "project": "https://github.com/mediavybz/Cruncharr",
+  "description": "Cruncharr is a self-hosted companion for keeping your personal anime media library organized. It gives you a clean, *arr-style web interface with catalog and library tracking, a release calendar, activity history, and Sonarr integration so everything lines up with the collection you already manage. Multi-architecture image (amd64 and arm64). Set PUID/PGID to match the owner of your appdata and media shares so the container can write to them.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/Cruncharr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores settings, catalog, activity history and logs.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/Media/Anime",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Where your library files are written and organized.",
+      "required": true
+    },
+    {
+      "name": "Device Files",
+      "host": "/mnt/cache/appdata/Cruncharr/widevine",
+      "container": "/widevine",
+      "mode": "rw",
+      "description": "Optional path for source device files, if your source requires them.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8585",
+      "container": "8585",
+      "protocol": "tcp",
+      "description": "HTTP port for the Cruncharr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the container runs as. Match the owner of your config and media shares.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the container runs as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Permission mask for new files. 002 creates group-writable files/directories so Sonarr can rename and import them when it shares PGID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API Key (optional)",
+      "key": "CRUNCHARR_API_KEY",
+      "value": "",
+      "description": "Optional: require this key to access the interface. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Account Email (optional)",
+      "key": "CRUNCHYROLL_EMAIL",
+      "value": "",
+      "description": "Optional: pre-fill your source account email. Can also be set in the web interface.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Account Password (optional)",
+      "key": "CRUNCHYROLL_PASSWORD",
+      "value": "",
+      "description": "Optional: pre-fill your source account password. Can also be set in the web interface.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Webhook URL (optional)",
+      "key": "CRUNCHYROLL_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional: webhook for activity notifications.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

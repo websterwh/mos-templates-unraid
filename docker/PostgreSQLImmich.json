@@ -1,0 +1,67 @@
+{
+  "name": "PostgreSQL_Immich",
+  "repo": "tensorchord/pgvecto-rs:pg16-v0.3.0",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://registry.hub.docker.com/_/postgres/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5433]",
+  "icon": "https://github.com/SpaceinvaderOne/Docker-Templates-Unraid/blob/master/spaceinvaderone/docker_icons/postgresql-immich-logo.png?raw=true",
+  "project": "https://www.postgresql.org/",
+  "description": "This container (based on PostgreSQL 16) is specifically configured for seamless integration with the Immich container, which requires PostgreSQL equipped with pgvecto a robust Postgres extension enabling vector similarity search functions. The specific version used is tensorchord/pgvecto-rs:pg16-v0.3.0 Configuration Parameters POSTGRES_PASSWORD - Superuser password. Default postgres Note -- If you change this value, remember to update it in the Immich container configuration as well. POSTGRES_USER - Username for the superuser. Default postgres Note -- Alterations to this setting should also be mirrored in the Immich container. POSTGRES_DB - Default database. Default: postgres Note -- Any change here should be replicated in the Immich container configuration. Storage Data and Configuration Path: /mnt/user/appdata/postgresql_immich This is the directory where Postgres stores its application data and configuration files. Network Port 5433 This port is mapped from the default PostgreSQL port 5432 to avoid conflicts if another PostgreSQL container is using the default port.",
+  "paths": [
+    {
+      "name": "Database Storage Path (Appdata)",
+      "host": "/mnt/cache/appdata/PostgreSQL_Immich",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "PostgreSQL data storage location",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PostgreSQL access port",
+      "host": "5433",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL TCP connection port mapped to 5433 from 5432 in case of other postgres container present",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "postgres",
+      "description": "Initial superuser password (required)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Initial superuser name (default: postgres)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "immich",
+      "description": "Initial database name (default: postgres)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

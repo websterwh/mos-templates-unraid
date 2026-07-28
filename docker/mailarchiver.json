@@ -1,0 +1,315 @@
+{
+  "name": "mail-archiver",
+  "repo": "s1t5/mailarchiver",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/s1t5/mailarchiver",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/rschuiling/unraid-templates/refs/heads/main/icons/envelope-check.png",
+  "project": "https://github.com/s1t5/mail-archiver",
+  "description": "Mail Archiver is a web-based solution for archiving, searching, and exporting emails. All emails and attachments are stored in a Postgresql database. Also supports OpenID Connect (OIDC) for Single Sign On. The documentation contains examples for Authelia and Microsoft Entra ID.",
+  "paths": [
+    {
+      "name": "Folder for Data Protection Keys",
+      "host": "/mnt/cache/appdata/mailarchiver/data-protection-keys",
+      "container": "/app/DataProtection-Keys",
+      "mode": "rw",
+      "description": "Folder for storing data protection keys",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Connection String",
+      "key": "ConnectionStrings__DefaultConnection",
+      "value": "Host=postgres;Port=5432;Database=MailArchiver;Username=mailuser;Password=masterkey;",
+      "description": "PostgreSQL connection string. Format: Host=postgres-ip-address;Port=5432;Database=dbname;Username=user;Password=pass; Replace 'postgres' with your PostgreSQL IP address (on bridge network) or container name (on custom network) and update credentials as needed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "Authentication__Username",
+      "value": "admin",
+      "description": "The username for the admin account.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "Authentication__Password",
+      "value": "secure123!",
+      "description": "The password for the admin account.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Display Time Zone",
+      "key": "TimeZone__DisplayTimeZoneId",
+      "value": "Etc/UTC",
+      "description": "The time zone used for displaying email timestamps in the UI. Use any TZ identifier from: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAuth Enabled",
+      "key": "OAuth__Enabled",
+      "value": "false",
+      "description": "Set to true to enable OIDC authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Authority",
+      "key": "OAuth__Authority",
+      "value": "https://auth.example.com/",
+      "description": "The OIDC authority/issuer URL of your identity provider (e.g. for Authelia: https://auth.example.com/). Note the trailing slash at the end.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Id",
+      "key": "OAuth__ClientId",
+      "value": "mail-archiver",
+      "description": "OIDC client ID configured in your identity provider (e.g. Authelia) for Mail Archiver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Secret",
+      "key": "OAuth__ClientSecret",
+      "value": "",
+      "description": "Client secret for the OIDC client.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OAuth Disable Password Login",
+      "key": "OAuth__DisablePasswordLogin",
+      "value": "false",
+      "description": "Set to true to disable traditional username/password login and enforce OAuth-only authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Auto Approve Users",
+      "key": "OAuth__AutoApproveUsers",
+      "value": "false",
+      "description": "If set to true, new OIDC users are automatically approved. Enable if you manage your users exclusively in your OIDC provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Scopes 0",
+      "key": "OAuth__ClientScopes__0",
+      "value": "openid",
+      "description": "Scope #1 as requested from the identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Scopes 1",
+      "key": "OAuth__ClientScopes__1",
+      "value": "profile",
+      "description": "Scope #2 as requested from the identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Scopes 2",
+      "key": "OAuth__ClientScopes__2",
+      "value": "email",
+      "description": "Scope #3 as requested from the identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Timeout (Minutes)",
+      "key": "Authentication__SessionTimeoutMinutes",
+      "value": "60",
+      "description": "The session timeout in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Name",
+      "key": "Authentication__CookieName",
+      "value": "MailArchiverAuth",
+      "description": "The name of the authentication cookie.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mail Sync Interval (Minutes)",
+      "key": "MailSync__IntervalMinutes",
+      "value": "15",
+      "description": "The interval in minutes between email synchronization.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mail Sync Timeout (Minutes)",
+      "key": "MailSync__TimeoutMinutes",
+      "value": "60",
+      "description": "The timeout for the sync operation in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connection Timeout (Seconds)",
+      "key": "MailSync__ConnectionTimeoutSeconds",
+      "value": "180",
+      "description": "The connection timeout for IMAP connections in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Command Timeout (Seconds)",
+      "key": "MailSync__CommandTimeoutSeconds",
+      "value": "300",
+      "description": "The command timeout for IMAP commands in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Always Force Full Sync",
+      "key": "MailSync__AlwaysForceFullSync",
+      "value": "false",
+      "description": "Whether to always force a full sync (true/false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore Self-Signed Certificates",
+      "key": "MailSync__IgnoreSelfSignedCert",
+      "value": "false",
+      "description": "Whether to ignore self-signed certificates (true/false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Restore Async Threshold",
+      "key": "BatchRestore__AsyncThreshold",
+      "value": "50",
+      "description": "The number of emails that triggers async processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Sync Emails",
+      "key": "BatchRestore__MaxSyncEmails",
+      "value": "150",
+      "description": "The maximum number of emails for sync processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Async Emails",
+      "key": "BatchRestore__MaxAsyncEmails",
+      "value": "50000",
+      "description": "The maximum number of emails for async processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Restore Session Timeout (Minutes)",
+      "key": "BatchRestore__SessionTimeoutMinutes",
+      "value": "30",
+      "description": "The session timeout for batch restore in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Batch Size",
+      "key": "BatchRestore__DefaultBatchSize",
+      "value": "50",
+      "description": "The default batch size for email operations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Operation Size",
+      "key": "BatchOperation__BatchSize",
+      "value": "50",
+      "description": "The batch size for email operations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pause Between Emails (ms)",
+      "key": "BatchOperation__PauseBetweenEmailsMs",
+      "value": "50",
+      "description": "The pause between individual emails in milliseconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pause Between Batches (ms)",
+      "key": "BatchOperation__PauseBetweenBatchesMs",
+      "value": "250",
+      "description": "The pause between batches in milliseconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Selectable Emails",
+      "key": "Selection__MaxSelectableEmails",
+      "value": "250",
+      "description": "The maximum number of emails that can be selected at once.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Command Timeout",
+      "key": "Npgsql__CommandTimeout",
+      "value": "900",
+      "description": "The timeout for database commands in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Upload File Size (GB)",
+      "key": "Upload__MaxFileSizeGB",
+      "value": "10",
+      "description": "The maximum file size for uploads in GB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upload Keep Alive Timeout (Hours)",
+      "key": "Upload__KeepAliveTimeoutHours",
+      "value": "4",
+      "description": "The keep alive timeout for uploads in hours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upload Request Headers Timeout (Hours)",
+      "key": "Upload__RequestHeadersTimeoutHours",
+      "value": "2",
+      "description": "The timeout for request headers in hours.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,139 @@
+{
+  "name": "VaultRequestrr",
+  "repo": "ghcr.io/vancityactivist/vaultrequestrr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/vancityactivist/vaultrequestrr/pkgs/container/vaultrequestrr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5056]/",
+  "icon": "https://raw.githubusercontent.com/vancityactivist/vaultrequestrr/main/unraid/icon.png",
+  "project": "https://github.com/vancityactivist/vaultrequestrr",
+  "description": "A Discord bot that requests movies and TV shows through Seerr (the Overseerr/Jellyseerr successor). The first time a user requests something, the bot asks for their Plex username/email and links their Discord account to their Seerr user, so every request is attributed to them and their per-user quotas/limits are respected. The link is stored locally (SQLite) and written back into Seerr notification settings. Features: /movie and /tv search with availability indicators and season selection; /quota shows remaining limits and reset time; DM notifications when a request becomes available or is declined; and an optional password-protected admin dashboard (set a Dashboard Password to enable it on port 5056) for managing links, viewing activity, and toggling settings.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/vaultrequestrr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stores the SQLite database of Discord\u2194Seerr account links. Keep this on persistent storage.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Dashboard Port",
+      "host": "5056",
+      "container": "5056",
+      "protocol": "tcp",
+      "description": "Host port for the admin dashboard. Only used when a Dashboard Password is set.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Discord Bot Token",
+      "key": "DISCORD_TOKEN",
+      "value": "",
+      "description": "Bot token from https://discord.com/developers/applications (Bot tab).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Seerr URL",
+      "key": "SEERR_URL",
+      "value": "http://192.168.1.10:5055",
+      "description": "Base URL of your Seerr instance, including port. Use your LAN address, e.g. http://10.10.0.10:5055",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seerr API Key",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Seerr API key (Settings \u2192 General \u2192 API Key). Must belong to an admin user.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Discord Guild ID",
+      "key": "DISCORD_GUILD_ID",
+      "value": "",
+      "description": "Optional: your Discord server ID. Set it so slash commands register instantly (otherwise global registration can take up to ~1 hour). Enable Developer Mode in Discord, right-click the server icon \u2192 Copy Server ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Linking",
+      "key": "REQUIRE_LINKING",
+      "value": "true",
+      "description": "Require users to link a Plex account before their first request (recommended: true).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Seerr User ID",
+      "key": "DEFAULT_SEERR_USER_ID",
+      "value": "",
+      "description": "Optional fallback Seerr user id used only when Require Linking is false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING, or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dashboard Password",
+      "key": "WEB_PASSWORD",
+      "value": "",
+      "description": "Set a password to enable the admin web dashboard (view/manage links, activity, settings). Leave blank to disable the dashboard.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify When Available",
+      "key": "NOTIFY_ON_AVAILABLE",
+      "value": "true",
+      "description": "DM the requester when their movie/season becomes available.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify When Declined",
+      "key": "NOTIFY_ON_DECLINED",
+      "value": "true",
+      "description": "DM the requester when an admin declines their request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify When Issue Resolved",
+      "key": "NOTIFY_ON_ISSUE_RESOLVED",
+      "value": "true",
+      "description": "DM the reporter when their reported issue is marked resolved.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poll Interval (seconds)",
+      "key": "POLL_INTERVAL_SECONDS",
+      "value": "120",
+      "description": "How often to poll Seerr for request status changes (0 disables notifications).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

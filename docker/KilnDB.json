@@ -1,0 +1,76 @@
+{
+  "name": "KilnDB",
+  "repo": "ghcr.io/maybegrim/kilndb:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/maybegrim/KilnDB/pkgs/container/kilndb",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4317]",
+  "icon": "https://raw.githubusercontent.com/maybegrim/unraid-templates/main/KilnDB/icon.png",
+  "project": "https://github.com/maybegrim/KilnDB",
+  "description": "KilnDB is a self-hosted database control plane for MySQL and MariaDB. It provisions isolated databases and credentials, mirrors external data, takes scheduled snapshots, and provides a web console, generated REST Data API, application authentication, realtime channels, TypeScript functions, and local object storage. KilnDB supervises its own MariaDB instance. The complete installation\u2014including MariaDB data, metadata, encryption keys, snapshots, stored objects, functions, and logs\u2014is persisted in one /data directory. Back up the entire directory; the master.key file is required to decrypt stored credentials and secrets. Open the Web UI after the container becomes healthy and complete the first-run setup. No default username or password is created. MariaDB listens only inside the container by default. To connect from another device, set KILNDB_MARIADB_BIND to 0.0.0.0 and expose the MariaDB port only on a trusted network.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/kilndb",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for MariaDB, metadata, master.key, snapshots, storage objects, functions, and logs. Back up this entire directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "4317",
+      "container": "4317",
+      "protocol": "tcp",
+      "description": "Port for the KilnDB web console and API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Port",
+      "host": "3307",
+      "container": "3307",
+      "protocol": "tcp",
+      "description": "Optional host port for direct MariaDB client connections. Access remains disabled until MariaDB Bind Address is changed to 0.0.0.0.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secure Cookies",
+      "key": "KILNDB_COOKIE_SECURE",
+      "value": "0",
+      "description": "Set to 1 when the KilnDB console is served through an HTTPS reverse proxy. Keep 0 for direct HTTP access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Additional Web Origins",
+      "key": "KILNDB_EXTRA_ORIGINS",
+      "value": "",
+      "description": "Optional comma-separated additional CORS origins, including scheme and port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Bind Address",
+      "key": "KILNDB_MARIADB_BIND",
+      "value": "127.0.0.1",
+      "description": "Keep 127.0.0.1 to prevent external database connections. Set to 0.0.0.0 only when direct MariaDB access is required and the port is restricted to a trusted network.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

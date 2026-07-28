@@ -1,0 +1,67 @@
+{
+  "name": "dawarich_db",
+  "repo": "postgis/postgis:17-3.5-alpine",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/postgis/postgis/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --shm-size=1g --health-cmd=pg_isready -U postgres -d dawarich_development || exit 1 --health-interval=10s --health-retries=5 --health-start-period=30s --health-timeout=10s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/Pa7rickStar/unraid_templates/refs/heads/main/images/postgis-icon.png",
+  "project": "https://dawarich.app",
+  "description": "This app sets up a PostGIS database container for Dawarich. Dawarich is a self-hosted web app designed to replace Google Timeline (aka Google Location History). Visualize your data on an interactive map, import your location history from Google Maps Timeline and Owntracks, and explore statistics like the number of countries and cities visited, total distance traveled, and more! PostGIS is a spatial database extender for PostgreSQL object-relational database. The postgis/postgis image provides tags for running Postgres with PostGIS extensions installed. NOTE: Do not use autoupdate and do not update any Dawarich container backing up your data first and checking for breaking changes in the updating guides. https://dawarich.app/docs/updating-guides https://dawarich.app/docs/tutorials/backup-and-restore",
+  "paths": [
+    {
+      "name": "Data directory",
+      "host": "/mnt/cache/appdata/dawarich/db_data",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Database port",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "Port of the PostGIS server. Required when the database container is not in the same network or specified by IP rather than container name",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database name",
+      "key": "POSTGRES_DB",
+      "value": "dawarich_development",
+      "description": "Name of the database",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database username",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Username for the database",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "postgres",
+      "description": "Password for postgres role",
+      "required": true,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

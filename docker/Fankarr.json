@@ -1,0 +1,99 @@
+{
+  "name": "Fankarr",
+  "repo": "masutayunikon/fankarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/masutayunikon/fankarr",
+  "network": "seedbox",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9898]/",
+  "icon": "https://raw.githubusercontent.com/Masutayunikon/FanKarr/main/public/fankai.png",
+  "project": "https://github.com/Masutayunikon/FanKarr",
+  "description": "Gestionnaire de telechargements pour le catalogue Fankai (editions Kai & Yabai), inspire de Radarr/Sonarr. Telechargement en un clic vers qBittorrent, organisation automatique des fichiers (hardlink ou deplacement) vers une mediatheque compatible Jellyfin, suivi par episode, logs centralises et authentification JWT.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/fankarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Config, logs et base de donnees",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Racine de votre mediatheque. completePath et mediaPath (regles dans Parametres) doivent etre sous ce mount et sur le meme fs pour les hardlinks",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9898",
+      "container": "9898",
+      "protocol": "tcp",
+      "description": "Port de l'interface web Fankarr",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Fuseau horaire",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "9898",
+      "description": "Port d'ecoute interne du serveur (laisser 9898 sauf besoin specifique)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret JWT. Laisser vide pour generation automatique dans /config/secret.key",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GITHUB_BASE",
+      "key": "GITHUB_BASE",
+      "value": "",
+      "description": "URL de base du repo scraper (optionnel). Laisser vide pour le defaut: https://raw.githubusercontent.com/masutayunikon/fankarr-scraper/main",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID utilisateur pour les permissions fichiers (Unraid: 99)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID utilisateur pour les permissions fichiers (Unraid: 100)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

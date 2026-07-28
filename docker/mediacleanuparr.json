@@ -1,0 +1,67 @@
+{
+  "name": "mediacleanuparr",
+  "repo": "tophat17/mediacleanuparr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/tophat17/mediacleanuparr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]/",
+  "icon": "https://raw.githubusercontent.com/tophat17/Mediacleanuparr/main/app/static/icon.png",
+  "project": "https://github.com/tophat17/Mediacleanuparr",
+  "description": "Prune your Radarr and Sonarr libraries by TMDb audience rating, with a mandatory dry run. Scans movies and TV, flags titles below a user-rating threshold you choose, shows a dry-run estimate of the space that would be freed, and only deletes after you review the list and type DELETE. Extra tools: a \"Biggest items\" view to clear large titles you never watch, an \"Empty / 0-byte cleanup\" toggle (removes empty entries that are also below your threshold, plus orphaned empty folders), per-title \"exclude from future scans\", and optional Overseerr/Jellyseerr sync so deletions stop being auto-requeued. Defaults to DRY-RUN-ONLY and never deletes outside your media folder. Everything else \u2014 Radarr, Sonarr, TMDb (required), and optional Seerr URLs/keys, the threshold, and the safety switches \u2014 is configured in the web UI after the container starts and saved to /config.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/mediacleanuparr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "App data: database, logs, and deletion reports.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media library. Mount it EXACTLY as Radarr/Sonarr see it so paths line up. Read-write is needed for empty-folder cleanup.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Vancouver",
+      "description": "Timezone, e.g. America/Vancouver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_ROOTS",
+      "key": "MEDIA_ROOTS",
+      "value": "/media",
+      "description": "Comma-separated media roots inside the container. Leave as /media unless you mount multiple media shares.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,523 @@
+{
+  "name": "Yuvomi",
+  "repo": "ghcr.io/ulsklyc/yuvomi:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/ulsklyc/yuvomi/pkgs/container/yuvomi",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/ulsklyc/yuvomi/main/icon.svg",
+  "project": "https://github.com/ulsklyc/yuvomi",
+  "description": "Yuvomi is a private, self-hosted family planner \u2014 one calm home for everything your household needs to stay organized. No cloud accounts, no subscriptions, no tracking: your data lives on your server and nowhere else. Independent modules \u2014 turn on what fits, ignore the rest: - Dashboard \u2014 today's tasks, events, meals and reminders at a glance - Tasks \u2014 shared to-dos with priorities, due dates and assignees - Shopping \u2014 collaborative grocery lists, auto-sorted by category - Meals & Recipes \u2014 weekly meal planner with a built-in recipe book - Calendar \u2014 family calendar with recurring events and reminders - Budget \u2014 shared expenses, split costs and a spending overview - Housekeeping \u2014 chores, supplies and staff/session tracking - Documents \u2014 store and find important household files - Notes, Contacts & Birthdays \u2014 everything else in one tidy place Why Yuvomi: - Mobile-first PWA \u2014 install it on any phone, works offline - Light & dark mode, fast and polished (no bloated frameworks, no build step) - Optional sync \u2014 CalDAV / CardDAV, Apple and Google Calendar - OIDC single sign-on for households that already run an identity provider - Encrypted-at-rest storage (SQLCipher) with automated, scheduled backups - Multi-language, fully self-contained and MIT-licensed \u2014 Setup \u2014 REQUIRED: Set a long random SESSION_SECRET. RECOMMENDED: Set a strong DB_ENCRYPTION_KEY to encrypt the database at rest \u2014 without it the database and any synced calendar/contact credentials are stored unencrypted. Generate either secret with: openssl rand -base64 48 After the container starts, open the WebUI \u2014 the first visit guides you through creating your admin account. (Headless setups can alternatively run node setup.js in the container console.) Then log in \u2014 pick the modules you want and invite your family.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/yuvomi/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database and stored app data (uploads, documents).",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/yuvomi/backups",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Destination folder for scheduled and manual database backups.",
+      "required": true
+    },
+    {
+      "name": "Modules (optional)",
+      "host": "/mnt/cache/appdata/yuvomi/modules",
+      "container": "/app/modules",
+      "mode": "rw",
+      "description": "Optional: drop-in folder for additional Yuvomi modules. Leave default if unused.",
+      "required": false
+    },
+    {
+      "name": "Documents (optional)",
+      "host": "/mnt/cache/appdata/yuvomi/documents",
+      "container": "/documents",
+      "mode": "rw",
+      "description": "Optional: host folder for local document storage. Only used when DOCUMENT_STORAGE_LOCAL_ENABLED=true. Leave default if unused.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the Yuvomi web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "REQUIRED. A long random string used to sign sessions. Generate with: openssl rand -base64 48",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_ENCRYPTION_KEY",
+      "key": "DB_ENCRYPTION_KEY",
+      "value": "",
+      "description": "RECOMMENDED. Strong key to encrypt the database at rest (SQLCipher). Leave empty for unencrypted SQLite. Cannot be changed later without re-encrypting. Generate with: openssl rand -base64 48",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone, e.g. Europe/Berlin. Affects scheduled backups, reminders, and is the fallback zone for events pushed to Google Calendar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_SECURE",
+      "key": "SESSION_SECURE",
+      "value": "false",
+      "description": "Set to true only when serving Yuvomi over HTTPS behind a reverse proxy. Keep false for direct HTTP access on the LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUST_PROXY",
+      "key": "TRUST_PROXY",
+      "value": "loopback",
+      "description": "Use 1 behind one reverse proxy (Caddy/nginx/Traefik), or 'loopback' for direct (no proxy) access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_PATH",
+      "key": "DB_PATH",
+      "value": "/data/yuvomi.db",
+      "description": "Path to the SQLite database inside the container. Keep default unless you know what you are doing. Legacy /data/oikos.db is auto-migrated on boot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "/backups",
+      "description": "Directory inside the container where backup files are written. Must match the Backups path mapping above, otherwise backups fail with a permission error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEATHER_LAT",
+      "key": "WEATHER_LAT",
+      "value": "",
+      "description": "Optional. Latitude for the Open-Meteo weather widget (no API key required). Find coordinates on openstreetmap.org or Google Maps, e.g. 52.52.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEATHER_LON",
+      "key": "WEATHER_LON",
+      "value": "",
+      "description": "Optional. Longitude for the Open-Meteo weather widget, e.g. 13.41.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEATHER_CITY",
+      "key": "WEATHER_CITY",
+      "value": "",
+      "description": "Optional. Display name shown on the weather widget, e.g. Berlin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEATHER_UNITS",
+      "key": "WEATHER_UNITS",
+      "value": "metric",
+      "description": "Optional. Unit system for temperatures: metric (\u00b0C) or imperial (\u00b0F).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENWEATHER_API_KEY",
+      "key": "OPENWEATHER_API_KEY",
+      "value": "",
+      "description": "Optional (legacy). OpenWeatherMap API key to enable the weather widget. Prefer the keyless Open-Meteo variables above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENWEATHER_CITY",
+      "key": "OPENWEATHER_CITY",
+      "value": "",
+      "description": "Optional (legacy). City for the OpenWeatherMap weather widget, e.g. Berlin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENWEATHER_UNITS",
+      "key": "OPENWEATHER_UNITS",
+      "value": "metric",
+      "description": "Optional (legacy). Unit system for temperatures: metric (\u00b0C) or imperial (\u00b0F).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENWEATHER_LANG",
+      "key": "OPENWEATHER_LANG",
+      "value": "en",
+      "description": "Optional (legacy). Language code for OpenWeatherMap descriptions, e.g. en, de, fr.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_CLIENT_ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Google OAuth 2.0 client ID for Google Calendar sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_CLIENT_SECRET",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Google OAuth 2.0 client secret for Google Calendar sync.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOOGLE_REDIRECT_URI",
+      "key": "GOOGLE_REDIRECT_URI",
+      "value": "",
+      "description": "Optional. OAuth callback URL, e.g. https://your-domain.com/api/v1/calendar/google/callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_DRIVE_CLIENT_ID",
+      "key": "GOOGLE_DRIVE_CLIENT_ID",
+      "value": "",
+      "description": "Optional Google Drive OAuth client ID override. Leave both Drive overrides empty to reuse Google Calendar credentials.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOOGLE_DRIVE_CLIENT_SECRET",
+      "key": "GOOGLE_DRIVE_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional Google Drive OAuth client secret override.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOOGLE_DRIVE_REDIRECT_URI",
+      "key": "GOOGLE_DRIVE_REDIRECT_URI",
+      "value": "",
+      "description": "Google Drive Documents callback URL, e.g. https://your-domain.com/api/v1/documents/storage/google-drive/callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ISSUER",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "Optional. OIDC issuer URL, e.g. https://authentik.example.com/application/o/yuvomi/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Optional. OIDC client ID from your identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. OIDC client secret from your identity provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_REDIRECT_URI",
+      "key": "OIDC_REDIRECT_URI",
+      "value": "",
+      "description": "Optional. OIDC callback URL, e.g. https://your-domain.com/api/v1/auth/oidc/callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_TRUST_EMAIL_WITHOUT_VERIFIED_CLAIM",
+      "key": "OIDC_TRUST_EMAIL_WITHOUT_VERIFIED_CLAIM",
+      "value": "",
+      "description": "Optional. Set to true to allow account linking when your IdP omits the email_verified claim. Only enable if your IdP fully controls email verification and never issues unverified addresses (e.g. older Authentik without an explicit email_verified mapping).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APPLE_CALDAV_URL",
+      "key": "APPLE_CALDAV_URL",
+      "value": "https://caldav.icloud.com",
+      "description": "Optional. Apple CalDAV server URL (default: iCloud). Change only if using a custom CalDAV server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APPLE_USERNAME",
+      "key": "APPLE_USERNAME",
+      "value": "",
+      "description": "Optional. Apple ID (email) for iCloud Calendar sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APPLE_APP_SPECIFIC_PASSWORD",
+      "key": "APPLE_APP_SPECIFIC_PASSWORD",
+      "value": "",
+      "description": "Optional. Apple app-specific password for iCloud Calendar sync (generate at appleid.apple.com).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SYNC_INTERVAL_MINUTES",
+      "key": "SYNC_INTERVAL_MINUTES",
+      "value": "15",
+      "description": "Interval in minutes for calendar and contact sync (Google, Apple, CalDAV, CardDAV). Default: 15.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_ENABLED",
+      "key": "BACKUP_ENABLED",
+      "value": "true",
+      "description": "Optional. Enable automated database backups (default: true).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_SCHEDULE",
+      "key": "BACKUP_SCHEDULE",
+      "value": "0 2 * * *",
+      "description": "Optional. Cron schedule for automated backups (default: 2 AM daily).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_KEEP",
+      "key": "BACKUP_KEEP",
+      "value": "7",
+      "description": "Optional. Number of backups to retain (default: 7).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBDAV_BACKUP_ENABLED",
+      "key": "WEBDAV_BACKUP_ENABLED",
+      "value": "",
+      "description": "Optional. Set to true to enable automatic upload of backups to a WebDAV server after each local backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBDAV_BACKUP_URL",
+      "key": "WEBDAV_BACKUP_URL",
+      "value": "",
+      "description": "Optional. WebDAV server URL, e.g. https://cloud.example.com/remote.php/dav/files/username/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBDAV_BACKUP_USERNAME",
+      "key": "WEBDAV_BACKUP_USERNAME",
+      "value": "",
+      "description": "Optional. WebDAV username for authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBDAV_BACKUP_PASSWORD",
+      "key": "WEBDAV_BACKUP_PASSWORD",
+      "value": "",
+      "description": "Optional. WebDAV password for authentication.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WEBDAV_BACKUP_PATH",
+      "key": "WEBDAV_BACKUP_PATH",
+      "value": "/yuvomi/backups/",
+      "description": "Optional. Remote directory path where backup files are stored (default: /yuvomi/backups/).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBDAV_BACKUP_KEEP",
+      "key": "WEBDAV_BACKUP_KEEP",
+      "value": "7",
+      "description": "Optional. Number of remote backup files to keep (default: 7).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_LOCAL_ENABLED",
+      "key": "DOCUMENT_STORAGE_LOCAL_ENABLED",
+      "value": "false",
+      "description": "Optional. Store newly uploaded document files in the mounted /documents host folder instead of the database. Existing files are not migrated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_LOCAL_PATH",
+      "key": "DOCUMENT_STORAGE_LOCAL_PATH",
+      "value": "/documents",
+      "description": "Optional. Container path for local document files. Keep default unless you mounted the documents folder elsewhere.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_ENABLED",
+      "key": "DOCUMENT_STORAGE_WEBDAV_ENABLED",
+      "value": "false",
+      "description": "Optional. Store newly uploaded document files on WebDAV. Existing files are not migrated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_URL",
+      "key": "DOCUMENT_STORAGE_WEBDAV_URL",
+      "value": "",
+      "description": "Optional. WebDAV server URL for document storage, e.g. https://cloud.example.com/remote.php/dav/files/username/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_USERNAME",
+      "key": "DOCUMENT_STORAGE_WEBDAV_USERNAME",
+      "value": "",
+      "description": "Optional. WebDAV username for document storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_PASSWORD",
+      "key": "DOCUMENT_STORAGE_WEBDAV_PASSWORD",
+      "value": "",
+      "description": "Optional. WebDAV password for document storage.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_PATH",
+      "key": "DOCUMENT_STORAGE_WEBDAV_PATH",
+      "value": "yuvomi-documents",
+      "description": "Optional. Remote base folder for document files (default: yuvomi-documents).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCUMENT_STORAGE_WEBDAV_ALLOW_PRIVATE_NETWORK",
+      "key": "DOCUMENT_STORAGE_WEBDAV_ALLOW_PRIVATE_NETWORK",
+      "value": "false",
+      "description": "Optional. Set to true to allow WebDAV document storage on local/private network addresses (e.g. Nextcloud in the same Docker network). Only enable in controlled environments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ICS_SUBSCRIPTION_ALLOW_PRIVATE_NETWORK",
+      "key": "ICS_SUBSCRIPTION_ALLOW_PRIVATE_NETWORK",
+      "value": "false",
+      "description": "Optional. Set to true to allow ICS calendar subscriptions on http:// and local/private network addresses (e.g. a Sonarr/Radarr/Home Assistant feed in the same LAN). Lifts SSRF protection for ICS subscriptions. Only enable in controlled environments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_SMTP_HOST",
+      "key": "EMAIL_SMTP_HOST",
+      "value": "",
+      "description": "Optional. SMTP server hostname for outgoing email (password-reset links).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_SMTP_PORT",
+      "key": "EMAIL_SMTP_PORT",
+      "value": "587",
+      "description": "Optional. SMTP server port (default: 587).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_SMTP_SECURE",
+      "key": "EMAIL_SMTP_SECURE",
+      "value": "starttls",
+      "description": "Optional. SMTP connection security: ssl, starttls, or none (default: starttls).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_SMTP_USER",
+      "key": "EMAIL_SMTP_USER",
+      "value": "",
+      "description": "Optional. SMTP authentication username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_SMTP_PASS",
+      "key": "EMAIL_SMTP_PASS",
+      "value": "",
+      "description": "Optional. SMTP authentication password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EMAIL_FROM_ADDRESS",
+      "key": "EMAIL_FROM_ADDRESS",
+      "value": "",
+      "description": "Optional. Sender email address for outgoing mail, e.g. yuvomi@example.com.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_FROM_NAME",
+      "key": "EMAIL_FROM_NAME",
+      "value": "Yuvomi",
+      "description": "Optional. Sender display name for outgoing mail (default: Yuvomi).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASE_URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Optional but required for password-reset emails to be sent. Absolute origin used to build reset links, e.g. https://yuvomi.example.com. The request Host header is never trusted as a fallback, to prevent reset-link poisoning.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIXER_API_KEY",
+      "key": "FIXER_API_KEY",
+      "value": "",
+      "description": "Optional. Fixer API key for live currency conversion in Budget \u2192 Subscriptions. Rates are cached for 12 hours; works without this key using the cached/manual rate.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

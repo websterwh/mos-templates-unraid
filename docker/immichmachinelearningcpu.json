@@ -1,0 +1,89 @@
+{
+  "name": "immich-machine-learning-cpu",
+  "repo": "ghcr.io/immich-app/immich-machine-learning:release",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/immich-app/immich/pkgs/container/immich-machine-learning",
+  "network": "immich_internal",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/immich-ml-logo.png",
+  "project": "https://immich.app",
+  "description": "Immich Machine Learning service. Handles face recognition, CLIP-based image search, and OCR. This service runs ML models locally. Models are downloaded on first use and cached. The default cache can grow to several GB depending on enabled features. For GPU acceleration, change the image tag to: release-cuda, release-rocm, release-openvino, release-armnn, or release-rknn. Must be on the same Docker network as the Immich server.",
+  "paths": [
+    {
+      "name": "Path: Model Cache",
+      "host": "/mnt/cache/appdata/immich/model-cache/",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "ML model cache directory. Models are downloaded on first use (several GB).",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "--- System ---",
+      "key": "--- System ---",
+      "value": "",
+      "description": "General settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Advanced ---",
+      "key": "--- Advanced ---",
+      "value": "",
+      "description": "Advanced ML settings. Defaults work well for most setups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_MODEL_TTL",
+      "key": "MACHINE_LEARNING_MODEL_TTL",
+      "value": "300",
+      "description": "Seconds of inactivity before unloading models from memory. Set to 0 to keep loaded permanently.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_WORKERS",
+      "key": "MACHINE_LEARNING_WORKERS",
+      "value": "1",
+      "description": "Number of ML worker processes. Increase if you have enough RAM/VRAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MACHINE_LEARNING_WORKER_TIMEOUT",
+      "key": "MACHINE_LEARNING_WORKER_TIMEOUT",
+      "value": "120",
+      "description": "Seconds before a worker is considered unresponsive (use 300 for GPU).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMMICH_LOG_LEVEL",
+      "key": "IMMICH_LOG_LEVEL",
+      "value": "log",
+      "description": "Log verbosity: verbose, debug, log, warn, error",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

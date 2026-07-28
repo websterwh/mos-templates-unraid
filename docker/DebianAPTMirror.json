@@ -1,0 +1,107 @@
+{
+  "name": "Debian-APT-Mirror",
+  "repo": "ghcr.io/ich777/debian-mirror",
+  "category": [
+    "Driver"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/debian-mirror",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:980]/",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/debianpackage.png",
+  "project": "https://www.debian.org/",
+  "description": "This container will run apt-mirror and Apache2. This allows you to create a local apt mirror for Debian packages. On first run you will have to edit the mirror.list file that lives in your CONFIG_DIR which repositories you want to sync and other settings like how many threads to use for downloading,... Restart the container afterwards (keep an eye on the logs the container will tell you what to do). **ATTENTION/WARNING:** Keep in mind that the first sync can take very long depending on how much repositories you've selected (stable main contrib non-free: Will take about 200GB of hard drive space!). **Update from the mirror files:** By default a cron job will run every day at 01:00 which will update your mirror. **Mirror address:** The default address for the mirror is 'http://ipFROMtheCONTAINER:980' Add something like this to your '/etc/apt/sources.list': 'deb http://ipFROMtheCONTAINER:980/debian stable main contrib non-free'",
+  "paths": [
+    {
+      "name": "Main Data Path",
+      "host": "/mnt/cache/appdata/debian-mirror/data/",
+      "container": "/debian-mirror/data",
+      "mode": "rw",
+      "description": "Keep in mind that the mirror can consume very much space (stable main contrib non-free: Will take about 200GB of hard drive space!) - you can also put the data directory somewhere on a disk outside the Array or Cache for example with Unassigned Devices.",
+      "required": true
+    },
+    {
+      "name": "Main Configuration Path",
+      "host": "/mnt/cache/appdata/debian-mirror/config/",
+      "container": "/debian-mirror/config",
+      "mode": "rw",
+      "description": "Configuration directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Mirror http port",
+      "host": "980",
+      "container": "980",
+      "protocol": "tcp",
+      "description": "Main http port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Mirror Schedule",
+      "key": "CRON_SCHEDULE",
+      "value": "0 1 * * *",
+      "description": "Set your cron schedule for your mirror (by default it is set to 01:00 - head over to https://crontab.guru/ to create your own if you want to customize it)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Force update on start",
+      "key": "FORCE_UPDATE",
+      "value": "false",
+      "description": "Force update from the mirror on every start/restart of the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATA_PERM",
+      "key": "DATA_PERM",
+      "value": "770",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "0000",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Apache2 Port in Container",
+      "key": "APACHE2_PORT",
+      "value": "980",
+      "description": "If you change this value you also have to delete the old port mapping and create a new one with the appropriate port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

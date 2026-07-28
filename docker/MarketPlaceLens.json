@@ -1,0 +1,131 @@
+{
+  "name": "MarketPlaceLens",
+  "repo": "alexrosbach/marketplacelens:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/alexrosbach/marketplacelens",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/AlexRosbach/MarketPlaceLens/main/app/static/assets/marketplacelens-logo.png",
+  "project": "https://github.com/AlexRosbach/MarketPlaceLens",
+  "description": "MarketPlaceLens is a self-hosted Kleinanzeigen and marketplace watcher with recurring search jobs, review queues, watchlists, and optional AI-assisted buyer workflows.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/marketplacelens",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent MarketPlaceLens data, including SQLite database, settings, users, watchlists, notifications, and session secret.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8091",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the MarketPlaceLens Web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Poll Enabled",
+      "key": "MARKETPLACELENS_POLL_ENABLED",
+      "value": "true",
+      "description": "Enable recurring background polling for active marketplace jobs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Poll Minutes",
+      "key": "MARKETPLACELENS_DEFAULT_POLL_MINUTES",
+      "value": "60",
+      "description": "Default polling interval for new marketplace jobs, in minutes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minimum Poll Minutes",
+      "key": "MARKETPLACELENS_MIN_POLL_MINUTES",
+      "value": "30",
+      "description": "Minimum allowed polling interval for marketplace jobs, in minutes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "User Agent",
+      "key": "MARKETPLACELENS_USER_AGENT",
+      "value": "MarketPlaceLens/0.4.1 (+self-hosted listing watcher)",
+      "description": "HTTP User-Agent used by marketplace fetchers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "MARKETPLACELENS_ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Optional bootstrap admin username. Used only when an admin password is supplied before first startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "MARKETPLACELENS_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional bootstrap admin password for unattended first startup. Leave empty to use the guided Web UI setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Session Secret",
+      "key": "MARKETPLACELENS_SESSION_SECRET",
+      "value": "",
+      "description": "Optional fixed session secret for restores or migrations. Leave empty for normal first startup; MarketPlaceLens will generate and persist one in appdata.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Optional Telegram bot token for listing notifications. Can also be configured later in the UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram Chat ID",
+      "key": "TELEGRAM_CHAT_ID",
+      "value": "",
+      "description": "Optional Telegram chat ID for listing notifications. Can also be configured later in the UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Webhook URL",
+      "key": "MARKETPLACELENS_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional webhook URL for listing notifications. Can also be configured later in the UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone, for example Europe/Berlin.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

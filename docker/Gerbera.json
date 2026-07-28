@@ -1,0 +1,92 @@
+{
+  "name": "Gerbera",
+  "repo": "gerbera/gerbera:3.2.1",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/gerbera/gerbera",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:49494]",
+  "icon": "https://raw.githubusercontent.com/gerbera/gerbera/master/web/icons/gerbera.svg",
+  "project": "https://gerbera.io/",
+  "description": "Gerbera is a lightweight UPnP/DLNA media server for streaming local media on your home network.",
+  "paths": [
+    {
+      "name": "Config / Database",
+      "host": "/mnt/cache/appdata/gerbera",
+      "container": "/var/run/gerbera",
+      "mode": "rw",
+      "description": "Persistent Gerbera config (config.xml), SQLite database, and runtime files. Keep on persistent storage so settings and the scanned-content database survive updates. The container user (UID/GID) must have write access here. You can also drop your own config.xml in this folder.",
+      "required": true
+    },
+    {
+      "name": "Media Folder",
+      "host": "",
+      "container": "/mnt/content",
+      "mode": "ro",
+      "description": "Host path containing the media you want Gerbera to serve. Mounted read-only and automatically scanned by default. Example: /mnt/user/media",
+      "required": true
+    },
+    {
+      "name": "Customization Folder",
+      "host": "",
+      "container": "/mnt/customization",
+      "mode": "ro",
+      "description": "Optional. Host path for customizing Gerbera. Place custom JavaScript import scripts in a 'js' subfolder (/mnt/customization/js). A shell script at 'shell/gerbera_config.sh' is run every time Gerbera (re)creates config.xml. Leave empty if not needed.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI / HTTP Port",
+      "host": "49494",
+      "container": "49494",
+      "protocol": "tcp",
+      "description": "Gerbera HTTP/Web UI/media-serving port. With host networking, this must remain available on the Unraid host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSDP Multicast",
+      "host": "1900",
+      "container": "1900",
+      "protocol": "udp",
+      "description": "UPnP SSDP discovery port. Host networking is recommended because Docker bridge networking does not support the multicast discovery behavior Gerbera needs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Container runtime UID. On Unraid, 99 is usually nobody. Must have write access to the Config / Database path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Container runtime GID. On Unraid, 100 is usually users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Disable TLS Peer Verification",
+      "key": "MARIADB_TLS_DISABLE_PEER_VERIFICATION",
+      "value": "",
+      "description": "Optional. Only when using a MySQL/MariaDB database instead of the default SQLite. The MariaDB connector assumes SSL/TLS; set this to 1 to skip the certificate check if your database does not use SSL. Leave empty otherwise.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

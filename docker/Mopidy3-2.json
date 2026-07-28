@@ -1,0 +1,48 @@
+{
+  "name": "Mopidy3",
+  "repo": "knex666/mopidy:3-experimental",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/knex666/mopidy",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "-p 6600:6600 -p 6680:6680 -p 5555:5555/udp",
+  "post_parameters": "mopidy --config /config/mopidy.conf",
+  "web_ui_url": "http://[IP]:[PORT:6680]/",
+  "icon": "https://github.com/maschhoff/docker/raw/master/mopidy/mopidy.png",
+  "project": "https://github.com/maschhoff/docker/tree/master/mopidy",
+  "description": "Mopidy is an extensible music server written in Python. Mopidy plays music from local disk, Spotify, SoundCloud, Google Play Music, and more. You edit the playlist from any phone, tablet, or computer using a range of MPD and web clients. This is Mopidy3 for Unraid with support for snapcast and icecast. - set up the docker - set up the network to br0 with an ip - set up volume mount to /mnt/user/appdata/mopidy/ >> /config/ - set up volume mount for tmp/snapfifo if you use snapcast /mnt/user/appdata/mopidy/tmp/ >> /tmp - set up volume mount for your local media generate the mopidy.conf file *Doc here https://docs.mopidy.com/en/latest/config/ *example here https://github.com/maschhoff/docker/blob/master/mopidy/mopidy.conf authentication for soundcloud and spotify https://www.mopidy.com/authenticate/ *authenticate spotify https://developer.spotify.com/documentation/web-api/quick-start/ use my docker icecast or snapcast for music streaming: for audio you need a special config for snapcast you have to generate the audio output in a pipe file /tmp/snapfifo this is mounted in both docker container [audio] output = audioresample ! audio/x-raw,rate=48000,channels=2,format=S16LE ! audioconvert ! wavenc ! filesink location=/tmp/snapfifo icecast [audio] output = lamemp3enc ! shout2send async=false mount=mopidy ip=X.X.X.X port=8000 password=XXXXX",
+  "paths": [
+    {
+      "name": "config",
+      "host": "/mnt/cache/appdata/mopidy/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container Path: /config/mopidy.conf",
+      "required": false
+    },
+    {
+      "name": "Host Path 2",
+      "host": "/mnt/cache/appdata/mopidy/tmp/",
+      "container": "/tmp/",
+      "mode": "rw",
+      "description": "Container Path: /tmp/snapfifo",
+      "required": false
+    },
+    {
+      "name": "Host Path 3",
+      "host": "/mnt/cache/Media/Musik/",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Container Path: /media",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

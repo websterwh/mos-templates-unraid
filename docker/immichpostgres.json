@@ -1,0 +1,73 @@
+{
+  "name": "immich-postgres",
+  "repo": "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/immich-app/base-images/pkgs/container/postgres",
+  "network": "immich",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=128m",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/sgraaf/Unraid-Docker-Templates/main/immich/immich-postgres.png",
+  "project": "https://www.postgresql.org/",
+  "description": "PostgreSQL 14 database for Immich, pre-built with the VectorChord / pgvecto.rs vector extensions that Immich requires. This is the \"database\" service from the official Immich docker-compose.yml. It must be on the same custom Docker network (\"immich\") as the Immich server so the server can reach it by the container name \"immich-postgres\". POSTGRES_PASSWORD here must match DB_PASSWORD in the immich-server container. NOTE: changing the username/database/password after first start has no effect because the data directory is already initialized.",
+  "paths": [
+    {
+      "name": "Database data",
+      "host": "/mnt/cache/appdata/immich/postgres",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Postgres data directory. Equivalent to DB_DATA_LOCATION in the compose .env file. Keep this on fast/SSD storage. Do NOT use a path that is also handled by another mover/backup process that locks files.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Database password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Password for the Postgres database. MUST match DB_PASSWORD set in the immich-server container. Use only A-Za-z0-9 characters.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database user",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Postgres username. MUST match DB_USERNAME in immich-server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database name",
+      "key": "POSTGRES_DB",
+      "value": "immich",
+      "description": "Postgres database name. MUST match DB_DATABASE_NAME in immich-server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Init args",
+      "key": "POSTGRES_INITDB_ARGS",
+      "value": "--data-checksums",
+      "description": "Arguments passed to initdb on first start. Leave as --data-checksums.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB storage type (HDD)",
+      "key": "DB_STORAGE_TYPE",
+      "value": "",
+      "description": "Optional. Set to HDD if the database data is NOT stored on an SSD. Leave blank for SSD.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

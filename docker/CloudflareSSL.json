@@ -1,0 +1,81 @@
+{
+  "name": "CloudflareSSL",
+  "repo": "tenasi/cloudflaressl:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://hub.docker.com/r/tenasi/cloudflaressl",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/tenasi/unraid-templates/refs/heads/main/cloudflaressl/icon.png",
+  "project": "https://github.com/tenasi/cloudflaressl",
+  "description": "A small Docker container that generates Let's Encrypt certificates for Unraid using the Cloudflare API allowing to avoid \"this page is not secure\" warnings when connecting to Unraid locally.",
+  "paths": [
+    {
+      "name": "Unraid SSL Bundle",
+      "host": "/boot/config/ssl/certs/HOSTNAME_unraid_bundle.pem",
+      "container": "/etc/ssl/unraid_bundle.pem",
+      "mode": "rw",
+      "description": "Path to the Unraid SSL bundle file. This should be stored in /boot/config/ssl/certs/HOSTNAME_unraid_bundle.pem",
+      "required": true
+    },
+    {
+      "name": "Lets Encrypt Config Path",
+      "host": "/mnt/cache/appdata/cloudflaressl/",
+      "container": "/etc/letsencrypt",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Cloudflare API Token",
+      "key": "CLOUDFLARE_API_TOKEN",
+      "value": "",
+      "description": "Token to authenticate against the Cloudflare API endpoint.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Email",
+      "key": "CERTBOT_EMAIL",
+      "value": "",
+      "description": "Email address for Let's Encrypt notifications.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Domains",
+      "key": "CERTBOT_DOMAINS",
+      "value": "",
+      "description": "Comma-separated list of domains for which to obtain the certificate.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Key Type",
+      "key": "CERTBOT_KEY_TYPE",
+      "value": "ecdsa",
+      "description": "Type of private key to generate (e.g. ecdsa, rsa).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Renewal Interval",
+      "key": "RENEWAL_INTERVAL",
+      "value": "43200",
+      "description": "Interval between certificate renewal checks. Set to 0 to disable renewals and only run once.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

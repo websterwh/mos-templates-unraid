@@ -1,0 +1,134 @@
+{
+  "name": "YunKan-TRT",
+  "repo": "martin888/yunkan-trt:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/martin888/yunkan-trt",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:23406]/",
+  "icon": "https://raw.githubusercontent.com/mrtian2016/yunkan-unraid-templates/main/icon.png",
+  "project": "https://yun-kan.com",
+  "description": "YunKan (\u4e91\u77b0) \u2014 self-hosted, local-first **NVR / VMS** for home and small-business IP cameras, with on-device AI: motion, **person / vehicle / face recognition / license plate (ALPR / LPR) / pose & fall / package / baby-cry detection**. Your video stays on your LAN \u2014 nothing is uploaded to any vendor cloud. A privacy-first **Frigate / Shinobi / ZoneMinder / Scrypted / Agent DVR / iSpy / MotionEye** alternative \u2014 pre-bundled into a single container so there is no Mosquitto / database / reverse-proxy / model-download wiring to do by hand. This is the **TensorRT variant** \u2014 the highest-throughput option for **NVIDIA GPUs** (\u22656 GB VRAM recommended; \u22658 GB for many high-resolution cameras). On first start it builds inference engines optimized for your exact GPU \u2014 this takes a few extra minutes, one time only; the engines are cached on disk (inside the data directory) and reused across restarts and image updates, rebuilt only if you change the GPU. Pick this over \"YunKan-CUDA\" when you run many cameras / many AI features on one GPU and want the most headroom. Prefer a no-wait first start, or the engine build fails on an older GPU? Use \"YunKan-CUDA\" instead \u2014 same features, no engine build. **Prerequisites:** 1. Install the **\"NVIDIA Driver\"** plugin in Unraid \u2192 reboot \u2192 `nvidia-smi` works on the host; 2. This template already sets `--runtime=nvidia` and the NVIDIA_* env vars \u2014 no extra config needed; 3. This is the largest of the four image variants, so the first pull will take a while. No NVIDIA GPU? Install \"YunKan\" (CPU) or \"YunKan-OpenVINO\" (Intel iGPU). All four variants share the same ports \u2014 **only one can run at a time**. **Works with any RTSP or ONVIF camera** \u2014 Reolink, Hikvision, Dahua, Amcrest, Annke, Uniview, EZVIZ, Foscam, Lorex, Anpviz, generic Chinese ONVIF, etc. **Tapo, Wyze, Xiaomi, Eufy, Mi Home, Aqara, Imou** and other proprietary-protocol cameras work via a **go2rtc** bridge. **GB/T 28181 cameras & NVRs** (Hikvision / Dahua / Uniview, etc.) register directly into YunKan \u2014 import individual channels, including many NVR channels in one batch. **Built in:** 24/7 continuous recording + motion-event highlights, **NVR-style multi-camera synced timeline playback**, a **Birdseye** all-cameras overview, **PTZ control with presets**, **virtual tripwires (line-crossing)** for accurate entry/exit direction, customizable **video-wall layouts**, a built-in **file manager** for recordings & snapshots, a **people library** for face recognition, **AI scene understanding** that turns each event into a natural-language summary (\"an elderly person fell in the living room\" \u2014 no OpenAI / Gemini / Claude API keys, all inference on your own GPU), bilingual EN \u2194 \u4e2d\u6587, **WebRTC (WHEP)** sub-second live streaming with HLS fallback, **two-way talkback** (push-to-talk on supported ONVIF cameras), **Apple Home (HomeKit) incl. HomeKit Secure Video \u2014 record motion clips to iCloud (Pro)**, **Home Assistant** integration via MQTT auto-discovery, Web admin + Android + iOS apps, optional off-site backup to **115 \u7f51\u76d8 (115 Pan / 115 Cloud)**. ![Dashboard](https://raw.githubusercontent.com/mrtian2016/yunkan-Unraid-templates/main/screenshots/dashboard.jpg) ![Events timeline](https://raw.githubusercontent.com/mrtian2016/yunkan-Unraid-templates/main/screenshots/events.jpg) On first launch, open the WebUI to enter the Setup wizard. Ports (hardcoded): 23406/tcp HTTP, 23880/tcp RTSP, 24214/tcp HLS + WebRTC (WHEP) signaling, 23515/udp+tcp WebRTC ICE media. **Keywords:** NVR, VMS, CCTV, surveillance, security camera, RTSP, ONVIF, IP camera, TensorRT, TRT, CUDA, NVIDIA, GPU, NVDEC, RTX 3060, RTX 4060, RTX 4070, A2000, Tesla T4, motion detection, person detection, vehicle detection, face recognition, license plate recognition, ALPR, LPR, fall detection, pose detection, two-way audio, talkback, 24/7 recording, continuous recording, timeline playback, WebRTC, HLS, Home Assistant, MQTT, smart home, AI NVR, AI camera, AI scene understanding, natural language event summary, smart event description, on-device AI, edge AI, offline AI, no API key, no cloud, privacy, self-hosted, Frigate alternative, Shinobi alternative, ZoneMinder alternative, Scrypted alternative, Agent DVR alternative, iSpy alternative, MotionEye alternative, BlueIris alternative, Reolink, Hikvision, Dahua, Amcrest, Annke, Uniview, EZVIZ, Foscam, Lorex, Tapo, Wyze, Xiaomi, Eufy, Imou, Aqara, HomeKit, Apple Home, HomeKit Secure Video, HKSV, Siri, GB28181, GB/T 28181, birdseye, virtual tripwire, line crossing, entry exit detection, video wall, PTZ, pan tilt zoom, package detection, parcel detection, baby cry detection, people library, NVR playback, multi-channel playback, go2rtc, \u4e91\u77b0, \u6444\u50cf\u5934, \u76d1\u63a7, \u663e\u5361\u63a8\u7406, AI \u76d1\u63a7, \u672c\u5730 AI, \u81ea\u7136\u8bed\u8a00.",
+  "paths": [
+    {
+      "name": "Data directory (DB / config / logs)",
+      "host": "/mnt/cache/appdata/yunkan/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Small state: database, config, cookies, logs, upgrade state, and the cached GPU inference engines built on first start. Unraid convention is /mnt/user/appdata/app/ (cache pool / SSD recommended). Recordings have their own path entry below \u2014 don't size this share for video.",
+      "required": true
+    },
+    {
+      "name": "Recordings directory",
+      "host": "/mnt/cache/appdata/yunkan/data/recordings",
+      "container": "/app/data/recordings",
+      "mode": "rw",
+      "description": "Camera recordings \u2014 can grow to TBs. Mounted on top of the data directory (container path /app/data/recordings), so snapshots / exports / face thumbnails follow it automatically. **To put recordings on a big array share or a dedicated pool, change the host path of THIS entry \u2014 do not add your own path mapping with a different container path, it will be silently ignored.** If YunKan already ran on this host and you point this at a new location, FIRST move the contents of .../yunkan/data/recordings/ there \u2014 otherwise the old recordings become invisible to the app (playback and auto-cleanup can't see them) while still occupying the data share.",
+      "required": true
+    },
+    {
+      "name": "machine-id (license hardware fingerprint)",
+      "host": "/etc/machine-id",
+      "container": "/etc/machine-id",
+      "mode": "ro",
+      "description": "The license uses the Unraid host's machine-id as part of its hardware fingerprint. **Without this mount the fingerprint drifts on every container recreate; the license then consumes a new activation slot and eventually fails to activate.** Keep read-only.",
+      "required": true
+    },
+    {
+      "name": "product_uuid (license hardware fingerprint)",
+      "host": "/sys/class/dmi/id/product_uuid",
+      "container": "/sys/class/dmi/id/product_uuid",
+      "mode": "ro",
+      "description": "Second hardware-fingerprint signal (motherboard DMI UUID). Keep read-only.",
+      "required": true
+    },
+    {
+      "name": "docker socket (self-introspection / OTA self-restart)",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "YunKan uses the docker socket internally for self-identification and OTA self-restart. The default Unraid permissions are fine.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP / API (nginx)",
+      "host": "23406",
+      "container": "23406",
+      "protocol": "tcp",
+      "description": "Web dashboard + REST API front door.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RTSP",
+      "host": "23880",
+      "container": "23880",
+      "protocol": "tcp",
+      "description": "Cameras and external players connect directly here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HLS + WebRTC (WHEP) signaling",
+      "host": "24214",
+      "container": "24214",
+      "protocol": "tcp",
+      "description": "HLS streaming, WebRTC WHEP signaling, and the media-server API / hooks all share this one port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebRTC ICE media",
+      "host": "23515",
+      "container": "23515",
+      "protocol": "udp",
+      "description": "WebRTC ICE media (UDP + TCP).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time zone (TZ)",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container time zone. Affects log timestamps and quiet-hours cron.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container name (license anchor)",
+      "key": "SKYVIEW_SELF_CONTAINER_NAME",
+      "value": "YunKan-TRT",
+      "description": "Must exactly match the 'Name' field above. The license heartbeat uses this to identify the container itself; if you rename the container, change this too.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Which GPU(s) to use. On multi-GPU hosts set this to a specific 'GPU-xxxx' UUID (`nvidia-smi -L` to list); default is all.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,video,utility",
+      "description": "GPU capabilities to enable: compute (CUDA / TensorRT inference) + video (NVDEC hardware decode \u2014 note: iGPU + VAAPI actually saves more RAM-copy overhead in practice) + utility (nvidia-smi).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

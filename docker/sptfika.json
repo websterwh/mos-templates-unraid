@@ -1,0 +1,123 @@
+{
+  "name": "spt-fika",
+  "repo": "ghcr.io/zhliau/fika-spt-server-docker:3.11.3",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/zhliau?tab=repositories",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6969]",
+  "icon": "https://raw.githubusercontent.com/apfaffman/spt-fika/refs/heads/main/pika.png",
+  "project": "https://github.com/apfaffman/spt-fika",
+  "description": "SPT AKI server backend with optional Fika mod (can be disabled on first run). Uses zedramus's docker image: https://github.com/zhliau/fika-spt-server-docker. Current SPT version: 3.11.3 Current Fika server version: v2.4.6 This is a barebones template to get your SPT/Fika server running quickly on Unraid.",
+  "paths": [
+    {
+      "name": "Server Files",
+      "host": "/mnt/cache/appdata/spt-fika",
+      "container": "/opt/server",
+      "mode": "rw",
+      "description": "Location of required server files, user profiles, server (user/mod) mods, etc.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Listening Port",
+      "host": "6969",
+      "container": "6969",
+      "protocol": "tcp",
+      "description": "Leave this alone unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Install Fika Mod",
+      "key": "INSTALL_FIKA",
+      "value": "true",
+      "description": "Installs Fika to user/mods folder.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Listen on All Interfaces",
+      "key": "LISTEN_ALL_NETWORKS",
+      "value": "false",
+      "description": "Sets http.json 'backendIp' value to 0.0.0.0, telling SPT to listen on all interfaces.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Profile Backup",
+      "key": "ENABLE_PROFILE_BACKUP",
+      "value": "true",
+      "description": "Creates a cron job that handles profile backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fika Version",
+      "key": "FIKA_VERSION",
+      "value": "v2.3.6",
+      "description": "Override the Fika version string to grab the server release from. The release URL is formatted as https://github.com/project-fika/Fika-Server/releases/download/$FIKA_VERSION/fika-server.zip",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Update SPT",
+      "key": "AUTO_UPDATE_SPT",
+      "value": "false",
+      "description": "Container to handle updating SPT in your existing serverfiles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Update Fika",
+      "key": "AUTO_UPDATE_FIKA",
+      "value": "false",
+      "description": "Container to handle updating Fika server mod in your existing serverfiles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container takes ownership of server files",
+      "key": "TAKE_OWNERSHIP",
+      "value": "true",
+      "description": "If this is set to false, the container will not change file ownership of the server files. Make sure the running user has permissions to access these files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container changes permissions of server files",
+      "key": "CHANGE_PERMISSIONS",
+      "value": "true",
+      "description": "If this is set to false, the container will not change file permissions of the server files. Make sure the running user has permissions to access these files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install Other Mods",
+      "key": "INSTALL_OTHER_MODS",
+      "value": "false",
+      "description": "Automatically download and install any other mods as specified in MOD_URLS_TO_DOWNLOAD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mod Download URLS",
+      "key": "MOD_URLS_TO_DOWNLOAD",
+      "value": "false",
+      "description": "Space-separated list of URLs you want the server to automatically download and install. Requires INSTALL_OTHER_MODS to be 'true.'",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

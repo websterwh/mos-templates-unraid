@@ -1,0 +1,65 @@
+{
+  "name": "Docmost-MCP-Wrapper",
+  "repo": "bitcryptic/docmost-mcp-wrapper:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/bitcryptic/docmost-mcp-wrapper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/bitcryptic-gw/docmost-mcp-wrapper/main/icon.png",
+  "project": "https://github.com/bitcryptic-gw/docmost-mcp-wrapper",
+  "description": "Docmost MCP Wrapper \u2014 Dockerized, Tailscale-ready MCP bridge for the Docmost community/free edition. This wrapper fronts MrMartiniMo/docmost-mcp (a stdio-only MCP server) with sparfenyuk/mcp-proxy to expose it as a Streamable HTTP endpoint reachable over your Tailscale tailnet. Remote AI agents (Claude, k3, Graham's agents) connect directly via the tailnet \u2014 no LAN port publishing, no Caddy reverse proxy. SECURITY: Credentials are loaded from file mounts only (never from env vars visible in docker inspect). The entrypoint validates all inputs and refuses to start with missing or empty secrets. No secret values are ever logged. Container runs as a non-root user by default. PER-INSTANCE DEPLOYMENT: Deploy separate container instances for each bot identity with their own Docmost bot account, secret files, and Tailscale tag. Each instance is isolated at the Tailscale ACL layer. BEFORE FIRST START: 1. Create a Docmost bot account for this instance 2. Create secret files on the host: mkdir -p /mnt/cache/appdata/docmost-mcp/secrets printf '%s' 'bot-email@example.com' /mnt/cache/appdata/docmost-mcp/secrets/email printf '%s' 'bot-password' /mnt/cache/appdata/docmost-mcp/secrets/password chmod 600 /mnt/cache/appdata/docmost-mcp/secrets/* 3. Configure Tailscale auth key and tag in Advanced Settings TAILSCALE: The container joins your tailnet via a pre-tagged auth key. State is persisted in the Tailscale State Directory (host and container paths must be identical!). If the Tailscale hook cannot start (eg. permission errors), check with 'docker exec container id' \u2014 if it shows non-root, add this to Extra Parameters: --user root --cap-add=NET_ADMIN --cap-add=NET_RAW AGENT CONNECTION CONFIG: Once deployed, point your agent's MCP client at: https://docmost-mcp.pygmy-bramble.ts.net:8088/mcp (Change hostname to match your instance's Tailscale hostname.) ACL: On pygmy-bramble, add a 'grants' entry permitting relevant source identities to reach port 8088 on the instance's tag. Scoped per tag \u2014 eg. tag:docmost-mcp-bitcryptic only accessible by your devices; tag:docmost-mcp-slepner only accessible by Graham's. Full docs: https://github.com/bitcryptic-gw/docmost-mcp-wrapper/blob/main/WRAPPER.md Upstream: https://github.com/MrMartiniMo/docmost-mcp (MIT) mcp-proxy: https://github.com/sparfenyuk/mcp-proxy (MIT)",
+  "paths": [
+    {
+      "name": "Docmost Email (file-based secret)",
+      "host": "/mnt/cache/appdata/docmost-mcp/secrets/email",
+      "container": "/run/secrets/docmost_email",
+      "mode": "ro",
+      "description": "Host path to a plain-text file containing the bot account email. Create with: printf '%s' 'email@example.com' &gt; /path/to/file. Must contain exactly the email with no trailing newline. Read-only inside container.",
+      "required": true
+    },
+    {
+      "name": "Docmost Password (file-based secret)",
+      "host": "/mnt/cache/appdata/docmost-mcp/secrets/password",
+      "container": "/run/secrets/docmost_password",
+      "mode": "ro",
+      "description": "Host path to a plain-text file containing the bot account password. Create with: printf '%s' 'password' &gt; /path/to/file. Must contain exactly the password with no trailing newline. Read-only inside container.",
+      "required": true
+    },
+    {
+      "name": "Tailscale State Directory",
+      "host": "/mnt/cache/appdata/docmost-mcp/tailscale",
+      "container": "/mnt/cache/appdata/docmost-mcp/tailscale",
+      "mode": "rw",
+      "description": "Persistent Tailscale state directory. Prevents new node identity being created each restart. Host and container paths must be identical. When deploying multiple instances, each must have its own unique path (eg. change 'docmost-mcp' to 'docmost-mcp-bitcryptic').",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DOCMOST_API_URL",
+      "key": "DOCMOST_API_URL",
+      "value": "https://docmost.pygmy-bramble.ts.net/api",
+      "description": "Full URL to your Docmost API (not a secret). Default is the pygmy-bramble tailnet address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MCP Proxy Port",
+      "key": "MCP_PROXY_PORT",
+      "value": "8088",
+      "description": "Port mcp-proxy listens on inside the container. This is the port you point agent MCP clients at over Tailscale. Do NOT forward this port on your router \u2014 access is via Tailscale only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

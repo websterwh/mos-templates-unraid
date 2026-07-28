@@ -1,0 +1,141 @@
+{
+  "name": "frigate",
+  "repo": "ghcr.io/blakeblackshear/frigate:stable",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/blakeblackshear/frigate/pkgs/container/frigate",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--shm-size=256m --mount type=tmpfs,target=/tmp/cache,tmpfs-size=1000000000 --restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8971]",
+  "icon": "https://raw.githubusercontent.com/yayitazale/unraid-templates/main/frigate.png",
+  "project": "https://frigate.video/",
+  "description": "A complete and local NVR designed for Home Assistant with AI object detection. Uses OpenCV and Tensorflow to perform realtime object detection locally for IP cameras. You cas use a integrated or dedicated GPU (Intel/AMD/Nvidia) to perform the image decoding of the input streams of your cameras. Optionally (but highly recommended), you can use multiple devices to perform the object detetion, such as a Google Coral Accelerator, Nvidia GPU, OpenVINO (Intel GPU)... See the documentation for more details about your specific hardware and needs (https://docs.frigate.video/). This is a general templeate that aims to give a fast deoplyment for every user so check all the options carefully and remove all the configurations that you are not going to use.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/frigate",
+      "container": "/config",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Media path",
+      "host": "/mnt/cache/Media/frigate",
+      "container": "/media/frigate",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Localtime",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Authenticated UI and API access without TLS. Reverse proxies should use this port",
+      "host": "8971",
+      "container": "8971",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RTSP restreaming port",
+      "host": "8554",
+      "container": "8554",
+      "protocol": "tcp",
+      "description": "By default, these streams are unauthenticated. Authentication can be configured in go2rtc section of config",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebRTC connection TCP port",
+      "host": "8555",
+      "container": "8555",
+      "protocol": "tcp",
+      "description": "For low latency live views",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebRTC connection UDP port",
+      "host": "8555",
+      "container": "8555",
+      "protocol": "udp",
+      "description": "For low latency live views",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Frigate RTSP Password",
+      "key": "FRIGATE_RTSP_PASSWORD",
+      "value": "enterpassword",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frigate+ API key",
+      "key": "PLUS_API_KEY",
+      "value": "",
+      "description": "Optional: Enter the frigate+ API key or remove this if you are not using it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Driver for Intel/AMD GPUs",
+      "key": "LIBVA_DRIVER_NAME",
+      "value": "iHD",
+      "description": "(Intel = iHD or i965 and AMD = radeonsi). Remove this if you are not using it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "YOURGPUUUID",
+      "description": "This info can be found in the NVidia driver plugin.. Only for Nvidia GPU decoding and/or detection. Remove this if you are not using it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nvidia Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility,video",
+      "description": "Only for Nvidia GPU decoding and/or detection. Remove this if you are not using it",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Coral TPU/NCS2 Mapping",
+      "host": "/dev/bus/usb",
+      "container": "/dev/bus/usb",
+      "description": "Use /dev/bus/usb for USB devices and /dev/apex_0 for PCIe devices (you must install the drivers first for PCIe devices). Remove this if you are not using it",
+      "required": false
+    },
+    {
+      "name": "Intel/AMD GPU mapping",
+      "host": "/dev/dri/renderD128",
+      "container": "",
+      "description": "Intel/AMD GPU mapping for image decode (and detection with Intel OpenVINO). Remove this if you are not using it",
+      "required": false
+    }
+  ],
+  "labels": []
+}

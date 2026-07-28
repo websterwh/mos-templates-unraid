@@ -1,0 +1,50 @@
+{
+  "name": "ckpool-solo",
+  "repo": "bitcryptic/ckpool-solo:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/bitcryptic/ckpool-solo",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3333]",
+  "icon": "https://raw.githubusercontent.com/bitcryptic-gw/unraid-ckpool-solo/main/icon.png",
+  "project": "https://bitbucket.org/ckolivas/ckpool",
+  "description": "ckpool-solo \u2014 Solo Bitcoin mining pool server for Unraid. Run your own solo Bitcoin mining operation without any pool fees or third parties. ckpool-solo connects to your local Bitcoin Core full node and provides a standard Stratum v1 endpoint that your ASIC miners connect to. If your miner finds a block, the full 3.125 BTC reward goes directly to your Bitcoin address. HOW IT WORKS: Your ASIC miners connect to ckpool-solo running on your Unraid server. ckpool-solo talks to your Bitcoin Core node to get work, distributes that work to your miners, and submits any solved blocks directly to the Bitcoin network. No pool, no fees, no signup required. REQUIREMENTS: 1. A fully synced Bitcoin Core node \u2014 the \"Bitcoin Core (GUI)\" container from Unraid Community Applications works perfectly. It must have RPC enabled (see README for bitcoin.conf settings). 2. A Bitcoin wallet address to receive block rewards. 3. A ckpool.conf file placed in your config directory before starting (see the example at https://github.com/bitcryptic-gw/Unraid-ckpool-solo). NETWORK NOTE: This template defaults to the standard bridge network, which works for most setups. If your Bitcoin Core container is on a custom Docker network, switch this container to the same network so ckpool-solo can reach it by container name. If Bitcoin Core is on the bridge network, use its Unraid host IP and port 8332 instead. POINTING YOUR MINERS: Once running, configure your ASICs with: URL: stratum+tcp://YOUR-Unraid-IP:3333 Worker: anything (e.g. your Bitcoin address or rig name) Password: x REALISTIC EXPECTATIONS: Solo mining is a lottery. With two Bitmain S9s (~28 TH/s combined) against the current network difficulty of ~140 EH/s, the odds of finding a block are roughly 1 in 5,000,000 per day. This is a long game \u2014 but when you do find one, it's all yours. Many people run solo mining as a low-cost background operation alongside solar or other surplus power. Full setup guide: https://github.com/bitcryptic-gw/Unraid-ckpool-solo",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/ckpool-solo/config",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Directory containing your ckpool.conf file. Must exist and contain a valid ckpool.conf before starting the container. See the example config at https://github.com/bitcryptic-gw/unraid-ckpool-solo",
+      "required": true
+    },
+    {
+      "name": "Log Directory",
+      "host": "/mnt/cache/appdata/ckpool-solo/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "ckpool writes its logs here. You can monitor miner connections and pool activity from this directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Stratum Port",
+      "host": "3333",
+      "container": "3333",
+      "protocol": "tcp",
+      "description": "The port your ASIC miners connect to. Default is 3333 which is the standard Stratum port. Change this if port 3333 is already in use on your Unraid server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,774 @@
+{
+  "name": "binhex-official-gluetun",
+  "repo": "qmcgaw/gluetun",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/qdm12/gluetun/pkgs/container/gluetun",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device /dev/net/tun:/dev/net/tun",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/gluetun-icon.png",
+  "project": "https://github.com/qdm12/gluetun",
+  "description": "Gluetun is a lightweight swiss-knife-like VPN client to tunnel to Cyberghost, ExpressVPN, FastestVPN, HideMyAss, IPVanish, IVPN, Mullvad, NordVPN, Perfect Privacy, Privado, PrivateVPN, ProtonVPN, PureVPN, Surfshark, TorGuard, VyprVPN, Windscribe servers using OpenVPN or Wireguard, iptables killswitch, DNS over TLS, ShadowSocks, and an HTTP proxy server.",
+  "paths": [
+    {
+      "name": "Path: /gluetun",
+      "host": "/mnt/cache/appdata/gluetun",
+      "container": "/gluetun",
+      "mode": "rw",
+      "description": "This is the container path to store gluetun related configuration.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: HTTP Control Server Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP Control Server port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: HTTP Proxy Port",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "HTTP Proxy port (when HTTPPROXY=on)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: Shadowsocks Port TCP",
+      "host": "8388",
+      "container": "8388",
+      "protocol": "tcp",
+      "description": "Shadowsocks port TCP (when SHADOWSOCKS=on)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: Shadowsocks Port UDP",
+      "host": "8388",
+      "container": "8388",
+      "protocol": "udp",
+      "description": "Shadowsocks port UDP (when SHADOWSOCKS=on)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: VPN_SERVICE_PROVIDER",
+      "key": "VPN_SERVICE_PROVIDER",
+      "value": "private internet access|airvpn|cyberghost|expressvpn|fastestvpn|hidemyass|ipvanish|ivpn|mullvad|nordvpn|perfect privacy|privado|privatevpn|protonvpn|purevpn|slickvpn|surfshark|torguard|vpnsecure|vpn unlimited|vyprvpn|wevpn|windscribe|custom",
+      "description": "Specify a supported VPN provider to use",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_TYPE",
+      "key": "VPN_TYPE",
+      "value": "openvpn|wireguard",
+      "description": "VPN protocol to use. Not all providers support Wireguard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_INTERFACE",
+      "key": "VPN_INTERFACE",
+      "value": "tun0|en0",
+      "description": "Specify a custom network interface name to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET",
+      "key": "PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET",
+      "value": "normal|strong|none",
+      "description": "Encryption preset, 'none' disables the cipher and auth OpenVPN options (not recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_USER",
+      "key": "OPENVPN_USER",
+      "value": "",
+      "description": "OpenVPN username (required for OpenVPN)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_PASSWORD",
+      "key": "OPENVPN_PASSWORD",
+      "value": "",
+      "description": "OpenVPN password (required for OpenVPN)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OPENVPN_PROTOCOL",
+      "key": "OPENVPN_PROTOCOL",
+      "value": "udp|tcp",
+      "description": "Network protocol to use for OpenVPN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_VERSION",
+      "key": "OPENVPN_VERSION",
+      "value": "2.6|2.5",
+      "description": "Set the OpenVPN version to run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_ENDPOINT_IP",
+      "key": "OPENVPN_ENDPOINT_IP",
+      "value": "",
+      "description": "Specify a target VPN server IP address to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_ENDPOINT_PORT",
+      "key": "OPENVPN_ENDPOINT_PORT",
+      "value": "",
+      "description": "Specify a target VPN server port number to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_VERBOSITY",
+      "key": "OPENVPN_VERBOSITY",
+      "value": "1|2|3|4|5|6",
+      "description": "OpenVPN verbosity level (1-6)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_FLAGS",
+      "key": "OPENVPN_FLAGS",
+      "value": "",
+      "description": "Space delimited OpenVPN flags to pass to openvpn",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_ROOT",
+      "key": "OPENVPN_ROOT",
+      "value": "no|yes",
+      "description": "Run OpenVPN as root",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_CIPHERS",
+      "key": "OPENVPN_CIPHERS",
+      "value": "",
+      "description": "Specify a custom cipher to use (e.g. aes-256-gcm)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_AUTH",
+      "key": "OPENVPN_AUTH",
+      "value": "",
+      "description": "Specify a custom auth algorithm to use (e.g. sha256)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_MSSFIX",
+      "key": "OPENVPN_MSSFIX",
+      "value": "0",
+      "description": "Set the MSS fix parameter (0-9999, 0 to use defaults)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENVPN_CUSTOM_CONFIG",
+      "key": "OPENVPN_CUSTOM_CONFIG",
+      "value": "",
+      "description": "Path to custom OpenVPN configuration file for custom provider",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_PRIVATE_KEY",
+      "key": "WIREGUARD_PRIVATE_KEY",
+      "value": "",
+      "description": "Wireguard client private key (required for Wireguard)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: WIREGUARD_ADDRESSES",
+      "key": "WIREGUARD_ADDRESSES",
+      "value": "",
+      "description": "Wireguard IP network interface address (xx.xx.xx.xx/xx)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_PUBLIC_KEY",
+      "key": "WIREGUARD_PUBLIC_KEY",
+      "value": "",
+      "description": "Wireguard server public key",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_ENDPOINT_IP",
+      "key": "WIREGUARD_ENDPOINT_IP",
+      "value": "",
+      "description": "Wireguard server endpoint IP address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_ENDPOINT_PORT",
+      "key": "WIREGUARD_ENDPOINT_PORT",
+      "value": "",
+      "description": "Wireguard server endpoint port number",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_PRESHARED_KEY",
+      "key": "WIREGUARD_PRESHARED_KEY",
+      "value": "",
+      "description": "Wireguard pre-shared key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: WIREGUARD_ALLOWED_IPS",
+      "key": "WIREGUARD_ALLOWED_IPS",
+      "value": "0.0.0.0/0,::/0",
+      "description": "Wireguard peer allowed IPs (CSV format)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_IMPLEMENTATION",
+      "key": "WIREGUARD_IMPLEMENTATION",
+      "value": "auto|kernelspace|userspace",
+      "description": "Wireguard implementation to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_MTU",
+      "key": "WIREGUARD_MTU",
+      "value": "1400",
+      "description": "Wireguard MTU (1-65535)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "key": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "",
+      "description": "Wireguard persistent keepalive interval (e.g. 25s)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_COUNTRIES",
+      "key": "SERVER_COUNTRIES",
+      "value": "",
+      "description": "Comma separated list of countries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_REGIONS",
+      "key": "SERVER_REGIONS",
+      "value": "",
+      "description": "Comma separated list of regions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_CITIES",
+      "key": "SERVER_CITIES",
+      "value": "",
+      "description": "Comma separated list of cities",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_HOSTNAMES",
+      "key": "SERVER_HOSTNAMES",
+      "value": "",
+      "description": "Comma separated list of server hostnames",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_NAMES",
+      "key": "SERVER_NAMES",
+      "value": "",
+      "description": "Comma separated list of server names",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SERVER_CATEGORIES",
+      "key": "SERVER_CATEGORIES",
+      "value": "",
+      "description": "Comma separated list of server categories (NordVPN)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_PORT_FORWARDING",
+      "key": "VPN_PORT_FORWARDING",
+      "value": "off|on",
+      "description": "Enable custom port forwarding code for supported providers",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_PORT_FORWARDING_PROVIDER",
+      "key": "VPN_PORT_FORWARDING_PROVIDER",
+      "value": "",
+      "description": "Choose the custom port forwarding code to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_PORT_FORWARDING_STATUS_FILE",
+      "key": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "value": "/gluetun/forwarded_port",
+      "description": "File path to use for writing the forwarded port obtained",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VPN_PORT_FORWARDING_LISTENING_PORT",
+      "key": "VPN_PORT_FORWARDING_LISTENING_PORT",
+      "value": "",
+      "description": "Port redirection for the VPN server side port forwarded",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FIREWALL_VPN_INPUT_PORTS",
+      "key": "FIREWALL_VPN_INPUT_PORTS",
+      "value": "",
+      "description": "Comma separated list of ports to allow from the VPN server side",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FIREWALL_INPUT_PORTS",
+      "key": "FIREWALL_INPUT_PORTS",
+      "value": "",
+      "description": "Comma separated list of ports to allow through the default interface",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FIREWALL_DEBUG",
+      "key": "FIREWALL_DEBUG",
+      "value": "off|on",
+      "description": "Prints every firewall related command (debugging only)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FIREWALL_OUTBOUND_SUBNETS",
+      "key": "FIREWALL_OUTBOUND_SUBNETS",
+      "value": "",
+      "description": "Comma separated subnets that Gluetun is allowed to access",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_SERVER",
+      "key": "DNS_SERVER",
+      "value": "on",
+      "description": "Activate DNS over TLS with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_UPSTREAM_RESOLVER_TYPE",
+      "key": "DNS_UPSTREAM_RESOLVER_TYPE",
+      "value": "dot|doh|plain",
+      "description": "How to connect to upstream DNS servers: dot (DNS over TLS), doh (DNS over HTTPS), plain (UDP DNS)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_UPSTREAM_RESOLVERS",
+      "key": "DNS_UPSTREAM_RESOLVERS",
+      "value": "google",
+      "description": "Comma delimited list of DNS over TLS providers, valid values are: 'google', 'quad9', 'quadrant', 'cleanbrowsing', 'libredns', 'opendns'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_UNBLOCK_HOSTNAMES",
+      "key": "DNS_UNBLOCK_HOSTNAMES",
+      "value": "",
+      "description": "Comma separated list of domain names to leave unblocked from the filtering",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_CACHING",
+      "key": "DNS_CACHING",
+      "value": "on|off",
+      "description": "Unbound caching",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_BLOCK_IP_PREFIXES",
+      "key": "DNS_BLOCK_IP_PREFIXES",
+      "value": "127.0.0.1/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,::1/128,fc00::/7,fe80::/10,::ffff:7f00:1/104,::ffff:a00:0/104,::ffff:a9fe:0/112,::ffff:ac10:0/108,::ffff:c0a8:0/112",
+      "description": "All private CIDRs ranges. Comma separated list of CIDRs or single IP addresses Unbound won't resolve to. Note that the default setting prevents DNS rebinding",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_UPSTREAM_IPV6",
+      "key": "DNS_UPSTREAM_IPV6",
+      "value": "off|on",
+      "description": "DNS IPv6 resolution",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_BLOCK_IPS",
+      "key": "DNS_BLOCK_IPS",
+      "value": "",
+      "description": "Comma separated list of IP addresses to not resolve public domains to",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES",
+      "key": "DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES",
+      "value": "",
+      "description": "Comma separated list of public domain names to exclude from DNS rebinding protection",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_UPDATE_PERIOD",
+      "key": "DNS_UPDATE_PERIOD",
+      "value": "24h",
+      "description": "Period to update block lists and restart Unbound (e.g. 24h, 0 to disable)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_ADDRESS",
+      "key": "DNS_ADDRESS",
+      "value": "127.0.0.1",
+      "description": "IP address to use as DNS resolver",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DNS_KEEP_NAMESERVER",
+      "key": "DNS_KEEP_NAMESERVER",
+      "value": "off|on",
+      "description": "Keep /etc/resolv.conf untouched",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: BLOCK_MALICIOUS",
+      "key": "BLOCK_MALICIOUS",
+      "value": "on|off",
+      "description": "Block malicious hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: BLOCK_SURVEILLANCE",
+      "key": "BLOCK_SURVEILLANCE",
+      "value": "off|on",
+      "description": "Block surveillance hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: BLOCK_ADS",
+      "key": "BLOCK_ADS",
+      "value": "off|on",
+      "description": "Block ads hostnames and IPs with Unbound",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPPROXY",
+      "key": "HTTPPROXY",
+      "value": "off|on",
+      "description": "Enable the internal HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPPROXY_LOG",
+      "key": "HTTPPROXY_LOG",
+      "value": "off|on",
+      "description": "Logs every tunnel requests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPPROXY_LISTENING_ADDRESS",
+      "key": "HTTPPROXY_LISTENING_ADDRESS",
+      "value": ":8888",
+      "description": "Internal listening address for the HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPPROXY_USER",
+      "key": "HTTPPROXY_USER",
+      "value": "",
+      "description": "Username to use to connect to the HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTPPROXY_PASSWORD",
+      "key": "HTTPPROXY_PASSWORD",
+      "value": "",
+      "description": "Password to use to connect to the HTTP proxy",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: HTTPPROXY_STEALTH",
+      "key": "HTTPPROXY_STEALTH",
+      "value": "off|on",
+      "description": "Stealth mode means HTTP proxy headers are not added",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SHADOWSOCKS",
+      "key": "SHADOWSOCKS",
+      "value": "off|on",
+      "description": "Enable the internal Shadowsocks proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SHADOWSOCKS_LOG",
+      "key": "SHADOWSOCKS_LOG",
+      "value": "off|on",
+      "description": "Enable Shadowsocks logging",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SHADOWSOCKS_LISTENING_ADDRESS",
+      "key": "SHADOWSOCKS_LISTENING_ADDRESS",
+      "value": ":8388",
+      "description": "Internal listening address for Shadowsocks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SHADOWSOCKS_PASSWORD",
+      "key": "SHADOWSOCKS_PASSWORD",
+      "value": "",
+      "description": "Password to use to connect to Shadowsocks",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: SHADOWSOCKS_CIPHER",
+      "key": "SHADOWSOCKS_CIPHER",
+      "value": "chacha20-ietf-poly1305|aes-128-gcm|aes-256-gcm",
+      "description": "AEAD Cipher to use for Shadowsocks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE",
+      "key": "HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE",
+      "value": "{\"auth\":\"basic\",\"username\":\"controlserver\",\"password\":\"controlserver\"}",
+      "description": "Authentication configuration for the HTTP Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTP_CONTROL_SERVER_ADDRESS",
+      "key": "HTTP_CONTROL_SERVER_ADDRESS",
+      "value": ":8000",
+      "description": "Listening address for the HTTP Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTP_CONTROL_SERVER_LOG",
+      "key": "HTTP_CONTROL_SERVER_LOG",
+      "value": "on|off",
+      "description": "Enable logging of requests for the HTTP Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH",
+      "key": "HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH",
+      "value": "",
+      "description": "Path to a TOML file containing authentication configuration for the HTTP Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTH_TARGET_ADDRESSES",
+      "key": "HEALTH_TARGET_ADDRESSES",
+      "value": "google.com:443",
+      "description": "Comma-separated addresses to ping on every internal health check (replaces HEALTH_TARGET_ADDRESS)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTH_VPN_DURATION_INITIAL",
+      "key": "HEALTH_VPN_DURATION_INITIAL",
+      "value": "6s",
+      "description": "Initial duration to wait for the VPN to be ready",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTH_VPN_DURATION_ADDITION",
+      "key": "HEALTH_VPN_DURATION_ADDITION",
+      "value": "5s",
+      "description": "Additional duration to add for each consecutive VPN failure",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTH_SUCCESS_WAIT_DURATION",
+      "key": "HEALTH_SUCCESS_WAIT_DURATION",
+      "value": "5s",
+      "description": "Duration to wait after a success check",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTH_SERVER_ADDRESS",
+      "key": "HEALTH_SERVER_ADDRESS",
+      "value": "127.0.0.1:9999",
+      "description": "Internal health check server listening address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: UPDATER_PERIOD",
+      "key": "UPDATER_PERIOD",
+      "value": "0",
+      "description": "Period to update VPN servers data e.g. '24h' (0 to disable)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: UPDATER_MIN_RATIO",
+      "key": "UPDATER_MIN_RATIO",
+      "value": "0.8",
+      "description": "Ratio of servers to be found for update to succeed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: UPDATER_VPN_SERVICE_PROVIDERS",
+      "key": "UPDATER_VPN_SERVICE_PROVIDERS",
+      "value": "",
+      "description": "List of providers to update servers data for",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: STORAGE_FILEPATH",
+      "key": "STORAGE_FILEPATH",
+      "value": "/gluetun/servers.json",
+      "description": "Path of servers.json file (empty to disable caching)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "",
+      "description": "Specify a timezone to use to have correct log times. i.e. Europe/London",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run as non root",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run as non root",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUBLICIP_ENABLED",
+      "key": "PUBLICIP_ENABLED",
+      "value": "true",
+      "description": "Check for public IP address information on VPN connection",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUBLICIP_API",
+      "key": "PUBLICIP_API",
+      "value": "ipinfo",
+      "description": "Public IP echo service API to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUBLICIP_API_TOKEN",
+      "key": "PUBLICIP_API_TOKEN",
+      "value": "",
+      "description": "Optional API token for the public IP echo service",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: PUBLICIP_FILE",
+      "key": "PUBLICIP_FILE",
+      "value": "/gluetun/ip",
+      "description": "Filepath to store the public IP address assigned",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: VERSION_INFORMATION",
+      "key": "VERSION_INFORMATION",
+      "value": "on",
+      "description": "Logs a message indicating if a newer version is available",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

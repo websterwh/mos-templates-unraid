@@ -1,0 +1,107 @@
+{
+  "name": "MySQL",
+  "repo": "mysql",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/_/mysql",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --memory=2G --restart=unless-stopped",
+  "post_parameters": "mysqld --log-error=/var/log/mysql/error.log",
+  "web_ui_url": "http://[IP]:[PORT:3306]",
+  "icon": "https://raw.githubusercontent.com/UNRA1DUser/unraid-docker-templates/main/templates/img/mysql.png",
+  "project": "https://www.mysql.com/",
+  "description": "|------------------------------------------------- | General Information |------------------------------------------------- Official MySQL database container. It allows to set a database and username without using the console. MySQL is the world's most popular open source database. With its proven performance, reliability and ease-of-use, MySQL has become the leading database choice for web-based applications, covering the entire range from personal projects and websites, via e-commerce and information services, all the way to high profile web properties including Facebook, Twitter, YouTube, Yahoo! and many more. For more information and related downloads for MySQL Server and other MySQL products, please visit www.mysql.com. |------------------------------------------------- | Root Password |------------------------------------------------- This container creates by default a random root password on initial execution. Open Docker MySQL Icon Logs Scroll down to \"GENERATED ROOT PASSWORD\" to find it. |------------------------------------------------- | Creating database dumps |------------------------------------------------- docker exec some-mysql sh -c 'exec mysqldump --all-databases -uroot -p\"$MYSQL_ROOT_PASSWORD\"' /mnt/user/Backups/all-databases.sql |------------------------------------------------- | Restoring data from dump files |------------------------------------------------- docker exec -i some-mysql sh -c 'exec mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\"' /mnt/user/Backups/all-databases.sql |------------------------------------------------- | Configuration without a cnf file |------------------------------------------------- Many configuration options can be passed as flags to mysqld. This will give you the flexibility to customize the container without needing a cnf file. For example, if you want to change the default encoding and collation for all tables to use UTF-8 (utf8mb4) just append the following to the Post Arguments: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci Here is a list of all Server System Variables - https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html |------------------------------------------------- | Repository tags |------------------------------------------------- If you want to install a specific version of mysql, you can simply customize the repository. For example: mysql (is the same like mysql:latest) mysql:5.7 mysql:8.2.0",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/mysql/data",
+      "container": "/var/lib/mysql",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/mysql/logs",
+      "container": "/var/log/mysql",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "MySQL configuration file",
+      "host": "/mnt/cache/appdata/mysql/conf.d",
+      "container": "/etc/mysql/conf.d",
+      "mode": "rw",
+      "description": "The default configuration for MySQL can be found in /etc/mysql/my.cnf, which may !includedir additional directories such as /etc/mysql/conf.d or /etc/mysql/mysql.conf.d. Please inspect the relevant files and directories within the mysql image itself for more details. This will start a new container where the MySQL instance uses the combined startup settings from /etc/mysql/my.cnf and /etc/mysql/conf.d/config-file.cnf, with settings from the latter taking precedence.",
+      "required": false
+    },
+    {
+      "name": "MySQL unique start scripts",
+      "host": "/mnt/cache/appdata/mysql/initdb",
+      "container": "/docker-entrypoint-initdb.d",
+      "mode": "rw",
+      "description": "When you run a MySQL container, it checks if MySQL directory /var/lib/mysql exist or not. If the directory doesn't exist (running it the first time), it will run your SQL files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "MYSQL_TCP_PORT",
+      "host": "3306",
+      "container": "3306",
+      "protocol": "tcp",
+      "description": "MYSQL_TCP_PORT",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Generate Random Password",
+      "key": "MYSQL_RANDOM_ROOT_PASSWORD",
+      "value": "yes|",
+      "description": "Set to yes, to generate a random root password. The generated password will be printed to the logs (Docker &gt; MySQL Icon &gt; Logs).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Name",
+      "key": "MYSQL_DATABASE",
+      "value": "MYSQL_DATABASE",
+      "description": "This variable is optional and allows you to specify the name of a database to be created on image startup. If a user/password was supplied (see below) then that user will be granted superuser access (corresponding to GRANT ALL) to this database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database User",
+      "key": "MYSQL_USER",
+      "value": "MYSQL_USER",
+      "description": "These variables are optional, used in conjunction to create a new user and to set that user's password. This user will be granted superuser permissions (see above) for the database specified by the MYSQL_DATABASE variable. Both variables are required for a user to be created. Do note that there is no need to use this mechanism to create the root superuser, that user gets created by default with the password specified by the MYSQL_ROOT_PASSWORD variable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Password",
+      "key": "MYSQL_PASSWORD",
+      "value": "MYSQL_PASSWORD",
+      "description": "These variables are optional, used in conjunction to create a new user and to set that user's password. This user will be granted superuser permissions (see above) for the database specified by the MYSQL_DATABASE variable. Both variables are required for a user to be created. Do note that there is no need to use this mechanism to create the root superuser, that user gets created by default with the password specified by the MYSQL_ROOT_PASSWORD variable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Root Password",
+      "key": "MYSQL_ROOT_PASSWORD",
+      "value": "",
+      "description": "Generate Random Password must be empty if you like to set your own Root Password! This variable specifies the password that will be set for the MySQL root superuser account.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

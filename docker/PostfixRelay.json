@@ -1,0 +1,115 @@
+{
+  "name": "Postfix-Relay",
+  "repo": "loganmarchione/docker-postfixrelay:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/loganmarchione/docker-postfixrelay",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:25]",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/postfix-logo.gif",
+  "project": "https://github.com/loganmarchione/docker-postfixrelay",
+  "description": "This runs Postfix (as a relay) in Docker. Most home ISPs block port 25, so outbound emails must be relayed through an external SMTP server (e.g., Gmail). This container acts as a single collections point for devices needing to send email. \u26a0\ufe0f Postfix acts as an open relay. As such, this is not meant to be run on the internet, only on a trusted internal network! \u26a0\ufe0f Requirements You must already have a account on an external SMTP server (e.g., Gmail, AWS SES, etc...). Your external SMTP server must be using encryption (i.e., plaintext is not allowed)",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "",
+      "container": "/var/spool/postfix",
+      "mode": "rw",
+      "description": "Used to store Postfix's mail spool",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Postfix SMTP server",
+      "host": "25",
+      "container": "25",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public SMTP",
+      "key": "RELAY_HOST",
+      "value": "",
+      "description": "Public SMTP server to use must be using encryption (i.e., plaintext is not allowed)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Relay Port",
+      "key": "RELAY_PORT",
+      "value": "",
+      "description": "Public SMTP port to use",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SMTP username",
+      "key": "RELAY_USER",
+      "value": "",
+      "description": "Address to login to $RELAY_HOST",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP password",
+      "key": "RELAY_PASS",
+      "value": "",
+      "description": "Password to login to $RELAY_HOST If using Gmail 2FA, you will need to setup an app password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Test Email address",
+      "key": "TEST_EMAIL",
+      "value": "",
+      "description": "Address to receive test email If not set, test email will not be sent",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Domain from address",
+      "key": "MYORIGIN",
+      "value": "",
+      "description": "Domain of the from address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Networks",
+      "key": "MYNETWORKS",
+      "value": "0.0.0.0/0",
+      "description": "Networks that Postfix will forward mail for",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "From Address",
+      "key": "FROMADDRESS",
+      "value": "",
+      "description": "Changes the email from address",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

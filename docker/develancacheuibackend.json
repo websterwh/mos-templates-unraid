@@ -1,0 +1,91 @@
+{
+  "name": "develancacheui_backend",
+  "repo": "devedse/develancacheui_backend:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/devedse/develancacheui_backend/",
+  "network": "proxynet",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--no-healthcheck",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7301]",
+  "icon": "https://raw.githubusercontent.com/soonic6/unraid-templates-ca/main/soonic6/images/lancache-ui_backend.png",
+  "project": "https://github.com/devedse/DeveLanCacheUI_Backend/",
+  "description": "Backend Container for an UI for LANcache. Note: Also add the DNS line if you errors in the container logs that it can't get the manifests due to a 401 unauthorized. Also use --sysctl net.ipv6.conf.all.disable_ipv6=1 as extra parameters if you get problems, when using IPv6. !!!backend and frontend containers MUST run in the same custom user bridge/custom user network!!!",
+  "paths": [
+    {
+      "name": "appdata",
+      "host": "/mnt/cache/appdata/develancacheui/backend/",
+      "container": "/var/develancacheuidata/",
+      "mode": "rw",
+      "description": "appdata",
+      "required": true
+    },
+    {
+      "name": "lancache logfiles",
+      "host": "/mnt/cache/appdata/lancache/logs/",
+      "container": "/var/develancacheui/lancachelogs/",
+      "mode": "ro",
+      "description": "lancache logfile path - read only",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "7301",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port must be 7301 for backend",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "timezone Changing the TZ and LANG only impact the way the container logs. https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "language codes",
+      "key": "language codes",
+      "value": "de_DE.utf8",
+      "description": "Changing the TZ and LANG only impact the way the container logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Feature_DirectSteamIntegration",
+      "key": "Feature_DirectSteamIntegration",
+      "value": "true",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Feature_SkipLinesBasedOnBytesRead",
+      "key": "Feature_SkipLinesBasedOnBytesRead",
+      "value": "true",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ConnectionStrings__DefaultConnection",
+      "key": "ConnectionStrings__DefaultConnection",
+      "value": "Data Source={DeveLanCacheUIDataDirectory}/database/develancacheui.db;",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

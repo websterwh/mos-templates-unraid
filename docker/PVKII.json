@@ -1,0 +1,148 @@
+{
+  "name": "PVK-II",
+  "repo": "ghcr.io/ich777/steamcmd:pvkii",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:27015]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/pvkii.png",
+  "project": "https://www.steampowered.com/",
+  "description": "This Docker will download and install SteamCMD. It will also install Pirates, Vikings & Knights 2 and run it. ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": "Container Path: /serverdata/steamcmd",
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/pvkii",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Container Path: /serverdata/serverfiles",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP",
+      "host": "27015",
+      "container": "27015",
+      "protocol": "udp",
+      "description": "UDP Gameport (if you need another port, please delete this entry and create a new UDP Port with the required port number, also don't forget to click an 'Show more settings ...' and change the port number",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TCP RCON",
+      "host": "27015",
+      "container": "27015",
+      "protocol": "tcp",
+      "description": "TCP RCON Port (not required)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "17575",
+      "description": "The GAME_ID that the container download at startup. (https://developer.valvesoftware.com/wiki/Dedicated_Servers_List)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GAME_NAME",
+      "key": "GAME_NAME",
+      "value": "pvkii",
+      "description": "Game name to start (is connected to the GAME_PARAMS).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GAME_PARAMS",
+      "key": "GAME_PARAMS",
+      "value": "-maxplayers 18 +map bt_island",
+      "description": "Enter your start up commands for the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Container Variable: UMASK",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATA_PERM",
+      "key": "DATA_PERM",
+      "value": "770",
+      "description": "Container Variable: DATA_PERM",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GAME_PORT",
+      "key": "GAME_PORT",
+      "value": "27015",
+      "description": "Container Variable: GAME_PORT",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Container Variable: UID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Container Variable: GID",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,242 @@
+{
+  "name": "Matrix",
+  "repo": "junkerderprovinz/matrix:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/matrix",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/element/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/matrix/icon.png?v=1",
+  "project": "https://matrix.org",
+  "description": "All-in-one Matrix homeserver for Unraid: Synapse + coturn + Element Web (/element/) + Synapse-Admin (/admin/). Plug-and-play \u2014 just fill in SERVER_NAME and Postgres connection, everything else is generated automatically. PREREQUISITES (before starting the container): 1) PostgreSQL database \u2014 connect to your Postgres container and run: CREATE USER matrix WITH PASSWORD 'yourpass'; CREATE DATABASE matrix ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE template0 OWNER matrix; (UTF8 + LC_COLLATE='C' is mandatory \u2014 Synapse will refuse to start otherwise.) 2) Reverse proxy (Nginx Proxy Manager) for matrix.yourdomain.tld \u2192 Unraid-IP:8008. In the proxy host \u2192 Advanced tab, add: client_max_body_size 100m; proxy_read_timeout 600s; (Without these, media uploads fail and long-running requests time out.) 3) Federation discovery works out of the box: Synapse serves /.well-known/matrix/server and /.well-known/matrix/client itself on the API port (8008), so the proxy host from step 2 already covers them. No extra Custom Locations needed (remove any manual ones from older setups). Full step-by-step guide (NPM screenshots, well-known, first user): https://github.com/junkerderprovinz/matrix#readme",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/matrix/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data: homeserver.yaml, media, signing keys. Never delete \u2014 destroys keys and breaks federation.",
+      "required": true
+    },
+    {
+      "name": "TURN-TLS Certs",
+      "host": "",
+      "container": "/data/certs",
+      "mode": "ro",
+      "description": "Optional. Mount a folder containing fullchain.pem + privkey.pem to enable TURN-TLS on 5349.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Matrix HTTP API",
+      "host": "8008",
+      "container": "8008",
+      "protocol": "tcp",
+      "description": "Synapse HTTP API. Expose via reverse proxy with HTTPS \u2014 never directly to the internet.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Element Web + Synapse-Admin",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Serves Element Web (/element/), Synapse-Admin (/admin/) and /.well-known/matrix/* endpoints.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TURN TCP",
+      "host": "3478",
+      "container": "3478",
+      "protocol": "tcp",
+      "description": "TURN/STUN over TCP for voice/video calls. Open this port in your router/firewall.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TURN UDP",
+      "host": "3478",
+      "container": "3478",
+      "protocol": "udp",
+      "description": "TURN/STUN over UDP for voice/video calls. Open this port in your router/firewall.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TURN TLS TCP",
+      "host": "5349",
+      "container": "5349",
+      "protocol": "tcp",
+      "description": "TURN over TLS (TCP). Optional \u2014 only if TLS certs are mounted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURN TLS UDP",
+      "host": "5349",
+      "container": "5349",
+      "protocol": "udp",
+      "description": "TURN over TLS (UDP). Optional \u2014 only if TLS certs are mounted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURN relay ports (UDP)",
+      "host": "49160-49200",
+      "container": "49160-49200",
+      "protocol": "udp",
+      "description": "UDP relay port range for TURN (voice/video calls). Must match the container's coturn min-port/max-port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prometheus Metrics",
+      "host": "9090",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "Prometheus metrics at /_synapse/metrics. Bind to a private network only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Matrix Server Domain",
+      "key": "SERVER_NAME",
+      "value": "matrix.yourdomain.tld",
+      "description": "Your Matrix domain, e.g. matrix.yourdomain.tld. Used in Matrix IDs (@user:matrix.yourdomain.tld). Cannot be changed later without wiping the DB.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Anonymous Usage Reporting",
+      "key": "REPORT_STATS",
+      "value": "no",
+      "description": "Send anonymous usage stats to Matrix.org. 'yes' or 'no'. Recommended: no.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Federation",
+      "key": "ENABLE_FEDERATION",
+      "value": "true",
+      "description": "true = chat with the public Matrix network. The container now serves /.well-known/matrix/* itself (serve_server_wellknown) as long as https://SERVER_NAME/ is routed to Synapse \u2014 no extra proxy rule needed. false = private island.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Registration",
+      "key": "ENABLE_REGISTRATION",
+      "value": "false",
+      "description": "false = accounts created by the admin only (recommended). true = open self-service signup WITHOUT verification (shows Element's Create Account button) \u2014 only enable behind a CAPTCHA or on a trusted network, or you will get spam signups.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TURN Domain",
+      "key": "TURN_DOMAIN",
+      "value": "",
+      "description": "Optional. Public hostname clients reach TURN (voice/video) at. Leave empty to use SERVER_NAME; set a dedicated subdomain (e.g. turn.yourdomain.tld) to route TURN around a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURN Port",
+      "key": "TURN_PORT",
+      "value": "3478",
+      "description": "Optional. Public TURN port advertised to clients (default 3478). Change only if you remapped the published TURN port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Host",
+      "key": "POSTGRES_HOST",
+      "value": "192.168.1.10",
+      "description": "IP of your PostgreSQL server (e.g. Unraid host IP). 192.168.1.10 is a placeholder \u2014 replace it with your server's IP. IP+port is more reliable than container names.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port. Default 5432.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Username",
+      "key": "POSTGRES_USER",
+      "value": "matrix",
+      "description": "Postgres user for Synapse. Must already exist (see README \u2014 Postgres setup).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Password for the Postgres user above.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PostgreSQL Database",
+      "key": "POSTGRES_DB",
+      "value": "matrix",
+      "description": "Synapse database name. Must be created with ENCODING UTF8, LC_COLLATE='C', LC_CTYPE='C' \u2014 see Overview.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Matrix Admin Username (Element / Synapse-Admin login)",
+      "key": "ADMIN_USER",
+      "value": "",
+      "description": "Optional. Localpart of the admin user to auto-create on first boot (e.g. 'admin' \u2192 @admin:SERVER_NAME). Logs into Element Web + Synapse-Admin. Clear after creation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Matrix Admin Password (Element / Synapse-Admin login)",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional. Password for the admin user above. Clear after first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone (affects log timestamps).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID Synapse runs as. Default 99 (nobody on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID (PGID)",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID Synapse runs as. Default 100 (users on Unraid).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

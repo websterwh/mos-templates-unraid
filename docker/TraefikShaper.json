@@ -1,0 +1,133 @@
+{
+  "name": "TraefikShaper",
+  "repo": "l4rm4nd/traefikshaper:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/l4rm4nd/traefikshaper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/traefik-shaper-icon.png",
+  "project": "https://github.com/l4rm4nd/TraefikShaper",
+  "description": "Docker container to manipulate Traefik's IpAllowList middleware for dynamic IP whitelisting",
+  "paths": [
+    {
+      "name": "Whitelist File",
+      "host": "",
+      "container": "/app/dynamic-whitelist.yml",
+      "mode": "rw",
+      "description": "Path to the dynamic whitelist file",
+      "required": true
+    },
+    {
+      "name": "Local Time",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Container local time",
+      "required": true
+    },
+    {
+      "name": "Timezone",
+      "host": "/etc/timezone",
+      "container": "/etc/timezone",
+      "mode": "ro",
+      "description": "Container timezone",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "App Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Container Port: 5000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App URL",
+      "key": "APPURL",
+      "value": "http://localhost:5000",
+      "description": "URL of the app. Replace with domain (ex. https://traefikshaper.example.com)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Access Request Endpoint",
+      "key": "GRANT_HTTP_ENDPOINT",
+      "value": "",
+      "description": "Endpoint for clients to request access (ex. /knock-knock)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow Private Class Subnets",
+      "key": "DEFAULT_PRIVATE_CLASS_SOURCE_RANGE",
+      "value": "True|False",
+      "description": "Add private class subnets to the IPAllowList",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Depth IP Strategy",
+      "key": "IPSTRATEGY_DEPTH",
+      "value": "0",
+      "description": "The depth ip strategy used in the IPAllowList middleware. Use 1 if traefik runs behind another proxy (e.g. CloudFlare)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Expiration Time",
+      "key": "EXPIRATION_TIME",
+      "value": "300",
+      "description": "How long access is granted, in seconds",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Apprise Notification URL",
+      "key": "APPRISE_NOTIFICATION_URL",
+      "value": "",
+      "description": "Your preferred apprise url. See documentation: https://github.com/caronc/apprise",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": [
+    {
+      "name": "Enable Traefik",
+      "value": "true",
+      "description": "Enable Traefik"
+    },
+    {
+      "name": "Docker Network",
+      "value": "",
+      "description": "Docker network"
+    },
+    {
+      "name": "Router Rule",
+      "value": "",
+      "description": "Router rule (ex. Host(`traefikshaper.example.com`))"
+    },
+    {
+      "name": "Router Service Name",
+      "value": "traefikshaper",
+      "description": "Router service name"
+    },
+    {
+      "name": "Loadbalancer Port",
+      "value": "5000",
+      "description": "Loadbalancer port"
+    }
+  ]
+}

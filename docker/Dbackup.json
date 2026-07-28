@@ -1,0 +1,83 @@
+{
+  "name": "Dbackup",
+  "repo": "skyfay/dbackup:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/skyfay/dbackup",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/dbackup-logo.png",
+  "project": "https://dbackup.app/",
+  "description": "DBackup is a comprehensive, self-hosted backup solution designed to automate and secure your database backups. It provides AES-256-GCM encryption, flexible storage options, and intelligent retention policies to ensure your data is always protected and recoverable. Whether you're running a single MySQL database or managing multiple PostgreSQL, MongoDB, and SQL Server instances, DBackup offers a unified interface with real-time monitoring, granular access control, and seamless restore capabilities. No vendor lock-in by design - every backup is a standard database dump (SQL, BSON, RDB, etc.) encrypted with open AES-256-GCM. If DBackup is ever unavailable, you can decrypt and restore your backups with a single Node.js script and the key from your Recovery Kit. No proprietary formats, no dependencies on DBackup itself.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/dbackup/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "# All persistent data (db, storage, certs)",
+      "required": true
+    },
+    {
+      "name": "Local Backup Disrectory",
+      "host": "/mnt/cache/appdata/dbackup/backups",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "# Optional: used for local backups",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption Key",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "# openssl rand -hex 32 32-byte hex string (64 chars) for encrypting credentials at rest.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_URL",
+      "key": "BETTER_AUTH_URL",
+      "value": "https://[IP of your unraid server]:3000",
+      "description": "Primary URL where users access DBackup (for auth redirects).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "# openssl rand -base64 32 Base64 secret for authentication sessions.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Yime Zone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Server timezone for logs. Default: UTC",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

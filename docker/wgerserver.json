@@ -1,0 +1,363 @@
+{
+  "name": "wger-server",
+  "repo": "wger/server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://registry.hub.docker.com/r/wger/server",
+  "network": "wger_network",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--health-cmd=wget --no-verbose --tries=1 --spider http://localhost:8000 --health-interval=10s --health-retries=5 --health-start-period=300s --health-timeout=5s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8555]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/wger-logo.png",
+  "project": "https://wger.de",
+  "description": "wger (Workout Manager) is a free, open-source web application for managing workouts, nutrition plans, and training logs. This container is the backend application server for the multi-container WGER stack.",
+  "paths": [
+    {
+      "name": "DJANGO_STATIC_ROOT",
+      "host": "/mnt/cache/appdata/wger/static/",
+      "container": "/home/wger/static",
+      "mode": "rw",
+      "description": "Path for static files",
+      "required": true
+    },
+    {
+      "name": "DJANGO_MEDIA_ROOT",
+      "host": "/mnt/cache/appdata/wger/media/",
+      "container": "/home/wger/media",
+      "mode": "rw",
+      "description": "Path for media files (uploaded images, etc.)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "8555",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "WebUI port for the wger server (container port 8000)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DJANGO_DB_ENGINE",
+      "key": "DJANGO_DB_ENGINE",
+      "value": "django.db.backends.postgresql",
+      "description": "Database engine, e.g. django.db.backends.postgresql",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_DB_DATABASE",
+      "key": "DJANGO_DB_DATABASE",
+      "value": "wger",
+      "description": "PostgreSQL database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_DB_USER",
+      "key": "DJANGO_DB_USER",
+      "value": "wger",
+      "description": "Database username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_DB_PASSWORD",
+      "key": "DJANGO_DB_PASSWORD",
+      "value": "wger",
+      "description": "Database password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DJANGO_DB_HOST",
+      "key": "DJANGO_DB_HOST",
+      "value": "wger-db",
+      "description": "Database container hostname (must match your wger-db container name)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_DB_PORT",
+      "key": "DJANGO_DB_PORT",
+      "value": "5432",
+      "description": "PostgreSQL database port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TIME_ZONE",
+      "key": "TIME_ZONE",
+      "value": "Europe/Berlin",
+      "description": "Server timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SITE_URL",
+      "key": "SITE_URL",
+      "value": "http://localhost",
+      "description": "Base URL of the application, e.g. http://your-server-ip:8555",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "wger-docker-supersecret-key-1234567890!@#$%^&amp;*(-_)",
+      "description": "Django SECRET_KEY \u2013 50 characters, generate with a secure random generator. CHANGE THIS!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SIGNING_KEY",
+      "key": "SIGNING_KEY",
+      "value": "wger-docker-secret-jwtkey-1234567890!@#$%^&amp;*(-_=+)",
+      "description": "JWT signing key \u2013 must differ from SECRET_KEY. CHANGE THIS!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_REGISTRATION",
+      "key": "ALLOW_REGISTRATION",
+      "value": "True",
+      "description": "Allow new user registration (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_GUEST_USERS",
+      "key": "ALLOW_GUEST_USERS",
+      "value": "True",
+      "description": "Allow guest access (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_UPLOAD_VIDEOS",
+      "key": "ALLOW_UPLOAD_VIDEOS",
+      "value": "True",
+      "description": "Allow video uploads (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MIN_ACCOUNT_AGE_TO_TRUST",
+      "key": "MIN_ACCOUNT_AGE_TO_TRUST",
+      "value": "21",
+      "description": "Minimum account age in days before user is trusted",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_EXERCISES_CELERY",
+      "key": "SYNC_EXERCISES_CELERY",
+      "value": "True",
+      "description": "Sync exercises in background via Celery",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_EXERCISE_IMAGES_CELERY",
+      "key": "SYNC_EXERCISE_IMAGES_CELERY",
+      "value": "True",
+      "description": "Sync exercise images in background",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_EXERCISE_VIDEOS_CELERY",
+      "key": "SYNC_EXERCISE_VIDEOS_CELERY",
+      "value": "True",
+      "description": "Sync exercise videos in background",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNC_INGREDIENTS_CELERY",
+      "key": "SYNC_INGREDIENTS_CELERY",
+      "value": "True",
+      "description": "Sync ingredients in background",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOWNLOAD_INGREDIENTS_FROM",
+      "key": "DOWNLOAD_INGREDIENTS_FROM",
+      "value": "WGER",
+      "description": "Source for ingredient data, e.g. 'WGER'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_CELERY",
+      "key": "USE_CELERY",
+      "value": "True",
+      "description": "Enable Celery for background tasks (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_DEBUG",
+      "key": "DJANGO_DEBUG",
+      "value": "True",
+      "description": "Django debug mode (required for wger to run correctly)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CELERY_BROKER",
+      "key": "CELERY_BROKER",
+      "value": "redis://wger-redis:6379/2",
+      "description": "Celery broker URL (Redis)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CELERY_BACKEND",
+      "key": "CELERY_BACKEND",
+      "value": "redis://wger-redis:6379/2",
+      "description": "Celery result backend URL (Redis)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CELERY_FLOWER_PASSWORD",
+      "key": "CELERY_FLOWER_PASSWORD",
+      "value": "adminadmin",
+      "description": "Password for Celery Flower monitoring UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_CACHE_BACKEND",
+      "key": "DJANGO_CACHE_BACKEND",
+      "value": "django_redis.cache.RedisCache",
+      "description": "Cache backend class",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_CACHE_LOCATION",
+      "key": "DJANGO_CACHE_LOCATION",
+      "value": "redis://wger-redis:6379/1",
+      "description": "Django cache URL (Redis)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_CACHE_TIMEOUT",
+      "key": "DJANGO_CACHE_TIMEOUT",
+      "value": "1296000",
+      "description": "Cache timeout in seconds (15 days)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DJANGO_CACHE_CLIENT_CLASS",
+      "key": "DJANGO_CACHE_CLIENT_CLASS",
+      "value": "django_redis.client.DefaultClient",
+      "description": "Redis cache client class",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_EMAIL",
+      "key": "ENABLE_EMAIL",
+      "value": "False",
+      "description": "Enable SMTP email notifications (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_HOST",
+      "key": "EMAIL_HOST",
+      "value": "",
+      "description": "SMTP server address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_PORT",
+      "key": "EMAIL_PORT",
+      "value": "",
+      "description": "SMTP server port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_HOST_USER",
+      "key": "EMAIL_HOST_USER",
+      "value": "",
+      "description": "SMTP server username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_HOST_PASSWORD",
+      "key": "EMAIL_HOST_PASSWORD",
+      "value": "",
+      "description": "SMTP server password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EMAIL_USE_TLS",
+      "key": "EMAIL_USE_TLS",
+      "value": "True",
+      "description": "Enable TLS for email (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EMAIL_USE_SSL",
+      "key": "EMAIL_USE_SSL",
+      "value": "False",
+      "description": "Enable SSL for email (True/False)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FROM_EMAIL",
+      "key": "FROM_EMAIL",
+      "value": "wger Workout Manager wger@example.com",
+      "description": "Sender address for system emails",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

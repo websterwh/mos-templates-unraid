@@ -1,0 +1,227 @@
+{
+  "name": "UnraidDeck",
+  "repo": "ghcr.io/zabra9red/unraiddeck:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/zabra9red/unraiddeck",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt no-new-privileges=true --label net.unraid.docker.icon=https://raw.githubusercontent.com/Zabra9Red/unraiddeck/main/frontend/public/icon-192.png --label net.unraid.docker.webui=http://[IP]:[PORT:8787]",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]",
+  "icon": "https://raw.githubusercontent.com/Zabra9Red/unraiddeck/main/frontend/public/icon-192.png",
+  "project": "https://github.com/Zabra9Red/unraiddeck",
+  "description": "UnraidDeck: dashboard all-in-one per Unraid + Docker in un solo container, zero dipendenze esterne. Gestione completa dei container (start/stop/update con clone integrale della configurazione, gestione dipendenti VPN net=container, log live, console exec, check aggiornamenti dai registry), monitoraggio del sistema Unraid (array, parity, dischi con temperatura da fonte passiva, pool ZFS/BTRFS, share, VM, UPS) e controllo alimentazione host. NOTA IMPORTANTE per il path /config: usare un percorso DIRETTO (es. /mnt/cache/appdata/Unraiddeck) e NON /mnt/user/...: il database SQLite in modalit\u00e0 WAL su FUSE/shfs rischia corruzione. In alternativa usare una share con \"Exclusive access\" attivo. Su Unraid 7.x creare una API key con: Unraid-api apikey --create (oppure Settings \u2192 Management Access \u2192 API Keys). Su Unraid 6.12 configurare il fallback SSH. Al primo avvio la UI propone un wizard per creare l'utente amministratore. La variabile PASSWORD \u00e8 solo un bootstrap opzionale: rimuoverla dopo il setup.",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Socket Docker dell'host (rw, necessario per gestire i container)",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/unraiddeck",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Dati applicazione (SQLite, backup, cache icone). USARE UN PATH DIRETTO (no /mnt/user): WAL su FUSE rischia corruzione.",
+      "required": true
+    },
+    {
+      "name": "File manager (/mnt)",
+      "host": "/mnt",
+      "container": "/unraid",
+      "mode": "rw,slave",
+      "description": "Share e dischi per il file manager (bind /mnt, propagation slave per gli share FUSE). Facoltativo: senza, il file manager usa SSH/SFTP",
+      "required": false
+    },
+    {
+      "name": "libvirt (opzionale)",
+      "host": "",
+      "container": "/var/run/libvirt",
+      "mode": "rw",
+      "description": "Opzionale: directory libvirt per la gestione VM. Montare la DIRECTORY /var/run/libvirt (non il file socket): se il container parte prima di libvirtd, Docker creerebbe il socket mancante come directory rompendo le VM.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Porta WebUI",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Porta della web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "UNRAID_HOST",
+      "key": "UNRAID_HOST",
+      "value": "",
+      "description": "IP/hostname del server Unraid (per GraphQL, UPS e webui )",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UNRAID_API_KEY",
+      "key": "UNRAID_API_KEY",
+      "value": "",
+      "description": "API key unraid-api (Unraid 7.x): unraid-api apikey --create",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UNRAID_URL",
+      "key": "UNRAID_URL",
+      "value": "",
+      "description": "Override endpoint GraphQL (default http://UNRAID_HOST), es. https://ip:porta",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNRAID_TLS_INSECURE",
+      "key": "UNRAID_TLS_INSECURE",
+      "value": "false",
+      "description": "Accetta certificati self-signed sul GraphQL (SSL forzato con cert myunraid.net su IP locale)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONLYOFFICE_URL",
+      "key": "ONLYOFFICE_URL",
+      "value": "",
+      "description": "Opzionale: URL del container OnlyOffice Document Server (es. http://IP:8082) per aprire e modificare i documenti Office dal file manager",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONLYOFFICE_JWT_SECRET",
+      "key": "ONLYOFFICE_JWT_SECRET",
+      "value": "",
+      "description": "Opzionale: JWT secret del Document Server (se abilitato, default nelle versioni recenti)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DUCKDNS_DOMAIN",
+      "key": "DUCKDNS_DOMAIN",
+      "value": "",
+      "description": "Con HTTPS=true: sottodominio DuckDNS (es. mionome) per un certificato Let'''s Encrypt VERO senza avvisi del browser (DNS-01, nessuna porta da aprire)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DUCKDNS_TOKEN",
+      "key": "DUCKDNS_TOKEN",
+      "value": "",
+      "description": "Token del tuo account DuckDNS (duckdns.org)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTPS",
+      "key": "HTTPS",
+      "value": "false",
+      "description": "TLS nativo sulla porta della WebUI (certificato self-signed autogenerato in /config/certs; sostituibile con cert.pem/key.pem propri)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONLYOFFICE_SELF_URL",
+      "key": "ONLYOFFICE_SELF_URL",
+      "value": "",
+      "description": "Opzionale: base URL con cui il Document Server raggiunge UnraidDeck (es. http://IP:8787) se l'hostname del browser non e' risolvibile dal DS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PASSWORD (solo bootstrap)",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Solo per il primo avvio: crea l'utente admin. RIMUOVERE dopo il setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SSH_USER",
+      "key": "SSH_USER",
+      "value": "",
+      "description": "Fallback SSH (Unraid 6.12): utente (root)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH_PASSWORD",
+      "key": "SSH_PASSWORD",
+      "value": "",
+      "description": "Fallback SSH: password (in alternativa a SSH_KEY)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SSH_KEY",
+      "key": "SSH_KEY",
+      "value": "",
+      "description": "Fallback SSH: percorso chiave privata (es. /config/id_ed25519) o PEM inline",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DOCKER_HOST",
+      "key": "DOCKER_HOST",
+      "value": "",
+      "description": "Opzionale: endpoint Docker alternativo (es. tcp://socket-proxy:2375)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_AUTH",
+      "key": "DISABLE_AUTH",
+      "value": "false",
+      "description": "Disabilita l'autenticazione (SOLO LAN fidata: banner rosso permanente in UI)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATE_CHECK_INTERVAL",
+      "key": "UPDATE_CHECK_INTERVAL",
+      "value": "6h",
+      "description": "Intervallo check aggiornamenti immagini (es. 6h, 12h)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATE_VERIFY_TIMEOUT",
+      "key": "UPDATE_VERIFY_TIMEOUT",
+      "value": "",
+      "description": "Override verifica post-update (default: healthcheck-aware automatico)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NOTIFY_WEBHOOK_URL",
+      "key": "NOTIFY_WEBHOOK_URL",
+      "value": "",
+      "description": "Webhook notifiche (POST JSON compatibile Gotify/ntfy/Discord)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Rome",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

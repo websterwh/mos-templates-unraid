@@ -1,0 +1,140 @@
+{
+  "name": "Trawl",
+  "repo": "ghcr.io/germondai/trawl:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io/germondai/trawl",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8191]",
+  "icon": "https://raw.githubusercontent.com/kronflux/trawl-unraid/main/icon.png",
+  "project": "https://github.com/germondai/trawl",
+  "description": "Trawl is a self-hosted web scraping engine and a FlareSolverr / Byparr drop-in replacement. It bypasses JS challenges and captchas \u2014 Cloudflare, Turnstile, Interstitial, reCAPTCHA v2, hCaptcha and GeeTest \u2014 and returns cookies + user-agent over a FlareSolverr-compatible API on port 8191. Works out of the box with Prowlarr, Jackett, Sonarr, Radarr and the rest of the *arr stack. Powered by a fingerprint-patched Camoufox (Firefox) browser pool with a 4-tier escalation strategy (plain HTTP fetch -> cached browser session -> fresh Cloudflare solve -> residential proxy). Runs standalone out of the box. For faster repeat requests (bypass cookies cached in Redis), point REDIS_URL at a separate Redis container. Note: this image needs a larger shared-memory segment for the browser pool \u2014 the template sets --shm-size=1g via Extra Parameters. Do not remove it.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/trawl",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent state. Holds the MITM proxy CA (/data/proxy-ca) so it survives container recreation.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8191",
+      "container": "8191",
+      "protocol": "tcp",
+      "description": "FlareSolverr-compatible API port. Point Prowlarr/Jackett at http:// :8191/v1.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MITM Proxy Port",
+      "host": "8192",
+      "container": "8192",
+      "protocol": "tcp",
+      "description": "Host port for the MITM forward proxy. Only needed when Enable MITM Proxy is true.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Browser Pool Size",
+      "key": "BROWSER_POOL_SIZE",
+      "value": "3",
+      "description": "Number of concurrent browsers kept warm. Higher = more parallel throughput but more RAM (~1 GB each). Use 1 on low-memory systems.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Optional. Point at a separate Redis container (e.g. redis://REDIS-IP:6379) to cache bypass cookies for ~500ms repeat requests. Leave empty to run standalone with an in-memory cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone used in log timestamps, e.g. America/Edmonton.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy URL",
+      "key": "PROXY_URL",
+      "value": "",
+      "description": "Optional upstream proxy for the Tier 3 browser solve, e.g. http://user:pass@host:port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Residential Proxy URL",
+      "key": "RESIDENTIAL_PROXY_URL",
+      "value": "",
+      "description": "Optional residential proxy used for the Tier 4 (last-resort) escalation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable MITM Proxy",
+      "key": "MITM_PROXY_ENABLED",
+      "value": "false",
+      "description": "Optional browser-backed HTTPS forward proxy. When true, also publish the MITM Proxy Port below. Only expose it to trusted clients \u2014 it can impersonate any host to a client that trusts its CA.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MITM Proxy Host",
+      "key": "MITM_PROXY_HOST",
+      "value": "0.0.0.0",
+      "description": "Bind address for the MITM proxy inside the container. Keep 0.0.0.0 so it is reachable through the published port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MITM Max Tier",
+      "key": "MITM_PROXY_MAX_TIER",
+      "value": "",
+      "description": "Cap the escalation tier the MITM proxy uses (e.g. 3 to keep it off residential Tier 4). Empty = up to 4.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MITM Debug",
+      "key": "MITM_PROXY_DEBUG",
+      "value": "false",
+      "description": "Log one line per proxied request (noisy). Errors are always logged.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STT URL",
+      "key": "STT_URL",
+      "value": "",
+      "description": "Optional local Whisper server for reCAPTCHA audio solving (fully air-gapped), e.g. http://whisper:8080/inference. Empty = Google's free STT endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STT API Key",
+      "key": "STT_API_KEY",
+      "value": "",
+      "description": "Optional API key for the local Whisper STT server, if it requires one.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

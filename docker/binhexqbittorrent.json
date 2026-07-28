@@ -1,0 +1,189 @@
+{
+  "name": "binhex-qbittorrent",
+  "repo": "ghcr.io/binhex/arch-qbittorrent",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/binhex/arch-qbittorrent/pkgs/container/arch-qbittorrent",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/qbittorrent-icon.png",
+  "project": "https://www.qbittorrent.org/",
+  "description": "qBittorrent is a bittorrent client programmed in C++ / Qt that uses libtorrent (sometimes called libtorrent-rasterbar) by Arvid Norberg. It aims to be a good alternative to all other bittorrent clients out there. qBittorrent is fast, stable and provides unicode support as well as many features.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/qbittorrent",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "This is the container path to your downloaded files or user created content.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "This is the port for the Web UI for the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Incoming port TCP",
+      "host": "58946",
+      "container": "58946",
+      "protocol": "tcp",
+      "description": "This is the TCP incoming port when VPN_ENABLED is set to 'no'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port: Incoming port UDP",
+      "host": "58946",
+      "container": "58946",
+      "protocol": "udp",
+      "description": "This is the UDP incoming port when VPN_ENABLED is set to 'no'.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: GLUETUN_INCOMING_PORT",
+      "key": "GLUETUN_INCOMING_PORT",
+      "value": "no|yes",
+      "description": "Specify whether to attempt to identify and configure the applications listening port when connected to the gluetun network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GLUETUN_CONTROL_SERVER_PORT",
+      "key": "GLUETUN_CONTROL_SERVER_PORT",
+      "value": "8000",
+      "description": "Specify the port for the gluetun HTTP Control Server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GLUETUN_CONTROL_SERVER_USERNAME",
+      "key": "GLUETUN_CONTROL_SERVER_USERNAME",
+      "value": "controlserver",
+      "description": "Specify the username for the gluetun HTTP Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GLUETUN_CONTROL_SERVER_PASSWORD",
+      "key": "GLUETUN_CONTROL_SERVER_PASSWORD",
+      "value": "controlserver",
+      "description": "Specify the password for the gluetun HTTP Control Server",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: QBITTORRENT_WEBUI_USER",
+      "key": "QBITTORRENT_WEBUI_USER",
+      "value": "admin",
+      "description": "Specify the WebUI username for qBittorrent. Leave as 'admin' unless you changed it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: QBITTORRENT_WEBUI_PASSWORD",
+      "key": "QBITTORRENT_WEBUI_PASSWORD",
+      "value": "",
+      "description": "Specify the WebUI password for qBittorrent. If left empty, a random password will be auto-generated and logged once. IMPORTANT: If you change the password here after qBittorrent has already started, you must also change it inside qBittorrent's WebUI preferences.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: WEBUI_PORT",
+      "key": "WEBUI_PORT",
+      "value": "8080",
+      "description": "Specify the port the application will listen on - IMPORTANT: If you change this value then you will also need to delete and re-create the port mapping to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DEBUG",
+      "key": "DEBUG",
+      "value": "no|yes",
+      "description": "Specify whether you want to enable debug logging, useful when diagnosing gluetune related issues.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,83 @@
+{
+  "name": "telegram-archive-viewer",
+  "repo": "drumsergio/telegram-archive-viewer:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/telegram-archive-viewer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/telegram-archive.png",
+  "project": "https://github.com/GeiserX/Telegram-Archive",
+  "description": "Read-only web interface for browsing Telegram messages archived by the Telegram Archive backup container. Search messages, view media, and browse chat statistics with optional authentication. Requires the Telegram Archive backup container to have run at least once. Point the backup paths to the same directories used by the backup container (read-only recommended). More info: https://github.com/GeiserX/Telegram-Archive",
+  "paths": [
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/telegram-archive/backups",
+      "container": "/data/backups",
+      "mode": "ro",
+      "description": "Backup data directory (read-only, shared with backup container)",
+      "required": true
+    },
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/telegram-archive/session",
+      "container": "/data/db",
+      "mode": "ro",
+      "description": "SQLite database directory (read-only, shared with backup container)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Web viewer port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Username",
+      "key": "VIEWER_USERNAME",
+      "value": "",
+      "description": "Web viewer login username (empty = no auth)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "VIEWER_PASSWORD",
+      "value": "",
+      "description": "Web viewer login password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "VIEWER_TIMEZONE",
+      "value": "Europe/Madrid",
+      "description": "Timezone for message timestamps",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Stats",
+      "key": "SHOW_STATS",
+      "value": "true",
+      "description": "Show chat statistics in the viewer",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

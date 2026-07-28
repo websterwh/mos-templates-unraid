@@ -1,0 +1,323 @@
+{
+  "name": "Speakr",
+  "repo": "learnedmachine/speakr",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/learnedmachine/speakr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8899]",
+  "icon": "https://raw.githubusercontent.com/murtaza-nasir/speakr/master/static/img/icon-512x512.png",
+  "project": "https://github.com/murtaza-nasir/speakr",
+  "description": "Speakr is a self-hosted AI transcription and intelligent note-taking platform. Transform your audio recordings into organized, searchable, and intelligent notes with speaker identification, AI chat, semantic search, and collaboration features. Key Features: - AI-powered transcription with speaker identification - Voice profiles for automatic speaker recognition - Interactive chat with your recordings - Semantic search across all recordings (Inquire Mode) - Internal sharing and group collaboration - Smart tagging with custom AI prompts - Auto-deletion and retention policies - Automated export to Obsidian/Logseq - Full internationalization (EN, ES, FR, DE, ZH) - Light/dark themes with customizable colors IMPORTANT: Requires API keys for OpenAI/OpenRouter or local AI services for transcription and text generation.",
+  "paths": [
+    {
+      "name": "Uploads Volume",
+      "host": "/mnt/cache/appdata/speakr/uploads",
+      "container": "/data/uploads",
+      "mode": "rw",
+      "description": "Storage for uploaded audio files",
+      "required": true
+    },
+    {
+      "name": "Database Volume",
+      "host": "/mnt/cache/appdata/speakr/instance",
+      "container": "/data/instance",
+      "mode": "rw",
+      "description": "Database and application state",
+      "required": true
+    },
+    {
+      "name": "Exports Volume",
+      "host": "/mnt/cache/appdata/speakr/exports",
+      "container": "/data/exports",
+      "mode": "rw",
+      "description": "Exported transcriptions (for Obsidian, etc.)",
+      "required": false
+    },
+    {
+      "name": "Auto-Process Volume",
+      "host": "/mnt/cache/appdata/speakr/auto-process",
+      "container": "/data/auto-process",
+      "mode": "rw",
+      "description": "Watch directory for automatic file processing",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8899",
+      "container": "8899",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Text Model API Key",
+      "key": "TEXT_MODEL_API_KEY",
+      "value": "",
+      "description": "API key for OpenRouter or OpenAI (required for summaries)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Text Model Base URL",
+      "key": "TEXT_MODEL_BASE_URL",
+      "value": "https://openrouter.ai/api/v1",
+      "description": "API endpoint for text generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Text Model Name",
+      "key": "TEXT_MODEL_NAME",
+      "value": "openai/gpt-4o-mini",
+      "description": "Model name for text generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Transcription API Key",
+      "key": "TRANSCRIPTION_API_KEY",
+      "value": "",
+      "description": "OpenAI API key for Whisper transcription (required)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Transcription Base URL",
+      "key": "TRANSCRIPTION_BASE_URL",
+      "value": "https://api.openai.com/v1",
+      "description": "Whisper API endpoint",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Whisper Model",
+      "key": "WHISPER_MODEL",
+      "value": "whisper-1",
+      "description": "Whisper model to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Initial admin username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Initial admin email",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Initial admin password (CHANGE THIS!)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Allow Registration",
+      "key": "ALLOW_REGISTRATION",
+      "value": "false",
+      "description": "Allow new user registration (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TIMEZONE",
+      "value": "UTC",
+      "description": "Timezone for date/time display (e.g., America/New_York)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Logging level: DEBUG, INFO, WARNING, ERROR",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Summary Max Tokens",
+      "key": "SUMMARY_MAX_TOKENS",
+      "value": "8000",
+      "description": "Maximum tokens for AI summaries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chat Max Tokens",
+      "key": "CHAT_MAX_TOKENS",
+      "value": "5000",
+      "description": "Maximum tokens for chat responses",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Chunking",
+      "key": "ENABLE_CHUNKING",
+      "value": "true",
+      "description": "Split large files for API limits (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chunk Limit",
+      "key": "CHUNK_LIMIT",
+      "value": "20MB",
+      "description": "Chunk size limit (e.g., 20MB or 1200s)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chunk Overlap Seconds",
+      "key": "CHUNK_OVERLAP_SECONDS",
+      "value": "3",
+      "description": "Overlap between chunks in seconds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Inquire Mode",
+      "key": "ENABLE_INQUIRE_MODE",
+      "value": "false",
+      "description": "Enable AI-powered semantic search across recordings (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Auto Processing",
+      "key": "ENABLE_AUTO_PROCESSING",
+      "value": "false",
+      "description": "Watch directory for automatic file processing (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Process Mode",
+      "key": "AUTO_PROCESS_MODE",
+      "value": "admin_only",
+      "description": "Processing mode: admin_only, user_directories, or single_user",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Process Check Interval",
+      "key": "AUTO_PROCESS_CHECK_INTERVAL",
+      "value": "30",
+      "description": "Check interval for new files (seconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Auto Export",
+      "key": "ENABLE_AUTO_EXPORT",
+      "value": "false",
+      "description": "Automatically export transcriptions to markdown (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Export Transcription",
+      "key": "AUTO_EXPORT_TRANSCRIPTION",
+      "value": "true",
+      "description": "Include transcription in exports (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Export Summary",
+      "key": "AUTO_EXPORT_SUMMARY",
+      "value": "true",
+      "description": "Include summary in exports (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Auto Deletion",
+      "key": "ENABLE_AUTO_DELETION",
+      "value": "false",
+      "description": "Enable automatic deletion of old recordings (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Global Retention Days",
+      "key": "GLOBAL_RETENTION_DAYS",
+      "value": "90",
+      "description": "Days to retain recordings (0 = disabled)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deletion Mode",
+      "key": "DELETION_MODE",
+      "value": "audio_only",
+      "description": "Deletion mode: audio_only or full_recording",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Users Can Delete",
+      "key": "USERS_CAN_DELETE",
+      "value": "true",
+      "description": "Allow users to delete their own recordings (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Internal Sharing",
+      "key": "ENABLE_INTERNAL_SHARING",
+      "value": "false",
+      "description": "Enable user-to-user sharing (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Usernames in UI",
+      "key": "SHOW_USERNAMES_IN_UI",
+      "value": "false",
+      "description": "Display usernames in interface (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Public Sharing",
+      "key": "ENABLE_PUBLIC_SHARING",
+      "value": "true",
+      "description": "Allow public share links (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URI",
+      "key": "SQLALCHEMY_DATABASE_URI",
+      "value": "sqlite:////data/instance/transcriptions.db",
+      "description": "Database connection string",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

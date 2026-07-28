@@ -1,0 +1,83 @@
+{
+  "name": "claudeclaw-plus",
+  "repo": "ghcr.io/paulmeier/claudeclaw-plus-container:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/paulmeier/claudeclaw-plus-container/pkgs/container/claudeclaw-plus-container",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4632]",
+  "icon": "https://raw.githubusercontent.com/paulmeier/claudeclaw-plus-container-unraid/main/icons/claudeclaw-plus-container.png",
+  "project": "https://github.com/paulmeier/claudeclaw-plus-container",
+  "description": "ClaudeClaw+ is a superset of claudeclaw that adds a governance and policy layer, durable multi-step orchestration, persistent cross-session memory, and a hardened web UI on top of the upstream daemon. Everything in vanilla claudeclaw is here too \u2014 Telegram, Discord, and Slack bridges, scheduled cron jobs, voice transcription via Whisper, and a web dashboard. Requires a Claude Code subscription at claude.ai/code \u2014 no API key needed.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/claudeclaw-plus",
+      "container": "/root/.claude",
+      "mode": "rw",
+      "description": "Stores Claude Code credentials, ClaudeClaw+ settings, logs, jobs, persistent memory, and Whisper models. Must persist across restarts.",
+      "required": true
+    },
+    {
+      "name": "Notes Directory",
+      "host": "",
+      "container": "/root/notes",
+      "mode": "ro",
+      "description": "Optional host directory for ClaudeClaw+ to read. Mounted inside the container at /root/notes so it falls within the default 'moderate' security scope. Reference it in prompts and jobs as /root/notes.",
+      "required": false
+    },
+    {
+      "name": "Documents Directory",
+      "host": "",
+      "container": "/root/documents",
+      "mode": "ro",
+      "description": "Optional host directory for ClaudeClaw+ to read. Mounted inside the container at /root/documents so it falls within the default 'moderate' security scope. Reference it in prompts and jobs as /root/documents.",
+      "required": false
+    },
+    {
+      "name": "Backup Directory",
+      "host": "",
+      "container": "/backup",
+      "mode": "rw",
+      "description": "Optional host directory for backups. Run /backup.sh inside the container to create a timestamped snapshot of all ClaudeClaw+ data here.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Dashboard Port",
+      "host": "4632",
+      "container": "4632",
+      "protocol": "tcp",
+      "description": "Port for the ClaudeClaw+ web dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "IS_SANDBOX",
+      "key": "IS_SANDBOX",
+      "value": "1",
+      "description": "Tells Claude Code that this is a sandboxed environment, so it accepts --dangerously-skip-permissions when running as root. Required for ClaudeClaw+ to function inside this container. Do not unset.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TailScale Fallback State Directory",
+      "key": "CA_TS_FALLBACK_DIR",
+      "value": "/root/.claude/tailscale",
+      "description": "Container directory where Unraid's CA Tailscale integration stores its state (machine key, node info). Kept under /root/.claude so it persists across container recreation and image updates. Only used when Tailscale is enabled via the Docker template's Advanced View.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

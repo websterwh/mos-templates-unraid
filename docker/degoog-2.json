@@ -1,0 +1,219 @@
+{
+  "name": "degoog",
+  "repo": "ghcr.io/degoog-org/degoog:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/degoog-org/degoog",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4444]",
+  "icon": "https://raw.githubusercontent.com/fccview/unraid-templates/refs/heads/main/icons/degoog.png",
+  "project": "https://github.com/degoog-org/degoog",
+  "description": "degoog is a search aggregator that queries multiple engines and shows results in one place. You can add custom search engines, bang-command plugins, slot plugins (query-triggered panels above/below results or in the sidebar), and transports (custom HTTP fetch strategies like curl, FlareSolverr, or your own).",
+  "paths": [
+    {
+      "name": "Appdata: data",
+      "host": "/mnt/cache/appdata/degoog/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Holds plugins, themes, engines, transports, plugin settings and aliases.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "4444",
+      "container": "4444",
+      "protocol": "tcp",
+      "description": "You can change 4444 to any available port on your host system. Must match DEGOOG_PORT.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Process User ID that the container will run as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Process Group ID that the container will run as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Degoog Port",
+      "key": "DEGOOG_PORT",
+      "value": "4444",
+      "description": "Port the server listens on inside the container. Must match the host port mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "DEGOOG_BASE_URL",
+      "value": "",
+      "description": "Optional. Base path for serving Degoog behind a reverse proxy at a sub-path (e.g. /degoog). A full URL is also accepted \u2014 only the path portion is used. Leave empty to serve at the root /.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Controls the verbosity of server-side console output. Supported levels from most to least severe: fatal, error, warn, info, log, debug. Each level includes all levels of higher severity. Set to debug to print all messages, including plugin execution times.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Translation",
+      "key": "LOG_TRANSLATION",
+      "value": "false",
+      "description": "Optional. Set to true to enable translation-specific log output. This is a separate toggle from LOG_LEVEL and is off by default. Useful when debugging missing keys, locale resolution misses, or broken locale files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Settings Passwords",
+      "key": "DEGOOG_SETTINGS_PASSWORDS",
+      "value": "",
+      "description": "Optional. Comma-separated list of passwords for the Settings page. If set, users must enter one of these to access Settings (unless a middleware plugin is used as the settings gate).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Settings Path",
+      "key": "DEGOOG_SETTINGS_PATH",
+      "value": "",
+      "description": "Optional. Custom path for the admin settings panel. Defaults to /admin on public instances and /settings on private ones. Set to a hard-to-guess string to make the panel undiscoverable (e.g. my-secret-panel-abc123). Leading slashes are stripped automatically. Note: on public instances this path only works if DEGOOG_SETTINGS_PASSWORDS is also set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Instance",
+      "key": "DEGOOG_PUBLIC_INSTANCE",
+      "value": "",
+      "description": "Optional. When set to a truthy value (e.g. true, 1), the instance runs in read-only mode: settings show only theme and engine toggles, no tabs; all server-side mutation APIs return Unauthorized.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Distrust Proxy",
+      "key": "DEGOOG_DISTRUST_PROXY",
+      "value": "1",
+      "description": "Optional. Controls whether Degoog trusts X-Forwarded-For, X-Real-IP and X-Forwarded-Proto headers for client IP, rate limiting, IP banning and HTTPS detection. Defaults to 1 (distrust), which is the safe choice when Degoog is exposed directly to the internet, since trusting these headers lets any client spoof their source IP and protocol. Set to 0 only when Degoog sits behind a reverse proxy (nginx, caddy, traefik, etc.) that you control and that strips or rewrites these headers on incoming requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Search Language",
+      "key": "DEGOOG_DEFAULT_SEARCH_LANGUAGE",
+      "value": "en-US",
+      "description": "Default ISO 639-1 language code applied to all searches when no language is selected by the user (e.g. en, de, it).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UI Locale (i18n)",
+      "key": "DEGOOG_I18N",
+      "value": "",
+      "description": "Optional. Forces the UI locale for all requests, overriding the Accept-Language header (e.g. en-US, fr-FR). Unset or empty: Accept-Language is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugins Dir",
+      "key": "DEGOOG_PLUGINS_DIR",
+      "value": "data/plugins",
+      "description": "Optional. Directory to load custom command and slot plugins from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Themes Dir",
+      "key": "DEGOOG_THEMES_DIR",
+      "value": "data/themes",
+      "description": "Optional. Directory to load custom themes from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Engines Dir",
+      "key": "DEGOOG_ENGINES_DIR",
+      "value": "data/engines",
+      "description": "Optional. Directory to load custom search engine plugins from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transports Dir",
+      "key": "DEGOOG_TRANSPORTS_DIR",
+      "value": "data/transports",
+      "description": "Optional. Directory to load custom transports from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autocomplete Dir",
+      "key": "DEGOOG_AUTOCOMPLETE_DIR",
+      "value": "data/autocomplete",
+      "description": "Optional. Directory to load custom autocomplete from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugin Settings File",
+      "key": "DEGOOG_PLUGIN_SETTINGS_FILE",
+      "value": "data/plugin-settings.json",
+      "description": "Optional. Path to the JSON file storing extension settings (plugins, themes, engines, etc.).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Engines File",
+      "key": "DEGOOG_DEFAULT_ENGINES_FILE",
+      "value": "data/default-engines.json",
+      "description": "Optional. Path to the JSON file storing default enabled/disabled engines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Blocklist File",
+      "key": "DEGOOG_BLOCKLIST_FILE",
+      "value": "data/blocklist.json",
+      "description": "Optional. Path to the JSON file storing the IP addresses blocklist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Settings Tokens File",
+      "key": "DEGOOG_SETTINGS_TOKENS_FILE",
+      "value": "data/settings-tokens.json",
+      "description": "Optional. Path to the JSON file storing settings tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Aliases File",
+      "key": "DEGOOG_ALIASES_FILE",
+      "value": "data/aliases.json",
+      "description": "Optional. Path to the JSON file defining custom bang command aliases.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

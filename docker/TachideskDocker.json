@@ -1,0 +1,147 @@
+{
+  "name": "Tachidesk-Docker",
+  "repo": "ghcr.io/suwayomi/tachidesk:stable",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/suwayomi/docker-tachidesk",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "-u 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4567]",
+  "icon": "https://raw.githubusercontent.com/Suwayomi/Tachidesk-Server/master/server/src/main/resources/icon/faviconlogo.png",
+  "project": "https://github.com/Suwayomi/Tachidesk-Server",
+  "description": "The official Tachidesk Docker-Container. Unless specified otherwise everything gets saved in the appdata folder. If you get an error on startup, check the support link for more info and fixes. Read the Readme's first. Tachidesk: https://github.com/Suwayomi/Tachidesk-Server Tachidesk-Docker: https://github.com/suwayomi/docker-tachidesk (Excert from official Tachidesk Readme. Acessed 05.11.2021 (https://github.com/Suwayomi/Tachidesk-Server)) A free and open source manga reader server that runs extensions built for Tachiyomi. Tachidesk is an independent Tachiyomi compatible software and is not a Fork of Tachiyomi. Tachidesk is a general term used to describe the combination of Tachidesk-Server(this project) and one of our clients. Think of it roughly like the concept of \"distribution\" in GNU/Linux distributions, in which Linux(Tachidesk-Server) is the kernel and the difference is which desktop environment(Tachidesk client) you get with it. Tachidesk-Server is as multi-platform as you can get. Any platform that runs java and/or has a modern browser can run it. This includes Windows, Linux, macOS, chrome OS, etc. Follow Downloading and Running the app for installation instructions. Ability to sync with Tachiyomi is a planned feature. (Excert from official Tachidesk-Docker Readme. Accessed 06.05.2023 (https://github.com/suwayomi/docker-tachidesk)) Run Tachidesk-Server inside docker container as non-root user. The server will be running on http://localhost:4567 open this url in your browser. Docker Releases - https://github.com/suwayomi/docker-tachidesk/pkgs/container/tachidesk Dockerfile - https://github.com/suwayomi/docker-tachidesk Tachidesk data location - /home/suwayomi/.local/share/Tachidesk Docker images are mutli-arch (linux/amd64, linux/arm/v7, linux/arm64, linux/ppc64le, linux/s390x) and has small size based on Ubuntu linux. Legacy alpine images using the -alpine suffix are provided for as-needed use-cases, such as: Support for linux platforms linux/386 and linux/arm/v6 Those that need a smaller image size Log file location - /home/suwayomi/.local/share/Tachidesk/logfile.log",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/Tachidesk-Docker",
+      "container": "/home/suwayomi/.local/share/Tachidesk",
+      "mode": "rw",
+      "description": "Tachidesk stores its files here.",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "",
+      "container": "/home/suwayomi/.local/share/Tachidesk/downloads",
+      "mode": "rw",
+      "description": "(Optional) Path to where your Downloads should be stored. Default is in Appdata folder.",
+      "required": false
+    },
+    {
+      "name": "Local-Library",
+      "host": "",
+      "container": "/home/suwayomi/.local/share/Tachidesk/local",
+      "mode": "rw",
+      "description": "(Optional) You can add your local Library here. Should work like standard Tachiyomi. (https://tachiyomi.org/help/guides/local-manga/)",
+      "required": false
+    },
+    {
+      "name": "Temp Folder",
+      "host": "",
+      "container": "/tmp/Tachidesk",
+      "mode": "rw",
+      "description": "(Optional) Consider mounting the temp folder if you're planning bigger downloads. If not the docker will inflate your docker.img",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port for WebUI",
+      "host": "4567",
+      "container": "4567",
+      "protocol": "tcp",
+      "description": "Port to connect to WebUI. Standard 4567.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Change the default UTC timezone. Use TZ database name from Timezone list.(https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUG",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "If extra logging is enabled. Useful for development and troubleshooting. (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASIC_AUTH_ENABLED",
+      "key": "BASIC_AUTH_ENABLED",
+      "value": "false",
+      "description": "Whether Suwayomi requires HTTP Basic Auth to get in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASIC_AUTH_PASSWORD",
+      "key": "BASIC_AUTH_PASSWORD",
+      "value": "",
+      "description": "The password to log in to Suwayomi.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BASIC_AUTH_USERNAME",
+      "key": "BASIC_AUTH_USERNAME",
+      "value": "",
+      "description": "The username to log in to Suwayomi",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS_PROXY_ENABLED",
+      "key": "SOCKS_PROXY_ENABLED",
+      "value": "false",
+      "description": "Whether Suwayomi will connect through a SOCKS5 proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS_PROXY_HOST",
+      "key": "SOCKS_PROXY_HOST",
+      "value": "",
+      "description": "The TCP host of the SOCKS5 proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS_PROXY_PORT",
+      "key": "SOCKS_PROXY_PORT",
+      "value": "",
+      "description": "The port of the SOCKS5 proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLARESOLVERR_ENABLED",
+      "key": "FLARESOLVERR_ENABLED",
+      "value": "false",
+      "description": "Whether FlareSolverr is enabled and available to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLARESOLVERR_URL",
+      "key": "FLARESOLVERR_URL",
+      "value": "http://localhost:8191",
+      "description": "The URL of the FlareSolverr instance",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

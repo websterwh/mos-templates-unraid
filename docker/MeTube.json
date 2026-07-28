@@ -1,0 +1,227 @@
+{
+  "name": "MeTube",
+  "repo": "ghcr.io/alexta69/metube:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/alexta69/metube",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8081]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/metube-icon.png",
+  "project": "https://github.com/alexta69/metube",
+  "description": "Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites.",
+  "paths": [
+    {
+      "name": "Downloads path",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Storage for downloaded files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8081",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "Container Port: 8081",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Theme",
+      "key": "DEFAULT_THEME",
+      "value": "auto|light|dark",
+      "description": "Default theme for the web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Output Template",
+      "key": "OUTPUT_TEMPLATE",
+      "value": "%(title)s.%(ext)s",
+      "description": "Output template for the downloaded files",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Output Template - Chapters",
+      "key": "OUTPUT_TEMPLATE_CHAPTERS",
+      "value": "%(title)s - %(section_number)s %(section_title)s.%(ext)s",
+      "description": "Output template for the downloaded chapters. Default to OUTPUT_TEMPLATE if empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output Template - Playlist",
+      "key": "OUTPUT_TEMPLATE_PLAYLIST",
+      "value": "%(playlist_title)s/%(title)s.%(ext)s",
+      "description": "Output template for the downloaded playlist. Default to OUTPUT_TEMPLATE if empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal Download Directory",
+      "key": "DOWNLOAD_DIR",
+      "value": "/downloads",
+      "description": "Directory where the downloads are stored inside the container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Audio Download Directory",
+      "key": "AUDIO_DOWNLOAD_DIR",
+      "value": "/downloads",
+      "description": "Directory where the audio downloads are stored inside the container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Indexable Download Directories",
+      "key": "DOWNLOAD_DIRS_INDEXABLE",
+      "value": "false|true",
+      "description": "If true, the download dirs (DOWNLOAD_DIR and AUDIO_DOWNLOAD_DIR) are indexable on the webserver.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Custom Directory Selection",
+      "key": "CUSTOM_DIRS",
+      "value": "true|false",
+      "description": "When enabled, a drop-down appears next to the Add button to specify the download directory.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Create Custom Directories",
+      "key": "CREATE_CUSTOM_DIRS",
+      "value": "true|false",
+      "description": "Automatically create custom directories if they do not exist. When enabled, the download directory selector becomes supports free-text input, and the specified directory will be created recursively.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal State Directory",
+      "key": "STATE_DIR",
+      "value": "/downloads/.metube",
+      "description": "Where the queue persistence files will be saved",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Temp Directory",
+      "key": "TEMP_DIR",
+      "value": "/downloads",
+      "description": "Where temporary files will be saved",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Delete From Filesystem",
+      "key": "DELETE_FILE_ON_TRASHCAN",
+      "value": "false|true",
+      "description": "Delete the file from the filesystem when it is removed from the 'Completed' section on the UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "URL Prefix",
+      "key": "URL_PREFIX",
+      "value": "/",
+      "description": "Base path for the web server (for use when hosting behind a reverse proxy)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Host URL",
+      "key": "PUBLIC_HOST_URL",
+      "value": "",
+      "description": "Base URL for the download links shown in the UI for completed files. By default MeTube serves them under its own URL. If your download directory is accessible on another URL and you want the download links to be based there, use this variable to set it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use SSL",
+      "key": "HTTPS",
+      "value": "false|true",
+      "description": "Enable HTTPS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSL Certificate",
+      "key": "CERTFILE",
+      "value": "",
+      "description": "Path to the SSL certificate. Required if HTTPS enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL Key",
+      "key": "KEYFILE",
+      "value": "",
+      "description": "Path to the SSL key. Required if HTTPS enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Host URL (Audio)",
+      "key": "PUBLIC_HOST_AUDIO_URL",
+      "value": "",
+      "description": "Base URL for the audio download links shown in the UI for completed files. By default MeTube serves them under its own URL. If your audio download directory is accessible on another URL and you want the download links to be based there, use this variable to set it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Strict Playlist Mode",
+      "key": "DEFAULT_OPTION_PLAYLIST_STRICT_MODE",
+      "value": "false|true",
+      "description": "If true, the 'Strict Playlist mode' switch will be enabled by default. In this mode the playlists will be downloaded only if the URL strictly points to a playlist. URLs to videos inside a playlist will be treated same as direct video URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Number of Playlist Items",
+      "key": "DEFAULT_OPTION_PLAYLIST_ITEM_LIMIT",
+      "value": "0",
+      "description": "Maximum number of items to download from a playlist. 0 means no limit.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "YTDL Options",
+      "key": "YTDL_OPTIONS",
+      "value": "{}",
+      "description": "Additional options to pass to youtube-dl",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YTDL Options File",
+      "key": "YTDL_OPTIONS_FILE",
+      "value": "",
+      "description": "Path to a file containing additional options to pass to youtube-dl",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Robots.txt File",
+      "key": "ROBOTS_TXT",
+      "value": "",
+      "description": "Path to a file containing the robots.txt content",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

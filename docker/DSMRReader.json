@@ -1,0 +1,155 @@
+{
+  "name": "DSMRReader",
+  "repo": "xirixiz/dsmr-reader-docker",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/xirixiz/dsmr-reader-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/Flight777/unraid_justworks_templates/main/images/dsmrreader/dsmrreader.png",
+  "project": "https://github.com/xirixiz/dsmr-reader-docker",
+  "description": "bDSMR protocol reader for smart energy meters. Stores data reads and visualizes energy use./b /br /br Unraid template that JUST WORKS, brought to you by Flight777! /br /br IMPORTANT 1!! -- Next to this container, you will have to install a PostgreSQL container from the APPS, any version 11 or 12 will do. DB name: dsmrreader DB user: dsmrreader DB password: dsmrreader /br /br IMPORTANT 2!! By default this container is set-up as RECEIVER (see DATALOGGER MODE), meaning that the DSMR P1 input is received on another machine with an instance of DSMR READER running and the internal datalogger on this instance is disabled. After running this container, you will need to set-up the SENDER with the right API, please see: https://dsmr-reader.readthedocs.io/en/v4/api.html#configuration /br /br If you Unraid machine has a direct P1 input, then change this value to STANDALONE and configure: /br /br DATALOGGER INPUT METHOD=serial DATALOGGER_SERIAL_PORT=/dev/ttyUSB0 DATALOGGER_SERIAL_BAUDRATE=115200 and set your device to the right USB path /br /br b IMPORTANT 3!! /b The DATALOGGER SLEEP TIME has been set to 10 seconds, instead of 1, to save you some DB writes. 6 readings per minute should still give you data enough ;)",
+  "paths": [
+    {
+      "name": "Backup directory",
+      "host": "/mnt/cache/appdata/dsmr-reader/backups",
+      "container": "/home/dsmr/app/backups",
+      "mode": "rw",
+      "description": "Container Path: /home/dsmr/app/backups",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEB UI Port",
+      "host": "7777",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Container Port: 80",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DATABASE HOST (Adjust to your UNRAID host IP)",
+      "key": "DJANGO_DATABASE_HOST",
+      "value": "[IP]",
+      "description": "Container Variable: DJANGO_DATABASE_HOST",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEBUI ADMIN USERNAME",
+      "key": "DSMRREADER_ADMIN_USER",
+      "value": "admin",
+      "description": "Container Variable: DSMRREADER_ADMIN_USER",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEBUI ADMIN PASSWORD",
+      "key": "DSMRREADER_ADMIN_PASSWORD",
+      "value": "dsmrreader",
+      "description": "Container Variable: DSMRREADER_ADMIN_PASSWORD",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DATALOGGER MODE (change if P1 port is on this machine to STANDALONE)",
+      "key": "DATALOGGER_MODE",
+      "value": "receiver",
+      "description": "Container Variable: DATALOGGER_MODE",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATALOGGER SERIAL PORT",
+      "key": "DATALOGGER_SERIAL_PORT",
+      "value": "|/dev/ttyUSB0",
+      "description": "Optional - required if setting DATALOGGER MODE to standalone!",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATALOGGER SERIAL BAUDRATE",
+      "key": "DATALOGGER_SERIAL_BAUDRATE",
+      "value": "|115200",
+      "description": "Optional - required if setting DATALOGGER MODE to standalone!",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VIRTUAL_HOST",
+      "key": "VIRTUAL_HOST",
+      "value": "localhost",
+      "description": "Container Variable: VIRTUAL_HOST",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATABASE PORT",
+      "key": "DJANGO_DATABASE_PORT",
+      "value": "5432",
+      "description": "Container Variable: DJANGO_DATABASE_PORT",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATABASE NAME",
+      "key": "DJANGO_DATABASE_NAME",
+      "value": "dsmrdb",
+      "description": "Container Variable: DJANGO_DATABASE_NAME",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATALOGGER SLEEP TIME (seconds)",
+      "key": "DATALOGGER_SLEEP",
+      "value": "10",
+      "description": "Container Variable: DATALOGGER_SLEEP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Supervisor User",
+      "key": "SD_USER",
+      "value": "nobody",
+      "description": "User of which the supervisor should be part, important for file permissions!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Supervisor Group",
+      "key": "SD_GROUP",
+      "value": "users",
+      "description": "Group of which the supervisor should be part, important for file permissions!",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

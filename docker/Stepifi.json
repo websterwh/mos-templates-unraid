@@ -1,0 +1,91 @@
+{
+  "name": "Stepifi",
+  "repo": "voron69bit/stepifi:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/voron69bit/stepifi",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3169]",
+  "icon": "https://raw.githubusercontent.com/voron69-bit/Stepifi/main/logo.png",
+  "project": "https://github.com/voron69-bit/Stepifi",
+  "description": "Convert STL and 3MF mesh files to STEP (CAD solid) or STL format. Features output format selection, automatic mesh repair, 3D preview, and BambuStudio 3MF support. Self-hosted web interface with job queue management.",
+  "paths": [
+    {
+      "name": "Uploads Path",
+      "host": "/mnt/cache/appdata/stepifi/uploads",
+      "container": "/app/uploads",
+      "mode": "rw",
+      "description": "Temporary storage for uploaded files",
+      "required": true
+    },
+    {
+      "name": "Converted Path",
+      "host": "/mnt/cache/appdata/stepifi/converted",
+      "container": "/app/converted",
+      "mode": "rw",
+      "description": "Storage for converted files (24h retention)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3169",
+      "container": "3169",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Redis Host",
+      "key": "REDIS_HOST",
+      "value": "redis",
+      "description": "Redis hostname (use 'redis' if using docker-compose with redis service)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "File Expiry Hours",
+      "key": "FILE_EXPIRY_HOURS",
+      "value": "24",
+      "description": "Hours before converted files are automatically deleted",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max File Size MB",
+      "key": "MAX_FILE_SIZE_MB",
+      "value": "100",
+      "description": "Maximum upload file size in MB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js environment (leave as production)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

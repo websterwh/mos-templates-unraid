@@ -1,0 +1,115 @@
+{
+  "name": "UnraidConfigGuardian",
+  "repo": "stephondoestech/unraid-config-guardian:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/stephondoestech/unraid-config-guardian",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7842]",
+  "icon": "https://raw.githubusercontent.com/stephondoestech/unraid-config-guardian/main/assets/unraid_guardian_logo_template.png",
+  "project": "https://github.com/stephondoestech/unraid-config-guardian",
+  "description": "Automatically generate comprehensive disaster recovery documentation for your Unraid setup. Creates docker-compose files, restoration scripts, and system backups for complete server recreation in under 30 minutes. Unraid Config Guardian automatically generates comprehensive disaster recovery documentation for your Unraid setup. Features: - Complete server recreation in under 30 minutes - Docker-compose generation from running containers - Automated restoration scripts with security-conscious data masking - Web-based interface for easy management - Scheduled automated backups ***Install the dockersocket container from the apps page. You will need to add a variable to the container called IMAGES and give it a value of 1. The docker socket proxy will return a 403 without this.*** Access the web interface at http://your-Unraid-ip:7842",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/unraid-config-guardian",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Application configuration",
+      "required": true
+    },
+    {
+      "name": "Output Directory",
+      "host": "/mnt/cache/backups/unraid-docs",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Generated backup files location",
+      "required": true
+    },
+    {
+      "name": "Unraid Flash Drive",
+      "host": "/boot",
+      "container": "/boot",
+      "mode": "ro",
+      "description": "Unraid flash drive for system configuration",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "7842",
+      "container": "7842",
+      "protocol": "tcp",
+      "description": "Port for web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone for logging",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Schedule",
+      "key": "SCHEDULE",
+      "value": "0 2 * * 0",
+      "description": "Cron schedule for automated backups (Sunday 2 AM)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mask Passwords",
+      "key": "MASK_PASSWORDS",
+      "value": "true",
+      "description": "Hide sensitive environment variables",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Include System Info",
+      "key": "INCLUDE_SYSTEM_INFO",
+      "value": "true",
+      "description": "Include system information in backup",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOCKER HOST",
+      "key": "DOCKER_HOST",
+      "value": "tcp://dockersocket-ip:2375",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

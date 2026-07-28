@@ -1,0 +1,67 @@
+{
+  "name": "VolumeVault",
+  "repo": "ghcr.io/darkdragon14/volumevault:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/users/Darkdragon14/packages/container/package/volumevault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/tajniak81/unraid-docker-templates/refs/heads/main/volumevault/icon/volumevault.png",
+  "project": "https://github.com/Darkdragon14/VolumeVault",
+  "description": "VolumeVault is a self-hosted application for managing Docker volume and host path backups with safe restores powered by offen/docker-volume-backup. This template mirrors the attached compose file and keeps the same bind mounts, port mapping, and environment values. Generate an APP_KEY with: docker run --rm ghcr.io/darkdragon14/volumevault:latest php artisan key:generate --show Open the web UI after startup and complete the onboarding flow to create the first administrator account. https://volumevault.darkdragon14.dev/ https://github.com/Darkdragon14/VolumeVault",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/appdata/volumevault/data",
+      "container": "/app/storage",
+      "mode": "rw",
+      "description": "Persistent VolumeVault storage",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket used to discover volumes and run backup tasks",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "VolumeVault web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "APP_KEY",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "Application encryption key. Generate this before first start and keep it safe. Generate an APP_KEY with: docker run --rm ghcr.io/darkdragon14/volumevault:latest php artisan key:generate --show",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "APP_TIMEZONE",
+      "key": "APP_TIMEZONE",
+      "value": "UTC",
+      "description": "Application timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

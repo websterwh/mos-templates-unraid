@@ -1,0 +1,195 @@
+{
+  "name": "Octave",
+  "repo": "ghcr.io/johagan94/octave:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/johagan94/octave/pkgs/container/octave",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/johagan94/octave/main/docs/logo.png",
+  "project": "https://github.com/johagan94/octave",
+  "description": "Sync Spotify playlists into Jellyfin, request missing albums in Lidarr, and enrich matching with ListenBrainz and Last.fm. Browser-based setup \u2014 no config file editing needed.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/octave/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Stores config.json (non-secret settings: Jellyfin library ID, playlists list).",
+      "required": true
+    },
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/octave/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Runtime data: SQLite sync history, credentials (settings.json), Spotify PKCE token, track cache.",
+      "required": true
+    },
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/octave/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Octave log files (rotated automatically).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Octave web interface and API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Spotify Client ID",
+      "key": "SPOTIFY_CLIENT_ID",
+      "value": "",
+      "description": "Required to connect Spotify. Create a free app at developer.spotify.com/dashboard, copy its Client ID here (or into Settings later), and add your Octave callback URL \u2014 http://SERVER-IP:8000/callback \u2014 to that app&apos;s Redirect URIs. PKCE is used, so no client secret is needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Spotify Redirect URI",
+      "key": "SPOTIFY_REDIRECT_URI",
+      "value": "",
+      "description": "Optional. Leave blank to let Octave infer the callback URI. Set this explicitly when using a reverse proxy, e.g. https://octave.example.com/callback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Optional \u2014 use 'Sign in to Jellyfin' in the Settings UI to configure automatically. URL reachable from the Octave container, e.g. http://192.168.1.10:8096 or http://jellyfin:8096.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API Key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Optional \u2014 auto-filled by 'Sign in to Jellyfin' in Settings. Jellyfin Dashboard \u2192 API Keys.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Jellyfin User ID",
+      "key": "JELLYFIN_USER_ID",
+      "value": "",
+      "description": "Optional \u2014 auto-filled by 'Sign in to Jellyfin' in Settings. The user ID that will own created playlists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr URL",
+      "key": "LIDARR_URL",
+      "value": "",
+      "description": "Optional \u2014 leave unset to disable Lidarr integration. URL reachable from the Octave container, e.g. http://lidarr:8686.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr API Key",
+      "key": "LIDARR_API_KEY",
+      "value": "",
+      "description": "Optional Lidarr API key. Lidarr \u2192 Settings \u2192 General \u2192 Security \u2192 API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auth Username",
+      "key": "AUTH_USERNAME",
+      "value": "octave",
+      "description": "HTTP Basic Auth username for the web UI. Defaults to 'octave'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Password",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "SECURITY: blank = NO authentication (anyone on the network can access Octave). Set a password before exposing Octave beyond a trusted LAN. Leave blank only for an isolated/LAN-trust setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sync Schedule",
+      "key": "SYNC_SCHEDULE",
+      "value": "0 2 * * *",
+      "description": "Cron schedule for automatic sync (uses container TZ). Default: 2:00 AM daily. Leave blank to disable scheduled sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync On Startup",
+      "key": "SYNC_ON_STARTUP",
+      "value": "false",
+      "description": "Set to 'true' to run a sync when the container starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync All Playlists",
+      "key": "SYNC_ALL_PLAYLISTS",
+      "value": "",
+      "description": "Set to 'true' to discover and sync every Spotify playlist the connected account can see. Spotify-owned editorial playlists are skipped automatically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "IANA timezone string for logs and scheduled syncs, e.g. Australia/Sydney.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Python logging level: DEBUG, INFO, WARNING, or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ListenBrainz Token",
+      "key": "LISTENBRAINZ_TOKEN",
+      "value": "",
+      "description": "Optional. ListenBrainz user token from listenbrainz.org/profile/ \u2014 enables MusicBrainz ID resolution for better Lidarr matching.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm API Key",
+      "key": "LASTFM_API_KEY",
+      "value": "",
+      "description": "Optional. Last.fm API key from last.fm/api/account/create \u2014 enables playcounts and similar-artist discovery.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm Username",
+      "key": "LASTFM_USERNAME",
+      "value": "",
+      "description": "Optional. Last.fm username for scrobble history lookups.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

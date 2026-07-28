@@ -1,0 +1,67 @@
+{
+  "name": "FarFetched",
+  "repo": "ghcr.io/pumpkinpieman/farfetched:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/pumpkinpieman/FarFetched/pkgs/container/farfetched",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/home.php",
+  "icon": "https://raw.githubusercontent.com/pumpkinpieman/FarFetched/main/assets/icon.png",
+  "project": "https://github.com/pumpkinpieman/FarFetched",
+  "description": "FarFetched is a self-hosted browser and paced downloader for free 3D models from Printables, plus a local library organizer for files you have already downloaded from other sources. Browse by category, queue STL/3MF files or whole-model ZIPs, and a background worker saves them to disk at a polite, configurable pace. Authentication is paste-once: drop in your Printables refresh-token cookie under Settings and the app keeps your session alive automatically (you'll only re-paste roughly monthly). Open the WebUI to get started.",
+  "paths": [
+    {
+      "name": "Downloads (models)",
+      "host": "/mnt/cache/Downloads/models",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Host folder where downloaded models are saved (per-source subfolders: printables/, stlflix/, ...).",
+      "required": true
+    },
+    {
+      "name": "App Data (token, db, logs)",
+      "host": "/mnt/cache/appdata/farfetched/private",
+      "container": "/var/www/html/private",
+      "mode": "rw",
+      "description": "Persistent storage for the Printables session token, the SQLite queue, and logs. Keep this stable across updates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8088",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the FarFetched web interface. Change this to any free port you like.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Pace (seconds between files)",
+      "key": "FETCHER_DOWNLOAD_DELAY",
+      "value": "120",
+      "description": "Seconds the worker waits between file downloads. 120 is polite; lower at your own risk.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Dir (in container)",
+      "key": "FETCHER_DOWNLOAD_DIR",
+      "value": "/downloads",
+      "description": "Where the worker writes inside the container. Leave as /downloads unless you know why you are changing it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

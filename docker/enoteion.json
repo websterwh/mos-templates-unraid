@@ -1,0 +1,59 @@
+{
+  "name": "e-note-ion",
+  "repo": "ghcr.io/jasonpuglisi/e-note-ion",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/JasonPuglisi/e-note-ion/pkgs/container/e-note-ion",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:32800]",
+  "icon": "https://raw.githubusercontent.com/JasonPuglisi/e-note-ion/main/assets/icon.png",
+  "project": "https://github.com/JasonPuglisi/e-note-ion",
+  "description": "E\u2022NOTE\u2022ION is a cron-based content scheduler for Vestaboard split-flap displays. Supports both the Note (3\u00d715) and Flagship (6\u00d722). Content is defined in JSON files and displayed on a schedule with priority queueing. Ships with bundled contrib content (opt-in via config.toml) and supports personal content via a host-mounted directory.",
+  "paths": [
+    {
+      "name": "Config file",
+      "host": "/mnt/cache/appdata/e-note-ion/config.toml",
+      "container": "/app/config.toml",
+      "mode": "rw",
+      "description": "Required. Path to your config.toml on the host. Copy config.example.toml from the repo, fill in your API keys and settings, and point this path at the result. Display model (note/flagship), public mode, and enabled contrib content are all set in config.toml under [scheduler].",
+      "required": true
+    },
+    {
+      "name": "User content directory",
+      "host": "/mnt/cache/appdata/e-note-ion/content",
+      "container": "/app/content/user",
+      "mode": "rw",
+      "description": "Optional. Path to a directory of personal content JSON files on the host. Files placed here are always loaded automatically. Leave blank if you only want to use bundled contrib content.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webhook port",
+      "host": "32800",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Optional. Host port for the HTTP webhook listener (used by Plex and other push integrations). Only takes effect if [webhook] is enabled in config.toml with bind = &quot;0.0.0.0&quot;. The container always listens on 8080 internally; this maps it to a host port. 32800 is the recommended default to avoid conflicts with other common services on 8080.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/Los_Angeles",
+      "description": "Container timezone (e.g. America/New_York, Europe/London). Controls when cron jobs fire. Should match the timezone set in config.toml under [scheduler].timezone, or be the only timezone setting if you omit that config key.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,179 @@
+{
+  "name": "posterpilot",
+  "repo": "ghcr.io/diegopeixoto/posterpilot:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/diegopeixoto/posterpilot/pkgs/container/posterpilot",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/diegopeixoto/posterpilot/main/artwork/icon-posterpilot.png",
+  "project": "https://github.com/diegopeixoto/posterpilot",
+  "description": "PosterPilot is a self-hosted artwork manager for Plex, Jellyfin and Emby. Browse your library, find covers across MediUX, Fanart.tv, TMDB and ThePosterDB, and apply them directly to your media server and/or by exporting Kometa/PMM-compatible YAML. Credentials can be set here or in the in-app Settings page (including Plex login). Point the /kometa volume at your existing Kometa config to have exported YAML picked up on its next run.",
+  "paths": [
+    {
+      "name": "App data (/data)",
+      "host": "/mnt/cache/appdata/posterpilot",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent SQLite database, settings, history and the rotating log file (/data/logs). Keep this on a mounted volume so state survives updates; no extra log volume is needed.",
+      "required": true
+    },
+    {
+      "name": "Kometa assets (/kometa)",
+      "host": "/mnt/cache/appdata/kometa/config",
+      "container": "/kometa",
+      "mode": "rw",
+      "description": "Optional. Mount your existing Kometa assets/config directory so exported YAML lands where Kometa reads it. Leave default if you do not use Kometa.",
+      "required": false
+    },
+    {
+      "name": "Kometa config dir (/kometa-config)",
+      "host": "",
+      "container": "/kometa-config",
+      "mode": "rw",
+      "description": "Optional. To let PosterPilot manage Kometa's OWN config.yml (the dedicated /kometa manager page), mount Kometa's config directory here (read/write), then set 'Kometa config path' below to e.g. /kometa-config/config.yml. PosterPilot co-locates posterpilot.yml in this same directory, so no separate metadata mount is needed. Leave empty if unused.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port for the PosterPilot web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server type",
+      "key": "SERVER_TYPE",
+      "value": "plex",
+      "description": "Which media server to manage: plex, jellyfin, or emby. Default plex.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB key",
+      "key": "TMDB_KEY",
+      "value": "",
+      "description": "TMDB v3 API key or v4 bearer/JWT (auto-detected). Required for metadata + TMDB artwork. Or set it in Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "e.g. http://192.168.1.10:32400 \u2014 or use the in-app Plex login / connection discovery.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Your X-Plex-Token. Leave blank to acquire it via the in-app Plex login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin base URL (when Server type = jellyfin).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Jellyfin API key (when Server type = jellyfin).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Emby base URL (when Server type = emby).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby API key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Emby API key (when Server type = emby).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Fanart.tv key",
+      "key": "FANART_KEY",
+      "value": "",
+      "description": "Fanart.tv personal API key \u2014 enables the Fanart.tv artwork provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Kometa config path",
+      "key": "KOMETA_CONFIG_PATH",
+      "value": "",
+      "description": "Optional. Path INSIDE the container to Kometa's own config.yml to manage (e.g. /kometa-config/config.yml). Empty = Kometa manager off. Mount the dir via 'Kometa config dir' above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Kometa config mode",
+      "key": "KOMETA_CONFIG_MODE",
+      "value": "",
+      "description": "merge (default, surgical \u2014 preserves your other keys and comments) or own (PosterPilot regenerates and fully owns config.yml). Empty = merge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UI language",
+      "key": "LANGUAGE",
+      "value": "en",
+      "description": "UI locale: en (default), es, zh, ja, or pt-BR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log directory",
+      "key": "LOG_DIR",
+      "value": "/data/logs",
+      "description": "Folder for the rotating log file (posterpilot.log). Default /data/logs \u2014 already inside the /data volume, so no extra mount is needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event retention",
+      "key": "EVENT_RETENTION",
+      "value": "2000",
+      "description": "Max number of activity-log rows kept in the database; older rows are pruned. Default 2000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port (internal)",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal listen port. Leave at 3000 unless you know what you are doing.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

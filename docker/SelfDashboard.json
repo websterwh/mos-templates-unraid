@@ -1,0 +1,155 @@
+{
+  "name": "SelfDashboard",
+  "repo": "ghcr.io/kabelsalatundklartext/selfdashboard:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/kabelsalatundklartext/selfdashboard/pkgs/container/selfdashboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--group-add=281",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/kabelsalatundklartext/selfdashboard/main/public/icon_unraid.png",
+  "project": "https://github.com/kabelsalatundklartext/selfdashboard",
+  "description": "SelfDashboard \u2014 modulares Homelab-Dashboard (Image :latest). Kern-App im Container; Widgets \u00fcber Plugin-Store \u201eVon GitHub\u201c (Branch main, Ordner plugins-pack) oder ZIP nach /app/plugins/custom (plugin.json + widget.js). Plugin-APIs sind im Image (Builtin); nach Plugin-Update: Strg+F5. Config Storage: dashboard.json unter /app/data. CrowdSec-Nutzer: PUID/PGID wie beim CrowdSec-Container setzen. Doku: docs/PLUGINS.md, docs/PLUGIN_DEV.md.",
+  "paths": [
+    {
+      "name": "Config Storage",
+      "host": "/mnt/cache/appdata/selfdashboard",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "App-Daten (/app/data): pro User dashboard.json unter users/, Auth unter auth/auth.db, Kalender, Logs. Backup dieses Host-Ordners empfohlen. Optional: SELFDASHBOARD_DATA_DIR \u00fcberschreibt den Pfad im Container.",
+      "required": true
+    },
+    {
+      "name": "Plugins Storage",
+      "host": "/mnt/cache/appdata/selfdashboard/plugins",
+      "container": "/app/plugins/custom",
+      "mode": "rw",
+      "description": "Pflicht f\u00fcr Plugin-Verteilung: Host \u2192 /app/plugins/custom. Pro Plugin plugin.json und widget.js (Store \u201eVon GitHub\u201c oder ZIP); API-Plugins zus\u00e4tzlich server.mjs vom Store. Image-API nur Fallback. Nach Update: Strg+F5.",
+      "required": true
+    },
+    {
+      "name": "CrowdSec Data (optional)",
+      "host": "",
+      "container": "/crowdsec-data",
+      "mode": "ro",
+      "description": "OPTIONAL \u2014 leer lassen ohne CrowdSec-Widget. z. B. /mnt/user/appdata/crowdsec/data \u2192 /crowdsec-data (read-only). crowdsec.db; optional GeoLite2-*.mmdb. Entsperren: Docker-Socket + Plugin-Einstellung.",
+      "required": false
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Optional f\u00fcr Docker-Widget (nur dieser Host). Bei EACCES: --group-add=281 in Extra Parameters anpassen (GID mit stat -c '%g' /var/run/docker.sock pr\u00fcfen).",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port der Weboberfl\u00e4che.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Zeitzone, z. B. Europe/Berlin",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User-ID, unter der die App l\u00e4uft. Setze sie auf DENSELBEN Wert wie dein CrowdSec-Container (Unraid-Standard 99 = nobody), damit SelfDashboard die crowdsec.db direkt lesen kann \u2014 auch nach n\u00e4chtlichen Backups. Ohne CrowdSec einfach 99 lassen.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Gruppen-ID, unter der die App l\u00e4uft (Unraid-Standard 100 = users). Wie bei PUID: passend zu CrowdSec setzen.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key (Verschl\u00fcsselung)",
+      "key": "SELFDASHBOARD_SECRET_KEY",
+      "value": "",
+      "description": "EMPFOHLEN \u2014 fester Schl\u00fcssel f\u00fcr ALLE gespeicherten Zugangsdaten (Kalender, E-Mail, Widget-Passw\u00f6rter wie AdGuard/Pi-hole/FRITZ!/Speedtest). Beliebiger langer Zufallsstring (30+ Zeichen). Ohne ihn h\u00e4ngt die Verschl\u00fcsselung an einer Datei im Volume und kann bei Image-Updates verloren gehen. WICHTIG: einmal setzen, NIE mehr \u00e4ndern \u2014 sonst werden gespeicherte Passw\u00f6rter unlesbar (dann neu eintragen).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GitHub Plugins Repo",
+      "key": "SELFDASHBOARD_PLUGINS_GITHUB_REPO",
+      "value": "kabelsalatundklartext/selfdashboard",
+      "description": "GitHub-Repository f\u00fcr den Plugin-Store (owner/repo). L\u00e4dt plugins-pack/plugins-index.json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Plugins Branch",
+      "key": "SELFDASHBOARD_PLUGINS_GITHUB_REF",
+      "value": "main",
+      "description": "GitHub-Branch oder Tag mit dem Plugin-Katalog (Standard: main). Muss plugins-pack/ mit plugins-index.json enthalten. Normalerweise nicht \u00e4ndern.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub Plugins Path",
+      "key": "SELFDASHBOARD_PLUGINS_GITHUB_PATH",
+      "value": "plugins-pack",
+      "description": "Ordner im Repo mit Plugin-Dateien (Standard: plugins-pack).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Reset Password (optional)",
+      "key": "SELFDASHBOARD_AUTH_RESET_PASSWORD",
+      "value": "",
+      "description": "OPTIONAL \u2014 Admin-Passwort per Env zur\u00fccksetzen (wenn vergessen). Neues Passwort setzen (min. 8 Zeichen), Container neu starten, einloggen, dann Variable LEEREN und erneut starten. Optional SELFDASHBOARD_AUTH_RESET_USER=admin (sonst erster Admin). Alternative: SELFDASHBOARD_AUTH_RESET=admin:NeuesPasswort",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auth Reset User (optional)",
+      "key": "SELFDASHBOARD_AUTH_RESET_USER",
+      "value": "",
+      "description": "OPTIONAL \u2014 Benutzername f\u00fcr Passwort-Reset (mit SELFDASHBOARD_AUTH_RESET_PASSWORD). Leer = erster Admin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Normalerweise production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS ohne Zertifikatspr\u00fcfung (optional)",
+      "key": "NODE_TLS_REJECT_UNAUTHORIZED",
+      "value": "",
+      "description": "Wof\u00fcr: HTTPS aus dem Container (CalDAV, Fritzbox, Pi-hole, Plugin-Store, Wetter, \u2026). Standard (leer): Zertifikate pr\u00fcfen \u2014 empfohlen. Nur 0 bei Zertifikatsfehlern auf internen https://-URLs (self-signed). Dann gilt f\u00fcr alle HTTPS-Aufrufe \u2014 unsicher. Nicht n\u00f6tig f\u00fcr Open-Meteo/GitHub. Besser: g\u00fcltiges Zertifikat oder eigene CA.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

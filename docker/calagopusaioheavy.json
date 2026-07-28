@@ -1,0 +1,244 @@
+{
+  "name": "calagopus-aio-heavy",
+  "repo": "ghcr.io/calagopus/panel:heavy-aio",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/calagopus/panel",
+  "network": "calagopus",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/calagopus/website/main/web/public/icon.png",
+  "project": "https://github.com/calagopus/panel",
+  "description": "Calagopus is a modern, open-source game server management panel built in Rust. Deploy, monitor, and manage Minecraft, Rust, and other game servers with industry-leading performance. This all-in-one template runs the panel alongside the Wings daemon. Requires separate PostgreSQL (e.g. postgres:18-alpine) and Valkey/Redis (e.g. valkey:latest) containers on the same Docker network.",
+  "paths": [
+    {
+      "name": "Panel Data",
+      "host": "/mnt/cache/appdata/calagopus/data",
+      "container": "/var/lib/calagopus",
+      "mode": "rw",
+      "description": "Persistent panel data directory.",
+      "required": true
+    },
+    {
+      "name": "Panel Logs",
+      "host": "/mnt/cache/appdata/calagopus/logs",
+      "container": "/var/log/calagopus",
+      "mode": "rw",
+      "description": "Panel log directory.",
+      "required": true
+    },
+    {
+      "name": "Binaries",
+      "host": "/mnt/cache/appdata/calagopus/build/binaries",
+      "container": "/app/binaries",
+      "mode": "rw",
+      "description": "Custom binaries directory.",
+      "required": false
+    },
+    {
+      "name": "Translations",
+      "host": "/mnt/cache/appdata/calagopus/build/translations",
+      "container": "/app/translations",
+      "mode": "rw",
+      "description": "Custom translations directory.",
+      "required": false
+    },
+    {
+      "name": "Extensions",
+      "host": "/mnt/cache/appdata/calagopus/build/extensions",
+      "container": "/app/extensions",
+      "mode": "rw",
+      "description": "Custom extensions directory.",
+      "required": false
+    },
+    {
+      "name": "Extension Migrations",
+      "host": "/mnt/cache/appdata/calagopus/build/extension-migrations",
+      "container": "/app/repo/database/extension-migrations",
+      "mode": "rw",
+      "description": "Extension database migrations directory.",
+      "required": false
+    },
+    {
+      "name": "Wings Config File",
+      "host": "/mnt/cache/appdata/calagopus/wings-config.yml",
+      "container": "/wings-config.yml",
+      "mode": "rw",
+      "description": "Wings AIO configuration file. Must exist on the host before starting, see setup instructions above (step 5). Docker will create a directory here instead of a file if the path is missing.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket \u2014 required for Wings to manage game server containers.",
+      "required": true
+    },
+    {
+      "name": "Docker Containers",
+      "host": "/var/lib/docker/containers/",
+      "container": "/var/lib/docker/containers/",
+      "mode": "rw",
+      "description": "Docker containers directory \u2014 required for Wings.",
+      "required": true
+    },
+    {
+      "name": "Pterodactyl Config Dir",
+      "host": "/etc/pterodactyl/",
+      "container": "/etc/pterodactyl/",
+      "mode": "ro",
+      "description": "Wings main configuration directory (config.yml lives here).",
+      "required": true
+    },
+    {
+      "name": "Pterodactyl Data Dir",
+      "host": "/var/lib/pterodactyl/",
+      "container": "/var/lib/pterodactyl/",
+      "mode": "rw",
+      "description": "Wings data directory (server volumes, backups, archives).",
+      "required": true
+    },
+    {
+      "name": "Pterodactyl Log Dir",
+      "host": "/var/log/pterodactyl/",
+      "container": "/var/log/pterodactyl/",
+      "mode": "rw",
+      "description": "Wings log directory.",
+      "required": true
+    },
+    {
+      "name": "Pterodactyl Tmp Dir",
+      "host": "/tmp/pterodactyl/",
+      "container": "/tmp/pterodactyl/",
+      "mode": "rw",
+      "description": "Wings temporary directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port for the panel WebUI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SFTP Port",
+      "host": "2022",
+      "container": "2022",
+      "protocol": "tcp",
+      "description": "SFTP port for the integrated Wings daemon.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption Key",
+      "key": "APP_ENCRYPTION_KEY",
+      "value": "CHANGEME",
+      "description": "Required. A long, random secret key used to encrypt sensitive data. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://panel:panel@calagopus-db/panel",
+      "description": "PostgreSQL connection URL. Change the hostname to match your PostgreSQL container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "redis://calagopus-cache",
+      "description": "Redis/Valkey connection URL. Change the hostname to match your Valkey/Redis container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Run Database Migrations",
+      "key": "DATABASE_MIGRATE",
+      "value": "true",
+      "description": "Automatically run database migrations on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "PORT",
+      "value": "8000",
+      "description": "Internal HTTP port the panel listens on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Wings Proxy",
+      "key": "APP_ENABLE_WINGS_PROXY",
+      "value": "true",
+      "description": "Enable the Wings proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Decryption Cache",
+      "key": "APP_USE_DECRYPTION_CACHE",
+      "value": "true",
+      "description": "Use the decryption cache.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Internal Cache",
+      "key": "APP_USE_INTERNAL_CACHE",
+      "value": "true",
+      "description": "Use the internal cache.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Primary",
+      "key": "APP_PRIMARY",
+      "value": "true",
+      "description": "Mark this instance as primary.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Directory",
+      "key": "APP_LOG_DIRECTORY",
+      "value": "/var/log/calagopus",
+      "description": "Panel log directory inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AIO Base Wings Configuration",
+      "key": "AIO_BASE_WINGS_CONFIGURATION",
+      "value": "/wings-config.yml",
+      "description": "Path to the base Wings configuration file inside the container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

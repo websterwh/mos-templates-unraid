@@ -1,0 +1,99 @@
+{
+  "name": "TrimPoint",
+  "repo": "ghcr.io/gillberg1111/trimpoint:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/gillberg1111/trimpoint",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/gillberg1111/trimpoint/main/icon.png",
+  "project": "https://github.com/gillberg1111/trimpoint",
+  "description": "Self-hosted position-ceiling tracker. Set a maximum weight (ceiling) for each holding.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/trimpoint",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stores config.json and history.json.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the TrimPoint web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Finnhub API key",
+      "key": "FINNHUB_KEY",
+      "value": "",
+      "description": "Free key from finnhub.io for live prices. Without it, prices stay at what you enter.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Password (optional)",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Set to require a password to open TrimPoint. Leave blank for open access on your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Session secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Random string (e.g. openssl rand -hex 32) so logins survive restarts. Only needed if you set a password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify kind",
+      "key": "NOTIFY_KIND",
+      "value": "off",
+      "description": "off, ntfy, discord, or webhook.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify URL",
+      "key": "NOTIFY_URL",
+      "value": "",
+      "description": "ntfy topic URL, Discord webhook, or generic webhook to ping when a holding crosses its ceiling.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Check interval (min)",
+      "key": "CHECK_INTERVAL",
+      "value": "60",
+      "description": "Minutes between price/ceiling checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie secure",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set true only if you reach TrimPoint over HTTPS (e.g. behind a reverse proxy).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

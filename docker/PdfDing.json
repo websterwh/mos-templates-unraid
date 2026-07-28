@@ -1,0 +1,411 @@
+{
+  "name": "PdfDing",
+  "repo": "mrmn/pdfding:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/mrmn/pdfding",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/mrmn2/PdfDing/master/pdfding/static/images/logo_with_circle.svg",
+  "project": "https://github.com/mrmn2/PdfDing",
+  "description": "Self-hosted PDF manager, viewer and editor offering a seamless user experience on multiple devices.",
+  "paths": [
+    {
+      "name": "Media Path",
+      "host": "",
+      "container": "/home/nonroot/pdfding/media",
+      "mode": "rw",
+      "description": "Path to the media folder",
+      "required": true
+    },
+    {
+      "name": "Database Path",
+      "host": "/mnt/cache/appdata/pdfding/db",
+      "container": "/home/nonroot/pdfding/db",
+      "mode": "rw",
+      "description": "Path to the SQLite database folder. Remove if using Postgres. May need to update write permissions.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Theme",
+      "key": "DEFAULT_THEME",
+      "value": "dark|light",
+      "description": "Theme",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Theme Color",
+      "key": "DEFAULT_THEME_COLOR",
+      "value": "green|blue|red|pink|orange|gray",
+      "description": "Theme color",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Used for securing signed data. Should be to a large random value.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Host Name",
+      "key": "HOST_NAME",
+      "value": "127.0.0.1",
+      "description": "The host/domain name where PdfDing will be reachable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Require User Email Verification",
+      "key": "ACCOUNT_EMAIL_VERIFICATION",
+      "value": "TRUE|FALSE",
+      "description": "Block users until they have verified their email address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable User Signups",
+      "key": "DISABLE_USER_SIGNUPS",
+      "value": "FALSE|TRUE",
+      "description": "Disable user signups",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Type",
+      "key": "DATABASE_TYPE",
+      "value": "SQLITE|POSTGRES",
+      "description": "Database type",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "Postgres database host. Remove if using SQLite.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Postgres database port. Remove if using SQLite.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database - Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Postgres database password. Remove if using SQLite.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "OIDC - Enable",
+      "key": "OIDC_ENABLE",
+      "value": "FALSE|TRUE",
+      "description": "Enable OpenID Connect",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OIDC - Provider Name",
+      "key": "OIDC_PROVIDER_NAME",
+      "value": "",
+      "description": "OpenID Connect provider name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC - Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OpenID Connect client ID",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC - Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OpenID Connect client secret",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC - Auth URL",
+      "key": "OIDC_AUTH_URL",
+      "value": "",
+      "description": "OpenID Connect authorization URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC - Enforce",
+      "key": "OIDC_ONLY",
+      "value": "FALSE|TRUE",
+      "description": "Require users to use OIDC",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - Backend",
+      "key": "EMAIL_BACKEND",
+      "value": "CONSOLE|SMTP",
+      "description": "Whether to send account related emails, e.g a password reset or account verification, to the console or via an SMTP server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Host",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "SMTP server host. Remove if using the console backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "25",
+      "description": "SMTP server port. Remove if using the console backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP User",
+      "key": "SMTP_USER",
+      "value": "",
+      "description": "SMTP server user. Remove if using the console backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP Password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP server password. Remove if using the console backend.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email - SMTP TLS",
+      "key": "SMTP_USE_TLS",
+      "value": "FALSE|TRUE",
+      "description": "Secure the connection to the SMTP server with TLS. Remove if using the console backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email - SMTP SSL",
+      "key": "SMTP_USE_SSL",
+      "value": "FALSE|TRUE",
+      "description": "Secure the connection to the SMTP server with SSL. Remove if using the console backend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Consumption - Enable",
+      "key": "CONSUME_ENABLE",
+      "value": "FALSE|TRUE",
+      "description": "Enable the consumption folder as an alternative way for adding PDFs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Consumption - Skip Existing",
+      "key": "CONSUME_SKIP_EXISTING",
+      "value": "TRUE|FALSE",
+      "description": "Skip the addition PDF files if the user already has PDF with the same name and file size.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Consumption - Tags",
+      "key": "CONSUME_TAGS",
+      "value": "",
+      "description": "Comma separated list of tags to add to the PDFs added via the consumption folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups - Enable",
+      "key": "BACKUP_ENABLE",
+      "value": "FALSE|TRUE",
+      "description": "Enable periodic backups to S3 compatible storage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups - S3 Endpoint",
+      "key": "BACKUP_ENDPOINT",
+      "value": "",
+      "description": "S3 compatible storage endpoint. Remove if not using backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups - S3 Access Key",
+      "key": "BACKUP_ACCESS_KEY",
+      "value": "",
+      "description": "S3 compatible storage access key. Remove if not using backups.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Backups - S3 Secret Key",
+      "key": "BACKUP_SECRET_KEY",
+      "value": "",
+      "description": "S3 compatible storage secret key. Remove if not using backups.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Backups - S3 Bucket",
+      "key": "BACKUP_BUCKET_NAME",
+      "value": "",
+      "description": "S3 compatible storage bucket. Remove if not using backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups - Schedule",
+      "key": "BACKUP_SCHEDULE",
+      "value": "0 0 * * *",
+      "description": "Cron schedule for the backups. Default is midnight every day.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups - Secure",
+      "key": "BACKUP_SECURE",
+      "value": "FALSE|TRUE",
+      "description": "Secure the connection to the S3 compatible storage with TLS.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups - Encryption",
+      "key": "BACKUP_ENCRYPTION_ENABLE",
+      "value": "FALSE|TRUE",
+      "description": "Encrypt the backups before uploading them to the S3 compatible storage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups - Encryption Password",
+      "key": "BACKUP_ENCRYPTION_PASSWORD",
+      "value": "",
+      "description": "Password to encrypt the backups. Remove if not using encryption.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Backups - Encryption Salt",
+      "key": "BACKUP_ENCRYPTION_SALT",
+      "value": "",
+      "description": "Salt to encrypt the backups. Remove if not using encryption.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "ERROR|WARN|INFO|DEBUG",
+      "description": "Log level",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure CSRF Cookie",
+      "key": "CSRF_COOKIE_SECURE",
+      "value": "TRUE|FALSE",
+      "description": "Set this to TRUE to avoid transmitting the CSRF cookie over HTTP accidentally.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure Session Cookie",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "TRUE|FALSE",
+      "description": "Set this to TRUE to avoid transmitting the session cookie over HTTP accidentally.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure SSL Redirects",
+      "key": "SECURE_SSL_REDIRECT",
+      "value": "FALSE|TRUE",
+      "description": "Redirects all non-HTTPS requests to HTTPS. If PdfDing is running behind a reverse proxy this can cause infinite redirects.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure HSTS Seconds",
+      "key": "SECURE_HSTS_SECONDS",
+      "value": "",
+      "description": "See details: https://github.com/mrmn2/PdfDing/blob/master/docs/configuration.md#secure_hsts_seconds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Protocol for Account",
+      "key": "ACCOUNT_DEFAULT_HTTP_PROTOCOL",
+      "value": "https|http",
+      "description": "The default protocol for account related URLs, e.g. for the password forgotten procedure.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Server Port",
+      "key": "HOST_PORT",
+      "value": "8000",
+      "description": "The port where the internal server is reachable. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,113 @@
+{
+  "name": "telegram-archive",
+  "repo": "drumsergio/telegram-archive:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/telegram-archive",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/telegram-archive.png",
+  "project": "https://github.com/GeiserX/Telegram-Archive",
+  "description": "Automated Telegram backup service that periodically archives messages and media from your chats, groups, and channels. Uses Telethon for scheduled exports with optional real-time message listening. Supports SQLite or PostgreSQL, media deduplication, and configurable retention. This is the backup container. For browsing archived messages, install the Telegram Archive Viewer container separately. Requires Telegram API credentials from https://my.telegram.org More info: https://github.com/GeiserX/Telegram-Archive",
+  "paths": [
+    {
+      "name": "Session Data",
+      "host": "/mnt/cache/appdata/telegram-archive/session",
+      "container": "/data/session",
+      "mode": "rw",
+      "description": "Telethon session storage",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/telegram-archive/backups",
+      "container": "/data/backups",
+      "mode": "rw",
+      "description": "Backup data and media files",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "API ID",
+      "key": "TELEGRAM_API_ID",
+      "value": "",
+      "description": "Telegram API ID from my.telegram.org",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API Hash",
+      "key": "TELEGRAM_API_HASH",
+      "value": "",
+      "description": "Telegram API hash from my.telegram.org",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Phone Number",
+      "key": "TELEGRAM_PHONE",
+      "value": "",
+      "description": "Phone number with country code (e.g. +1234567890)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Schedule",
+      "key": "SCHEDULE",
+      "value": "0 */6 * * *",
+      "description": "Cron schedule for backups (default: every 6 hours)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download Media",
+      "key": "DOWNLOAD_MEDIA",
+      "value": "true",
+      "description": "Download media files during backup",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Media Size (MB)",
+      "key": "MAX_MEDIA_SIZE_MB",
+      "value": "100",
+      "description": "Maximum media file size to download in MB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Listener",
+      "key": "ENABLE_LISTENER",
+      "value": "false",
+      "description": "Enable real-time message listening between scheduled backups",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chat IDs",
+      "key": "CHAT_IDS",
+      "value": "",
+      "description": "Comma-separated chat IDs to back up (empty = all chats)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chat Types",
+      "key": "CHAT_TYPES",
+      "value": "private,groups,channels",
+      "description": "Types of chats to back up",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

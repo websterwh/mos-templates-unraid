@@ -1,0 +1,139 @@
+{
+  "name": "vorta",
+  "repo": "ghcr.io/borgbase/vorta-docker",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://ghcr.io/borgbase/vorta-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--hostname=unraid-vorta",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]",
+  "icon": "https://raw.githubusercontent.com/b3rrytech/unraid-docker-templates/main/docker_icons/vorta/vorta-512px.png",
+  "project": "https://github.com/borgbase/vorta-docker",
+  "description": "***DESCRIPTION*** This is an Unraid Docker template for **Vorta**, a GUI for BorgBackup. Vorta is a backup client primarily for macOS and Linux desktops. It integrates the mighty BorgBackup with your desktop environment to protect your data from disk failure, ransomware and theft. BorgBackup is originally a CLI based backup tool, so Vorta was created to lower the threshold and allow more people to use it. This containerized version of Vorta gives you access to the GUI over VNC in a browser. ***NOTES*** \u2022 There are other variables available, if needed. Check the GitHub repository to know more. \u2022 The directories needed to interact with the host and/or any external device, is located under '/' in the root of the container. \u2022 When restoring from an archive back to this host, this container needs to be run as Privileged. It is strongly (!) advised that you only do this during restores and toggle it off during normal use. \u2022 I'm not the author of this Docker container. I only provide the Unraid template. Any issues with the container and the application should be submitted to the official GitHub repository. Use the support thread in the forums for any problems with the template. If possible me, or someone else in the community also might be able to provide some guidance for usage.",
+  "paths": [
+    {
+      "name": "Source",
+      "host": "/mnt/cache/",
+      "container": "/unraid/data",
+      "mode": "ro",
+      "description": "Choose a local source directory. This is Read Only. For multiple sources add another Path.",
+      "required": true
+    },
+    {
+      "name": "Destination",
+      "host": "/mnt/cache/",
+      "container": "/unraid/destination",
+      "mode": "rw",
+      "description": "Choose a local destination directory (if needed). For multiple destinations add another Path.",
+      "required": false
+    },
+    {
+      "name": "Restore",
+      "host": "/mnt/cache/",
+      "container": "/restore/",
+      "mode": "rw",
+      "description": "Configurable in the event you want to restore from an archive. Requires the container to be run as Privieged during restore. It's strongly recommended to only toggle Privileged on WHEN/IF you need to restore.",
+      "required": false
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/vorta/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Location for appdata.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "5811",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "VNC password",
+      "key": "VNC_PASSWORD",
+      "value": "",
+      "description": "Strongly recommended, but optional. Delete this variable or leave it blank if you don't need a VNC password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "App name",
+      "key": "APP_NAME",
+      "value": "Vorta",
+      "description": "Title that is used in the browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "List your time zone according to the TZ identifier: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure connection for VNC",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "Use an encrypted connection to access the application's GUI over VNC (HTTPS). 0=off, 1=on Default: 0",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "PGID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "UMASK",
+      "value": "000",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC display width",
+      "key": "DISPLAY_WIDTH",
+      "value": "1280",
+      "description": "Width (in pixels) of the application's window. Scaling is also available in the VNC webUI settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC display height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "768",
+      "description": "Height (in pixels) of the application's window. Scaling is also available in the VNC webUI settings.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

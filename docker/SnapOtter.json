@@ -1,0 +1,131 @@
+{
+  "name": "SnapOtter",
+  "repo": "snapotter/snapotter:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/snapotter/snapotter",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=2g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1349]",
+  "icon": "https://raw.githubusercontent.com/snapotter-hq/unraid-community-apps/main/icon.png",
+  "project": "https://github.com/snapotter-hq/SnapOtter",
+  "description": "Self-hosted file toolkit with 200+ tools for image, video, audio, PDF, and file workflows. SnapOtter keeps files on your Unraid server and includes an image editor, batch jobs, pipelines, REST API access, OIDC/SSO support, and optional local AI features.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/snapotter/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent SnapOtter data, including embedded PostgreSQL and Redis data, files, logs, settings, AI models, and installed AI bundles.",
+      "required": true
+    },
+    {
+      "name": "Workspace",
+      "host": "/mnt/cache/appdata/snapotter/workspace",
+      "container": "/tmp/workspace",
+      "mode": "rw",
+      "description": "Temporary processing workspace. SnapOtter cleans job data automatically, but this path should have enough free space for large media and batch operations.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "1349",
+      "container": "1349",
+      "protocol": "tcp",
+      "description": "HTTP port for the SnapOtter web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "AUTH_ENABLED",
+      "key": "AUTH_ENABLED",
+      "value": "true",
+      "description": "Require login for the web UI and API. Leave enabled unless SnapOtter is protected by another trusted authentication layer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_USERNAME",
+      "key": "DEFAULT_USERNAME",
+      "value": "admin",
+      "description": "Initial admin username. Used only when the first admin account is created.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_PASSWORD",
+      "key": "DEFAULT_PASSWORD",
+      "value": "admin",
+      "description": "Initial admin password. Change it after first login.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for files created in mounted paths. Unraid's nobody user is usually 99.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for files created in mounted paths. Unraid's users group is usually 100.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_UPLOAD_SIZE_MB",
+      "key": "MAX_UPLOAD_SIZE_MB",
+      "value": "0",
+      "description": "Maximum upload size per file in MB. Set to 0 for unlimited.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_BATCH_SIZE",
+      "key": "MAX_BATCH_SIZE",
+      "value": "0",
+      "description": "Maximum number of files in a batch. Set to 0 for unlimited.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CONCURRENT_JOBS",
+      "key": "CONCURRENT_JOBS",
+      "value": "0",
+      "description": "Number of batch jobs to process in parallel. Set to 0 to auto-detect from CPU cores.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_MAXMEMORY",
+      "key": "REDIS_MAXMEMORY",
+      "value": "512mb",
+      "description": "Memory cap for embedded Redis. Lower this on memory-constrained systems.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUST_PROXY",
+      "key": "TRUST_PROXY",
+      "value": "true",
+      "description": "Trust X-Forwarded-For headers from a reverse proxy. Set to false if SnapOtter is not behind a trusted proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

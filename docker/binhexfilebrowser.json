@@ -1,0 +1,147 @@
+{
+  "name": "binhex-filebrowser",
+  "repo": "ghcr.io/binhex/arch-filebrowser",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/binhex/arch-filebrowser/pkgs/container/arch-filebrowser",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8125]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/filebrowser-icon.png",
+  "project": "https://github.com/filebrowser/filebrowser",
+  "description": "File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview and edit your files. It is a create-your-own-cloud-kind of software where you can just install it on your server, direct it to a path and access your files through a nice web interface.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/filebrowser",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "This is the container path to your media files, e.g. movies, tv, music, pictures etc.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "8125",
+      "container": "8125",
+      "protocol": "tcp",
+      "description": "This is the Web UI port for the application.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: FILEBROWSER_ROOT",
+      "key": "FILEBROWSER_ROOT",
+      "value": "/media",
+      "description": "Specify the root path for the File Browser web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: FILEBROWSER_BASEURL",
+      "key": "FILEBROWSER_BASEURL",
+      "value": "/",
+      "description": "Specify the base URL for the File Browser web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_TLS",
+      "key": "ENABLE_TLS",
+      "value": "no|yes",
+      "description": "Enable or disable TLS for the File Browser web interface",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_AUTHENTICATION",
+      "key": "ENABLE_AUTHENTICATION",
+      "value": "yes|no",
+      "description": "Enable or disable authentication for the File Browser web interface",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ADDITIONAL_PARAMETERS",
+      "key": "ADDITIONAL_PARAMETERS",
+      "value": "",
+      "description": "Additional parameters to pass to the File Browser cli",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

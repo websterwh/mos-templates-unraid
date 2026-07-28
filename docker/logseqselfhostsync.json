@@ -1,0 +1,155 @@
+{
+  "name": "logseq-selfhost-sync",
+  "repo": "ghcr.io/yshalsager/logseq-selfhost-sync:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/users/yshalsager/packages/container/package/logseq-selfhost-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --tmpfs /tmp --cap-drop=ALL --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/logseq-selfhost-sync.png",
+  "project": "https://logseq.com",
+  "description": "Logseq Sync Server \u2013 self-hosted Logseq database synchronization service using the Node Adapter. Provides a private, self-hosted alternative to Logseq's official sync service for managing note synchronization across devices.",
+  "paths": [
+    {
+      "name": "Volume: Sync Data",
+      "host": "/mnt/cache/appdata/logseq-selfhost-sync/",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Logseq sync database and asset storage. Persists graph data and user information. Using an own share with Custom SMB-Shares Plugin (for specials Chars and Umlauts) on a trusted drive is recommended!",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Sync Service",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Logseq Sync Server API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "--- Storage ---",
+      "key": "--- Storage ---",
+      "value": "",
+      "description": "Data storage for synchronization database and assets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Sync Configuration ---",
+      "key": "--- Sync Configuration ---",
+      "value": "",
+      "description": "Core synchronization service settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_PORT",
+      "key": "DB_SYNC_PORT",
+      "value": "8787",
+      "description": "Port the sync service listens on inside the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_BASE_URL",
+      "key": "DB_SYNC_BASE_URL",
+      "value": "http://localhost:8787",
+      "description": "Public URL for sync service. Tailscale: http://ip:8787. Reverse proxy: use HTTPS. See Requires section.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_DATA_DIR",
+      "key": "DB_SYNC_DATA_DIR",
+      "value": "/app/data",
+      "description": "Path to data directory inside container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_STORAGE_DRIVER",
+      "key": "DB_SYNC_STORAGE_DRIVER",
+      "value": "sqlite",
+      "description": "Storage driver (sqlite or postgresql)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_ASSETS_DRIVER",
+      "key": "DB_SYNC_ASSETS_DRIVER",
+      "value": "filesystem",
+      "description": "Assets storage driver (filesystem or s3)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_LOG_LEVEL",
+      "key": "DB_SYNC_LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: debug, info, warn, error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Cognito Authentication ---",
+      "key": "--- Cognito Authentication ---",
+      "value": "",
+      "description": "Logseq Cognito OAuth2 credentials for JWT validation. These are standard Logseq public values.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COGNITO_ISSUER",
+      "key": "COGNITO_ISSUER",
+      "value": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_dtagLnju8",
+      "description": "Cognito issuer URL for JWT validation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "COGNITO_CLIENT_ID",
+      "key": "COGNITO_CLIENT_ID",
+      "value": "69cs1lgme7p8kbgld8n5kseii6",
+      "description": "Cognito client ID for JWT validation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "COGNITO_JWKS_URL",
+      "key": "COGNITO_JWKS_URL",
+      "value": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_dtagLnju8/.well-known/jwks.json",
+      "description": "Cognito JWKS URL for JWT key validation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "--- Advanced ---",
+      "key": "--- Advanced ---",
+      "value": "",
+      "description": "Advanced security and administration settings. Only modify if you know what you are doing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_SYNC_ADMIN_TOKEN",
+      "key": "DB_SYNC_ADMIN_TOKEN",
+      "value": "",
+      "description": "Optional: Long random secret for hardening maintenance/admin endpoints. Leave empty to disable.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

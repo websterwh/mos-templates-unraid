@@ -1,0 +1,83 @@
+{
+  "name": "reactive-resume-v5",
+  "repo": "amruthpillai/reactive-resume:v5.2.2",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/amruthpillai/reactive-resume",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/amruthpillai/reactive-resume-unraid/main/icon.svg",
+  "project": "https://github.com/amruthpillai/reactive-resume",
+  "description": "Reactive Resume is a free and open-source resume builder for creating, updating, and sharing resumes. This v5 template requires a reachable PostgreSQL database.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/reactive-resume/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent local upload storage used when S3 is not configured.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port for Reactive Resume.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "http://[IP]:[PORT:3000]",
+      "description": "Public URL for this instance. Use the external HTTPS URL when behind a reverse proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://postgres:postgres@POSTGRES_HOST:5432/postgres",
+      "description": "PostgreSQL connection URL. Replace POSTGRES_HOST with the reachable host name or IP of your Postgres container/server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_SECRET",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Authentication secret. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LOCAL_STORAGE_PATH",
+      "key": "LOCAL_STORAGE_PATH",
+      "value": "/app/data",
+      "description": "Container path for local upload storage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

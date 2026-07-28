@@ -1,0 +1,291 @@
+{
+  "name": "speedtest-monitor",
+  "repo": "ghcr.io/greite/speedtest-monitor:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/greite/speedtest-monitor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/Greite/speedtest-monitor/main/public/brand/icon-256.png",
+  "project": "https://github.com/Greite/speedtest-monitor",
+  "description": "Self-hosted internet speed monitor. Runs Cloudflare Speed Test on a configurable schedule, stores every measurement in SQLite, and serves a dashboard with live updates over WebSocket. Includes alerts (webhook, ntfy, Discord, Slack, SMTP), authentication (local accounts and OIDC), and role-based access (admin / viewer). On first boot, set AUTH_SECRET (required) and BETTER_AUTH_URL (required when accessed behind a reverse proxy). Either set SPEEDTEST_ADMIN_EMAIL + SPEEDTEST_ADMIN_PASSWORD to seed the first admin, or visit /setup to create it from the UI. All other variables are optional. Data is persisted to /data (mapped to /mnt/user/appdata/speedtest-monitor by default).",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/speedtest-monitor",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for the SQLite database (speedtest.db).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP + WebSocket port served by the app.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "AUTH_SECRET",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "REQUIRED. Secret used to sign session cookies. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "BETTER_AUTH_URL",
+      "key": "BETTER_AUTH_URL",
+      "value": "",
+      "description": "Public URL of the dashboard, used by Better Auth for sign-in callbacks and OIDC redirects (e.g. https://speedtest.example.com). REQUIRED when running behind a reverse proxy. Defaults to http://localhost:PORT if unset - fine for direct local access only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_INTERVAL_MINUTES",
+      "key": "SPEEDTEST_INTERVAL_MINUTES",
+      "value": "15",
+      "description": "Default measurement interval in minutes (1-1440). Can be changed at runtime from /settings without restarting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_ADMIN_EMAIL",
+      "key": "SPEEDTEST_ADMIN_EMAIL",
+      "value": "",
+      "description": "First-run admin email (optional). When set together with SPEEDTEST_ADMIN_PASSWORD, the admin is auto-seeded on every boot (idempotent). Leave empty to use the /setup wizard instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_ADMIN_PASSWORD",
+      "key": "SPEEDTEST_ADMIN_PASSWORD",
+      "value": "",
+      "description": "First-run admin password (optional, min 10 chars). Used together with SPEEDTEST_ADMIN_EMAIL. Updating this value rehashes the admin password on the next boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_PUBLIC_URL",
+      "key": "SPEEDTEST_PUBLIC_URL",
+      "value": "",
+      "description": "Public URL of the dashboard (e.g. https://speedtest.example.com). Used to build deep links in alert emails. Leave empty if unused.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_LOCALE",
+      "key": "SPEEDTEST_LOCALE",
+      "value": "en-US",
+      "description": "BCP 47 locale for dates and times in the dashboard and alert emails (e.g. en-US, fr-FR, de-DE). Requires v1.13.0 or later.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_TIMEZONE",
+      "key": "SPEEDTEST_TIMEZONE",
+      "value": "UTC",
+      "description": "IANA timezone for dates and times in the dashboard and alert emails (e.g. Europe/Paris, America/New_York). Requires v1.13.0 or later.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_TEST_DURATION_S",
+      "key": "SPEEDTEST_TEST_DURATION_S",
+      "value": "10",
+      "description": "Duration of each download/upload phase in seconds. Raise to 20-30 for multi-Gbps links so TCP slow-start does not dominate the sample.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_PARALLEL_STREAMS",
+      "key": "SPEEDTEST_PARALLEL_STREAMS",
+      "value": "8",
+      "description": "Parallel HTTP streams per phase. Increase (e.g. 16) on very high-bandwidth links to saturate the pipe.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_DB_PATH",
+      "key": "SPEEDTEST_DB_PATH",
+      "value": "/data/speedtest.db",
+      "description": "Absolute path to the SQLite database file. Must live under the App Data volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal HTTP port. Only change if you know what you are doing - must match the WebUI port mapping above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_WEBHOOK_URL",
+      "key": "SPEEDTEST_WEBHOOK_URL",
+      "value": "",
+      "description": "Generic webhook URL for alerts (optional). Leave empty if unused.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_WEBHOOK_HEADERS",
+      "key": "SPEEDTEST_WEBHOOK_HEADERS",
+      "value": "",
+      "description": "Optional JSON object of extra headers for the generic webhook (e.g. {&quot;Authorization&quot;:&quot;Bearer xxx&quot;}).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_NTFY_URL",
+      "key": "SPEEDTEST_NTFY_URL",
+      "value": "",
+      "description": "Full ntfy URL including the topic, e.g. https://ntfy.sh/my-topic. Leave empty if unused.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_NTFY_TOKEN",
+      "key": "SPEEDTEST_NTFY_TOKEN",
+      "value": "",
+      "description": "Optional ntfy access token (for protected topics).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_DISCORD_WEBHOOK",
+      "key": "SPEEDTEST_DISCORD_WEBHOOK",
+      "value": "",
+      "description": "Discord webhook URL for alerts (optional).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_SLACK_WEBHOOK",
+      "key": "SPEEDTEST_SLACK_WEBHOOK",
+      "value": "",
+      "description": "Slack incoming webhook URL for alerts (optional).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_SMTP_HOST",
+      "key": "SPEEDTEST_SMTP_HOST",
+      "value": "",
+      "description": "SMTP server hostname for email alerts (optional). Required together with SPEEDTEST_SMTP_FROM and SPEEDTEST_SMTP_TO to enable email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_SMTP_PORT",
+      "key": "SPEEDTEST_SMTP_PORT",
+      "value": "587",
+      "description": "SMTP port. Defaults to 587 (STARTTLS).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_SMTP_SECURE",
+      "key": "SPEEDTEST_SMTP_SECURE",
+      "value": "",
+      "description": "'true' for implicit TLS (port 465), 'false' for STARTTLS, leave empty for auto-detect from port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_SMTP_USER",
+      "key": "SPEEDTEST_SMTP_USER",
+      "value": "",
+      "description": "SMTP username (optional, for authenticated SMTP).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_SMTP_PASS",
+      "key": "SPEEDTEST_SMTP_PASS",
+      "value": "",
+      "description": "SMTP password (optional, for authenticated SMTP).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_SMTP_FROM",
+      "key": "SPEEDTEST_SMTP_FROM",
+      "value": "",
+      "description": "Sender address for alert emails, e.g. speedtest@example.com.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_SMTP_TO",
+      "key": "SPEEDTEST_SMTP_TO",
+      "value": "",
+      "description": "Recipient address for alert emails (single address or comma-separated list).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_OIDC_ISSUER",
+      "key": "SPEEDTEST_OIDC_ISSUER",
+      "value": "",
+      "description": "OIDC issuer URL (optional), e.g. https://auth.example.com. Required together with the client id/secret to enable SSO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_OIDC_CLIENT_ID",
+      "key": "SPEEDTEST_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client id (optional).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_OIDC_CLIENT_SECRET",
+      "key": "SPEEDTEST_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret (optional).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SPEEDTEST_OIDC_DISPLAY_NAME",
+      "key": "SPEEDTEST_OIDC_DISPLAY_NAME",
+      "value": "SSO",
+      "description": "Label shown on the OIDC sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_OIDC_ADMIN_EMAIL",
+      "key": "SPEEDTEST_OIDC_ADMIN_EMAIL",
+      "value": "",
+      "description": "Email of the user to auto-promote to admin on first OIDC sign-in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SPEEDTEST_OIDC_ALLOW_NEW_USERS",
+      "key": "SPEEDTEST_OIDC_ALLOW_NEW_USERS",
+      "value": "true",
+      "description": "'true' to auto-create accounts on first OIDC sign-in, 'false' to require admin pre-provisioning.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

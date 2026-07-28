@@ -1,0 +1,123 @@
+{
+  "name": "marquee",
+  "repo": "timmyamant/marquee:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/timmyamant/marquee",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/TimmyAmant/marquee/main/public/marquee-icon.png",
+  "project": "https://github.com/TimmyAmant/marquee",
+  "description": "Self-hosted media metadata dashboard - TMDb + Plex/Jellyfin + Sonarr/Radarr. Look up any actor, studio, or franchise, see instantly whether it's already in your Plex or Jellyfin library, being downloaded, or coming soon, and send anything missing straight to Sonarr or Radarr. Built for households: the admin account (created on first visit) connects Plex and/or Jellyfin plus Sonarr/Radarr, and can add accounts for everyone else. Other household members get the full app - Discover, Search, My Library, Favorites, Calendar - but request titles instead of adding them directly, so nothing downloads without the admin's approval. Includes a release calendar, download notifications, and a mobile-friendly UI. This is a single, self-contained container - Postgres runs inside it, there is nothing else to install. Just set a POSTGRES_PASSWORD below and go. First visit after install creates the one-time admin account. Full setup instructions: https://github.com/TimmyAmant/marquee#readme",
+  "paths": [
+    {
+      "name": "Postgres Data",
+      "host": "/mnt/cache/appdata/marquee/postgres-data",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Where Marquee's built-in Postgres database is stored",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port Marquee listens on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Password for Marquee's built-in database. Pick any strong password - just remember it, it's not used anywhere outside this container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AUTH_SECRET",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Any long random string. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MASTER_ENCRYPTION_KEY",
+      "key": "MASTER_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Base64 32-byte key used to encrypt saved Sonarr/Radarr/Plex/Jellyfin credentials. Generate with: openssl rand -base64 32 -- BACK THIS UP, losing it makes saved credentials undecryptable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AUTH_TRUST_HOST",
+      "key": "AUTH_TRUST_HOST",
+      "value": "true",
+      "description": "Leave as true for LAN access without a fixed domain",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "marquee",
+      "description": "Built-in database username - the default is fine for almost everyone",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "marquee",
+      "description": "Built-in database name - the default is fine for almost everyone",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB_API_KEY",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "From themoviedb.org/settings/api. Can also be set later from within the app: Settings -> Integrations.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB_ACCESS_TOKEN",
+      "key": "TMDB_ACCESS_TOKEN",
+      "value": "",
+      "description": "Alternative to TMDB_API_KEY (TMDb v4 access token) - only need one of the two",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TVDB_API_KEY",
+      "key": "TVDB_API_KEY",
+      "value": "",
+      "description": "From thetvdb.com/api-information - used to cross-reference Sonarr's shows to TMDb",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TVDB_PIN",
+      "key": "TVDB_PIN",
+      "value": "",
+      "description": "From thetvdb.com/api-information",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,74 @@
+{
+  "name": "PanelsXR",
+  "repo": "dervish/panelsxr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/dervish/panelsxr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/dervish666/PanelsXR/main/deploy/unraid/panelsxr-icon.png",
+  "project": "https://github.com/dervish666/PanelsXR",
+  "description": "Panel is a WebXR comic reader that streams your self-hosted Komga library into a Meta Quest 3 headset. Resume where your iPad left off, turn pages on the thumbstick, and browse a 3D library of your series. Runs in the Quest browser (no store, no sideload). Set KOMGA_URL to your Komga address and KOMGA_API_KEY to a Komga API key (Komga, Account Settings, API Keys). The key is injected server-side and never reaches the browser. IMPORTANT: WebXR needs HTTPS. Access this behind a reverse proxy (SWAG / Nginx Proxy Manager / Cloudflare Tunnel). A plain http address loads the 2D page but the Quest browser will not enter VR.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8677",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port for the Panel web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Komga URL",
+      "key": "KOMGA_URL",
+      "value": "",
+      "description": "Your Komga base URL, e.g. http://192.168.1.10:8080",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Komga API Key",
+      "key": "KOMGA_API_KEY",
+      "value": "",
+      "description": "Use a DEDICATED READ-ONLY Komga user's key (Komga, Account Settings, API Keys). It is injected server-side and never sent to the browser, but it also bypasses Komga's own auth, so a read-only key caps the blast radius to 'someone saw my comics' instead of full account access.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Basic Auth User",
+      "key": "PANEL_USER",
+      "value": "panel",
+      "description": "Username for the built-in login (only used if a password is set below).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "PANEL_PASSWORD",
+      "value": "",
+      "description": "Set a password to lock the whole app + Komga proxy behind a login (the Quest browser remembers it, so it's a one-time login). SAFE BY DEFAULT: if you leave this blank, Panel refuses to serve your library (503) until you set one \u2014 unless you set the Auth Mode below to 'none'. Set it here before first run.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Mode (advanced)",
+      "key": "PANEL_AUTH",
+      "value": "",
+      "description": "Leave blank to use the Password above (recommended). Set to 'none' ONLY if Panel is LAN-only or already gated by a reverse proxy / Cloudflare Access / Authelia \u2014 'none' serves your whole library to anyone who can reach the URL.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,243 @@
+{
+  "name": "LNbits",
+  "repo": "lnbits/lnbits:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/lnbits/lnbits",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/lnbits/lnbits/main/docs/logos/lnbits.png",
+  "project": "https://github.com/lnbits/lnbits",
+  "description": "LNbits is a free and open-source Bitcoin Lightning wallet and accounts system. It provides isolated wallets, API keys, LNURL tools, extensions, merchant workflows, and admin controls on top of a configurable Lightning funding source.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/lnbits",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent LNbits data, SQLite database, logs, super user state, backups, and installed extensions.",
+      "required": true
+    },
+    {
+      "name": "Config File",
+      "host": "",
+      "container": "/app/.env",
+      "mode": "ro",
+      "description": "Optional .env file based on the upstream .env.example. Leave blank to configure with the variables in this template and the Admin UI.",
+      "required": false
+    },
+    {
+      "name": "LND Data",
+      "host": "",
+      "container": "/lnd",
+      "mode": "ro",
+      "description": "Optional read-only mount for an LND data directory. Useful when using LndWallet or LndRestWallet with cert and macaroon paths under /lnd.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "LNbits web interface and API port. Container port: 5000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Data Folder",
+      "key": "LNBITS_DATA_FOLDER",
+      "value": "/app/data",
+      "description": "LNbits data folder inside the container. Keep this pointed at the Data mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Extensions Path",
+      "key": "LNBITS_EXTENSIONS_PATH",
+      "value": "/app/data/extensions",
+      "description": "Persistent path for installed LNbits extensions. Without this, installed extensions can be lost when the container is recreated.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin UI",
+      "key": "LNBITS_ADMIN_UI",
+      "value": "true",
+      "description": "Enable the LNbits Admin UI and first-install super user flow. Use true or false.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Only Auth Cookies",
+      "key": "AUTH_HTTPS_ONLY",
+      "value": "false",
+      "description": "Set true when LNbits is served only over HTTPS. Leave false for direct local HTTP access through the Unraid Web UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend Wallet Class",
+      "key": "LNBITS_BACKEND_WALLET_CLASS",
+      "value": "VoidWallet",
+      "description": "Lightning funding source class. Start with VoidWallet for testing, then use PhoenixdWallet, LndRestWallet, LndWallet, CoreLightningWallet, or another supported backend.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Extensions",
+      "key": "LNBITS_EXTENSIONS_DEFAULT_INSTALL",
+      "value": "tpos",
+      "description": "Comma-separated extensions installed by default on restart. Remove an extension from this list before uninstalling it permanently.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Base URL",
+      "key": "LNBITS_BASEURL",
+      "value": "",
+      "description": "Optional public URL used behind a reverse proxy, for example https://lnbits.example.com/.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Site Title",
+      "key": "LNBITS_SITE_TITLE",
+      "value": "LNbits",
+      "description": "Browser and UI title for this LNbits instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Secret Key",
+      "key": "AUTH_SECRET_KEY",
+      "value": "",
+      "description": "Recommended strong random secret for auth signing. Set this before production use.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "First Install Token",
+      "key": "FIRST_INSTALL_TOKEN",
+      "value": "",
+      "description": "Optional token required on the first-install page.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allowed Auth Methods",
+      "key": "AUTH_ALLOWED_METHODS",
+      "value": "user-id-only, username-password",
+      "description": "Comma-separated auth methods, for example user-id-only, username-password, nostr-auth-nip98, google-auth, github-auth, keycloak-auth, or oidc-auth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug",
+      "key": "DEBUG",
+      "value": "False",
+      "description": "Enable verbose debug mode. Use True or False.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Forwarded Allow IPs",
+      "key": "FORWARDED_ALLOW_IPS",
+      "value": "*",
+      "description": "Trusted proxy IPs for forwarded headers. Use * when LNbits is behind a trusted local reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Database URL",
+      "key": "LNBITS_DATABASE_URL",
+      "value": "",
+      "description": "Optional external database URL. Leave blank to use SQLite in the Data path.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Phoenixd API Endpoint",
+      "key": "PHOENIXD_API_ENDPOINT",
+      "value": "",
+      "description": "Required when Backend Wallet Class is PhoenixdWallet. Use the reachable Phoenixd HTTP API URL, for example http://UNRAID-IP:9740/ or http://phoenixd:9740/ on a custom Docker network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Phoenixd API Password",
+      "key": "PHOENIXD_API_PASSWORD",
+      "value": "",
+      "description": "Required when Backend Wallet Class is PhoenixdWallet. Use the Phoenixd full-access API password from phoenix.conf.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LND REST Endpoint",
+      "key": "LND_REST_ENDPOINT",
+      "value": "",
+      "description": "Required when Backend Wallet Class is LndRestWallet. Use the reachable LND REST URL, for example https://UNRAID-IP:8081/ or https://lnd:8080/ on a custom Docker network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LND REST Cert",
+      "key": "LND_REST_CERT",
+      "value": "/lnd/tls.cert",
+      "description": "LND TLS certificate path inside the LNbits container, or the certificate content accepted by LNbits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LND REST Macaroon",
+      "key": "LND_REST_MACAROON",
+      "value": "/lnd/data/chain/bitcoin/mainnet/admin.macaroon",
+      "description": "LND admin macaroon path inside the LNbits container, or hex/base64 macaroon content.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LND gRPC Endpoint",
+      "key": "LND_GRPC_ENDPOINT",
+      "value": "",
+      "description": "Required when Backend Wallet Class is LndWallet. Hostname or IP of the LND gRPC endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LND gRPC Port",
+      "key": "LND_GRPC_PORT",
+      "value": "10009",
+      "description": "Required when Backend Wallet Class is LndWallet. LND gRPC port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LND gRPC Cert",
+      "key": "LND_GRPC_CERT",
+      "value": "/lnd/tls.cert",
+      "description": "LND TLS certificate path inside the LNbits container, or the certificate content accepted by LNbits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LND gRPC Macaroon",
+      "key": "LND_GRPC_MACAROON",
+      "value": "/lnd/data/chain/bitcoin/mainnet/admin.macaroon",
+      "description": "LND admin macaroon path inside the LNbits container, or hex/base64 macaroon content.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

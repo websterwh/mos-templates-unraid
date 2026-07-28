@@ -1,0 +1,66 @@
+{
+  "name": "Remuxarr",
+  "repo": "thetvliam/remuxarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/thetvliam/remuxarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9191]",
+  "icon": "https://raw.githubusercontent.com/thetvliam/remuxarr/main/images_and_demo/logo-padding.png",
+  "project": "https://github.com/thetvliam/remuxarr",
+  "description": "Cleans up a Sonarr/Radarr media library for better direct-play compatibility, without ever re-encoding video. Remuxes containers (MKV to MP4 when every track inside is already compatible), drops audio and subtitle tracks outside your chosen languages, and fixes broken or missing language metadata. Everything is done by lossless stream copy, so the video data itself is never touched. Integrates with Sonarr, Radarr and Plex. After first start, set your library paths and preferred languages in Settings. Dry-run mode is on by default, so the first scan shows exactly what would happen to every file before anything is changed for real.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/remuxarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent settings and database. Must survive container updates.",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/media/movies",
+      "container": "/media/movies",
+      "mode": "rw",
+      "description": "Your movies library.",
+      "required": true
+    },
+    {
+      "name": "TV Shows",
+      "host": "/mnt/cache/media/tv",
+      "container": "/media/tv",
+      "mode": "rw",
+      "description": "Your TV library.",
+      "required": true
+    },
+    {
+      "name": "Temp",
+      "host": "/tmp/remuxarr-temp",
+      "container": "/tmp/remuxarr",
+      "mode": "rw",
+      "description": "FFmpeg staging directory. Keep under /tmp so it stays RAM-backed.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "9191",
+      "container": "9191",
+      "protocol": "tcp",
+      "description": "HTTP port for the web UI and API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

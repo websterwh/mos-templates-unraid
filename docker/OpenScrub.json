@@ -1,0 +1,67 @@
+{
+  "name": "OpenScrub",
+  "repo": "pharmhero/openscrub:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/pharmhero/openscrub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8384]/",
+  "icon": "https://raw.githubusercontent.com/austinmabry/OpenScrub/main/assets/icon-128.png",
+  "project": "https://github.com/austinmabry/OpenScrub",
+  "description": "Local video redaction with human review. OpenScrub detects and blurs PII in videos and screen recordings \u2014 faces, license plates, names, dates of birth, phone numbers, SSNs, record/ID numbers, emails, addresses, card numbers, API keys, IP addresses, plus your own custom regex categories. Scan, review every detection (one card per person), then render with blur, black-box, or mosaic. Everything runs on this server; no footage leaves your network. This is the CPU image \u2014 for NVIDIA GPU acceleration install OpenScrub-Nvidia instead. Best-effort redaction: always review output before sharing.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/openscrub",
+      "container": "/root/.local/share/OpenScrub",
+      "mode": "rw",
+      "description": "Jobs (contains the sensitive uploads and reports!), review decisions, certificates, zones, downloaded models, encryption vault. Everything OpenScrub stores lives here \u2014 the container itself is disposable.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Optional read-only mount of your media share so the 'path on the server' picker can process files without uploading them through the browser.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8384",
+      "container": "8384",
+      "protocol": "tcp",
+      "description": "HTTPS web interface (self-signed certificate \u2014 your browser warns once, or install your own cert in App settings).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Access token (optional)",
+      "key": "OPENSCRUB_TOKEN",
+      "value": "",
+      "description": "Leave empty for open access on your LAN, or set a secret to require it on every request (recommended if others use your network). The WebUI URL becomes https://ip:8384/?token=SECRET on first visit.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENSCRUB_MEDIA_ROOT",
+      "key": "OPENSCRUB_MEDIA_ROOT",
+      "value": "/media",
+      "description": "Confines the server-path picker to this directory tree. Leave set to /media to match the Media mount; clear it to allow any container path.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,179 @@
+{
+  "name": "OpenAIWebUI",
+  "repo": "infotrend/openai_webui:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/infotrend/openai_webui/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8501]",
+  "icon": "https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/assets/Infotrend_LogoOnly.png?raw=true",
+  "project": "https://github.com/Infotrend-Inc/OpenAI_WebUI",
+  "description": "OpenAI API-compatible WebUI. Requires valid API keys for the providers enabled (see list in the selection). Supports OLLAMA_HOST for self-hosted models. Model capabilities depend on the model, but a default for each will be used. The list of recognized models for each provider is available in https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/models.md Please review https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/README.md for a few sections in particular: - the .env supported environment variables that are defined in this template - the Unraid specific setup section that introduces features not enabled by default, including the ability to password protect the WebUI. - an environment variable ready version of the models list is available at https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/models.txt and can be used for the OAIWUI_GPT_MODELS and OAIWUI_IMAGE_MODELS parameters Extra parameters are available under the advanced settings. - the default savedir is /iti/savedir. /iti is mounted from within the appdata folder. - the default user id is 99 and group id is 100. This can be changed modiying the WANTED_UID and WANTED_GID parameters. - When using the \"prompt presets\" feature, the directory must exist (recommended location: /iti/prompt_presets). - When using the \"prompt presets settings\" feature, the JSON file must exist (recommended location: /iti/prompt_presets.json).",
+  "paths": [
+    {
+      "name": "Run directory",
+      "host": "/mnt/cache/appdata/openai_webui/savedir",
+      "container": "/iti/savedir",
+      "mode": "rw",
+      "description": "Mount directory for application files. /iti/savedir matches value used for OAIWUI_SAVEDIR",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8501",
+      "container": "8501",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Your OpenAI API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PERPLEXITY_API_KEY",
+      "key": "PERPLEXITY_API_KEY",
+      "value": "",
+      "description": "Your Perplexity API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GEMINI_API_KEY",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Your Google Gemini API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OLLAMA_HOST",
+      "key": "OLLAMA_HOST",
+      "value": "",
+      "description": "Your Ollama host",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LITELLM_URL",
+      "key": "LITELLM_URL",
+      "value": "",
+      "description": "Your LiteLLM URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LITELLM_API_KEY",
+      "key": "LITELLM_API_KEY",
+      "value": "",
+      "description": "Your LiteLLM API key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OAIWUI_SAVEDIR",
+      "key": "OAIWUI_SAVEDIR",
+      "value": "/iti/savedir",
+      "description": "Required: location where generated files are placed",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WANTED_UID",
+      "key": "WANTED_UID",
+      "value": "99",
+      "description": "User id to run the container as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WANTED_GID",
+      "key": "WANTED_GID",
+      "value": "100",
+      "description": "Group id to run the container as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_GPT_ONLY",
+      "key": "OAIWUI_GPT_ONLY",
+      "value": "False",
+      "description": "If True, only show the GPT UI If False, show both the GPT and the Image generation UI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_GPT_MODELS",
+      "key": "OAIWUI_GPT_MODELS",
+      "value": "chatgpt-4o-latest gemini-2.0-flash sonar",
+      "description": "Required: space separated list of GPT models authorized for the provided API Keys",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_IMAGE_MODELS",
+      "key": "OAIWUI_IMAGE_MODELS",
+      "value": "dall-e-3 gpt-image-1",
+      "description": "Required: space separated list of Image models authorized for the provided API Keys",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_GPT_VISION",
+      "key": "OAIWUI_GPT_VISION",
+      "value": "True",
+      "description": "For compatible models, disable their vision capabilities",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_IGNORE_EMPTY",
+      "key": "OAIWUI_IGNORE_EMPTY",
+      "value": "True",
+      "description": "Required for Unraid: avoid errors in case some (not all) environment variables are not set",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_USERNAME",
+      "key": "OAIWUI_USERNAME",
+      "value": "",
+      "description": "Default username (leave blank to be prompted)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_PROMPT_PRESETS_DIR",
+      "key": "OAIWUI_PROMPT_PRESETS_DIR",
+      "value": "",
+      "description": "Directory that contains prompt presets (see GitHub for examples). If a directory is provided, it must contains at least one valid json file",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAIWUI_PROMPT_PRESETS_ONLY",
+      "key": "OAIWUI_PROMPT_PRESETS_ONLY",
+      "value": "",
+      "description": "Json file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

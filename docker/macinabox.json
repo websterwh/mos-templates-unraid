@@ -1,0 +1,241 @@
+{
+  "name": "macinabox",
+  "repo": "spaceinvaderone/macinabox:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/spaceinvaderone/macinabox",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/SpaceinvaderOne/Docker-Templates-Unraid/master/spaceinvaderone/docker_icons/Macinabox.png",
+  "project": "https://github.com/SpaceinvaderOne/Macinabox",
+  "description": "Macinabox downloads and installs various macOS versions as a VM on your Unraid server. With this new version, there\u2019s no need for additional helper scripts. It will fully automate the installation of the VM, create the XML file, and select the latest q35 available on your server. All you need to do is choose the macOS version, specify the VM storage location, ISO location, and the container will handle the rest. ## Usage 1. When run will download and install selected version of macOS as a VM if not present. 2. If selected macOS vm is already present it will check the vms xml and fix if necessary ### Variables in the container **Are you fully compliant with Apple\u2019s EULA?** Set this to \"Yes\" if you are running on Apple hardware. This is the only way to be EULA compliant. If not, leave it as \"No\" and the container will exit. **Operating System Version:** Choose the macOS version from the options below: - Sequoia - Sonoma - Ventura --recommend install - Monterey - Big Sur - Catalina - Mojave - High Sierra **Custom VM Name:** Use this if you want the VM name to differ from the OS version. Leave blank to use the OS name. **Vdisk Type:** Set the vdisk type to either `raw` or `qcow2`. **Vdisk Size:** Specify the desired size for the vdisk. **Delete and Replace OpenCore:** Select \"Yes\" to delete your VM's OpenCore image and replace it with a fresh one, or \"No\" to keep the existing one. **Default NIC Type:** Big Sur and newer default is 'virtio-net' older macos versions it is `e1000-82545em`. Change this to override the default NIC type for macOS versions that support it. **VM Images Location:** Set this to your VM storage location (e.g., Domains share). **ISOs Share Location:** This is where macinabox will store the install media **Appdata Location:** Specify where you want macinabox to store its appdata. **Notes** - If you want multiple versions of the same macOS, ensure each has a unique name in the Custom VM Name box - In Unraid versions below 7, custom elements in the VM template will be removed if vm template edited.. Unraid, in all versions, might also change the NIC bus and slot that macOS expects. Re-run the container to fix the edited vm template after any edits. - The container dynamically builds the XML template during VM installation based on settings. It checks the highest QEMU version available and uses it in the template. If you downgrade Unraid, re-run Macinabox to adjust the XML accordingly. - You can view container activity via logs or Unraid browser notifications, if enabled. - Default icon for macinbox is installed with the VM.This doesnt perist over server reboots. To restore run container again. For all macOS icons (and many other systems) please install vm_custom_icons container.",
+  "paths": [
+    {
+      "name": "VM Images Location",
+      "host": "/mnt/cache/domains/",
+      "container": "/domains",
+      "mode": "rw",
+      "description": "Please choose the storage location for your VM images on the server. The default path is set to /mnt/user/domains/",
+      "required": true
+    },
+    {
+      "name": "Isos Share Location",
+      "host": "/mnt/cache/isos/",
+      "container": "/isos",
+      "mode": "rw",
+      "description": "Please choose the storage location for your ISO files on the server. The default path is set to /mnt/user/isos/",
+      "required": true
+    },
+    {
+      "name": "Appdata Location:",
+      "host": "/mnt/cache/appdata/macinabox",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Please choose the storage location for your appdata The default path is set to /mnt/user/appdata/macinabox/",
+      "required": true
+    },
+    {
+      "name": "unraid_vm_icons",
+      "host": "/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images",
+      "container": "/icons",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    },
+    {
+      "name": "UNRAID /usr/lib64",
+      "host": "/usr/lib64",
+      "container": "/host/usr/lib64",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "unraid vm icons host locaction",
+      "host": "/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/",
+      "container": "/unraid_vm_icons",
+      "mode": "rw",
+      "description": "Location of where Unraid stores VM icons, aloowing container to use custom macOS icon",
+      "required": true
+    },
+    {
+      "name": "NVRAM location",
+      "host": "/etc/libvirt/qemu/nvram/",
+      "container": "/etc/libvirt/qemu/nvram/",
+      "mode": "ro",
+      "description": "NVRAM location on host. Used so container can create a unique nvram file for the macOS VM",
+      "required": true
+    },
+    {
+      "name": "UNRIAD DOMAIN CONFIG",
+      "host": "/boot/config/domain.cfg",
+      "container": "/vm/domain.cfg",
+      "mode": "rw",
+      "description": "UNRAID domain.cfg path. Used to find VM Default network source",
+      "required": true
+    },
+    {
+      "name": "UNRAID /usr/lib",
+      "host": "/usr/lib",
+      "container": "/host/usr/lib",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /lib64",
+      "host": "/lib64",
+      "container": "/host/lib64",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /usr/local/emhttp/webGui/scripts/",
+      "host": "/usr/local/emhttp/webGui/scripts/",
+      "container": "/host/usr/local/emhttp/webGui/scripts/",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /usr/local/emhttp/webGui/include/",
+      "host": "/usr/local/emhttp/webGui/include/",
+      "container": "/host/usr/local/emhttp/webGui/include/",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /tmp/notifications",
+      "host": "/tmp/notifications",
+      "container": "/host/tmp/notifications",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /boot/config/plugins/dynamix/",
+      "host": "/boot/config/plugins/dynamix/",
+      "container": "/host/boot/config/plugins/dynamix/",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "LIBVIRT Location",
+      "host": "/var/run/libvirt",
+      "container": "/var/run/libvirt",
+      "mode": "rw",
+      "description": "LIBVIRT Location on host. Used so container can define the macOS vm",
+      "required": true
+    },
+    {
+      "name": "UNRAID /usr/bin",
+      "host": "/usr/bin",
+      "container": "/host/usr/bin",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID /lib",
+      "host": "/lib",
+      "container": "/host/lib",
+      "mode": "rw",
+      "description": "Used so container can use unraid notification system during macOS creation process",
+      "required": true
+    },
+    {
+      "name": "UNRAID docker.sock",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "UNRAID docker.sock. Used so container can use docker inspect to workout true locations of mapped locations to create the xml used to define the macOS VM",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Are you fully compliant with Apple\u2019s EULA ?",
+      "key": "OKTORUN",
+      "value": "NO",
+      "description": "Set to YES to use this container only if you are compliant with Apples EULA. To be compliant your server must be Apple Hardware (ie a Mac Pro/Mini) then the EULA states For virtualisation: \u201cYou may also install, use, and run up to two additional copies or instances of the Apple Software within virtual operating system environments on each Apple-branded computer you own or control.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Operating System Version",
+      "key": "flavour",
+      "value": "Ventura",
+      "description": "Choose macOS version to instal",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Custom VM Name",
+      "key": "CUSTOMNAME",
+      "value": "",
+      "description": "Enter a different name if you want the VM to have a name other than the OS name. If left blank, the container will use the default OS name installed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Vdisk Type",
+      "key": "vdisktype",
+      "value": "raw",
+      "description": "Choose vdisk type raw or qcow2 (qcow2 takes less space)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "vDisk Size",
+      "key": "vdisksize",
+      "value": "100G",
+      "description": "Select the size of your virtual disk (vDisk) in Gigabytes G",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Delete and replace Opencore",
+      "key": "replaceopencore",
+      "value": "no",
+      "description": "Set to",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Defualt NIC type",
+      "key": "overridenic",
+      "value": "virtio-net",
+      "description": "Override the default NIC type for macOS versions that support it. If unsupported, it reverts to a compatible version.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CPUARGS",
+      "key": "CPUARGS",
+      "value": "Skylake-Server,vendor=GenuineIntel,+hypervisor,+invtsc,kvm=on,+fma,+avx,+avx2,+aes,+ssse3,+sse4_2,+popcnt,+sse4a,+bmi1,+bmi2",
+      "description": "CPU args for VM",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "macinabox version",
+      "key": "WHATVERSION",
+      "value": "5",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

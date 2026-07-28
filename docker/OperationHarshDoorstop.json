@@ -1,0 +1,133 @@
+{
+  "name": "OperationHarshDoorstop",
+  "repo": "ghcr.io/ich777/steamcmd:ohds",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777-7778]",
+  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/ohds.png",
+  "project": "https://www.operationharshdoorstop.com/",
+  "description": "This Docker will download and install SteamCMD. It will also install Operation: Harsh Doorstop and run it. ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/ohds",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP1 - Game Ports",
+      "host": "7777-7778",
+      "container": "7777-7778",
+      "protocol": "udp",
+      "description": "UDP Game Ports (if you need another port, please delete this entry and create new UDP Ports with the appropriate port numbers, also don't forget to change your server settings to these new ports or specify it in the GAME_PARAMS)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP2 - Query Port",
+      "host": "27005",
+      "container": "27005",
+      "protocol": "udp",
+      "description": "UDP Query Port (if you need another port, please delete this entry and create a new UDP Port with the appropriate port number, also don't forget to change your server settings to the new port or specify it in the GAME_PARAMS)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TCP - RCON",
+      "host": "7779",
+      "container": "7779",
+      "protocol": "tcp",
+      "description": "TCP RCON Port (if you need another port, please delete this entry and create a new TCP Port with the appropriate port number, also don't forget to change your server settings to the new port or specify it in the GAME_PARAMS)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "950900",
+      "description": "The GAME_ID that the container download at startup. If you want to install a static or beta version of the game change the value to: '950900 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game Parameters",
+      "key": "GAME_PARAMS",
+      "value": "LamDong?MaxPlayers=34?AutoAssignHuman=1?bBotAutofill?BluforNumBots=6?OpforNumBots=6",
+      "description": "Enter your game parameters seperated with ? (don't put spaces in between eg: MaxPlayers=24?AutoAssignHuman=1?bBotAutofill)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "-server -log -SteamServerName=\"Docker OHDs\"",
+      "description": "Type in your Extra Game Parameters seperated with a space and - (eg: -DisableDeathSpectator -UseBattlEye)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

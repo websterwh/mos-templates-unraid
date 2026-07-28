@@ -1,0 +1,595 @@
+{
+  "name": "geometrikks",
+  "repo": "ghcr.io/gilbn/geometrikks:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/GilbN/geometrikks/pkgs/container/geometrikks",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/GilbN/geometrikks/main/resources/static/pwa-512x512.png",
+  "project": "https://github.com/GilbN/geometrikks",
+  "description": "GeoMetrikks is a real-time geolocation analytics tool that tails your nginx access logs, performs GeoIP lookups, and visualizes traffic on a live interactive map - no external services required. Features: - Live GeoIP map with real-time request visualization - Traffic analytics dashboard with configurable date ranges - CrowdSec integration - Searchable access log history with filtering and sorting - WebSocket-backed live log tail - Structured application logging with a live in-UI log viewer, a fail2ban/CrowdSec-friendly login log, and downloadable rotated archives - Batch import of archived logs - Requires a TimescaleDB + PostGIS database - install the companion \"geometrikks-timescaledb\" template from this same repository first, or point this container at your own TimescaleDB+PostGIS instance. - Also requires a free MaxMind GeoLite2 account for GeoIP data (https://www.maxmind.com/en/geolite2/signup). See the repository README for full setup steps.",
+  "paths": [
+    {
+      "name": "GeoIP Data",
+      "host": "/mnt/cache/appdata/geometrikks/geoip",
+      "container": "/app/data/geoip",
+      "mode": "rw",
+      "description": "Persistent storage for the downloaded MaxMind GeoLite2 database. The container fixes ownership of this folder to PUID:PGID on every start, so no manual chown is needed.",
+      "required": true
+    },
+    {
+      "name": "App Logs",
+      "host": "/mnt/cache/appdata/geometrikks/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Where GeoMetrikks writes its own logs: geometrikks.log (structured JSONL) and login.log (plain text, fail2ban/CrowdSec-friendly), plus their gzipped archives. Mounting this keeps logs across container recreation and lets host-side tools read login.log. Ownership is fixed to PUID:PGID on start.",
+      "required": false
+    },
+    {
+      "name": "Nginx Logs",
+      "host": "/mnt/cache/appdata/swag/log/nginx",
+      "container": "/var/log/nginx",
+      "mode": "ro",
+      "description": "Host directory containing your nginx access logs, mounted read-only. Default assumes SWAG - change to your reverse proxy's log directory (Nginx Proxy Manager, etc.). The files must be readable by PUID:PGID.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port for the GeoMetrikks web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. The container starts as root only long enough to remap its internal user and fix ownership of the GeoIP and App Logs folders, then drops privileges. 99 is Unraid's 'nobody' - keep it so the appdata folders match the rest of your shares, and so nginx logs written by SWAG/NPM (which also default to 99:100) stay readable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. 100 is Unraid's 'users' group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_ADMIN_USER",
+      "key": "APP_ADMIN_USER",
+      "value": "admin",
+      "description": "Web UI login username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_ADMIN_PASSWORD",
+      "key": "APP_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Web UI login password. Required unless APP_AUTH_DISABLED=true.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "APP_AUTH_DISABLED",
+      "key": "APP_AUTH_DISABLED",
+      "value": "false",
+      "description": "Set true ONLY if this container sits behind an authenticating reverse proxy (Authelia, Tailscale, etc).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_SESSION_SECURE",
+      "key": "APP_SESSION_SECURE",
+      "value": "false",
+      "description": "Mark the session cookie Secure so browsers only send it over HTTPS. Set true when you reach the UI through a TLS reverse proxy; leave false if you browse to http://server-ip:8000 directly, or you will not be able to log in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_TRUSTED_PROXIES",
+      "key": "APP_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Reverse-proxy IPs/CIDRs allowed to supply X-Forwarded-For, e.g. 172.17.0.0/16 for Unraid's docker bridge. Single value, comma-separated, or a JSON list. Empty (default): forwarded headers are never trusted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAXMINDDB_USER_ID",
+      "key": "MAXMINDDB_USER_ID",
+      "value": "",
+      "description": "MaxMind account ID, for GeoLite2 database auto-download. Free account: https://www.maxmind.com/en/geolite2/signup",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MAXMINDDB_LICENSE_KEY",
+      "key": "MAXMINDDB_LICENSE_KEY",
+      "value": "",
+      "description": "MaxMind license key, for GeoLite2 database auto-download.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LOGPARSER_LOG_PATHS",
+      "key": "LOGPARSER_LOG_PATHS",
+      "value": "/var/log/nginx/access.log",
+      "description": "Nginx access log file(s) to tail, container-side path(s). Single path or a JSON list ['/var/log/nginx/access.log', '/var/log/nginx/access2.log'] for multiple files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_HOST_NAME",
+      "key": "LOGPARSER_HOST_NAME",
+      "value": "Unraid",
+      "description": "Hostname label attached to ingested log events.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "IP address of your TimescaleDB container - typically your Unraid server's IP if you installed the companion geometrikks-timescaledb template.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Database password. Must match POSTGRES_PASSWORD in the geometrikks-timescaledb template.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Database port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "geouser",
+      "description": "Database user. Must match POSTGRES_USER in the geometrikks-timescaledb template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_DATABASE",
+      "key": "DB_DATABASE",
+      "value": "geometrikks",
+      "description": "Database name. Must match POSTGRES_DB in the geometrikks-timescaledb template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Application log verbosity (DEBUG, INFO, WARNING, ERROR).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_ECHO",
+      "key": "DB_ECHO",
+      "value": "false",
+      "description": "Enable SQLAlchemy query logging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_ECHO_POOL",
+      "key": "DB_ECHO_POOL",
+      "value": "false",
+      "description": "Enable SQLAlchemy connection pool logging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_MAX_OVERFLOW",
+      "key": "DB_MAX_OVERFLOW",
+      "value": "10",
+      "description": "Max connections above pool_size.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_POOL_SIZE",
+      "key": "DB_POOL_SIZE",
+      "value": "5",
+      "description": "Database connection pool size.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_POOL_TIMEOUT",
+      "key": "DB_POOL_TIMEOUT",
+      "value": "30",
+      "description": "Connection pool timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_POOL_RECYCLE",
+      "key": "DB_POOL_RECYCLE",
+      "value": "3600",
+      "description": "Connection recycle time in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_POOL_DISABLED",
+      "key": "DB_POOL_DISABLED",
+      "value": "false",
+      "description": "Disable connection pooling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_POOL_PRE_PING",
+      "key": "DB_POOL_PRE_PING",
+      "value": "true",
+      "description": "Enable pool pre-ping to check connections before use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_DROP_ON_STARTUP",
+      "key": "DB_DROP_ON_STARTUP",
+      "value": "false",
+      "description": "DESTRUCTIVE - drops all tables on startup. Development only. Leave false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_LOCALES",
+      "key": "GEOIP_LOCALES",
+      "value": "[&quot;en&quot;]",
+      "description": "JSON list of GeoIP locales to use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_VALIDATE_DB_PATH",
+      "key": "GEOIP_VALIDATE_DB_PATH",
+      "value": "false",
+      "description": "Fail settings validation when the GeoIP database file is missing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_VALIDATE_LOCALES",
+      "key": "GEOIP_VALIDATE_LOCALES",
+      "value": "true",
+      "description": "Validate that the specified GeoIP locales are supported.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_REFRESH_DAYS",
+      "key": "GEOIP_REFRESH_DAYS",
+      "value": "7",
+      "description": "Re-download the GeoLite2 database when older than this many days.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_DIR",
+      "key": "LOG_DIR",
+      "value": "logs",
+      "description": "Directory GeoMetrikks writes its own log files to, relative to /app. Leave at 'logs' so it lands in the App Logs mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_MAIN_MAX_BYTES",
+      "key": "LOG_MAIN_MAX_BYTES",
+      "value": "10485760",
+      "description": "Rotate the main JSONL log (geometrikks.log) when it exceeds this size in bytes. Default 10 MiB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_MAIN_BACKUP_COUNT",
+      "key": "LOG_MAIN_BACKUP_COUNT",
+      "value": "5",
+      "description": "Number of gzipped main-log archives to keep.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LOGIN_MAX_BYTES",
+      "key": "LOG_LOGIN_MAX_BYTES",
+      "value": "10485760",
+      "description": "Rotate the login log (login.log) when it exceeds this size in bytes. Default 10 MiB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LOGIN_BACKUP_COUNT",
+      "key": "LOG_LOGIN_BACKUP_COUNT",
+      "value": "5",
+      "description": "Number of gzipped login-log archives to keep.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API_LOG_LEVEL",
+      "key": "API_LOG_LEVEL",
+      "value": "",
+      "description": "DEPRECATED - use LOG_LEVEL instead. Still honoured as a fallback for existing deployments; leave blank on new installs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_IGNORE_IPS",
+      "key": "LOGPARSER_IGNORE_IPS",
+      "value": "",
+      "description": "IPs/CIDRs the parser drops entirely - no geo event, access log or debug row. Use it to keep your own WAN traffic through the reverse proxy out of the data(LAN traffic is never ingested), e.g. 88.99.77.66. Single value, comma-separated, or a JSON list. Empty (default): nothing is ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_POLL_INTERVAL",
+      "key": "LOGPARSER_POLL_INTERVAL",
+      "value": "1.0",
+      "description": "Interval in seconds to poll the log file for new entries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_SEND_LOGS",
+      "key": "LOGPARSER_SEND_LOGS",
+      "value": "true",
+      "description": "Send parsed logs to the database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_BATCH_SIZE",
+      "key": "LOGPARSER_BATCH_SIZE",
+      "value": "100",
+      "description": "Max records before a forced commit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_COMMIT_INTERVAL",
+      "key": "LOGPARSER_COMMIT_INTERVAL",
+      "value": "5.0",
+      "description": "Max time interval in seconds between database commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_SKIP_VALIDATION",
+      "key": "LOGPARSER_SKIP_VALIDATION",
+      "value": "false",
+      "description": "Skip validation of log lines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_STORE_DEBUG_LINES",
+      "key": "LOGPARSER_STORE_DEBUG_LINES",
+      "value": "false",
+      "description": "Store all raw log lines in the debug table, not just malformed ones.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYTICS_RAW_RETENTION_DAYS",
+      "key": "ANALYTICS_RAW_RETENTION_DAYS",
+      "value": "180",
+      "description": "Days to keep raw geo_events and access_logs data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYTICS_DEBUG_RETENTION_DAYS",
+      "key": "ANALYTICS_DEBUG_RETENTION_DAYS",
+      "value": "30",
+      "description": "Days to keep access_log_debug data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYTICS_HOURLY_RETENTION_DAYS",
+      "key": "ANALYTICS_HOURLY_RETENTION_DAYS",
+      "value": "60",
+      "description": "Days to keep hourly continuous aggregate data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYTICS_CAGG_REFRESH_INTERVAL_MINUTES",
+      "key": "ANALYTICS_CAGG_REFRESH_INTERVAL_MINUTES",
+      "value": "5",
+      "description": "Minutes between continuous aggregate refreshes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANALYTICS_COMPRESSION_AFTER_DAYS",
+      "key": "ANALYTICS_COMPRESSION_AFTER_DAYS",
+      "value": "7",
+      "description": "Days after which to compress hypertable chunks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULER_ENABLED",
+      "key": "SCHEDULER_ENABLED",
+      "value": "true",
+      "description": "Enable scheduled background tasks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULER_LOCATION_REFRESH_INTERVAL_MINUTES",
+      "key": "SCHEDULER_LOCATION_REFRESH_INTERVAL_MINUTES",
+      "value": "10",
+      "description": "Minutes between GeoLocation.last_hit refresh jobs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_HOME_LATITUDE",
+      "key": "MAP_HOME_LATITUDE",
+      "value": "",
+      "description": "Optional destination latitude for live request routes. Set both home coordinates to override external-IP auto-detection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_HOME_LONGITUDE",
+      "key": "MAP_HOME_LONGITUDE",
+      "value": "",
+      "description": "Optional destination longitude for live request routes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_AUTO_DETECT_HOME",
+      "key": "MAP_AUTO_DETECT_HOME",
+      "value": "true",
+      "description": "Resolve the server's public IP at startup and geolocate it when home coordinates are unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_PUBLIC_IP_URL",
+      "key": "MAP_PUBLIC_IP_URL",
+      "value": "https://api64.ipify.org?format=json",
+      "description": "JSON endpoint used for public-IP discovery; response must contain an 'ip' field.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_PUBLIC_IP_TIMEOUT",
+      "key": "MAP_PUBLIC_IP_TIMEOUT",
+      "value": "3.0",
+      "description": "Timeout in seconds for public-IP discovery.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_LAPI_URL",
+      "key": "CROWDSEC_LAPI_URL",
+      "value": "",
+      "description": "CrowdSec Local API base URL, e.g. http://crowdsec:8080. Leave blank to disable CrowdSec integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_BOUNCER_API_KEY",
+      "key": "CROWDSEC_BOUNCER_API_KEY",
+      "value": "",
+      "description": "Bouncer API key (cscli bouncers add geometrikks) - grants read access to CrowdSec decisions.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CROWDSEC_MACHINE_ID",
+      "key": "CROWDSEC_MACHINE_ID",
+      "value": "",
+      "description": "Machine ID (cscli machines add) - optional, enables ban/unban from the GeoMetrikks UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_MACHINE_PASSWORD",
+      "key": "CROWDSEC_MACHINE_PASSWORD",
+      "value": "",
+      "description": "Machine password - optional, enables ban/unban from the GeoMetrikks UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CROWDSEC_DEFAULT_BAN_DURATION",
+      "key": "CROWDSEC_DEFAULT_BAN_DURATION",
+      "value": "4h",
+      "description": "Default duration for manual bans (Go duration string).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_REQUEST_TIMEOUT",
+      "key": "CROWDSEC_REQUEST_TIMEOUT",
+      "value": "10.0",
+      "description": "LAPI request timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_VERIFY_TLS",
+      "key": "CROWDSEC_VERIFY_TLS",
+      "value": "true",
+      "description": "Verify TLS when LAPI uses https.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CROWDSEC_STREAM_POLL_INTERVAL",
+      "key": "CROWDSEC_STREAM_POLL_INTERVAL",
+      "value": "15.0",
+      "description": "Seconds between decision-stream polls feeding live ban/unban updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_NAME",
+      "key": "APP_NAME",
+      "value": "GeoMetrikks API",
+      "description": "Application name shown in API metadata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_DESCRIPTION",
+      "key": "APP_DESCRIPTION",
+      "value": "Real-time GeoIP lookups and traffic analytics API",
+      "description": "Application description shown in API metadata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_DEBUG",
+      "key": "APP_DEBUG",
+      "value": "false",
+      "description": "Enable debug mode. Development only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_ENVIRONMENT",
+      "key": "APP_ENVIRONMENT",
+      "value": "production",
+      "description": "Application environment name.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

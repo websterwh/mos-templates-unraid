@@ -1,0 +1,121 @@
+{
+  "name": "borg-mysql-backup",
+  "repo": "layr/borg-mysql-backup:borg1",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/layr/borg-mysql-backup",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": null,
+  "project": "https://github.com/laur89/docker-borg-mysql-backup",
+  "description": "Service for backing up mysql dumps to local and/or remote borg repos. Other files&dirs may be included in the backup, and database dumps can be excluded altogether. Please refer to project page @ https://github.com/laur89/docker-borg-mysql-backup for further documentation.",
+  "paths": [
+    {
+      "name": "local borg repo location",
+      "host": "",
+      "container": "/backup",
+      "mode": "rw",
+      "description": "Container Path: /backup",
+      "required": false
+    },
+    {
+      "name": "/etc/localtime (for syncing with host clock)",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Container Path: /etc/localtime",
+      "required": false
+    },
+    {
+      "name": "borg cache; see borg docs for additional info",
+      "host": "/mnt/cache/appdata/borg-mysql-backup/.borg/cache",
+      "container": "/root/.cache/borg",
+      "mode": "rw",
+      "description": "Container Path: /root/.cache/borg",
+      "required": false
+    },
+    {
+      "name": "borg config; see borg docs for additional info",
+      "host": "/mnt/cache/appdata/borg-mysql-backup/.borg/config",
+      "container": "/root/.config/borg",
+      "mode": "rw",
+      "description": "Container Path: /root/.config/borg",
+      "required": false
+    },
+    {
+      "name": "scripts' logs",
+      "host": "/mnt/cache/appdata/borg-mysql-backup/logs",
+      "container": "/var/log",
+      "mode": "rw",
+      "description": "Container Path: /var/log",
+      "required": false
+    },
+    {
+      "name": "config location",
+      "host": "/mnt/cache/appdata/borg-mysql-backup",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Container Path: /config",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Host identifier",
+      "key": "HOST_ID",
+      "value": "unraid",
+      "description": "Container Variable: HOST_ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "borg repo passphrase (both remote &amp; local)",
+      "key": "BORG_PASSPHRASE",
+      "value": "",
+      "description": "Container Variable: BORG_PASSPHRASE",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "borg prune options",
+      "key": "PRUNE_OPTS",
+      "value": "--keep-daily=7 --keep-weekly=4 --keep-monthly=3 --keep-within=3d",
+      "description": "Container Variable: PRUNE_OPTS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "borg create options",
+      "key": "CREATE_OPTS",
+      "value": "--compression zlib,5",
+      "description": "Container Variable: CREATE_OPTS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "borg remote path",
+      "key": "BORG_REMOTE_PATH",
+      "value": "borg1",
+      "description": "Container Variable: BORG_REMOTE_PATH",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "common opts for all borg commands",
+      "key": "COMMON_OPTS",
+      "value": "--lock-wait 18000",
+      "description": "Container Variable: COMMON_OPTS",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

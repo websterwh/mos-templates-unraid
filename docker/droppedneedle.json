@@ -1,0 +1,115 @@
+{
+  "name": "droppedneedle",
+  "repo": "droppedneedle/droppedneedle:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/droppedneedle/droppedneedle",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8688]",
+  "icon": "https://raw.githubusercontent.com/DroppedNeedle/DroppedNeedle/main/Images/logo_icon.png",
+  "project": "https://github.com/DroppedNeedle/DroppedNeedle",
+  "description": "DroppedNeedle is a self-hosted, multi-user music request and discovery app with a native library engine (scan, tag, fingerprint, organise) and multi-source acquisition from Soulseek (via a slskd instance) and Usenet (via SABnzbd with native Newznab indexers). Search the full MusicBrainz catalogue, request albums and individual tracks, discover new music from your listening history, and scrobble to ListenBrainz and Last.fm. It can also emulate Subsonic- and Jellyfin-compatible server APIs so external client apps can stream your library. No Lidarr required.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/droppedneedle/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent application configuration and database.",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/droppedneedle/cache",
+      "container": "/app/cache",
+      "mode": "rw",
+      "description": "Cover art and metadata cache.",
+      "required": true
+    },
+    {
+      "name": "Music Library",
+      "host": "/mnt/cache/Music",
+      "container": "/music",
+      "mode": "rw",
+      "description": "Your music library root. Imported downloads land here, so it is read-write. Keep it on the same filesystem as the downloads mounts below for fast atomic-rename imports.",
+      "required": false
+    },
+    {
+      "name": "slskd Downloads",
+      "host": "",
+      "container": "/slskd-downloads",
+      "mode": "rw",
+      "description": "slskd's COMPLETED-downloads directory (its Options &gt; Directories &gt; downloads path, often a .../complete folder). Must be the exact folder, not a parent. Keep it on the same filesystem as /music. Leave empty if you do not use Soulseek.",
+      "required": false
+    },
+    {
+      "name": "SABnzbd Downloads",
+      "host": "",
+      "container": "/sabnzbd-downloads",
+      "mode": "rw",
+      "description": "Optional (Usenet): SABnzbd's completed-downloads directory (its complete_dir). Must match the Downloads mount set in Settings &gt; Download Client &gt; SABnzbd. Keep it on the same filesystem as /music. Leave empty if you do not use Usenet.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8688",
+      "container": "8688",
+      "protocol": "tcp",
+      "description": "Port the DroppedNeedle web interface listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "slskd Downloads Path",
+      "key": "SLSKD_DOWNLOADS_PATH",
+      "value": "/slskd-downloads",
+      "description": "Container path where the slskd Downloads mount above appears. Must match that mount's container path (/slskd-downloads); imports fail if it does not. Leave as-is unless you change the mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions inside the container. Run 'id' on your Unraid terminal to find your value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions inside the container. Run 'id' on your Unraid terminal to find your value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Your timezone. Examples: America/New_York, Europe/Berlin, Asia/Tokyo.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "027",
+      "description": "Octal file-creation mask. 027 keeps files private to the owner and readable by the group; use 002 only when trusted group members need write access.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

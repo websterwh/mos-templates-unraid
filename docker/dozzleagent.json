@@ -1,0 +1,75 @@
+{
+  "name": "dozzle-agent",
+  "repo": "ghcr.io/prophetse7en/dozzle:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/prophetse7en/dozzle/pkgs/container/dozzle",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "agent",
+  "web_ui_url": "http://[IP]:[PORT:7007]",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/dozzle.png",
+  "project": "https://github.com/amir20/dozzle",
+  "description": "Dozzle Agent. Install this on a remote host so your main Dozzle UI can show its containers too. One main Dozzle, as many agents as you have hosts. Out of the box the agent uses a self-signed certificate to talk to your main Dozzle. That works fine on a private network. If the agent is reachable from the internet you should mount your own certificate instead; see https://dozzle.dev/guide/agent for the steps. Optional: set Dozzle Hostname to give this host a friendly name in the main UI (otherwise it shows the Docker engine ID). If this is the only host, you do not need an agent. Just use the regular Dozzle template.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "The agent reads container logs from here and sends them to the main Dozzle.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Agent Port",
+      "host": "7007",
+      "container": "7007",
+      "protocol": "tcp",
+      "description": "Port the agent listens on. Your main Dozzle connects to this port. Change the host side if 7007 is already taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Dozzle Hostname",
+      "key": "DOZZLE_HOSTNAME",
+      "value": "",
+      "description": "Optional. Name this host shows up as in the main Dozzle UI. Anything that helps you tell hosts apart, like unraid-node-2. Leave blank to use the Docker engine ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Filter",
+      "key": "DOZZLE_FILTER",
+      "value": "",
+      "description": "Optional. Limit the agent to containers matching a Docker filter, e.g. label=color or name=web. Leave blank to show everything.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "DOZZLE_LEVEL",
+      "value": "info",
+      "description": "Log level for the agent itself: debug, info, warn, error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Analytics",
+      "key": "DOZZLE_NO_ANALYTICS",
+      "value": "true",
+      "description": "Disable anonymous usage analytics sent by Dozzle.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

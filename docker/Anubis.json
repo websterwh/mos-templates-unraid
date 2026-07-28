@@ -1,0 +1,252 @@
+{
+  "name": "Anubis",
+  "repo": "ghcr.io/techarohq/anubis:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/techarohq/anubis",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8923]/",
+  "icon": "https://raw.githubusercontent.com/TecharoHQ/anubis/refs/heads/main/docs/static/img/anubis/happy.webp",
+  "project": "https://anubis.techaro.lol/",
+  "description": "Anubis is a Web AI Firewall Utility that weighs the soul of your connection using one or more challenges in order to protect upstream resources from scraper bots. This program is designed to help protect the small internet from the endless storm of requests that flood in from AI companies. Anubis is as lightweight as possible to ensure that everyone can afford to protect the communities closest to them. See configuration instructions: https://anubis.techaro.lol/docs/admin/installation/#configuration",
+  "paths": [
+    {
+      "name": "Policy File",
+      "host": "/mnt/cache/appdata/anubis/botPolicy.yaml",
+      "container": "/data/cfg/botPolicy.yaml",
+      "mode": "ro",
+      "description": "Path to the bot policy file.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8923",
+      "container": "8923",
+      "protocol": "tcp",
+      "description": "Container Port: 8923",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Metrics Port",
+      "host": "9090",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "Container Port: 9090",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Target",
+      "key": "TARGET",
+      "value": "http://localhost:3923",
+      "description": "The URL of the service that Anubis should forward valid requests to. Supports Unix domain sockets, set this to a URI like so: unix:///path/to/socket.sock.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Base Prefix",
+      "key": "BASE_PREFIX",
+      "value": "",
+      "description": "If set, adds a global prefix to all Anubis endpoints. For example, setting this to /myapp would make Anubis accessible at /myapp/ instead of /. This is useful when running Anubis behind a reverse proxy that routes based on path prefixes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bind Port",
+      "key": "BIND",
+      "value": ":8923",
+      "description": "Internal bind port to the host system",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind Network",
+      "key": "BIND_NETWORK",
+      "value": "tcp",
+      "description": "The address family that Anubis listens on",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie - Domain",
+      "key": "COOKIE_DOMAIN",
+      "value": "",
+      "description": "The domain the Anubis challenge pass cookie should be set to. This should be set to the domain you bought from your registrar (EG: techaro.lol if your webapp is running on anubis.techaro.lol)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie - Dynamic Domain",
+      "key": "COOKIE_DYNAMIC_DOMAIN",
+      "value": "false|true",
+      "description": "If set to true, automatically set cookie domain fields based on the hostname of the request. EG: if you are making a request to anubis.techaro.lol, the Anubis cookie will be valid for any subdomain of techaro.lol.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie - Expiration Time",
+      "key": "COOKIE_EXPIRATION_TIME",
+      "value": "168h",
+      "description": "The amount of time the authorization cookie is valid for.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie - Partitioned",
+      "key": "COOKIE_PARTITIONED",
+      "value": "false|true",
+      "description": "If set to true, enables the partitioned (CHIPS) flag, meaning that Anubis inside an iframe has a different set of cookies than the domain hosting the iframe.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie - Secure",
+      "key": "COOKIE_SECURE",
+      "value": "true|false",
+      "description": "If set to true, enables the Secure flag, meaning that the cookies will only be transmitted over HTTPS. If Anubis is used in an unsecure context (plain HTTP), this will be need to be set to false.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Difficulty",
+      "key": "DIFFICULTY",
+      "value": "4",
+      "description": "The difficulty of the challenge, or the number of leading zeroes that must be in successful responses.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ed25519 Private Key Hex",
+      "key": "ED25519_PRIVATE_KEY_HEX",
+      "value": "",
+      "description": "The hex-encoded ed25519 private key used to sign Anubis responses. If this is not set, Anubis will generate one for you. This should be exactly 64 characters long. When running multiple instances on the same base domain, the key must be the same across all instances.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ed25519 Private Key Hex File",
+      "key": "ED25519_PRIVATE_KEY_HEX_FILE",
+      "value": "",
+      "description": "Internal path to a file containing the hex-encoded ed25519 private key. Only one of this or its sister option may be set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Metrics - Bind",
+      "key": "METRICS_BIND",
+      "value": ":9090",
+      "description": "Internal bind network address that Anubis serves Prometheus metrics on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Metrics - Bind Network",
+      "key": "METRICS_BIND_NETWORK",
+      "value": "tcp",
+      "description": "The address family that the Anubis metrics server listens on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Open Graph - Expiry Time",
+      "key": "OG_EXPIRY_TIME",
+      "value": "24h",
+      "description": "The expiration time for the Open Graph tag cache. Prefer using the policy file to configure the Open Graph subsystem.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Open Graph - Passthrough",
+      "key": "OG_PASSTHROUGH",
+      "value": "false|true",
+      "description": "If set to true, Anubis will enable Open Graph tag passthrough. Prefer using the policy file to configure the Open Graph subsystem.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Open Graph - Consider Host Cache",
+      "key": "OG_CACHE_CONSIDER_HOST",
+      "value": "false|true",
+      "description": "If set to true, Anubis will consider the host in the Open Graph tag cache key. Prefer using the policy file to configure the Open Graph subsystem.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Policy File Name",
+      "key": "POLICY_FNAME",
+      "value": "",
+      "description": "The internal file name containing bot policy configuration. See the bot policy documentation for more details. If unset, the default bot policy configuration is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redirect Domains",
+      "key": "REDIRECT_DOMAINS",
+      "value": "",
+      "description": "If set, restrict the domains that Anubis can redirect to when passing a challenge. If unset, Anubis may redirect to any domain which could cause security issues in the unlikely case that an attacker passes a challenge for your browser and then tricks you into clicking a link to your domain. Note, if you are hosting Anubis on a non-standard port, you must also include the port number here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Robots.txt",
+      "key": "SERVE_ROBOTS_TXT",
+      "value": "false|true",
+      "description": "If set true, Anubis will serve a default robots.txt file that disallows all known AI scrapers by name and then additionally disallows every scraper. This is useful if facts and circumstances make it difficult to change the underlying service to serve such a robots.txt file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Strip Base Prefix",
+      "key": "STRIP_BASE_PREFIX",
+      "value": "false|true",
+      "description": "If set to true, strips the base prefix from request paths when forwarding to the target server. This is useful when your target service expects to receive requests without the base prefix. For example, with BASE_PREFIX=/foo and STRIP_BASE_PREFIX=true, a request to /foo/bar would be forwarded to the target as /bar.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use Remote Address",
+      "key": "USE_REMOTE_ADDRESS",
+      "value": "",
+      "description": "If set to true, Anubis will take the client's IP from the network socket. For production deployments, it is expected that a reverse proxy is used in front of Anubis, which pass the IP using headers, instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webmaster Email",
+      "key": "WEBMASTER_EMAIL",
+      "value": "",
+      "description": "If set, shows a contact email address when rendering error pages. This email address will be how users can get in contact with administrators.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Strip private X-Forwarded-For Headers",
+      "key": "XFF_STRIP_PRIVATE",
+      "value": "true|false",
+      "description": "If set, strip private addresses from X-Forwarded-For headers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Socket Mode",
+      "key": "SOCKET_MODE",
+      "value": "",
+      "description": "Only used when at least one of the *_BIND_NETWORK variables are set to unix. The socket mode (permissions) for Unix domain sockets.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,179 @@
+{
+  "name": "Ntfy",
+  "repo": "binwiederhier/ntfy",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/binwiederhier/ntfy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": "serve",
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/binwiederhier/ntfy/main/docs/static/img/ntfy.png",
+  "project": "https://ntfy.sh",
+  "description": "ntfy (pronounce: notify) is a simple HTTP-based pub-sub notification service. It allows you to send notifications to your phone or desktop via scripts from any computer, entirely without signup, cost or setup. It's also open source if you want to run your own. Publishing a message to a topic is as simple as: curl -d \"Backup successful \ud83d\ude00\" ntfy.sh/mytopic By default, the ntfy server is open for everyone, meaning everyone can read and write to any topic (this is how ntfy.sh is configured). To restrict access to your own server, you can optionally configure authentication and authorization using NTFY_AUTH_FILE and NTFY_AUTH_DEFAULT_ACCESS. After that, simply create an admin user: ntfy user add --role=admin phil password: mypass confirm: mypass user phil added with role admin Once you've done that, you can publish and subscribe using Basic Auth with the given username/password.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/ntfy",
+      "container": "/config",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port 1",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NTFY_BASE_URL",
+      "key": "NTFY_BASE_URL",
+      "value": "https://ntfy.israndom.win",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_WEB_ROOT",
+      "key": "NTFY_WEB_ROOT",
+      "value": "app",
+      "description": "Sets web root to landing page (home), web app (app) or disables the web app entirely (disable).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_UPSTREAM_BASE_URL",
+      "key": "NTFY_UPSTREAM_BASE_URL",
+      "value": "https://ntfy.sh",
+      "description": "Forward poll request to an upstream server, this is needed for iOS push notifications for self-hosted servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_CACHE_FILE",
+      "key": "NTFY_CACHE_FILE",
+      "value": "/config/cache.db",
+      "description": "If set, messages are cached in a local SQLite database instead of only in-memory. This allows for service restarts without losing messages in support of the since= parameter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_CACHE_DURATION",
+      "key": "NTFY_CACHE_DURATION",
+      "value": "12h",
+      "description": "Duration for which messages will be buffered before they are deleted (e.g. 30s, 20m, 20h). This is required to support the since=... and poll=1 parameter. Set this to 0 to disable the cache entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_AUTH_FILE",
+      "key": "NTFY_AUTH_FILE",
+      "value": "/config/user.db",
+      "description": "Auth database file used for access control. If set, enables authentication and access control.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_AUTH_DEFAULT_ACCESS",
+      "key": "NTFY_AUTH_DEFAULT_ACCESS",
+      "value": "deny-all",
+      "description": "Default permissions if no matching entries in the auth database are found. Default is read-write.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_ATTACHMENT_CACHE_DIR",
+      "key": "NTFY_ATTACHMENT_CACHE_DIR",
+      "value": "/config/attachments",
+      "description": "Cache directory for attached files. To enable attachments, this has to be set. NOTE: If NTFY_ATTACHMENT_CACHE_DIR is set then NFTY_BASE_URL is also required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_ATTACHMENT_TOTAL_SIZE_LIMIT",
+      "key": "NTFY_ATTACHMENT_TOTAL_SIZE_LIMIT",
+      "value": "5G",
+      "description": "Limit of the on-disk attachment cache directory (e.g. 300k, 2M, 100M). If the limits is exceeded, new attachments will be rejected.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_ATTACHMENT_FILE_SIZE_LIMIT",
+      "key": "NTFY_ATTACHMENT_FILE_SIZE_LIMIT",
+      "value": "15M",
+      "description": "Per-file attachment size limit (e.g. 300k, 2M, 100M). Larger attachment will be rejected.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_ATTACHMENT_EXPIRY_DURATION",
+      "key": "NTFY_ATTACHMENT_EXPIRY_DURATION",
+      "value": "3h",
+      "description": "Duration after which uploaded attachments will be deleted (e.g. 30s, 20m, 20h).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_SMTP_SENDER_ADDR",
+      "key": "NTFY_SMTP_SENDER_ADDR",
+      "value": "",
+      "description": "SMTP server address to allow email sending.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_SMTP_SENDER_USER",
+      "key": "NTFY_SMTP_SENDER_USER",
+      "value": "",
+      "description": "SMTP user; only used if e-mail sending is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_SMTP_SENDER_PASS",
+      "key": "NTFY_SMTP_SENDER_PASS",
+      "value": "",
+      "description": "SMTP password; only used if e-mail sending is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_SMTP_SENDER_FROM",
+      "key": "NTFY_SMTP_SENDER_FROM",
+      "value": "",
+      "description": "SMTP sender e-mail address; only used if e-mail sending is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_SMTP_SERVER_ADDR_PREFIX",
+      "key": "NTFY_SMTP_SERVER_ADDR_PREFIX",
+      "value": "",
+      "description": "Optional prefix for the e-mail addresses to prevent spam, e.g. ntfy-.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NTFY_LOG_LEVEL",
+      "key": "NTFY_LOG_LEVEL",
+      "value": "info",
+      "description": "Set log level. Options: INFO, WARN, ERROR, DEBUG or TRACE",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

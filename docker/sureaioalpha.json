@@ -1,0 +1,1531 @@
+{
+  "name": "sure-aio-alpha",
+  "repo": "jsonbored/sure-aio-alpha:latest-alpha",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/jsonbored/sure-aio-alpha",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/JSONbored/awesome-unraid/main/icons/sure.png",
+  "project": "https://github.com/JSONbored/sure-aio",
+  "description": "Sure Alpha is the testing lane for the Sure AIO Unraid package. It tracks upstream [code]we-promise/sure[/code] alpha prereleases and includes alpha-only wrapper patches before they are promoted or upstreamed. Testing / Unstable This template is meant for testing and local validation, not primary household finance data. Upstream alpha releases may include migrations or behavior changes that are not compatible with stable. Keep backups and do not point this container at your stable [code]sure-aio[/code] appdata. Alpha customizations - Raises Sure NDJSON import defaults to [code]250MB[/code] and [code]1,000,000[/code] rows. - Exposes [code]SURE_IMPORT_MAX_NDJSON_SIZE_MB[/code] and [code]SURE_IMPORT_MAX_ROWS[/code] for larger alpha import testing. - Runs strict SureImport preflight before publish so blocked imports show specific errors during alpha testing. - Adds a self-hosted admin reset UI/task for clearing one selected family workspace before a fresh Sure NDJSON import. - Adds temporary split-line and transfer route-parity import support for Enhanced NDJSON proof packages. - Uses a separate alpha tag namespace, Web UI port, and appdata root from stable. Quick Install 1. In Unraid, install this alpha template separately from stable. 2. Generate a secret with [code]openssl rand -hex 64[/code] and paste it into [code]Secret Key Base[/code]. 3. Leave the default alpha appdata paths unless you have a deliberate test directory. 4. Wait for initialization, then open [code]http://SERVER_IP:3001[/code] or your mapped port. Data paths (default) - [code]/mnt/user/appdata/sure-aio-alpha/system[/code] - [code]/mnt/user/appdata/sure-aio-alpha/postgres[/code] - [code]/mnt/user/appdata/sure-aio-alpha/redis[/code]",
+  "paths": [
+    {
+      "name": "App Volumes - Rails Storage",
+      "host": "/mnt/cache/appdata/sure-aio-alpha/system",
+      "container": "/rails/storage",
+      "mode": "rw",
+      "description": "Internal rails file storage.",
+      "required": true
+    },
+    {
+      "name": "App Volumes - Postgres DB",
+      "host": "/mnt/cache/appdata/sure-aio-alpha/postgres",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Internal PostgreSQL database storage mapped externally so you don't lose data.",
+      "required": true
+    },
+    {
+      "name": "App Volumes - Redis Cache",
+      "host": "/mnt/cache/appdata/sure-aio-alpha/redis",
+      "container": "/var/lib/redis",
+      "mode": "rw",
+      "description": "Internal Redis memory cache.",
+      "required": true
+    },
+    {
+      "name": "[SSL] Custom CA Certificate Mount",
+      "host": "",
+      "container": "/certs/custom-ca.pem",
+      "mode": "ro",
+      "description": "Optional host path to a PEM CA certificate file for trusting self-signed or internal HTTPS services. Leave blank unless you need private CA support.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3001",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The main web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key Base",
+      "key": "SECRET_KEY_BASE",
+      "value": "",
+      "description": "Critical: Run 'openssl rand -hex 64' in your Unraid terminal and paste the randomized hash here.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "[Internal] Self Hosted Mode",
+      "key": "SELF_HOSTED",
+      "value": "true",
+      "description": "Internal wrapper flag required for Sure self-hosted mode. Leave unchanged.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Internal] Legacy Self Hosting Alias",
+      "key": "SELF_HOSTING_ENABLED",
+      "value": "",
+      "description": "Legacy upstream alias for self-hosted mode. Usually leave blank because SELF_HOSTED=true is already set by this wrapper.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alpha] Sure NDJSON Upload Limit MB",
+      "key": "SURE_IMPORT_MAX_NDJSON_SIZE_MB",
+      "value": "250",
+      "description": "Alpha-only Sure import NDJSON upload limit in megabytes. Lower it if this test instance has constrained storage or memory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alpha] Sure Import Max Rows",
+      "key": "SURE_IMPORT_MAX_ROWS",
+      "value": "1000000",
+      "description": "Alpha-only Sure import row limit used by web, API, and preflight paths.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Domain",
+      "key": "APP_DOMAIN",
+      "value": "",
+      "description": "The domain your Sure instance is hosted at (used for email links).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Optional full external base URL including scheme, such as 'https://finance.example.com'. Useful for advanced SSO flows that need an absolute callback or issuer URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Onboarding State",
+      "key": "ONBOARDING_STATE",
+      "value": "open",
+      "description": "Controls user registration. Use 'open', 'closed', or 'invite_only'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Invite Code",
+      "key": "REQUIRE_INVITE_CODE",
+      "value": "",
+      "description": "Optional global gate for account registration. Set to 'true' to require invite codes for sign-up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Email Confirmation",
+      "key": "REQUIRE_EMAIL_CONFIRMATION",
+      "value": "true",
+      "description": "Set to 'false' if you explicitly want to skip email confirmation for new accounts. Leave enabled for the safer default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Assume SSL",
+      "key": "RAILS_ASSUME_SSL",
+      "value": "false",
+      "description": "Leave 'false' for direct LAN access. Set to 'true' only when Sure sits behind a SSL-terminating reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force SSL Redirects",
+      "key": "RAILS_FORCE_SSL",
+      "value": "false",
+      "description": "Leave 'false' for the default Unraid install over plain HTTP. Set to 'true' only if you want direct HTTP requests redirected to HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Proxy] Referrer Policy",
+      "key": "SURE_REFERRER_POLICY",
+      "value": "strict-origin-when-cross-origin",
+      "description": "Browser Referrer-Policy header used by Rails origin checks. Keep 'strict-origin-when-cross-origin' for reverse proxies; avoid 'no-referrer' because it can make browsers send Origin: null and break login POSTs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Proxy] CSRF Origin Check",
+      "key": "SURE_CSRF_ORIGIN_CHECK",
+      "value": "true",
+      "description": "Leave 'true' unless your reverse proxy, Cloudflare path, browser, or privacy middleware still forces login POSTs to send Origin: null. Set to 'false' only as an advanced compatibility escape hatch; Rails CSRF token validation remains enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSL] Custom CA File",
+      "key": "SSL_CA_FILE",
+      "value": "",
+      "description": "Optional in-container path to a PEM CA certificate file. If you use the provided mount above, set this to '/certs/custom-ca.pem'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSL] Override Global CA Bundle",
+      "key": "SSL_CERT_FILE",
+      "value": "",
+      "description": "Optional full CA bundle path for advanced Ruby/OpenSSL trust overrides. Usually leave blank and use SSL_CA_FILE instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSL] Verify Remote Certificates",
+      "key": "SSL_VERIFY",
+      "value": "true",
+      "description": "Leave 'true' for production. Set to 'false' only for temporary testing against broken or self-signed HTTPS endpoints.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[SSL] Debug Logging",
+      "key": "SSL_DEBUG",
+      "value": "false",
+      "description": "Set to 'true' to log detailed outbound SSL trust and certificate diagnostics.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Legal] Privacy Policy URL",
+      "key": "LEGAL_PRIVACY_URL",
+      "value": "",
+      "description": "Optional external privacy-policy URL shown by the app when provided.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Legal] Terms of Service URL",
+      "key": "LEGAL_TERMS_URL",
+      "value": "",
+      "description": "Optional external terms-of-service URL shown by the app when provided.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] DB Host Override",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Optional external PostgreSQL host or container name. Example: '192.168.1.50' or 'postgres-shared' on a custom Docker network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] DB Port Override",
+      "key": "DB_PORT",
+      "value": "",
+      "description": "Optional external PostgreSQL port. Example: '5432'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] DB Name Override",
+      "key": "POSTGRES_DB",
+      "value": "",
+      "description": "Optional external PostgreSQL database name. Leave blank to keep Sure's normal default database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] DB User Override",
+      "key": "POSTGRES_USER",
+      "value": "",
+      "description": "Optional external PostgreSQL username. This user must already exist on your external database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External DB] DB Password Override",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Optional password for the external PostgreSQL user above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[External DB] Redis URL Override",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Optional external Redis URL. Example: 'redis://192.168.1.50:6379/1' or 'redis://:password@redis-host:6379/1'.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[External Redis] Sentinel Hosts",
+      "key": "REDIS_SENTINEL_HOSTS",
+      "value": "",
+      "description": "Optional Redis Sentinel hosts, comma-separated like 'host1:26379,host2:26379'. Takes precedence over REDIS_URL when set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External Redis] Sentinel Master",
+      "key": "REDIS_SENTINEL_MASTER",
+      "value": "mymaster",
+      "description": "Redis Sentinel master name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External Redis] Sentinel Username",
+      "key": "REDIS_SENTINEL_USERNAME",
+      "value": "default",
+      "description": "Redis Sentinel username if your Sentinel deployment requires authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[External Redis] Sentinel Password",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Redis password used for Sentinel-backed Redis deployments.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[System] Product Name",
+      "key": "PRODUCT_NAME",
+      "value": "",
+      "description": "Custom product name in UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[System] Brand Name",
+      "key": "BRAND_NAME",
+      "value": "",
+      "description": "Custom brand name in UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[System] Default UI Layout",
+      "key": "DEFAULT_UI_LAYOUT",
+      "value": "dashboard",
+      "description": "Choose the initial layout for new sessions. Use 'dashboard' for the standard app or 'intro' for the intro-first experience.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[DB Encryption] Primary Key",
+      "key": "ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY",
+      "value": "",
+      "description": "Optional explicit Rails encryption primary key. Leave blank unless you deliberately manage separate Active Record encryption keys outside SECRET_KEY_BASE.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[DB Encryption] Deterministic Key",
+      "key": "ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY",
+      "value": "",
+      "description": "Optional deterministic encryption key paired with the primary key above. Leave blank unless you already know your Rails encryption key material.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[DB Encryption] Derivation Salt",
+      "key": "ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT",
+      "value": "",
+      "description": "Optional key-derivation salt for Rails encryption. Leave blank unless you manage custom encryption keys yourself.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] OpenAI / Ollama Token",
+      "key": "OPENAI_ACCESS_TOKEN",
+      "value": "",
+      "description": "OpenAI-compatible API key. Get OpenAI keys from platform.openai.com/api-keys. If using local Ollama, enter any non-empty placeholder such as 'ollama-local'.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] OpenAI URI Base",
+      "key": "OPENAI_URI_BASE",
+      "value": "",
+      "description": "Leave blank for official OpenAI. For local LLMs, enter your endpoint (e.g., 'http://ollama:11434/v1').",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Model Name",
+      "key": "OPENAI_MODEL",
+      "value": "",
+      "description": "If using Ollama, you MUST define the model here (e.g., 'llama3.1:13b' or 'gemma2:7b').",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Categorization Provider",
+      "key": "CATEGORIZATION_PROVIDER",
+      "value": "",
+      "description": "Optional provider override used only for transaction categorization. Example: 'openai' or 'ollama'. If blank, Sure uses its normal AI provider behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Categorization Model",
+      "key": "CATEGORIZATION_MODEL",
+      "value": "",
+      "description": "Optional model override used only for categorization, such as 'gemma2:7b'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Chat Provider",
+      "key": "CHAT_PROVIDER",
+      "value": "",
+      "description": "Optional provider override used only for chat-assistant requests. Example: 'openai' or 'ollama'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Chat Model",
+      "key": "CHAT_MODEL",
+      "value": "",
+      "description": "Optional model override used only for chat-assistant requests, such as 'gpt-4.1' or a local Ollama model.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Request Timeout",
+      "key": "OPENAI_REQUEST_TIMEOUT",
+      "value": "60",
+      "description": "OpenAI-compatible request timeout in seconds. Raise this only if your provider or local LLM is slow to respond.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] JSON Mode Override",
+      "key": "LLM_JSON_MODE",
+      "value": "",
+      "description": "Optional structured-output override. Valid values are '', 'strict', 'none', or 'json_object'. Set this only if you need to force Sure's OpenAI JSON behavior globally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Debug Logging",
+      "key": "AI_DEBUG_MODE",
+      "value": "false",
+      "description": "Set to 'true' to enable verbose AI chat debugging in logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Enable PDF Processing",
+      "key": "OPENAI_SUPPORTS_PDF_PROCESSING",
+      "value": "true",
+      "description": "Leave 'true' for OpenAI or vision-capable providers. Set to 'false' only for OpenAI-compatible endpoints that do not support PDF or vision input.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Supports Responses API",
+      "key": "OPENAI_SUPPORTS_RESPONSES_ENDPOINT",
+      "value": "",
+      "description": "Optional override for OpenAI-compatible endpoints. Use 'true' to force the Responses API or 'false' to force chat completions. Leave blank for upstream auto-detection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Context Window",
+      "key": "LLM_CONTEXT_WINDOW",
+      "value": "",
+      "description": "Optional total LLM context window in tokens. Lower this for small local models or raise it for larger cloud models.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Max Response Tokens",
+      "key": "LLM_MAX_RESPONSE_TOKENS",
+      "value": "",
+      "description": "Optional tokens reserved for each model response. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Max History Tokens",
+      "key": "LLM_MAX_HISTORY_TOKENS",
+      "value": "",
+      "description": "Optional explicit chat history token budget. Leave blank so Sure derives it from context, response, and system-prompt reserves.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] System Prompt Reserve",
+      "key": "LLM_SYSTEM_PROMPT_RESERVE",
+      "value": "",
+      "description": "Optional tokens reserved for Sure's system prompt and instructions. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Max Items Per Tool Call",
+      "key": "LLM_MAX_ITEMS_PER_CALL",
+      "value": "",
+      "description": "Optional maximum batch size for AI categorization and merchant-detection calls. Lower this for small local models.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Vector Store Provider",
+      "key": "VECTOR_STORE_PROVIDER",
+      "value": "",
+      "description": "Optional document-search backend. Leave blank for the default path. Set to 'pgvector' to use PostgreSQL-based vectors or 'qdrant' for an external Qdrant server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Embedding Model",
+      "key": "EMBEDDING_MODEL",
+      "value": "",
+      "description": "Embedding model name used for document search. Example: 'nomic-embed-text'. This is required when you enable pgvector or qdrant-backed document search.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Embedding Dimensions",
+      "key": "EMBEDDING_DIMENSIONS",
+      "value": "1024",
+      "description": "Embedding width for the selected model. Must match the provider output.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Embedding URI Base",
+      "key": "EMBEDDING_URI_BASE",
+      "value": "",
+      "description": "Optional dedicated embeddings endpoint. Example: 'http://ollama:11434/v1'. If blank, Sure falls back to OPENAI_URI_BASE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Embedding Access Token",
+      "key": "EMBEDDING_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional dedicated embeddings token. If blank, Sure falls back to OPENAI_ACCESS_TOKEN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[AI] Qdrant URL",
+      "key": "QDRANT_URL",
+      "value": "",
+      "description": "Optional external Qdrant endpoint for vector storage. Example: 'http://192.168.1.50:6333'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[AI] Qdrant API Key",
+      "key": "QDRANT_API_KEY",
+      "value": "",
+      "description": "Optional Qdrant API key from your Qdrant Cloud or self-hosted auth configuration.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Ext. AI] Assistant Type",
+      "key": "ASSISTANT_TYPE",
+      "value": "",
+      "description": "Set to 'external' to route all chat to an external agent via MCP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] Assistant URL",
+      "key": "EXTERNAL_ASSISTANT_URL",
+      "value": "",
+      "description": "URL for the external agent (e.g. https://your-openclaw/v1/chat/completions).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] Assistant Token",
+      "key": "EXTERNAL_ASSISTANT_TOKEN",
+      "value": "",
+      "description": "Auth token expected by your external agent or gateway. Copy it from that service's dashboard or config.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Ext. AI] Agent ID",
+      "key": "EXTERNAL_ASSISTANT_AGENT_ID",
+      "value": "",
+      "description": "Optional Agent ID for OpenClaw routing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] Session Key",
+      "key": "EXTERNAL_ASSISTANT_SESSION_KEY",
+      "value": "",
+      "description": "Optional shared session key for remote agent conversation persistence. Leave blank so Sure-AIO derives isolated per-chat remote state.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] Allowed Emails",
+      "key": "EXTERNAL_ASSISTANT_ALLOWED_EMAILS",
+      "value": "",
+      "description": "Optional comma-separated allowlist of users permitted to use the external assistant.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] MCP User Email",
+      "key": "MCP_USER_EMAIL",
+      "value": "",
+      "description": "Required if using Ext. AI: Email of an existing Sure user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Ext. AI] MCP API Token",
+      "key": "MCP_API_TOKEN",
+      "value": "",
+      "description": "Required if using Ext. AI: Bearer token for agent callbacks to /mcp. Generate one with 'openssl rand -hex 32' in the Unraid terminal.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] PostHog Key",
+      "key": "POSTHOG_KEY",
+      "value": "",
+      "description": "PostHog project API key from your PostHog project settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] PostHog Host",
+      "key": "POSTHOG_HOST",
+      "value": "",
+      "description": "PostHog host URL. Example: 'https://us.i.posthog.com' or your self-hosted PostHog URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Langfuse Host",
+      "key": "LANGFUSE_HOST",
+      "value": "",
+      "description": "Langfuse base URL for LLM observability. Example: 'https://cloud.langfuse.com' or your self-hosted Langfuse URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Langfuse Region",
+      "key": "LANGFUSE_REGION",
+      "value": "",
+      "description": "Optional Langfuse region shortcut like 'us' or 'eu'. Use this only if you are not setting a custom Langfuse Host URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Langfuse Public Key",
+      "key": "LANGFUSE_PUBLIC_KEY",
+      "value": "",
+      "description": "Langfuse public key from your project settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Langfuse Secret Key",
+      "key": "LANGFUSE_SECRET_KEY",
+      "value": "",
+      "description": "Langfuse secret key from your project settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] Sentry DSN",
+      "key": "SENTRY_DSN",
+      "value": "",
+      "description": "Optional Sentry DSN if you want upstream exception reporting enabled for this instance.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] Skylight Enabled",
+      "key": "SKYLIGHT_ENABLED",
+      "value": "false",
+      "description": "Set to 'true' only if you intentionally use Skylight's hosted APM service. Default is 'false' for AIO installs so no external Skylight setup is required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Skylight Auth Token",
+      "key": "SKYLIGHT_AUTHENTICATION",
+      "value": "",
+      "description": "Optional Skylight app authentication token. Only used when SKYLIGHT_ENABLED is true and you want to send APM data to your Skylight account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] Logtail API Key",
+      "key": "LOGTAIL_API_KEY",
+      "value": "",
+      "description": "Optional Better Stack / Logtail source token from your log source settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Telemetry] Logtail Ingest Host",
+      "key": "LOGTAIL_INGESTING_HOST",
+      "value": "",
+      "description": "Optional Logtail ingest host used with LOGTAIL_API_KEY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Telemetry] Rails Log Level",
+      "key": "RAILS_LOG_LEVEL",
+      "value": "info",
+      "description": "Application log verbosity. Use 'info' for normal operation or 'debug' for deeper troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Rails/Sidekiq Thread Pool",
+      "key": "RAILS_MAX_THREADS",
+      "value": "",
+      "description": "Optional worker thread count used by Puma, Sidekiq, and DB pool sizing. Leave blank for upstream default (3).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Puma Worker Processes",
+      "key": "WEB_CONCURRENCY",
+      "value": "",
+      "description": "Optional Puma process count for the web service. Leave blank for upstream default (1).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Sidekiq Web Username",
+      "key": "SIDEKIQ_WEB_USERNAME",
+      "value": "",
+      "description": "Optional username for /sidekiq dashboard basic auth. Leave blank to keep upstream default username ('sure').",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Runtime] Sidekiq Web Password",
+      "key": "SIDEKIQ_WEB_PASSWORD",
+      "value": "",
+      "description": "Optional password for /sidekiq dashboard basic auth. Leave blank to keep upstream default password ('sure').",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Network] HTTPS Proxy",
+      "key": "HTTPS_PROXY",
+      "value": "",
+      "description": "Optional outbound HTTPS proxy URL (for advanced egress controls like Pipelock). Leave blank for normal direct outbound traffic.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Network] HTTP Proxy",
+      "key": "HTTP_PROXY",
+      "value": "",
+      "description": "Optional outbound HTTP proxy URL. Leave blank unless your network requires a proxy.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Network] No Proxy Hosts",
+      "key": "NO_PROXY",
+      "value": "",
+      "description": "Optional comma-separated hosts/domains that should bypass HTTP(S) proxy routing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Exchange Rate Provider",
+      "key": "EXCHANGE_RATE_PROVIDER",
+      "value": "",
+      "description": "Optional exchange-rate provider override. If left blank, Sure uses its normal default and UI selection behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Securities Provider",
+      "key": "SECURITIES_PROVIDER",
+      "value": "",
+      "description": "Optional securities provider override. If left blank, Sure uses its normal default and UI selection behavior.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Securities Providers",
+      "key": "SECURITIES_PROVIDERS",
+      "value": "",
+      "description": "Optional comma-separated securities provider list. Example: 'yahoo_finance,binance_public,twelve_data'. Takes precedence over the single Securities Provider field when set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Brandfetch Client ID",
+      "key": "BRAND_FETCH_CLIENT_ID",
+      "value": "",
+      "description": "Brandfetch client ID from your Brandfetch application or dashboard if you want merchant and bank logos.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] Brandfetch High-Res Logos",
+      "key": "BRAND_FETCH_HIGH_RES_LOGOS",
+      "value": "",
+      "description": "Optional env override for 120x120 Brandfetch logos. Set to 'true' to force high-res logos, 'false' to force standard size. Leave blank to keep the in-app toggle enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Indexa API Token",
+      "key": "INDEXA_API_TOKEN",
+      "value": "",
+      "description": "Optional global API token used by the Indexa Capital provider when account-level credentials are not configured.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] Twelve Data Key",
+      "key": "TWELVE_DATA_API_KEY",
+      "value": "",
+      "description": "Optional Twelve Data API key from twelvedata.com if you want exchange rates or securities from Twelve Data instead of Yahoo Finance.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] Twelve Data URL Override",
+      "key": "TWELVE_DATA_URL",
+      "value": "",
+      "description": "Optional custom Twelve Data API base URL. Leave blank unless you are routing Twelve Data through a proxy or alternate endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Twelve Data Min Request Interval",
+      "key": "TWELVE_DATA_MIN_REQUEST_INTERVAL",
+      "value": "",
+      "description": "Optional minimum spacing between Twelve Data requests in seconds. Leave blank for upstream pacing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Twelve Data Max Requests Per Minute",
+      "key": "TWELVE_DATA_MAX_REQUESTS_PER_MINUTE",
+      "value": "",
+      "description": "Optional Twelve Data per-minute credit limit. Lower this if your plan is more restrictive than upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Tiingo API Key",
+      "key": "TIINGO_API_KEY",
+      "value": "",
+      "description": "Optional Tiingo API key for securities pricing. Configure provider selection separately if you want Sure to use Tiingo.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] Tiingo URL Override",
+      "key": "TIINGO_URL",
+      "value": "",
+      "description": "Optional custom Tiingo API base URL. Leave blank for normal public Tiingo access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Tiingo Max Requests Per Hour",
+      "key": "TIINGO_MAX_REQUESTS_PER_HOUR",
+      "value": "",
+      "description": "Optional Tiingo hourly request cap used by Sure's rate limiter. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] EODHD API Key",
+      "key": "EODHD_API_KEY",
+      "value": "",
+      "description": "Optional EODHD API key for securities pricing, especially international ETF coverage. Configure provider selection separately if you want Sure to use EODHD.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] EODHD URL Override",
+      "key": "EODHD_URL",
+      "value": "",
+      "description": "Optional custom EODHD API base URL. Leave blank for normal public EODHD access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] EODHD Max Requests Per Day",
+      "key": "EODHD_MAX_REQUESTS_PER_DAY",
+      "value": "",
+      "description": "Optional EODHD daily request cap used by Sure's rate limiter. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Alpha Vantage API Key",
+      "key": "ALPHA_VANTAGE_API_KEY",
+      "value": "",
+      "description": "Optional Alpha Vantage API key for securities pricing. Configure provider selection separately if you want Sure to use Alpha Vantage.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[API] Alpha Vantage URL Override",
+      "key": "ALPHA_VANTAGE_URL",
+      "value": "",
+      "description": "Optional custom Alpha Vantage API base URL. Leave blank for normal public Alpha Vantage access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Alpha Vantage Max Requests Per Day",
+      "key": "ALPHA_VANTAGE_MAX_REQUESTS_PER_DAY",
+      "value": "",
+      "description": "Optional Alpha Vantage daily request cap used by Sure's rate limiter. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] MFAPI URL Override",
+      "key": "MFAPI_URL",
+      "value": "",
+      "description": "Optional custom MFAPI base URL for mutual-fund data. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Binance Public URL Override",
+      "key": "BINANCE_PUBLIC_URL",
+      "value": "",
+      "description": "Optional custom Binance public market-data base URL. Leave blank for upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Binance Egress IP Hint",
+      "key": "BINANCE_EGRESS_IP",
+      "value": "",
+      "description": "Optional public egress IP shown in the Binance setup UI so users know which IP to allowlist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Yahoo Finance URL Override",
+      "key": "YAHOO_FINANCE_URL",
+      "value": "",
+      "description": "Optional custom Yahoo Finance API base URL. Leave blank for normal public Yahoo Finance access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Yahoo Finance Max Retries",
+      "key": "YAHOO_FINANCE_MAX_RETRIES",
+      "value": "5",
+      "description": "Maximum retry attempts for Yahoo Finance requests before Sure gives up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Yahoo Finance Retry Interval",
+      "key": "YAHOO_FINANCE_RETRY_INTERVAL",
+      "value": "1.0",
+      "description": "Seconds to wait between Yahoo Finance retry attempts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[API] Yahoo Finance Min Request Interval",
+      "key": "YAHOO_FINANCE_MIN_REQUEST_INTERVAL",
+      "value": "",
+      "description": "Optional minimum spacing between Yahoo Finance requests in seconds. Leave blank to keep upstream defaults.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Auto Sync Enabled",
+      "key": "AUTO_SYNC_ENABLED",
+      "value": "1",
+      "description": "Container-level override for Sure's scheduled sync job. Use '1' to keep it enabled or '0' to disable automatic syncs globally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Auto Sync Time",
+      "key": "AUTO_SYNC_TIME",
+      "value": "02:22",
+      "description": "Daily auto-sync time in 24-hour HH:MM format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Auto Sync Timezone",
+      "key": "AUTO_SYNC_TIMEZONE",
+      "value": "UTC",
+      "description": "Timezone used with AUTO_SYNC_TIME. Example: 'America/Denver'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] SimpleFIN Include Pending",
+      "key": "SIMPLEFIN_INCLUDE_PENDING",
+      "value": "1",
+      "description": "Set to '0' to exclude pending SimpleFIN transactions. If set here, upstream disables the corresponding Sync setting in the Sure UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] SimpleFIN Raw Debug Logs",
+      "key": "SIMPLEFIN_DEBUG_RAW",
+      "value": "",
+      "description": "Set to 'true' to log raw SimpleFIN payloads for debugging. This can expose sensitive data and create noisy logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] SimpleFIN Credit Overpayment Heuristic",
+      "key": "SIMPLEFIN_CC_OVERPAYMENT_HEURISTIC",
+      "value": "",
+      "description": "Optional override for SimpleFIN liability overpayment detection. Set to 'false' to disable the heuristic globally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Plaid Include Pending",
+      "key": "PLAID_INCLUDE_PENDING",
+      "value": "1",
+      "description": "Set to '0' to exclude pending Plaid transactions. If set here, upstream disables the corresponding Sync setting in the Sure UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Lunchflow Include Pending",
+      "key": "LUNCHFLOW_INCLUDE_PENDING",
+      "value": "",
+      "description": "Set to 'true' to include pending transactions in Lunchflow sync requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Sync] Lunchflow Raw Debug Logs",
+      "key": "LUNCHFLOW_DEBUG_RAW",
+      "value": "",
+      "description": "Set to 'true' to log raw Lunchflow payloads for debugging. This can expose sensitive data and create noisy logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Local Login Enabled",
+      "key": "AUTH_LOCAL_LOGIN_ENABLED",
+      "value": "true",
+      "description": "Set to 'false' to disable local email/password login and move users toward SSO-only auth.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Local Admin Override",
+      "key": "AUTH_LOCAL_ADMIN_OVERRIDE_ENABLED",
+      "value": "false",
+      "description": "If local login is disabled, set to 'true' to let super admins keep local login as an emergency backdoor.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] JIT SSO Mode",
+      "key": "AUTH_JIT_MODE",
+      "value": "create_and_link",
+      "description": "SSO behavior for first-time users: 'create_and_link' creates accounts automatically, 'link_only' requires an existing user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Allowed OIDC Domains",
+      "key": "ALLOWED_OIDC_DOMAINS",
+      "value": "",
+      "description": "Optional comma-separated email domains allowed for JIT SSO account creation.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alpha Auth] WebAuthn Relying Party ID",
+      "key": "WEBAUTHN_RP_ID",
+      "value": "",
+      "description": "Alpha-only passkey/WebAuthn relying party ID. Usually your registrable domain, such as 'example.com'. This only configures browser trust; add passkeys inside Sure from Settings > Security after enabling authenticator-app 2FA. Changing this after registering credentials can make existing passkeys unusable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Alpha Auth] WebAuthn Allowed Origins",
+      "key": "WEBAUTHN_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Alpha-only comma-separated WebAuthn origins including scheme and host, such as 'https://finance.example.com'. This only configures browser trust; add passkeys inside Sure from Settings > Security after enabling authenticator-app 2FA.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Provider Source",
+      "key": "AUTH_PROVIDERS_SOURCE",
+      "value": "",
+      "description": "Leave blank for normal YAML/env-backed provider loading. Set to 'db' if you want upstream's database-backed SSO provider admin UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID from your identity provider app registration, such as Authentik, Authelia, Keycloak, or Zitadel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret from the same identity provider app registration.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] OIDC Issuer",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "OIDC issuer URL. Example: 'https://auth.example.com/application/o/sure/' or your provider's issuer endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Redirect URI",
+      "key": "OIDC_REDIRECT_URI",
+      "value": "",
+      "description": "OIDC redirect URI registered with your provider. Example: 'https://finance.example.com/auth/openid_connect/callback'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Button Label",
+      "key": "OIDC_BUTTON_LABEL",
+      "value": "",
+      "description": "Optional custom sign-in button label for the default OIDC provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] OIDC Button Icon",
+      "key": "OIDC_BUTTON_ICON",
+      "value": "key",
+      "description": "Optional icon slug for the default OIDC sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google OAuth Client ID",
+      "key": "GOOGLE_OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "Optional Google OAuth client ID from console.cloud.google.com if you want a dedicated Google sign-in provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google OAuth Client Secret",
+      "key": "GOOGLE_OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional Google OAuth client secret from the same Google OAuth app.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] Google Button Label",
+      "key": "GOOGLE_BUTTON_LABEL",
+      "value": "Sign in with Google",
+      "description": "Optional custom label for the Google sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] Google Button Icon",
+      "key": "GOOGLE_BUTTON_ICON",
+      "value": "google",
+      "description": "Optional icon slug for the Google sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] GitHub OAuth Client ID",
+      "key": "GITHUB_CLIENT_ID",
+      "value": "",
+      "description": "Optional GitHub OAuth client ID from your GitHub OAuth App settings if you want a dedicated GitHub sign-in provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] GitHub OAuth Client Secret",
+      "key": "GITHUB_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional GitHub OAuth client secret from the same GitHub OAuth App.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth] GitHub Button Label",
+      "key": "GITHUB_BUTTON_LABEL",
+      "value": "Sign in with GitHub",
+      "description": "Optional custom label for the GitHub sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth] GitHub Button Icon",
+      "key": "GITHUB_BUTTON_ICON",
+      "value": "github",
+      "description": "Optional icon slug for the GitHub sign-in button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Keycloak] Client ID",
+      "key": "OIDC_KEYCLOAK_CLIENT_ID",
+      "value": "",
+      "description": "Optional named Keycloak OIDC provider client ID for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Keycloak] Client Secret",
+      "key": "OIDC_KEYCLOAK_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional named Keycloak OIDC provider client secret for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth:Keycloak] Issuer",
+      "key": "OIDC_KEYCLOAK_ISSUER",
+      "value": "",
+      "description": "Optional named Keycloak OIDC issuer URL for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Keycloak] Redirect URI",
+      "key": "OIDC_KEYCLOAK_REDIRECT_URI",
+      "value": "",
+      "description": "Optional named Keycloak OIDC redirect URI for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Authentik] Client ID",
+      "key": "OIDC_AUTHENTIK_CLIENT_ID",
+      "value": "",
+      "description": "Optional named Authentik OIDC provider client ID for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Authentik] Client Secret",
+      "key": "OIDC_AUTHENTIK_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional named Authentik OIDC provider client secret for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Auth:Authentik] Issuer",
+      "key": "OIDC_AUTHENTIK_ISSUER",
+      "value": "",
+      "description": "Optional named Authentik OIDC issuer URL for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Auth:Authentik] Redirect URI",
+      "key": "OIDC_AUTHENTIK_REDIRECT_URI",
+      "value": "",
+      "description": "Optional named Authentik OIDC redirect URI for upstream multi-provider auth.yml mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage] Provider Strategy",
+      "key": "ACTIVE_STORAGE_SERVICE",
+      "value": "",
+      "description": "Leave blank for internal disk storage. Change to 'amazon', 'cloudflare', 'generic_s3', or 'google' to move uploads out of the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:AWS] Access Key ID",
+      "key": "S3_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Amazon S3 access key ID from your AWS IAM user or access-key pair.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:AWS] Secret Access Key",
+      "key": "S3_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Amazon S3 secret access key paired with the access key ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:AWS] Region",
+      "key": "S3_REGION",
+      "value": "",
+      "description": "Amazon S3 region. Defaults to us-east-1 if left blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:AWS] Bucket Name",
+      "key": "S3_BUCKET",
+      "value": "",
+      "description": "Amazon S3 bucket name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:R2] Cloudflare Account ID",
+      "key": "CLOUDFLARE_ACCOUNT_ID",
+      "value": "",
+      "description": "Cloudflare account ID used to construct the R2 endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:R2] Access Key ID",
+      "key": "CLOUDFLARE_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Cloudflare R2 access key ID from your R2 API token pair.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:R2] Secret Access Key",
+      "key": "CLOUDFLARE_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Cloudflare R2 secret access key paired with the R2 access key ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:R2] Bucket Name",
+      "key": "CLOUDFLARE_BUCKET",
+      "value": "",
+      "description": "Cloudflare R2 bucket name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:Generic S3] Access Key ID",
+      "key": "GENERIC_S3_ACCESS_KEY_ID",
+      "value": "",
+      "description": "Generic S3 or MinIO access key ID from your object-storage service.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:Generic S3] Secret Access Key",
+      "key": "GENERIC_S3_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "Generic S3 or MinIO secret access key paired with the access key ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:Generic S3] Region",
+      "key": "GENERIC_S3_REGION",
+      "value": "",
+      "description": "Generic S3 region value expected by your provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:Generic S3] Bucket Name",
+      "key": "GENERIC_S3_BUCKET",
+      "value": "",
+      "description": "Generic S3 or MinIO bucket name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:Generic S3] Custom Endpoint",
+      "key": "GENERIC_S3_ENDPOINT",
+      "value": "",
+      "description": "Custom MinIO or S3-compatible endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:Generic S3] Force Path Style",
+      "key": "GENERIC_S3_FORCE_PATH_STYLE",
+      "value": "false",
+      "description": "Set to 'true' for providers that require path-style S3 requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:GCS] Project",
+      "key": "GCS_PROJECT",
+      "value": "",
+      "description": "Google Cloud project ID used by Active Storage when Provider Strategy is set to 'google'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:GCS] Bucket Name",
+      "key": "GCS_BUCKET",
+      "value": "",
+      "description": "Google Cloud Storage bucket name used when Provider Strategy is set to 'google'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Storage:GCS] Keyfile JSON",
+      "key": "GCS_KEYFILE_JSON",
+      "value": "",
+      "description": "Raw Google service-account JSON content. Preferred over a keyfile path when using GCS storage.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Storage:GCS] Keyfile Path",
+      "key": "GCS_KEYFILE",
+      "value": "",
+      "description": "In-container path to a Google service-account JSON keyfile. Use only if you mount the file separately.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Address",
+      "key": "SMTP_ADDRESS",
+      "value": "",
+      "description": "Hostname for your SMTP server. Example: 'smtp.mailgun.org', 'smtp.sendgrid.net', or your mail relay host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "465",
+      "description": "Port for your SMTP server. Common values: '465' for implicit TLS or '587' for STARTTLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Username",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "SMTP username from your mail provider or relay.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP Password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password or app password from your mail provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Email] SMTP TLS Enabled",
+      "key": "SMTP_TLS_ENABLED",
+      "value": "true",
+      "description": "Leave 'true' for normal secure SMTP. Set to 'false' only if your mail relay expects plain SMTP without TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] SMTP TLS Skip Verify",
+      "key": "SMTP_TLS_SKIP_VERIFY",
+      "value": "false",
+      "description": "Leave 'false' for normal certificate validation. Set to 'true' only for a trusted private SMTP relay with broken TLS certificates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Email] Sender Address",
+      "key": "EMAIL_SENDER",
+      "value": "",
+      "description": "The email address your app will send mail from (e.g., finance@mydomain.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Plaid] Client ID",
+      "key": "PLAID_CLIENT_ID",
+      "value": "",
+      "description": "Optional Plaid client ID if you want upstream Plaid account linking enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Plaid] Secret",
+      "key": "PLAID_SECRET",
+      "value": "",
+      "description": "Optional Plaid secret paired with the client ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Plaid] Environment",
+      "key": "PLAID_ENV",
+      "value": "",
+      "description": "Optional Plaid environment such as 'sandbox' or 'production'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Plaid EU] Client ID",
+      "key": "PLAID_EU_CLIENT_ID",
+      "value": "",
+      "description": "Optional Plaid Europe client ID if you use the Plaid EU adapter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "[Plaid EU] Secret",
+      "key": "PLAID_EU_SECRET",
+      "value": "",
+      "description": "Optional Plaid Europe secret paired with the Plaid EU client ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "[Plaid EU] Environment",
+      "key": "PLAID_EU_ENV",
+      "value": "",
+      "description": "Optional Plaid Europe environment such as 'sandbox' or 'production'.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

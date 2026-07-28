@@ -1,0 +1,275 @@
+{
+  "name": "ThunderHub",
+  "repo": "apotdevin/thunderhub:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/apotdevin/thunderhub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/apotdevin/thunderhub-docs/main/public/favicon.ico",
+  "project": "https://github.com/apotdevin/thunderhub",
+  "description": "ThunderHub is an open-source Lightning Network node manager with a browser interface for monitoring and managing LND or Lightning Terminal nodes, channels, payments, on-chain wallet activity, Taproot Assets, swaps, and multi-node accounts.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/thunderhub",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stores ThunderHub account config, optional cookie, and optional SQLite database files.",
+      "required": true
+    },
+    {
+      "name": "LND Data",
+      "host": "",
+      "container": "/lnd",
+      "mode": "ro",
+      "description": "Optional read-only mount for an LND data directory. YAML accounts can use lndDir: /lnd.",
+      "required": false
+    },
+    {
+      "name": "LiTD Data",
+      "host": "",
+      "container": "/lit",
+      "mode": "ro",
+      "description": "Optional read-only mount for a Lightning Terminal data directory. YAML accounts can use litDir: /lit.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web interface port. Container port: 3000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Host",
+      "key": "HOST",
+      "value": "0.0.0.0",
+      "description": "Interface ThunderHub listens on inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Account Config Path",
+      "key": "ACCOUNT_CONFIG_PATH",
+      "value": "/data/thubConfig.yaml",
+      "description": "Path to the ThunderHub YAML account config inside the container. ThunderHub can create this file if the Data path is writable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Master Password Override",
+      "key": "MASTER_PASSWORD_OVERRIDE",
+      "value": "",
+      "description": "Optional password override used for all YAML accounts.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging level, for example error, warn, info, debug, or verbose.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Theme",
+      "key": "THEME",
+      "value": "dark",
+      "description": "Default interface theme. Use dark or light.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Currency",
+      "key": "CURRENCY",
+      "value": "sat",
+      "description": "Default currency display, for example sat, btc, or usd.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mempool URL",
+      "key": "MEMPOOL_URL",
+      "value": "https://mempool.space",
+      "description": "Mempool API base URL used for fee and block data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tor Proxy",
+      "key": "TOR_PROXY_SERVER",
+      "value": "",
+      "description": "Optional SOCKS proxy used for outbound connections, for example socks://127.0.0.1:9050.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fetch Prices",
+      "key": "FETCH_PRICES",
+      "value": "true",
+      "description": "Fetch exchange price data. Set to false to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fetch Fees",
+      "key": "FETCH_FEES",
+      "value": "true",
+      "description": "Fetch fee recommendation data. Set to false to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable External Links",
+      "key": "DISABLE_LINKS",
+      "value": "false",
+      "description": "Disable external links in the interface. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Version Check",
+      "key": "NO_VERSION_CHECK",
+      "value": "false",
+      "description": "Disable checks against the latest GitHub release. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable All Subscriptions",
+      "key": "DISABLE_ALL_SUBS",
+      "value": "false",
+      "description": "Disable all Lightning realtime subscriptions. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Server URL",
+      "key": "SSO_SERVER_URL",
+      "value": "",
+      "description": "Optional SSO node gRPC address, for example 192.168.1.10:10009 or lnd:10009.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Certificate Path",
+      "key": "SSO_CERT_PATH",
+      "value": "",
+      "description": "Optional SSO TLS certificate path inside the container, for example /lnd/tls.cert.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Macaroon Directory",
+      "key": "SSO_MACAROON_PATH",
+      "value": "",
+      "description": "Optional directory containing admin.macaroon for SSO, for example /lnd/data/chain/bitcoin/mainnet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Node Type",
+      "key": "SSO_NODE_TYPE",
+      "value": "lnd",
+      "description": "SSO node type. Use lnd or litd.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dangerous No SSO Auth",
+      "key": "DANGEROUS_NO_SSO_AUTH",
+      "value": "false",
+      "description": "Allow SSO without auth. Only use behind trusted access controls. Use true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Path",
+      "key": "COOKIE_PATH",
+      "value": "/data/.cookie",
+      "description": "Optional persistent cookie secret path. Keep this in the Data path if enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YAML Env 1",
+      "key": "YML_ENV_1",
+      "value": "",
+      "description": "Optional value that can be referenced from thubConfig.yaml as {YML_ENV_1}.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YAML Env 2",
+      "key": "YML_ENV_2",
+      "value": "",
+      "description": "Optional value that can be referenced from thubConfig.yaml as {YML_ENV_2}.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YAML Env 3",
+      "key": "YML_ENV_3",
+      "value": "",
+      "description": "Optional secret value that can be referenced from thubConfig.yaml as {YML_ENV_3}.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YAML Env 4",
+      "key": "YML_ENV_4",
+      "value": "",
+      "description": "Optional value that can be referenced from thubConfig.yaml as {YML_ENV_4}.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Type",
+      "key": "DB_TYPE",
+      "value": "",
+      "description": "Optional database backend. Leave blank to disable, or use sqlite or postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SQLite Database Path",
+      "key": "DB_SQLITE_PATH",
+      "value": "/data/thunderhub.db",
+      "description": "SQLite database path used when Database Type is sqlite.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres URL",
+      "key": "DB_POSTGRES_URL",
+      "value": "",
+      "description": "Postgres connection URL used when Database Type is postgres.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database Encryption Key",
+      "key": "DB_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Optional 64-character hex key for encrypting node credentials at rest.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

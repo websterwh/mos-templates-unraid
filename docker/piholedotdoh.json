@@ -1,0 +1,135 @@
+{
+  "name": "pihole-dot-doh",
+  "repo": "devzwf/pihole-dot-doh:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/devzwf/pihole-dot-doh",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --restart=unless-stopped --hostname ns",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/admin",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/pihole-logo-bw.png",
+  "project": "https://docs.pi-hole.net/guides/dns-over-https/",
+  "description": "Pi-Hole - let's block those pesky ads! Now with DNS-over-HTTPS and DNS-over-TLS! pihole.doh! Don't send your DNS queries in plain text. YOU MUST ASSIGN A STATIC IP TO THE DOCKER FOR PIHOLE TO WORK. You must set FTLCONF_dns_upstreams variables to 127.1.1.1#5153 (DoH) and/or 127.2.2.2#5253 (DoT) and/or 127.0.0.1#5335 (Unbound). Otherwise, same instructions as official Pi-Hole. NOTE 1: Port 53 can only be used with custom br0/br1 network and a static IP address. NOTE 2: DNS lookup rarely ever works with ports other than 53 i.e. see note above about static IP. NOTE 3: Unraid network settings DNS server cannot point to a docker IP. Note 4 : to populate their DNSCrypt TOML file, you can use the calculator here to create your own stamp: https://dnscrypt.info/stamps/ Or, you can find preconfigured stamps for many popular resolvers here: https://github.com/DNSCrypt/dnscrypt-resolvers/blob/master/v3/public-resolvers.md",
+  "paths": [
+    {
+      "name": "pihole config",
+      "host": "/mnt/cache/appdata/pihole-dot-doh/pihole/",
+      "container": "/etc/pihole/",
+      "mode": "rw,slave",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "dnsmasq config",
+      "host": "/mnt/cache/appdata/pihole-dot-doh/dnsmasq.d/",
+      "container": "/etc/dnsmasq.d/",
+      "mode": "rw,slave",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "DoT/DoH config",
+      "host": "/mnt/cache/appdata/pihole-dot-doh/config/",
+      "container": "/config",
+      "mode": "rw,slave",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "DNS Port TCP",
+      "host": "53",
+      "container": "53",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS Port UDP",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DHCP Port",
+      "host": "67",
+      "container": "67",
+      "protocol": "udp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DNS upstream",
+      "key": "FTLCONF_dns_upstreams",
+      "value": "127.1.1.1#5153",
+      "description": "Upstream DNS server(s) for Pi-hole to forward queries to, separated by a semicolon. Supports non-standard ports with: #[port number], e.g 127.0.0.1#5053;8.8.8.8;8.8.4.4.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TimeZone",
+      "key": "TZ",
+      "value": "America/Toronto",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web api Password",
+      "key": "FTLCONF_webserver_api_password",
+      "value": "password",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Network Interface",
+      "key": "FTLCONF_dns_interface",
+      "value": "eth0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNSMASQ Listening",
+      "key": "FTLCONF_dns_listeningMode",
+      "value": "all",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

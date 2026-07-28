@@ -1,0 +1,85 @@
+{
+  "name": "Gerbil",
+  "repo": "fosrl/gerbil",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/fosrl/gerbil",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --cap-add=SYS_MODULE",
+  "post_parameters": "--generateAndSaveKeyTo=/var/config/key",
+  "web_ui_url": "http://[IP]:[PORT:51822]",
+  "icon": "https://raw.githubusercontent.com/fosrl/pangolin/refs/heads/main/public/logo/pangolin_orange_512x512.png",
+  "project": "https://pangolin.net",
+  "description": "Gerbil (https://github.com/fosrl/gerbil) is a simple WireGuard interface management server written in Go. Gerbil makes it easy to create WireGuard interfaces as well as add and remove peers with an HTTP API. Gerbil is meant to enable the tunneling functionality of Pangolin (https://github.com/fosrl/pangolin). Chat with us on Discord! https://discord.gg/HCJR8Xhme4",
+  "paths": [
+    {
+      "name": "Host Path 1",
+      "host": "",
+      "container": "/var/config",
+      "mode": "rw",
+      "description": null,
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WireGuard Port",
+      "host": "51822",
+      "container": "51822",
+      "protocol": "udp",
+      "description": "Port the WireGuard server will listen on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "44301",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Pass through port Traefik will listen on for https traffic",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "8001",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Pass through port Traefik will listen on for http traffic",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Reachable At",
+      "key": "REACHABLE_AT",
+      "value": "http://gerbil:3003",
+      "description": "How should the remote server reach Gerbil's API?",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remote Config",
+      "key": "REMOTE_CONFIG",
+      "value": "http://pangolin:3001/api/v1/gerbil/get-config",
+      "description": "Remote config location to HTTP get the JSON based config from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Report Bandwidth To",
+      "key": "REPORT_BANDWIDTH_TO",
+      "value": "http://pangolin:3001/api/v1/gerbil/receive-bandwidth",
+      "description": "Remote HTTP endpoint to send peer bandwidth data.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

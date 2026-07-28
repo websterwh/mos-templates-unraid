@@ -1,0 +1,147 @@
+{
+  "name": "lidarr-similar",
+  "repo": "ghcr.io/drachenhort/lidarr-similar:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/drachenhort/lidarr-similar/pkgs/container/lidarr-similar",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/drachenhort/lidarr-similar/master/icon.png",
+  "project": "https://github.com/drachenhort/lidarr-similar",
+  "description": "Discovers artists similar to your Last.fm listening history and helps you add them to Lidarr. Candidates come from Last.fm's artist.getSimilar and Deezer's related-artist data (boosted when both sources agree), optionally enriched with Discogs genre/style metadata and two popularity signals - Deezer fan count and ListenBrainz listener count. A web dashboard lets you review candidates, filter by minimum score, sort by popularity, ignore artists or whole genres, and add artists to Lidarr with one click.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/lidarr-similar",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persists the SQLite store (discovery results, ignore lists, saved settings) and enrichment cache across container updates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port the lidarr-similar web dashboard listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LASTFM_API_KEY",
+      "key": "LASTFM_API_KEY",
+      "value": "",
+      "description": "Last.fm API key - create one at last.fm/api/account/create",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LASTFM_USERNAME",
+      "key": "LASTFM_USERNAME",
+      "value": "",
+      "description": "Last.fm username to read scrobbles/similar-artist data from",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LIDARR_URL",
+      "key": "LIDARR_URL",
+      "value": "",
+      "description": "Base URL of your Lidarr instance, e.g. http://192.168.1.10:8686 - optional, but required for library dedup and the Add to Lidarr button",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LIDARR_API_KEY",
+      "key": "LIDARR_API_KEY",
+      "value": "",
+      "description": "Lidarr API key (Settings -> General) - optional, same requirement as LIDARR_URL",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LIDARR_ROOT_FOLDER",
+      "key": "LIDARR_ROOT_FOLDER",
+      "value": "",
+      "description": "Root folder path Lidarr should use for newly added artists, e.g. /music - required for the Add to Lidarr button",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LIDARR_QUALITY_PROFILE_ID",
+      "key": "LIDARR_QUALITY_PROFILE_ID",
+      "value": "",
+      "description": "Numeric Lidarr quality profile ID - easier to leave blank and set via the app's /config page, which shows a dropdown of your Lidarr instance's actual profile names",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LIDARR_METADATA_PROFILE_ID",
+      "key": "LIDARR_METADATA_PROFILE_ID",
+      "value": "",
+      "description": "Numeric Lidarr metadata profile ID - same as above, easier to set via the /config page dropdown",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISCOGS_TOKEN",
+      "key": "DISCOGS_TOKEN",
+      "value": "",
+      "description": "Discogs personal access token (discogs.com/settings/developers) - optional, enables genre/style/release-year enrichment",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCOGS_ENABLED",
+      "key": "DISCOGS_ENABLED",
+      "value": "true",
+      "description": "Enable Discogs genre/style enrichment (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEEZER_ENABLED",
+      "key": "DEEZER_ENABLED",
+      "value": "true",
+      "description": "Enable Deezer as a similarity source and popularity signal (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LISTENBRAINZ_ENABLED",
+      "key": "LISTENBRAINZ_ENABLED",
+      "value": "true",
+      "description": "Enable ListenBrainz listener-count popularity enrichment (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTH_PASSWORD",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Password-protects the web UI - leave blank to keep it open with no login, same as before this option existed",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AUTH_SKIP_LOCAL",
+      "key": "AUTH_SKIP_LOCAL",
+      "value": "false",
+      "description": "Skip the login page for requests from private/loopback addresses (e.g. your own LAN) even when AUTH_PASSWORD is set (true/false)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,50 @@
+{
+  "name": "OpenFanController",
+  "repo": "ghcr.io/sasakaranovic/openfancontroller:release",
+  "category": [
+    "Driver"
+  ],
+  "registry": "https://github.com/SasaKaranovic/OpenFanController",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--memory=512M",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://github.com/SasaKaranovic/OpenFanController/blob/master/assets/logo.png?raw=true",
+  "project": "https://sasakaranovic.com/projects/openfan-controller/",
+  "description": "OpenFAN is open-source, open-hardware 12V PWM fan controller for the hobbyists and hackers! This fan controller allows you to control 10 PWM fans over USB or remotely over network. OpenFAN gives you two ways to control each fan: - Traditional (PWM): Set target PWM and the fan will spin at whatever RPM it is designed to spin with that PWM. (ie. Assuming 2000RPM fan, if we set the PWM to 50%, the fan should spin at 1000RPM which is half of full speed) - Advanced (RPM): Set target RPM and OpenFAN will use it's built in PID algorithm to keep the fan always spinning at that RPM. OpenFAN also has an open-source API that allows you to programmatically control your fans, set custom profiles and more. OpenFAN was designed by PC enthusiast for PC enthusiasts. Key features: - Works on Windows, Linux and Mac - 10x PWM fans (Supports 12V, 4-pin fans) - Individually control each fan - SATA power (cable not provided) - Micro-USB communication (motherboard cable included) - Control fans by setting target PWM or target RPM - Optional I2C/1-Wire (header not populated) - Open source API for communication and control - Open source and open-hardware design - Control fans over USB or remotely over network* - FanControl integration through plugin * To control fans remotely over network, the OpenFAN board needs to be connected to the PC via USB and running the OpenFAN software. The software allows you to access the fan controller remotely over network.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WEB_UI",
+      "host": "3210",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Server port for accessing Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OPENFANCOMPORT",
+      "key": "OPENFANCOMPORT",
+      "value": "/dev/ttyACM0",
+      "description": "Path to OpenFan Controller USB-to-Serial port. Usually this is `/dev/ttyACM0` unless you have multiple USB-to-Serial devices connected",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "OpenFAN USB Port",
+      "host": "/dev/ttyACM0",
+      "container": "",
+      "description": "OpenFAN USB Device. Usually `/dev/ttyACM0` This should match your OPENFANCOMPORT environment variable.",
+      "required": true
+    }
+  ],
+  "labels": []
+}

@@ -1,0 +1,91 @@
+{
+  "name": "cryptomator-webdav",
+  "repo": "greycubesgav/cryptomator-webdav",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/greycubesgav/cryptomator-webdav",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8443]/vault/",
+  "icon": "https://github.com/greycubesgav/unraid-templates/raw/main/cryptomator-webdav/images/cryptomator_logo.png",
+  "project": null,
+  "description": "Cryptomator WebDAV allows you to serve a locally stored Cryptomator vault over a secure WebDAV (https) connection, allowing access to decrypted files through third party WebDav tools such as rclone, Mountain Duck, CyberDuck etc. Setting the Cryptomator Vault Password: The password for the vault can either be set directly through the Cryptomator Vault Password variable, or can be stored in a local file and shared through the Cryptomator Vault Password File setting. Only one is needed. Note: Unraid only shows directories in its drop down by default, manually type the full path to the file in the variable box, e.g. '/mnt/user/appdata/cryptomator-webdav/vault.pass' Optional Signed Certificate: An optional signed certificate can be passed to the container, e.g. from LetsEncrypt. Set the \"Optional: Signed Certificate\" variable to the full path of your certificate file, containing both your cert and the key in one .pem file. Note: Unraid only shows directories in its drop down by default, manually type the full path to the file in the variable box, e.g. '/mnt/user/appdata/cryptomator-webdav/mycert.pem' File Permissions: Cryptomator-webdav runs as UID:99, GID:100 by default. This can be changed through the CRYPTOMATOR_UID and CRYPTOMATOR_GID variables. Ensure vault files are read and writable by the IDs you set. Ensure any vault password file provided is readable by these IDs. More Secure File Permissions: Most Unraid Community Applications containers run as UID:99, GID:100 In theory this would mean a rouge container could have read access to your encrypted files if the vault was shared with it. To ensure a *slightly* more secure installation, it is recommended the container application is run as a separate Unraid user id, and vault files are only accessible by this user. For example: * Set CRYPTOMATOR_UID to your Unraid user id, e.g. 1000 * Ensure all vault files are only readable and writable by this user: * chown -R 1000: /path/to/cryptomator/vault * chmod -R u+rwX,g-rwx,o-rwx /path/to/cryptomator/vault See the Cryptomator WebDAV github project for more details at https://github.com/greycubesgav/cryptomator-webdav More details about Cryptomator can be found at https://cryptomator.org",
+  "paths": [
+    {
+      "name": "Cryptomator Vault Directory",
+      "host": "/mnt/cryptomator_vault",
+      "container": "/vault",
+      "mode": "rw",
+      "description": "The location of the local Cryptomator vault files.",
+      "required": true
+    },
+    {
+      "name": "Or Cryptomator Vault Password File",
+      "host": "/mnt/cache/appdata/cryptomator-webdav/vault.pass",
+      "container": "/vault.pass",
+      "mode": "ro",
+      "description": "Optionally set the location of a local file containing the Cryptomator vault password.",
+      "required": false
+    },
+    {
+      "name": "Optional: Signed Certificate",
+      "host": "",
+      "container": "/etc/stunnel/stunnel.pem",
+      "mode": "ro",
+      "description": "Optional: A fully signed cert with key embeded to be used by stunnel. e.g. /mnt/user/appdata/cryptomator-webdav/mycert.pem",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Cryptomator webDAV Port",
+      "host": "18081",
+      "container": "8443",
+      "protocol": "tcp",
+      "description": "Port the Cryptomator WebDAV share will be available at.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Cryptomator Vault Password",
+      "key": "CRYPTOMATOR_VAULT_PASS",
+      "value": "strongpass",
+      "description": "The Cryptomator password for the vault. Note: is visible in docker env. Use password file for more secure option.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cryptomator UID",
+      "key": "CRYPTOMATOR_UID",
+      "value": "99",
+      "description": "User ID to run cryptomator-cli as",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cryptomator GID",
+      "key": "CRYPTOMATOR_GID",
+      "value": "100",
+      "description": "Group ID to run cryptomator-cli as",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cryptomator UMASK",
+      "key": "CRYPTOMATOR_UMASK",
+      "value": "0077",
+      "description": "Umask run cryptomator-cli as. Helps protect any new files created from loose permissions.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

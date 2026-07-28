@@ -1,0 +1,137 @@
+{
+  "name": "cross-seed-cleanup",
+  "repo": "ghcr.io/mcreekmore/cross-seed-cleanup:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/orgs/mcreekmore/packages/container/package/cross-seed-cleanup",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/mcreekmore/cross-seed-cleanup/refs/heads/main/assets/cross-seed.png",
+  "project": "https://github.com/mcreekmore/cross-seed-cleanup",
+  "description": "Identifies torrents that are only used for cross-seeding and not hardlinked into a media library (Sonarr/Radarr). Compares filesystem hardlink counts against qBittorrent torrent references to find reclaimable space.",
+  "paths": [
+    {
+      "name": "/data",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "ro",
+      "description": "Path to your torrent data. Must match the paths qBittorrent uses.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "QB_HOST",
+      "key": "QB_HOST",
+      "value": "localhost",
+      "description": "qBittorrent Web UI host (IP or hostname).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QB_PORT",
+      "key": "QB_PORT",
+      "value": "8080",
+      "description": "qBittorrent Web UI port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QB_USERNAME",
+      "key": "QB_USERNAME",
+      "value": "admin",
+      "description": "qBittorrent Web UI username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "QB_PASSWORD",
+      "key": "QB_PASSWORD",
+      "value": "",
+      "description": "qBittorrent Web UI password. Required unless QB_API_KEY is set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "QB_API_KEY",
+      "key": "QB_API_KEY",
+      "value": "",
+      "description": "qui API key for proxy authentication. Use this instead of QB_USERNAME/QB_PASSWORD.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TAG_REMOVABLE",
+      "key": "TAG_REMOVABLE",
+      "value": "cross-seed-only",
+      "description": "Tag applied to torrents that can be safely removed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXCLUDE_TAGS",
+      "key": "EXCLUDE_TAGS",
+      "value": "pinned,keep",
+      "description": "Comma-separated tags to skip (torrents with these tags are never marked removable).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXCLUDE_CATEGORIES",
+      "key": "EXCLUDE_CATEGORIES",
+      "value": "",
+      "description": "Comma-separated categories to skip entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "INCLUDE_CATEGORIES",
+      "key": "INCLUDE_CATEGORIES",
+      "value": "",
+      "description": "Comma-separated categories to check. If empty, all categories are checked.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MIN_AGE_DAYS",
+      "key": "MIN_AGE_DAYS",
+      "value": "0",
+      "description": "Only tag torrents older than this many days. 0 to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULE",
+      "key": "SCHEDULE",
+      "value": "",
+      "description": "Cron expression for scheduled runs (e.g. '0 */6 * * *' for every 6 hours). If empty, runs once and exits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RUN_ON_START",
+      "key": "RUN_ON_START",
+      "value": "true",
+      "description": "Run immediately on container start before entering the cron schedule. Only applies when SCHEDULE is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DRY_RUN",
+      "key": "DRY_RUN",
+      "value": "true",
+      "description": "Set to false to actually apply tags. When true, only reports what would be tagged.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

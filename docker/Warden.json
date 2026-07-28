@@ -1,0 +1,89 @@
+{
+  "name": "Warden",
+  "repo": "ghcr.io/johagan94/warden:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/johagan94/warden/pkgs/container/warden",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/johagan94/warden/main/warden.png",
+  "project": "https://github.com/johagan94/warden",
+  "description": "Automated *Arr search scheduling and stalled-download cleanup for Sonarr, Radarr, and Lidarr.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/warden",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Warden config directory. Place config.yaml (and optionally .env) here. The container loads .env on startup \u2014 variables set below take priority over .env.",
+      "required": true
+    },
+    {
+      "name": "Env File",
+      "host": "/mnt/cache/appdata/warden/.env",
+      "container": "/app/.env",
+      "mode": "ro",
+      "description": "Optional .env file with API keys and other secrets. Container loads this on startup \u2014 variables set below take priority over .env.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Warden Mode",
+      "key": "WARDEN_MODE",
+      "value": "warden",
+      "description": "Controls which subsystems run. warden runs both Vigilance (search) and Defence (cleanup). vigilance runs search-only. defence runs cleanup-only.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "IANA timezone for logs and active-hours windows, e.g. Australia/Sydney.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Python logging level: DEBUG, INFO, WARNING, or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr API Key",
+      "key": "SONARR_API_KEY",
+      "value": "",
+      "description": "Sonarr API key. Reference in config.yaml as ${SONARR_API_KEY} . Sonarr \u2192 Settings \u2192 General \u2192 API Key. (Running multiple Sonarr instances? Add more variables here and reference them in config.yaml.)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Radarr API Key",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Radarr API key. Reference in config.yaml as ${RADARR_API_KEY} . Radarr \u2192 Settings \u2192 General \u2192 API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Lidarr API Key",
+      "key": "LIDARR_API_KEY",
+      "value": "",
+      "description": "Lidarr API key. Reference in config.yaml as ${LIDARR_API_KEY} . Lidarr \u2192 Settings \u2192 General \u2192 API Key.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "auditorr",
+  "repo": "ghcr.io/thrill-burn/auditorr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/thrill-burn/auditorr/pkgs/container/auditorr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8677]/",
+  "icon": "https://raw.githubusercontent.com/thrill-burn/auditorr/main/docs/icon.png",
+  "project": "https://github.com/thrill-burn/auditorr",
+  "description": "An audit tool for hardlinked media libraries using qBittorrent / qui + Sonarr / Radarr. A dashboard with health score, per-tracker analytics, and cross-seed effectiveness tells you what's wrong with your library. Five automated workflows fix it. - Health score (0-100) showing how clean and efficient your library is - Five workflows: Backfill (re-seed orphaned media via Sonarr/Radarr search), Cleanup (reviewed delete script for orphaned torrent files), Triage (explains every problem torrent \u2014 dead seeds, unregistered, superseded, pending imports \u2014 with rescan/exclude/delete actions), Dedupe (replace duplicate copies with verified hardlinks), Trumped (paste a tracker trump PM to swap the whole cross-seed group for its replacement) - Upload analytics and library yield: daily upload volume per tracker, yield % over time, multi-tracker comparison charts - Cross-seeding insights: weighted average seed multiplier, segmented disk bar, per-tracker breakdown - Powerful file explorer with tree and flat views, filterable by status, tracker, seed count, size, filename - File-level change log between every audit, kept indefinitely - Sonarr/Radarr integration and a guided first-run setup wizard Follows the TRaSH Guides folder structure. Read-only and non-destructive by default \u2014 all delete actions are opt-in, reviewed, and confirmed.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/auditorr/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Container Path: /app/data \u2014 config, audit history, SQLite database. Persistent app state lives here.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "ro",
+      "description": "Container Path: /data \u2014 your unified TRaSH-style media + torrents share (the parent of /data/media and /data/torrents). auditorr mounts this read-only by design.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8677",
+      "container": "8677",
+      "protocol": "tcp",
+      "description": "Container Port: 8677 \u2014 auditorr web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "AUDITORR_PORT",
+      "key": "AUDITORR_PORT",
+      "value": "8677",
+      "description": "Container Variable: AUDITORR_PORT \u2014 port the app listens on inside the container. Must match the WebUI Container Port above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUDITORR_SECRET",
+      "key": "AUDITORR_SECRET",
+      "value": "",
+      "description": "Container Variable: AUDITORR_SECRET \u2014 optional secret to require an X-Auditorr-Secret header on API calls. Leave blank to disable auth.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

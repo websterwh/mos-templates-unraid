@@ -1,0 +1,92 @@
+{
+  "name": "windmill",
+  "repo": "ghcr.io/windmill-labs/windmill:main",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/windmill-labs/windmill/pkgs/container/windmill",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/sgraaf/Unraid-Docker-Templates/main/windmill/icon.png",
+  "project": "https://www.windmill.dev/",
+  "description": "Windmill is a fast, open-source workflow engine and developer platform. It's an alternative to the likes of Retool, Superblocks, n8n, Airflow, Prefect, and Temporal, designed to build comprehensive internal tools (endpoints, workflows, UIs). It supports coding in TypeScript, Python, Go, PHP, Bash, SQL, or any Docker image, alongside intuitive low-code builders.",
+  "paths": [
+    {
+      "name": "Path: /tmp/windmill/logs",
+      "host": "/mnt/cache/appdata/windmill/logs",
+      "container": "/tmp/windmill/logs",
+      "mode": "rw",
+      "description": "This is the container path to the worker logs.",
+      "required": true
+    },
+    {
+      "name": "Path: /tmp/windmill/cache",
+      "host": "/mnt/cache/appdata/windmill/cache",
+      "container": "/tmp/windmill/cache",
+      "mode": "rw",
+      "description": "This is the container path to the worker dependency cache.",
+      "required": false
+    },
+    {
+      "name": "Path: /var/run/docker.sock",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Mount the docker socket to allow to run docker containers from within the workers.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "This is the Web UI port for the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Email Triggers",
+      "host": "2525",
+      "container": "2525",
+      "protocol": "tcp",
+      "description": "This is the port used for Email triggers.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgres://windmill:[password]>@[host]:5432/windmill?sslmode=disable",
+      "description": "The Postgres database url.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: WORKER_GROUP",
+      "key": "WORKER_GROUP",
+      "value": "default",
+      "description": "The worker group the worker belongs to and get its configuration pulled from.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MODE",
+      "key": "MODE",
+      "value": "standalone|worker|server",
+      "description": "The mode if the binary.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

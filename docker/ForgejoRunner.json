@@ -1,0 +1,49 @@
+{
+  "name": "ForgejoRunner",
+  "repo": "data.forgejo.org/forgejo/runner:12",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://code.forgejo.org/forgejo/-/packages/container/runner/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 0:0",
+  "post_parameters": "forgejo-runner daemon --config /data/runner-config.yml",
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/maybegrim/unraid-templates/main/ForgejoRunner/icon.png",
+  "project": "https://code.forgejo.org/forgejo/runner",
+  "description": "Forgejo Runner executes CI/CD workflows for Forgejo Actions, the built-in continuous integration system in Forgejo (a self-hosted Git forge). This template uses host Docker socket mode: the runner dispatches workflow jobs as sibling containers on your Unraid Docker daemon. Docker-in-Docker and privileged mode are not required. SETUP: Generate and edit the runner configuration before starting the container. 1. Create the data directory: mkdir -p /mnt/user/appdata/forgejo-runner/data 2. Generate config: docker run --rm data.forgejo.org/forgejo/runner:12 forgejo-runner generate-config > /mnt/user/appdata/forgejo-runner/data/runner-config.yml 3. In Forgejo, create a runner at the instance, organization, user, or repository level. Copy the displayed URL, UUID, and token into server.connections in runner-config.yml. 4. Configure runner.labels for the runs-on labels this runner should accept. 5. To make the host Docker socket available inside workflow containers, set container.docker_host to automount in runner-config.yml. 6. Start this container. The container runs as root (user 0:0) for Docker socket access on Unraid. WARNING: host socket mode gives trusted workflows control of the Unraid Docker daemon and effectively the host. Do not accept workflows from untrusted users or repositories.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/forgejo-runner/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for runner-config.yml, authentication tokens, and cache. Back up this directory and protect it from unauthorized access.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Host Docker socket used to create workflow containers. This grants trusted workflows effective control of the Unraid host.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DOCKER_HOST",
+      "key": "DOCKER_HOST",
+      "value": "unix:///var/run/docker.sock",
+      "description": "Docker daemon endpoint used by the runner. Keep the default for the mounted Unraid socket. Also set container.docker_host to automount in runner-config.yml if workflow steps need Docker access.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

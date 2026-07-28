@@ -1,0 +1,203 @@
+{
+  "name": "qbit_manage",
+  "repo": "ghcr.io/stuffanthings/qbit_manage:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/StuffAnThings/qbit_manage/pkgs/container/qbit_manage",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8181]/",
+  "icon": "https://raw.githubusercontent.com/StuffAnThings/qbit_manage/master/icons/qbm_logo.png",
+  "project": "https://github.com/StuffAnThings/qbit_manage",
+  "description": "qbit_manage is a tool to manage your qBittorrent instance. It offers a range of features to automate your torrenting workflow, including: - **Category and Tag Management:** Automatically update categories based on save paths and add tags based on tracker URLs. - **Torrent Cleanup:** Remove unregistered torrents, orphaned files, and torrents without hardlinks. - **Share Limits:** Apply advanced share limits based on torrent groups, tags, and categories. - **Health Checks:** Recheck paused torrents and tag torrents with tracker errors. - **Scheduler:** Run tasks on a schedule or on-demand. - **Web UI:** A modern web interface to configure and manage qbit_manage, and trigger commands manually.",
+  "paths": [
+    {
+      "name": "Root_Dir",
+      "host": "/mnt/user",
+      "container": "/Same/path/as/qbittorrent/downloads/",
+      "mode": "rw",
+      "description": "Container Path: /Same/path/as/qbittorrent/downloads/",
+      "required": true
+    },
+    {
+      "name": "Appdata Config Path",
+      "host": "/mnt/cache/appdata/qbit_manage",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container Path: /config",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8181",
+      "container": "8181",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "QBT_CONFIG_DIR",
+      "key": "QBT_CONFIG_DIR",
+      "value": "/config",
+      "description": "This is used to specify the configuration directory. It will treat all YAML files in this directory as valid configs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_LOGFILE",
+      "key": "QBT_LOGFILE",
+      "value": "activity.log",
+      "description": "This is used if you want to use a different name for your log file. Example: tv.log",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_RUN",
+      "key": "QBT_RUN",
+      "value": "False",
+      "description": "Run without the scheduler. Script will exit after completion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_SCHEDULE",
+      "key": "QBT_SCHEDULE",
+      "value": "30",
+      "description": "Schedule to run every x minutes. (Default set to 30)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_WEB_SERVER",
+      "key": "QBT_WEB_SERVER",
+      "value": "true",
+      "description": "Set to true to enable web API and web UI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_PORT",
+      "key": "QBT_PORT",
+      "value": "8181",
+      "description": "Web API port (default: 8181)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_RECHECK",
+      "key": "QBT_RECHECK",
+      "value": "False",
+      "description": "Recheck paused torrents sorted by lowest size. Resume if Completed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_CAT_UPDATE",
+      "key": "QBT_CAT_UPDATE",
+      "value": "False",
+      "description": "Use this if you would like to update your categories.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_TAG_UPDATE",
+      "key": "QBT_TAG_UPDATE",
+      "value": "False",
+      "description": "Use this if you would like to update your tags. (Only adds tags to untagged torrents)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_TAG_TRACKER_ERROR",
+      "key": "QBT_TAG_TRACKER_ERROR",
+      "value": "False",
+      "description": "Use this if you would like to tag torrents that do not have a working tracker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_SHARE_LIMITS",
+      "key": "QBT_SHARE_LIMITS",
+      "value": "False",
+      "description": "Use this to help apply and manage your torrent share limits based on your tags/categories.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_REM_UNREGISTERED",
+      "key": "QBT_REM_UNREGISTERED",
+      "value": "False",
+      "description": "Use this if you would like to remove unregistered torrents. (It will the delete data &amp; torrent if it is not being cross-seeded, otherwise it will just remove the torrent without deleting data)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_REM_ORPHANED",
+      "key": "QBT_REM_ORPHANED",
+      "value": "False",
+      "description": "Use this if you would like to remove orphaned files from your root_dir directory that are not referenced by any torrents. It will scan your root_dir directory and compare it with what is in qBittorrent. Any data not referenced in qBittorrent will be moved into /data/torrents/orphaned_data folder for you to review/delete.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_TAG_NOHARDLINKS",
+      "key": "QBT_TAG_NOHARDLINKS",
+      "value": "False",
+      "description": "Use this to tag any torrents that do not have any hard links associated with any of the files. This is useful for those that use Sonarr/Radarr that hard links your media files with the torrents for seeding. When files get upgraded they no longer become linked with your media therefore will be tagged with a new tag noHL. You can then safely delete/remove these torrents to free up any extra space that is not being used by your media folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_SKIP_CLEANUP",
+      "key": "QBT_SKIP_CLEANUP",
+      "value": "False",
+      "description": "Use this to skip cleaning up Recycle Bin/Orphaned directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_DRY_RUN",
+      "key": "QBT_DRY_RUN",
+      "value": "False",
+      "description": "If you would like to see what is gonna happen but not actually move/delete or tag/categorize anything.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_LOG_LEVEL",
+      "key": "QBT_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Change the ouput log level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_DIVIDER",
+      "key": "QBT_DIVIDER",
+      "value": "=",
+      "description": "Character that divides the sections (Default: '=')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QBT_WIDTH",
+      "key": "QBT_WIDTH",
+      "value": "100",
+      "description": "Screen Width (Default: 100)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

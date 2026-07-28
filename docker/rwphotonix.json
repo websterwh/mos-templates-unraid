@@ -1,0 +1,203 @@
+{
+  "name": "rw-photonix",
+  "repo": "photonixapp/photonix",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/photonixapp/photonix/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://photonix.org/docs/img/favicon.png",
+  "project": null,
+  "description": "Photonix is a photo management application that streamlines the process of storing, presenting and re-discovering photos. Once set up it will ingest all the photos in your collection and start building up an image database of everything you could want to search and filter by. It makes your entire collection available to you, whichever device you\u2019re using \u2014 as long as you can get to a web browser.",
+  "paths": [
+    {
+      "name": "Photos",
+      "host": "/mnt/user",
+      "container": "/data/photos",
+      "mode": "rw",
+      "description": "Container Path: /data/photos",
+      "required": false
+    },
+    {
+      "name": "Raw Photos",
+      "host": "",
+      "container": "/data/raw-photos-processed",
+      "mode": "rw",
+      "description": "Container Path: /data/raw-photos-processed",
+      "required": false
+    },
+    {
+      "name": "Cache",
+      "host": "",
+      "container": "/data/cache",
+      "mode": "rw",
+      "description": "Container Path: /data/cache",
+      "required": false
+    },
+    {
+      "name": "Models",
+      "host": "",
+      "container": "/data/models",
+      "mode": "rw",
+      "description": "Container Path: /data/models",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webui Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "External WebUI Port",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Environment",
+      "key": "ENV",
+      "value": "prd",
+      "description": "(prd or dev) In prd mode, running code and services are as optimised as possible. Running in dev mode enables features like Webpack/React hot module reloading (HMR), Django Runserver (code auto-reloading), Storybook server etc.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Demo Mode",
+      "key": "DEMO",
+      "value": "0",
+      "description": "(0 or 1) Starts the environment with a demo user account, library and downloads some demo photos. This is how the demo at https://demo.photonix.org/ runs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sample Data",
+      "key": "SAMPLE_DATA",
+      "value": "0",
+      "description": "(0 or 1) Creates same account, library and photos as in DEMO mode but still allows you to make modifying changes as a user (most useful for developers).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Creates a username for the admin user on first run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "admin",
+      "description": "Sets password for the admin user on first run. If this is set but ADMIN_USERNAME is not, the username will be admin",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Host",
+      "key": "POSTGRES_HOST",
+      "value": "photonix_postgres11",
+      "description": "Host name for Postgres database instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Database",
+      "key": "POSTGRES_DB",
+      "value": "photonix",
+      "description": "Database name for Postgres database instance, will be auto-created on first run if it doesn't exist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Username for Postgres database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "postgres",
+      "description": "Password for Postgres database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Port for Postgres database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Host",
+      "key": "REDIS_HOST",
+      "value": "photonix_redis",
+      "description": "Redis hostname, used for resource locking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Database",
+      "key": "REDIS_DB",
+      "value": "0",
+      "description": "Redis database number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "ALLOWED_HOSTS",
+      "value": "*",
+      "description": "Restricts access for Django backend to be accessed from just a certain hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Django Secret Key",
+      "key": "DJANGO_SECRET_KEY",
+      "value": "",
+      "description": "Sets value for Django to use as a secret key (sessions, hashing, signing etc.). By default we automatically generate a cryptographically secure key on first run and store it in Redis for future.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Determines what level of logging to output to terminal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Django Log Level",
+      "key": "DJANGO_LOG_LEVEL",
+      "value": "WARNING",
+      "description": "Determines what level of Django logging to output to terminal.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

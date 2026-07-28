@@ -1,0 +1,99 @@
+{
+  "name": "FirefoxSyncserver",
+  "repo": "mozilla/syncserver:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/mozilla/syncserver",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://github.com/jflo/ffsync-unraid/raw/main/Firefox_Sync_logo.png",
+  "project": "https://mozilla-services.readthedocs.io/en/latest/howtos/run-sync-1.5.html",
+  "description": "Template for running Mozilla's official Syncserver image.",
+  "paths": [
+    {
+      "name": "sync db location",
+      "host": "/mnt/cache/appdata/ff-syncserver/db/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Location where durable sqllite db is stored for sync data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Listening on",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Container Port: 5000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Syncserver Public URL",
+      "key": "SYNCSERVER_PUBLIC_URL",
+      "value": "http://&lt;URL&gt;:5000",
+      "description": "Replace URL in SYNCSERVER_PUBLIC_URL with your URL (For which the SSL certificate was also issued)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Syncserver secret",
+      "key": "SYNCSERVER_SECRET",
+      "value": "&lt;KEY&gt;",
+      "description": "Replace KEY with some random hex like the output of head -c 20 /dev/urandom | sha1sum | awk '{print $1}'.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "SQLlite URI",
+      "key": "SYNCSERVER_SQLURI",
+      "value": "sqlite:////data/syncserver.db",
+      "description": "Container path to where sqllite db lives",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow new users",
+      "key": "SYNCSERVER_ALLOW_NEW_USERS",
+      "value": "true",
+      "description": "Container Variable: SYNCSERVER_ALLOW_NEW_USERS",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "PORT",
+      "value": "5000",
+      "description": "Container Variable: PORT",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable batch uploads",
+      "key": "SYNCSERVER_BATCH_UPLOAD_ENABLED",
+      "value": "true",
+      "description": "Container Variable: SYNCSERVER_BATCH_UPLOAD_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force WSGI",
+      "key": "SYNCSERVER_FORCE_WSGI_ENVIRON",
+      "value": "false",
+      "description": "Container Variable: SYNCSERVER_FORCE_WSGI_ENVIRON",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

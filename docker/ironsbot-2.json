@@ -1,0 +1,155 @@
+{
+  "name": "ironsbot",
+  "repo": "murmansk5000/ironsbot:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/murmansk5000/ironsbot",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Murmansk5000/ironsbot-unraid/main/icon.png",
+  "project": "https://github.com/Murmansk5000/IronsBot",
+  "description": "IronsBot custom image for Seer information queries, NoneBot2/OneBot v11 messaging, and personal Unraid-friendly plugins. Version tags use latest plus project-version.revision tags and exact sha tags; behavior config is file-based through APP_CONFIG_PATH, with environment variables kept for secrets, credentials, and deployment runtime only.",
+  "paths": [
+    {
+      "name": "IronsBot Data",
+      "host": "/mnt/cache/appdata/ironsbot/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "\u6301\u4e45\u5316\u6570\u636e\u76ee\u5f55\uff0c\u7528\u6765\u4fdd\u5b58\u63d2\u4ef6\u7f13\u5b58\u3001B\u7ad9 Cookie\u3001SQLite \u6570\u636e\u5e93\u548c\u672c\u5730\u7f13\u5b58\u6587\u4ef6\u3002",
+      "required": true
+    },
+    {
+      "name": "IronsBot Config",
+      "host": "/mnt/cache/appdata/ironsbot/config",
+      "container": "/config",
+      "mode": "ro",
+      "description": "\u53ea\u8bfb\u6302\u8f7d\u914d\u7f6e\u76ee\u5f55\uff0c\u76ee\u5f55\u5185\u653e ironsbot.toml\u3002\u53ef\u4ece\u4ed3\u5e93\u7684 config.prod.toml \u6216 config.example.toml \u590d\u5236\u540e\u4fee\u6539\u3002",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebSocket Port",
+      "host": "8085",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "\u4e3b\u673a\u7aef\u53e3\u6620\u5c04\u5230\u5bb9\u5668\u5185 8080\uff0cNapCat/OneBot \u53cd\u5411 WebSocket \u8fde\u63a5\u8fd9\u4e2a\u7aef\u53e3\u3002",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Environment",
+      "key": "ENVIRONMENT",
+      "value": "prod",
+      "description": "NoneBot \u8fd0\u884c\u73af\u5883\u540d\uff0c\u751f\u4ea7\u73af\u5883\u901a\u5e38\u586b prod\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Driver",
+      "key": "DRIVER",
+      "value": "~fastapi+~httpx",
+      "description": "NoneBot \u9a71\u52a8\u914d\u7f6e\uff0c\u4fdd\u6301 ~fastapi+~httpx \u5373\u53ef\u652f\u6301 OneBot \u53cd\u5411 WebSocket \u548c HTTP \u8bf7\u6c42\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host",
+      "key": "HOST",
+      "value": "0.0.0.0",
+      "description": "\u5bb9\u5668\u5185\u76d1\u542c\u5730\u5740\uff0cDocker/Unraid \u4e2d\u5efa\u8bae 0.0.0.0\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "PORT",
+      "value": "8080",
+      "description": "\u5bb9\u5668\u5185\u76d1\u542c\u7aef\u53e3\uff0c\u9700\u4e0e\u7aef\u53e3\u6620\u5c04\u7684\u5bb9\u5668\u7aef\u53e3\u4e00\u81f4\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "\u65e5\u5fd7\u7ea7\u522b\uff0c\u53ef\u586b TRACE\u3001DEBUG\u3001INFO\u3001WARNING \u6216 ERROR\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Command Start",
+      "key": "COMMAND_START",
+      "value": "[\"/\", \"\"]",
+      "description": "\u547d\u4ee4\u524d\u7f00\u5217\u8868\uff0c\u5305\u542b\u7a7a\u5b57\u7b26\u4e32\u65f6\u53ef\u76f4\u63a5\u53d1\u9001\u53e3\u4ee4\u3002",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Config Path",
+      "key": "APP_CONFIG_PATH",
+      "value": "/config/ironsbot.toml",
+      "description": "\u884c\u4e3a\u914d\u7f6e TOML \u6587\u4ef6\u8def\u5f84\u3002Unraid \u4e2d\u4fdd\u6301 /config/ironsbot.toml\uff0c\u5e76\u5728\u4e0a\u65b9 Config \u76ee\u5f55\u91cc\u653e\u7f6e\u8be5\u6587\u4ef6\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OneBot Access Token",
+      "key": "ONEBOT_ACCESS_TOKEN",
+      "value": "",
+      "description": "OneBot \u8fde\u63a5\u4ee4\u724c\uff0c\u5fc5\u987b\u548c NapCat \u7b49 OneBot \u5ba2\u6237\u7aef\u7684 access_token \u4e00\u81f4\u3002",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Superusers",
+      "key": "SUPERUSERS",
+      "value": "[]",
+      "description": "\u8d85\u7ea7\u7ba1\u7406\u5458 QQ \u5217\u8868\uff0c\u5fc5\u586b\u3002\u793a\u4f8b\uff1a[123456789] \u6216 [&quot;123456789&quot;]\u3002",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Headless Seer User ID",
+      "key": "HEADLESS_SEER_USER_ID",
+      "value": "",
+      "description": "\u53ef\u9009\u3002\u7c73\u7c73\u53f7\u8d26\u53f7\uff1b\u53ea\u6709\u9700\u8981\u65e0\u5934\u767b\u5f55/\u81ea\u52a8\u5316\u8d5b\u5c14\u53f7\u64cd\u4f5c\u65f6\u586b\u5199\uff0c\u4e0d\u4f7f\u7528\u65f6\u7559\u7a7a\u3002",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Headless Seer Password",
+      "key": "HEADLESS_SEER_PASSWORD",
+      "value": "",
+      "description": "\u53ef\u9009\u3002\u7c73\u7c73\u53f7\u5bc6\u7801\u7684 MD5 \u503c\uff1b\u548c\u7c73\u7c73\u53f7\u8d26\u53f7\u914d\u5957\u4f7f\u7528\uff0c\u4e0d\u4f7f\u7528\u65f6\u7559\u7a7a\u3002",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Chat API Key",
+      "key": "AI_KEY",
+      "value": "",
+      "description": "AI \u804a\u5929\u7684 API Key\uff0c\u4f8b\u5982 DeepSeek Key\uff1b\u8fd9\u662f\u5bc6\u94a5\uff0c\u4e0d\u8981\u63d0\u4ea4\u5230 Git\u3002",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SendPic CNB Token",
+      "key": "SENDPIC_CNB_TOKEN",
+      "value": "",
+      "description": "\u53ef\u9009\u3002custom_sendpic \u4f7f\u7528 CNB \u540e\u7aef\u65f6\u7684\u8bbf\u95ee\u4ee4\u724c\uff1b\u4ed3\u5e93\u540d\u7b49\u884c\u4e3a\u914d\u7f6e\u5199\u5728 /config/ironsbot.toml\u3002",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "pricecious",
+  "repo": "ghcr.io/ds-sebastian/pricecious:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/ds-sebastian/pricecious/pkgs/container/pricecious",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://github.com/ds-sebastian/pricecious/blob/main/frontend/public/apple-touch-icon.png?raw=true",
+  "project": "https://github.com/ds-sebastian/pricecious",
+  "description": "Pricecious is a vibe-coded, self-hosted, AI-powered price tracking application. It uses GenAI Vision Models (OpenAI, Anthropic, Ollama, etc.) to visually analyze product pages, detect prices, and monitor stock status. Features: - AI-Powered Analysis: \"Sees\" price and stock status, bypassing complex HTML. - Visual History: Keeps a screenshot history of every check. - Smart Scrolling: Handles lazy-loaded content. - Notifications: Supports Discord, Telegram, Email, etc. via Apprise. **Prerequisites:** 1. A PostgreSQL Database. 2. A Browserless (headless chrome) container (accessible via WebSocket). 3. An API key for an AI Provider (OpenAI/Anthropic) OR a local Ollama instance.",
+  "paths": [
+    {
+      "name": "Screenshots Path",
+      "host": "/mnt/cache/appdata/pricecious/screenshots",
+      "container": "/app/screenshots",
+      "mode": "rw",
+      "description": "Persistent storage for captured screenshots.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Format: postgresql://user:password@host:5432/pricewatch",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Browserless URL",
+      "key": "BROWSERLESS_URL",
+      "value": "",
+      "description": "WebSocket URL for the Browserless instance (e.g., ws://192.168.1.10:3000)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Application logging level (DEBUG, INFO, WARN, ERROR).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SQL Echo",
+      "key": "SQL_ECHO",
+      "value": "false",
+      "description": "Log all SQL queries to console (true/false).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

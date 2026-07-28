@@ -1,0 +1,83 @@
+{
+  "name": "travstats-db",
+  "repo": "postgis/postgis:15-3.4",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/postgis/postgis",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/Abrechen2/docker-templates/main/icon-travstats-db.svg",
+  "project": "https://github.com/postgis/docker-postgis",
+  "description": "PostgreSQL 15 with the PostGIS 3.4 spatial extension \u2014 the database TravStats expects. This template is pre-filled with the container name `travstats-db` and the database/user pair `flights/flights` so the default `DATABASE_URL` in the TravStats template matches without further editing. **Change the password to a strong value** (e.g. `openssl rand -base64 32`) and reuse it in TravStats. **Install order:** this container **first**, then the TravStats template. The database is published on the Unraid host at port 5432 (adjustable below) so TravStats can reach it via `host.docker.internal:5432` without needing a shared Docker network. Keep the port free of conflicts with other PostgreSQL containers you may already run. **Storage:** the default Application Data path (`/mnt/user/appdata/travstats-db`) maps to PostgreSQL's data directory. The actual cluster lives in a `pgdata/` subdirectory (see the `PGDATA` variable below) \u2014 this is the officially recommended layout from the `postgres` Docker image and avoids a well-known Unraid permission issue where `chown` from inside the container can't reach the FUSE-backed share root. The initial cluster is created on first start and then kept in place on updates; deleting the `pgdata/` subdirectory wipes the database, so point your backup tool at this folder. **Why PostGIS, not plain Postgres?** TravStats uses PostGIS for airport and route geometry. Plain `postgres:15` fails the first TravStats migration. --- **Troubleshooting \u2014 \"FATAL: could not open file global/pg_filenode.map: Permission denied\"** If you see this error in the container log and TravStats shows \"Error querying the database\" on its setup page, your `pgdata/` directory was created under the wrong UID by a previous (broken) install. Fix: 1. Stop both containers (`TravStats`, `travstats-db`). 2. On the Unraid console: `rm -rf /mnt/user/appdata/travstats-db/pgdata` *(or whichever Application Data path you chose)*. 3. Start `travstats-db` \u2014 it now re-runs `initdb` with the correct UID (999, the Postgres user inside the image). 4. Start `TravStats` \u2014 setup page should load without errors. If the fresh start still fails on `/mnt/user/...`, switch the Application Data path to `/mnt/cache/appdata/travstats-db` (direct cache-pool mount, bypasses Unraid's FUSE layer) and repeat step 3. Requires a cache pool to be configured.",
+  "paths": [
+    {
+      "name": "Application Data",
+      "host": "/mnt/cache/appdata/travstats-db",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Parent directory for the PostgreSQL data. The actual cluster is created as a `pgdata/` subfolder here (see PGDATA). One persistent mount, survives container updates. Back this path up with your regular appdata backup.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "Port on the Unraid host that PostgreSQL listens on. TravStats connects through host.docker.internal:this port. Change only if 5432 is already in use by another Postgres.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PGDATA",
+      "key": "PGDATA",
+      "value": "/var/lib/postgresql/data/pgdata",
+      "description": "Actual PostgreSQL data subdirectory inside the Application Data mount. Using a subfolder (instead of the bind-mount root) is the official postgres-image recommendation and avoids a common Unraid FUSE permission issue. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "flights",
+      "description": "Database name. TravStats default expects 'flights'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "flights",
+      "description": "Database user. TravStats default expects 'flights'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "CHANGEME",
+      "description": "Database password. Generate a strong one with `openssl rand -base64 32`, then paste the same value into the TravStats DATABASE_URL field.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone. Keep UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

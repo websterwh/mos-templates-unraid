@@ -1,0 +1,51 @@
+{
+  "name": "nfsen-ng-nfcapd",
+  "repo": "ghcr.io/mbolli/nfsen-ng:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/mbolli/nfsen-ng/pkgs/container/nfsen-ng",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --entrypoint /usr/local/nfdump/bin/nfcapd",
+  "post_parameters": "-w /data/nfsen-ng/live/flows -z=lz4 -S 1 -T all -p 9995",
+  "web_ui_url": "http://[IP]:[PORT:9995]",
+  "icon": "https://raw.githubusercontent.com/mbolli/nfsen-ng/master/deploy/unraid/nfsen-ng-icon.png",
+  "project": "https://github.com/mbolli/nfsen-ng",
+  "description": "NetFlow / sFlow / IPFIX collector (nfcapd) for nfsen-ng. It runs the nfcapd daemon from the nfsen-ng image, listening on a UDP port and writing rotated flow files that the nfsen-ng web UI reads. Point your router/switch flow exporter (pfSense/OPNsense/MikroTik/\u2026) at this host on the collector port (default 9995/UDP). Mount this container on the SAME appdata path as the nfsen-ng UI, and make sure the write directory's last path segment (default \"flows\") matches one of the UI's Sources. This container has no web interface.",
+  "paths": [
+    {
+      "name": "Data (profiles)",
+      "host": "/mnt/cache/appdata/nfsen-ng",
+      "container": "/data/nfsen-ng",
+      "mode": "rw",
+      "description": "Same data directory the nfsen-ng UI reads. nfcapd writes into live/source under it.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Collector port",
+      "host": "9995",
+      "container": "9995",
+      "protocol": "udp",
+      "description": "UDP port nfcapd listens on. Configure your router's NetFlow/sFlow/IPFIX exporter to send here.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone. Should match the UI container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

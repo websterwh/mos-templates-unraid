@@ -1,0 +1,206 @@
+{
+  "name": "binhex-bitmagnet",
+  "repo": "ghcr.io/binhex/arch-bitmagnet",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/binhex/arch-bitmagnet/pkgs/container/arch-bitmagnet",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3333]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/bitmagnet-icon.png",
+  "project": "https://github.com/bitmagnet-io/bitmagnet",
+  "description": "A self-hosted BitTorrent indexer, DHT crawler, content classifier and torrent search engine with web UI, GraphQL API and Servarr stack integration.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/bitmagnet",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "3333",
+      "container": "3333",
+      "protocol": "tcp",
+      "description": "This is the Web UI port for the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Bittorrent TCP",
+      "host": "3344",
+      "container": "3344",
+      "protocol": "tcp",
+      "description": "This is the bittorrent TCP port used by the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Bittorrent UDP",
+      "host": "3344",
+      "container": "3344",
+      "protocol": "udp",
+      "description": "This is the bittorrent UDP port used by the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: Postgres",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "This is the port for Postgres, this is optional.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: POSTGRES_BACKUP_DB",
+      "key": "POSTGRES_BACKUP_DB",
+      "value": "false|true",
+      "description": "Enable or disable automatic database backup on container start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_BACKUP_RETENTION_DAYS",
+      "key": "POSTGRES_BACKUP_RETENTION_DAYS",
+      "value": "7",
+      "description": "Number of days to retain database backups. Older backups will be automatically deleted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_SCHEDULED_BACKUP",
+      "key": "POSTGRES_SCHEDULED_BACKUP",
+      "value": "false|true",
+      "description": "Enable or disable scheduled database backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_SCHEDULED_BACKUP_INTERVAL_HOURS",
+      "key": "POSTGRES_SCHEDULED_BACKUP_INTERVAL_HOURS",
+      "value": "48",
+      "description": "Interval in hours between scheduled database backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_RESTORE_DB",
+      "key": "POSTGRES_RESTORE_DB",
+      "value": "false|true",
+      "description": "Enable or disable database restore on container start. This will drop and recreate the database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_RESTORE_PATH",
+      "key": "POSTGRES_RESTORE_PATH",
+      "value": "",
+      "description": "Path to backup directory to restore from, e.g. '/config/bitmagnet/backups/bitmagnet_20251218_174202'. If not specified, the latest backup will be used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_VACUUM_DB",
+      "key": "POSTGRES_VACUUM_DB",
+      "value": "false|true",
+      "description": "Enable or disable database vacuuming for BitMagnet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: POSTGRES_REINDEX_DB",
+      "key": "POSTGRES_REINDEX_DB",
+      "value": "false|true",
+      "description": "Enable or disable database reindexing for BitMagnet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TMDB_API_KEY",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Specify your TMDB API key, if you do not specify your own key then a default key will be used which may result in slower indexing due to rate limiting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PROCESSOR_CONCURRENCY",
+      "key": "PROCESSOR_CONCURRENCY",
+      "value": "1",
+      "description": "Defines the maximum number of torrents to be processed/classified simultaneously. The default setting of 1 aims to support the widest range of systems. Increasing the setting (for example to 3) may improve throughput of the processor queue but is known to cause slowdowns on less powerful systems.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "StrmBridge",
+  "repo": "anthonymccann90/strmbridge:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/anthonymccann90/strmbridge/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9847]",
+  "icon": "https://raw.githubusercontent.com/mccann6/StrmBridge/main/strmbridge_icon.png",
+  "project": "https://github.com/mccann6/StrmBridge",
+  "description": "StrmBridge is a background service that syncs your debrid provider library (RealDebrid/Torbox) to .strm files. It monitors your library and creates strm files that allow Jellyfin to stream content directly from the cloud without requiring local storage space.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/strmbridge/data",
+      "container": "/app/data/",
+      "mode": "rw",
+      "description": "Storage for the application database and internal settings.",
+      "required": true
+    },
+    {
+      "name": "Strm Files Output",
+      "host": "/mnt/cache/appdata/strmbridge/media",
+      "container": "/app/media/",
+      "mode": "rw",
+      "description": "This is where your .strm files will be created. Map this as a library source in Jellyfin.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "9847",
+      "container": "9847",
+      "protocol": "tcp",
+      "description": "The port for the StrmBridge API service.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Service Base URL",
+      "key": "App__ServiceBaseUrl",
+      "value": "http://[IP]:9847",
+      "description": "The URL used to reach this service (e.g., http://192.168.1.50:9847). This address is written directly into the generated .strm files",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Real-Debrid Enabled",
+      "key": "Providers__RealDebrid__IsEnabled",
+      "value": "false",
+      "description": "Set to 'true' to enable Real-Debrid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Real-Debrid API Key",
+      "key": "Providers__RealDebrid__ApiKey",
+      "value": "",
+      "description": "Your Real-Debrid API Token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Torbox Enabled",
+      "key": "Providers__Torbox__IsEnabled",
+      "value": "false",
+      "description": "Set to 'true' to enable Torbox.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torbox API Key",
+      "key": "Providers__Torbox__ApiKey",
+      "value": "",
+      "description": "Your Torbox API Token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sync Interval",
+      "key": "App__SyncIntervalSeconds",
+      "value": "300",
+      "description": "How often (in seconds) the service should check for library updates.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

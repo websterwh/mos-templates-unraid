@@ -1,0 +1,141 @@
+{
+  "name": "Headendarr",
+  "repo": "josh5/headendarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/josh5/headendarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9985]/",
+  "icon": "https://raw.githubusercontent.com/Headendarr/Headendarr/refs/heads/master/frontend/public/icons/Headendarr-Logo.png",
+  "project": "https://headendarr.github.io/Headendarr/",
+  "description": "Headendarr is a powerful management layer for TVHeadend, designed to simplify the orchestration of IPTV sources. It provides a modern, intuitive interface for channel mapping, EPG aggregation, and playlist filtering, acting as a centralised hub for your personal streaming environment. Headendarr acts as a high-performance proxy for M3U and HDHomeRun clients, supporting Plex, Emby, Jellyfin, and Kodi. Initial Login: **admin:admin** ------------------------------------------------------------ ## Key Features: - **Scalable Channel Management**: Effortlessly manage and curate IPTV playlists with tens of thousands of channels. - **EPG Automation**: Aggregate multiple XMLTV sources with automatic metadata enrichment for programme icons and descriptions. - **Integrated HLS Proxy**: Features segment caching and intelligent pre-caching for superior stream stability and smoothness. - **Connection Sharing**: Serves multiple local clients from a single upstream connection to maximise your provider's limits. - **Automated TVH Orchestration**: Headendarr actively maintains your TVHeadend backend, automatically configuring networks, muxes, and services based on your curated lineup. - **Multi-User Sandboxing**: Create independent users with their own streaming keys and private DVR sandboxes. ------------------------------------------------------------ ## How it works: Headendarr bridges the gap between raw, often unreliable IPTV sources and your end clients. It removes the steep learning curve of setting up TVHeadend for IPTV by automating the complex configuration of networks, muxes, and EPG mapping. ------------------------------------------------------------ ## Advanced Configuration: ### LIMIT CPU USE: 1) Toggle this Docker Container template editor to \"Advanced View\". 2) In the \"Extra Parameters\" field, add \"--cpus='1'\". This value depends on the number of cores available to the container. To limit to 50%, set this value to 0.5 * n cores. If you have 2 cores available to this container, \"--cpus='.5'\" will equal 25% of that available CPU resources. To limit the CPU cores available to the container, use \"CPU Pinning\" ### LIMIT RAM ALLOCATION: 1) Toggle this Docker Container template editor to \"Advanced View\". 2) In the \"Extra Parameters\" field, add \"--memory='1g'\". Tvheadend and Headendarr can use on average around 100MiB - 500 MiB of RAM for various tasks. Even though limiting RAM is unnecessary as this container should not ever need more than 1GB RAM it is good practice to do so. ### DVB / GPU DEVICE PASSTHROUGH: If you use DVB tuners and/or hardware acceleration, map the device paths using \"Extra Parameters\" in Advanced View. Example (both DVB + DRI): \"--device=/dev/dvb:/dev/dvb --device=/dev/dri:/dev/dri\" Example (DVB only): \"--device=/dev/dvb:/dev/dvb\" Example (DRI only): \"--device=/dev/dri:/dev/dri\" After applying device mappings, restart the container.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/headendarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where Headendarr stores its configuration files.",
+      "required": true
+    },
+    {
+      "name": "CSO Cache",
+      "host": "/dev/shm/headendarr",
+      "container": "/tmp/cache",
+      "mode": "rw",
+      "description": "A temporary storage area used by the Channel Stream Orchestrator (CSO) for local segmented ingest and output handoff. It is highly recommended to map this to a RAM-based location (e.g., /dev/shm/headendarr) to improve performance and avoid disk wear. This path requires approximately 50MB of space per concurrent VOD stream. On Unraid, /dev/shm defaults to 50% of host RAM, which is typically sufficient.",
+      "required": false
+    },
+    {
+      "name": "Recordings",
+      "host": "/mnt/cache/appdata/headendarr/recordings",
+      "container": "/recordings",
+      "mode": "rw",
+      "description": "Where TVHeadend will save its recordings.",
+      "required": false
+    },
+    {
+      "name": "Timeshift",
+      "host": "/mnt/cache/appdata/headendarr/timeshift",
+      "container": "/timeshift",
+      "mode": "rw",
+      "description": "Where TVHeadend will store temporary timeshift buffer data. It is highly recommended to map this to a RAM-based location (e.g., /tmp or /dev/shm) or a dedicated tmpfs mount to avoid excessive disk wear, especially on spinning drives.",
+      "required": false
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/cache/appdata/headendarr/library",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Where Headendarr will write VOD library export files under /library for downstream apps such as Jellyfin. This is used for generated `.strm` files and the HTTP library metadata cache.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9985",
+      "container": "9985",
+      "protocol": "tcp",
+      "description": "Main webUI Port. This is the port that will be used to access and configure everything.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tvheadend WebUI Port",
+      "host": "9981",
+      "container": "9981",
+      "protocol": "tcp",
+      "description": "Tvheadend WebUI Port. This is used for streaming clients to connect to TVH via HTTP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tvheadend HTSP Port",
+      "host": "9982",
+      "container": "9982",
+      "protocol": "tcp",
+      "description": "Tvheadend HTSP Port. This is used for streaming clients to connect to TVH via HTSP.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Process User ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Process Group ID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "System Timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PLEX_SERVERS_JSON",
+      "key": "PLEX_SERVERS_JSON",
+      "value": "",
+      "description": "See https://headendarr.github.io/Headendarr/configuration/connectivity/plex for more details. Defines one or more Plex Media Servers that Headendarr should manage for Live TV and DVR integration. When set, Headendarr uses it to enable the Plex settings page and automatically create, update, and keep Plex HDHomeRun/XMLTV tuner configuration in sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB_API_KEY",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "See https://headendarr.github.io/Headendarr/configuration/epgs for more details. Used for optional TMDB EPG metadata enrichment. Set this to either your TMDB API Read Access Token or your TMDB API Key from https://www.themoviedb.org/settings/api.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VOD Cache Retention Minutes",
+      "key": "TIC_VOD_CACHE_RETENTION_MINUTES",
+      "value": "10",
+      "description": "How long inactive cached VOD movies and episodes are kept in /timeshift/vod before automatic cleanup. Value is in minutes. Example: 10080 keeps cached VOD files for up to one week.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

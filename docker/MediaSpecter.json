@@ -1,0 +1,83 @@
+{
+  "name": "MediaSpecter",
+  "repo": "ghcr.io/gillberg1111/mediaspecter:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/gillberg1111/mediaspecter",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/gillberg1111/mediaspecter/main/static/mediaspecter-512.png",
+  "project": "https://github.com/gillberg1111/mediaspecter",
+  "description": "Reclaim disk space by replacing watched movies and TV episodes with tiny, valid dummy video files \u2014 while keeping watch history, posters and metadata fully intact across Plex, Jellyfin and Emby. Archived posters get an \"ARCHIVED - X GB SAVED\" badge, archiving propagates across all your servers, and Radarr/Sonarr items are unmonitored to prevent re-downloads. IMPORTANT: map /data to the SAME path your Plex/Jellyfin/Emby (and *arr) containers use, with read/write access, so the file paths the servers report line up on disk.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/mediaspecter",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores config.yaml, the SQLite state DB, and poster backups. A default config is seeded on first run; finish setup in the Settings tab.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Your media. MAP THIS TO THE SAME CONTAINER PATH your Plex/Jellyfin/Emby (and *arr) containers use (commonly /data), with read/write access, so the paths the servers report resolve 1:1. If it doesn't match, archiving fails with permission/not-found errors.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for the MediaSpecter web dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDB API key (optional)",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional TMDB v3 key or v4 bearer token. Lets MediaSpecter match the same title across servers when they store different ID systems (e.g. Plex IMDB vs Jellyfin TMDB). Without it, matching falls back to file path + direct ID overlap.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as \u2014 dummy files it writes to your media get this owner. 99 (nobody) is the Unraid default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. 100 (users) is the Unraid default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Umask for files the app creates.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

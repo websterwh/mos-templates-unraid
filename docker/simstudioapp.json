@@ -1,0 +1,250 @@
+{
+  "name": "simstudio-app",
+  "repo": "ghcr.io/simstudioai/simstudio:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/simstudioai/sim/pkgs/container/simstudio",
+  "network": "simstudio_internal",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--health-cmd=curl -fsS http://127.0.0.1:3000 --health-interval=90s --health-retries=3 --health-start-period=10s --health-timeout=5s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/simstudioai/sim/main/apps/sim/public/logo/primary/rounded.png",
+  "project": "https://simstudio.ai",
+  "description": "Sim Studio is an AI-powered development environment for building and testing agents. This is the main application server providing the web interface, API, and collaboration features. Features: AI agent development, real-time collaboration, semantic search with vector embeddings, and integrated development tools. Requires: simstudio-db (PostgreSQL with pgvector), simstudio-realtime (WebSocket), and simstudio-valkey (session storage).",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Port: Web UI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Sim Studio web interface and API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "--- Database ---",
+      "key": "--- Database ---",
+      "value": "",
+      "description": "PostgreSQL connection settings. Must match simstudio-db configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://postgres:postgres@simstudio-db:5432/simstudio",
+      "description": "PostgreSQL connection URL (format: postgresql://user:password@host:port/database). Must match simstudio-db.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "--- Authentication &amp; Security ---",
+      "key": "--- Authentication &amp; Security ---",
+      "value": "",
+      "description": "Authentication and security configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Authentication secret key (shared with simstudio-realtime). Must be 32+ characters. Generate: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "BETTER_AUTH_URL",
+      "key": "BETTER_AUTH_URL",
+      "value": "http://localhost:3000",
+      "description": "Base URL for authentication (same as NEXT_PUBLIC_APP_URL)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "INTERNAL_API_SECRET",
+      "key": "INTERNAL_API_SECRET",
+      "value": "",
+      "description": "Secret for internal service-to-service communication (shared with simstudio-realtime). Generate: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ENCRYPTION_KEY",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "Data encryption key for sensitive information. Generate: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "API_ENCRYPTION_KEY",
+      "key": "API_ENCRYPTION_KEY",
+      "value": "",
+      "description": "API-specific encryption key. Generate: openssl rand -base64 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- Application URLs ---",
+      "key": "--- Application URLs ---",
+      "value": "",
+      "description": "Public URLs and domain configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_APP_URL",
+      "key": "NEXT_PUBLIC_APP_URL",
+      "value": "http://localhost:3000",
+      "description": "Public application URL (e.g., http://your-server-ip:3000 or https://simstudio.example.com). Used by browser clients.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_ORIGINS",
+      "key": "TRUSTED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated list of additional trusted origins for authentication (e.g., apex + www, aliases, reverse-proxy IPs). Leave empty to use only NEXT_PUBLIC_APP_URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Realtime &amp; WebSocket ---",
+      "key": "--- Realtime &amp; WebSocket ---",
+      "value": "",
+      "description": "Real-time communication settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKET_SERVER_URL",
+      "key": "SOCKET_SERVER_URL",
+      "value": "http://simstudio-realtime:3002",
+      "description": "Internal URL for WebSocket server (container-to-container)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NEXT_PUBLIC_SOCKET_URL",
+      "key": "NEXT_PUBLIC_SOCKET_URL",
+      "value": "",
+      "description": "Public WebSocket URL for browser clients. Leave empty to use page origin (requires reverse proxy to route /socket.io). Set explicitly if realtime is on different host:port (e.g., wss://socket.example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Valkey Session Storage ---",
+      "key": "--- Valkey Session Storage ---",
+      "value": "",
+      "description": "Redis/Valkey connection for session persistence.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "redis://simstudio-valkey:6379/1",
+      "description": "Valkey connection URL (format: redis://host:port/db)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "--- External APIs ---",
+      "key": "--- External APIs ---",
+      "value": "",
+      "description": "Third-party API integrations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COPILOT_API_KEY",
+      "key": "COPILOT_API_KEY",
+      "value": "",
+      "description": "GitHub Copilot API key for AI features",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SIM_AGENT_API_URL",
+      "key": "SIM_AGENT_API_URL",
+      "value": "",
+      "description": "URL for Sim Agent API (e.g., http://agent-service:port)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OLLAMA_URL",
+      "key": "OLLAMA_URL",
+      "value": "http://localhost:11434",
+      "description": "Ollama API endpoint for local LLM inference (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Performance ---",
+      "key": "--- Performance ---",
+      "value": "",
+      "description": "Performance tuning and resource limits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADMISSION_GATE_MAX_INFLIGHT",
+      "key": "ADMISSION_GATE_MAX_INFLIGHT",
+      "value": "500",
+      "description": "Maximum number of concurrent inflight requests to the admission gate",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- System ---",
+      "key": "--- System ---",
+      "value": "",
+      "description": "Node.js and timezone configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js environment (production/development)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Advanced ---",
+      "key": "--- Advanced ---",
+      "value": "",
+      "description": "Advanced settings and debugging options.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: error, warn, info, debug",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

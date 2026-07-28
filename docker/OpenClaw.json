@@ -1,0 +1,179 @@
+{
+  "name": "OpenClaw",
+  "repo": "ghcr.io/openclaw/openclaw:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/openclaw/openclaw/pkgs/container/openclaw",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user root --hostname OpenClaw",
+  "post_parameters": "sh -c mkdir -p /root/.openclaw /home/linuxbrew; [ -s /root/.openclaw/openclaw.json ] || echo {\\gateway\\:{\\mode\\:\\local\\,\\bind\\:\\lan\\,\\controlUi\\:{\\allowInsecureAuth\\:true},\\auth\\:{\\mode\\:\\token\\}}} > /root/.openclaw/openclaw.json; exec node dist/index.js gateway --bind lan",
+  "web_ui_url": "http://[IP]:[PORT:18789]/",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/openclaw.png",
+  "project": "https://github.com/openclaw/openclaw",
+  "description": "OpenClaw is a powerful AI assistant gateway that connects Claude and other LLMs to messaging platforms like Discord, Telegram, WhatsApp, and more. Features include file access, shell commands, web browsing, cron jobs, and a web-based Control UI. To access the Control UI, add your token to the URL: http://YOUR-IP:18789/?token=YOUR-GATEWAY-TOKEN For setup details and documentation, see: https://github.com/jdhill777/openclaw-Unraid OpenClaw project and source: https://github.com/openclaw/openclaw Requires at least one LLM API key. Anthropic (Claude) is recommended, but many providers are supported. Optional Homebrew: Some skills require tools installed via brew/go. This is completely optional and at your own discretion. If needed, open OpenClaw's container console and run: NONINTERACTIVE=1 /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\" We recommend reviewing the install script at brew.sh before running. You can ignore the \"Next steps\" output - the template has already configured the PATH for you.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/openclaw/config",
+      "container": "/root/.openclaw",
+      "mode": "rw",
+      "description": "Path to store OpenClaw configuration files, sessions, and credentials",
+      "required": true
+    },
+    {
+      "name": "Workspace Path",
+      "host": "/mnt/cache/appdata/openclaw/workspace",
+      "container": "/home/node/clawd",
+      "mode": "rw",
+      "description": "Path for agent workspace (files, memory, AGENTS.md, projects)",
+      "required": true
+    },
+    {
+      "name": "Projects Path",
+      "host": "/mnt/cache/appdata/openclaw/projects",
+      "container": "/projects",
+      "mode": "rw",
+      "description": "Optional additional path for coding projects",
+      "required": false
+    },
+    {
+      "name": "Homebrew Path",
+      "host": "/mnt/cache/appdata/openclaw/homebrew",
+      "container": "/home/linuxbrew/.linuxbrew",
+      "mode": "rw",
+      "description": "Persistent storage for Homebrew packages. If you install Homebrew manually via console, this mount ensures it persists across restarts.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Control UI Port",
+      "host": "18789",
+      "container": "18789",
+      "protocol": "tcp",
+      "description": "Port for Control UI and Gateway API. Access at http://IP:18789/?token=YOUR_TOKEN",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Gateway Token",
+      "key": "OPENCLAW_GATEWAY_TOKEN",
+      "value": "",
+      "description": "Secret token for authentication. Generate with: openssl rand -hex 24 (or use any secret value). Required to access the Control UI.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "API key for Claude models (recommended). Get from console.anthropic.com",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "API key for GPT models. Get from platform.openai.com",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenRouter API Key",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "API key for OpenRouter - access 100+ models. Get from openrouter.ai",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "API key for Google Gemini models. Get from aistudio.google.com",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Groq API Key",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "API key for Groq (fast Llama/Mixtral inference). Get from console.groq.com",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "xAI API Key",
+      "key": "XAI_API_KEY",
+      "value": "",
+      "description": "API key for xAI Grok models. Get from console.x.ai",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Z.AI API Key",
+      "key": "ZAI_API_KEY",
+      "value": "",
+      "description": "API key for Z.AI/Zhipu GLM models. Get from z.ai/model-api",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GitHub Copilot Token",
+      "key": "COPILOT_GITHUB_TOKEN",
+      "value": "",
+      "description": "(Advanced) GitHub Copilot OAuth token. Requires running 'openclaw models auth login-github-copilot' on another machine first.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discord Bot Token",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "(Optional) Discord bot token for Discord integration. Can also configure via Control UI after install.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "(Optional) Telegram bot token from @BotFather. Can also configure via Control UI after install.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gateway Port",
+      "key": "OPENCLAW_GATEWAY_PORT",
+      "value": "18789",
+      "description": "Internal gateway port. Change if 18789 is already in use (must match Control UI Port).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PATH",
+      "key": "PATH",
+      "value": "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "description": "System PATH including Homebrew. Do not modify unless you know what you're doing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Search API Key",
+      "key": "BRAVE_API_KEY",
+      "value": "",
+      "description": "(Optional) Brave Search API key for web search. Free tier: 2000 queries/month at brave.com/search/api",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

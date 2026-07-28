@@ -1,0 +1,267 @@
+{
+  "name": "Octo-Fiesta",
+  "repo": "ghcr.io/v1ck3s/octo-fiesta:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/v1ck3s/octo-fiesta",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/nwithan8/unraid_templates/master/images/octo-fiesta-icon.png",
+  "project": "https://github.com/V1ck3s/octo-fiesta",
+  "description": "A Subsonic API proxy server that transparently integrates Deezer as a music source. When a song is not available in your local Navidrome library, it is automatically fetched from Deezer, downloaded, and served to your Subsonic-compatible client. The downloaded song is then added to your library, making it available locally for future listens.",
+  "paths": [
+    {
+      "name": "Downloads Path",
+      "host": "/mnt/cache/appdata/octo_fiesta/downloads",
+      "container": "/app/downloads",
+      "mode": "rw",
+      "description": "Path to store downloaded files",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5274",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container Port: 8080",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Subsonic - Service",
+      "key": "Subsonic__MusicService",
+      "value": "SquidWTF",
+      "description": "The Subsonic-compatible music service to use (e.g. Deezer, Qobuz, SquidWTF)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Subsonic - URL",
+      "key": "Subsonic__Url",
+      "value": "http://IP_ADDRESS:4533",
+      "description": "The URL of your Subsonic server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Subsonic - Admin Username",
+      "key": "SUBSONIC_ADMIN_USERNAME",
+      "value": "",
+      "description": "Admin username to perform actions on Navidrome server that require admin permissions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Subsonic - Admin Password",
+      "key": "SUBSONIC_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Admin password to perform actions on Navidrome server that require admin permissions",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Subsonic - Download Mode",
+      "key": "Subsonic__DownloadMode",
+      "value": "Track|Album",
+      "description": "Determines whether to download individual tracks or entire albums when a track is requested.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Explicit Filter",
+      "key": "Subsonic__ExplicitFilter",
+      "value": "All|ExplicitOnly|CleanOnly",
+      "description": "Filter songs based on explicit content.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auto-Upgrade",
+      "key": "Subsonic__AutoUpgradeQuality",
+      "value": "false|true",
+      "description": "Re-download tracks when higher quality is available",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Folder Template",
+      "key": "Subsonic__FolderTemplate",
+      "value": "{artist}/{album}/{track} - {title}}",
+      "description": "Folder template for organizing downloaded files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Deezer - ARL Token",
+      "key": "Deezer__Arl",
+      "value": "",
+      "description": "Your Deezer ARL token for accessing Deezer content",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Deezer - ARL Token Fallback",
+      "key": "Deezer__ArlFallback",
+      "value": "",
+      "description": "Fallback Deezer ARL token if the primary one fails",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Deezer - Quality",
+      "key": "Deezer__Quality",
+      "value": "FLAC|MP3_320|MP3_128",
+      "description": "Preferred audio quality for Deezer downloads. Remove to default to highest.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Qobuz - User Auth Token",
+      "key": "Qobuz__UserAuthToken",
+      "value": "",
+      "description": "Your Qobuz user authentication token for accessing Qobuz content",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Qobuz - User ID",
+      "key": "Qobuz__UserId",
+      "value": "",
+      "description": "Your Qobuz user ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Qobuz - Quality",
+      "key": "Qobuz__Quality",
+      "value": "",
+      "description": "Preferred audio quality for Qobuz downloads (e.g. FLAC, FLAC_24_HIGH, FLAC_24_LOW, FLAC_16, MP3_320)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SquidWTF - Source",
+      "key": "SquidWTF__Source",
+      "value": "Qobuz|Tidal|AmazonMusic|Deemix",
+      "description": "The backend source to use for SquidWTF downloads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SquidWTF - Quality",
+      "key": "SquidWTF__Quality",
+      "value": "",
+      "description": "Preferred audio quality for SquidWTF downloads. Qobuz: 27 (FLAC 24-bit), 7 (FLAC 16-bit), 6 (MP3 320), 5 (MP3 128). Tidal: HI_RES_LOSSLESS, LOSSLESS. AmazonMusic: FLAC_24 (24-bit), FLAC_16 (16-bit), AAC (256kbps), OPUS, ATMOS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SquidWTF - Timeout",
+      "key": "SquidWTF__InstanceTimeoutSeconds",
+      "value": "5",
+      "description": "Number of seconds to wait for a response from the SquidWTF instance before timing out.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Yandex - OAuth Token",
+      "key": "Yandex__OAuthToken",
+      "value": "",
+      "description": "OAuth token for API access.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Yandex - Quality",
+      "key": "Yandex__Quality",
+      "value": "FLAC|AAC_64|MP3_192|AAC_192|AAC_256|MP3_320",
+      "description": "Preferred audio quality for Yandex downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Yandex - Language",
+      "key": "Yandex__Language",
+      "value": "ru",
+      "description": "Language for the API responses. Curated playlists and some album titles will be translated into that language.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Yandex - Include Unavailable Tracks",
+      "key": "IncludeUnavilable",
+      "value": "false|true",
+      "description": "Allow show tracks in search results, playlists and albums that are marked unavailable for listening",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Playlist Support",
+      "key": "Subsonic__EnableExternalPlaylists",
+      "value": "true|false",
+      "description": "When enabled, allows searching and downloading playlists. Starring a playlist triggers automatic download of all tracks and creates an M3U file",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Playlists Folder",
+      "key": "Subsonic__PlaylistsDirectory",
+      "value": "playlists",
+      "description": "M3U playlist files will be created in {DOWNLOAD_PATH}/{PLAYLISTS_DIRECTORY}/",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Downloads Path",
+      "key": "Library__DownloadPath",
+      "value": "/app/downloads",
+      "description": "Internal path to downloaded files. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Environment",
+      "key": "ASPNETCORE_ENVIRONMENT",
+      "value": "Production",
+      "description": "Set the ASP.NET Core environment. Not recommended to change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Storage Mode",
+      "key": "Subsonic__StorageMode",
+      "value": "Permanent",
+      "description": "Set the storage mode for downloaded files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cache Duration (Hours)",
+      "key": "Subsonic__CacheDurationHours",
+      "value": "1",
+      "description": "Duration in hours to cache files if using Temporary storage mode.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal Port",
+      "key": "INTERNAL_PORT",
+      "value": "8080",
+      "description": "Internal port. Not recommended to change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,243 @@
+{
+  "name": "domain-watchdog",
+  "repo": "maelgangloff/domain-watchdog:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/maelgangloff/domain-watchdog",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/domain-watchdog.png",
+  "project": "https://github.com/maelgangloff/domain-watchdog",
+  "description": "Domain Watchdog monitors domain names using RDAP, tracks their history, and helps you acquire them when they expire. Requires an existing PostgreSQL and Redis container on the same Docker network. Also deploy the domain-watchdog-worker container. Before starting, create the database: docker exec -it YOUR_POSTGRES_CONTAINER psql -U YOUR_USER -c \"CREATE DATABASE domainwatchdog;\"",
+  "paths": [
+    {
+      "name": "Caddy Data",
+      "host": "/mnt/cache/appdata/domain-watchdog/caddy/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Internal Caddy state storage.",
+      "required": true
+    },
+    {
+      "name": "Caddy Config",
+      "host": "/mnt/cache/appdata/domain-watchdog/caddy/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Internal Caddy configuration storage.",
+      "required": true
+    },
+    {
+      "name": "Public Content",
+      "host": "/mnt/cache/appdata/domain-watchdog/public/content",
+      "container": "/app/public/content",
+      "mode": "rw",
+      "description": "User-uploaded public content. Create a home.md file here to customize the landing page.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port to access the Domain Watchdog web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Passphrase",
+      "key": "JWT_PASSPHRASE",
+      "value": "",
+      "description": "Passphrase used to encrypt JWT keypair. Generate with: openssl rand -hex 32 \u2014 If changing this on an existing install, regenerate keys with: docker exec domain-watchdog php /app/bin/console lexik:jwt:generate-keypair --overwrite",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "App Environment",
+      "key": "APP_ENV",
+      "value": "prod",
+      "description": "Leave as prod.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Secret",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "Random secret key. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "HTTP_SECURE_COOKIE",
+      "value": "true",
+      "description": "Set to true if behind a reverse proxy with SSL. Set to false for plain HTTP direct access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": ":80",
+      "description": "Internal Caddy binding. Leave as :80.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Outgoing IP",
+      "key": "OUTGOING_IP",
+      "value": "",
+      "description": "Your server's outgoing public IP address. Required for some domain connectors/registrars.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Registration",
+      "key": "REGISTRATION_ENABLED",
+      "value": "true",
+      "description": "Allow new users to register. Set to false to lock down the instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verify Email on Registration",
+      "key": "REGISTRATION_VERIFY_EMAIL",
+      "value": "false",
+      "description": "Require email verification on signup. Requires a working Mailer DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://app:password@postgresql:5432/domainwatchdog?serverVersion=16&amp;charset=utf8",
+      "description": "Full PostgreSQL connection string. Format: postgresql://USER:PASSWORD@CONTAINER_NAME:PORT/DATABASE?serverVersion=VERSION&amp;charset=utf8",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Async DSN",
+      "key": "MESSENGER_ASYNC_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages?lazy=1",
+      "description": "Redis connection for async messages. Format: redis://CONTAINER_NAME:PORT/messages?lazy=1",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis RDAP Low DSN",
+      "key": "MESSENGER_RDAP_LOW_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages-rdap-low?lazy=1",
+      "description": "Redis connection for low-priority RDAP messages.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis RDAP High DSN",
+      "key": "MESSENGER_RDAP_HIGH_TRANSPORT_DSN",
+      "value": "redis://redis:6379/messages-rdap-high?lazy=1",
+      "description": "Redis connection for high-priority RDAP messages.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Lock DSN",
+      "key": "LOCK_DSN",
+      "value": "redis://redis:6379",
+      "description": "Redis connection for distributed locking. Format: redis://CONTAINER_NAME:PORT",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mailer DSN",
+      "key": "MAILER_DSN",
+      "value": "null://null",
+      "description": "SMTP connection for email alerts. Example: smtp://user:pass@smtp.example.com:587 \u2014 Leave as null://null to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Sender Name",
+      "key": "MAILER_SENDER_NAME",
+      "value": "Domain Watchdog",
+      "description": "Display name for outgoing notification emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mailer Sender Email",
+      "key": "MAILER_SENDER_EMAIL",
+      "value": "notifications@example.com",
+      "description": "Sender address for outgoing notification emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client ID",
+      "key": "OAUTH_CLIENT_ID",
+      "value": "",
+      "description": "OAuth2/OIDC client ID. Leave blank to disable SSO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Client Secret",
+      "key": "OAUTH_CLIENT_SECRET",
+      "value": "",
+      "description": "OAuth2/OIDC client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OAuth Authorization URL",
+      "key": "OAUTH_AUTHORIZATION_URL",
+      "value": "",
+      "description": "OAuth2 authorization endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Token URL",
+      "key": "OAUTH_TOKEN_URL",
+      "value": "",
+      "description": "OAuth2 token endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth UserInfo URL",
+      "key": "OAUTH_USERINFO_URL",
+      "value": "",
+      "description": "OAuth2 userinfo endpoint URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAuth Scope",
+      "key": "OAUTH_SCOPE",
+      "value": "",
+      "description": "OAuth2 scopes to request. Example: openid profile email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO Auto Redirect",
+      "key": "SSO_AUTO_REDIRECT",
+      "value": "false",
+      "description": "Automatically redirect to SSO login instead of showing the local login form.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

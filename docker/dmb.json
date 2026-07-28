@@ -1,0 +1,222 @@
+{
+  "name": "dmb",
+  "repo": "iampuid0/dmb:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/iampuid0/dmb/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=128MB -it --cap-add SYS_ADMIN --security-opt apparmor:unconfined",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3005]",
+  "icon": "https://github.com/I-am-PUID-0/DMB/assets/36779668/d0cbc785-2e09-41da-b226-924fdfcc1f21?raw=1",
+  "project": "https://github.com/I-am-PUID-0/DMB",
+  "description": "This is an Unraid Docker template for: Debrid Media Bridge This project is now considered deprecated. Future efforts will be directed at Debrid Media Unlimited Bridge (DUMB) This template will therefore not receieve any further updates. I recommend checking out DUMB! Debrid Media Bridge (DMB) is an All-In-One (AIO) docker image for the unified deployment of the following projects/tools: cli_debrid, dmbdb, Decypharr, pgAdmin4, phalanx_db, plex_debrid, PostgreSQL, rclone, Riven, Zilean, Zurg https://github.com/I-am-PUID-0/DMB#-projects-included",
+  "paths": [
+    {
+      "name": "rclone config directory",
+      "host": "/mnt/cache/appdata/DMB/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Directory where your rclone config file will be stored.",
+      "required": true
+    },
+    {
+      "name": "log directory",
+      "host": "/mnt/cache/appdata/DMB/log",
+      "container": "/log",
+      "mode": "rw",
+      "description": "Directory where your DMB logs will be found.",
+      "required": true
+    },
+    {
+      "name": "Real-debrid directory",
+      "host": "/mnt/cache/appdata/DMB/Zurg/RD",
+      "container": "/zurg/RD",
+      "mode": "rw",
+      "description": "Directory for Real-Debrid config related files. These are used by the Zurg rclone mount of your Real-Debrid webDAV (read support documents for more info)",
+      "required": true
+    },
+    {
+      "name": "PostgreSQL directory",
+      "host": "/mnt/cache/appdata/DMB/PostgreSQL/data",
+      "container": "/postgres_data",
+      "mode": "rw",
+      "description": "Directory for the postgreSQL database files used with DMB.",
+      "required": true
+    },
+    {
+      "name": "Riven backend data path",
+      "host": "/mnt/cache/appdata/DMB/Riven/data",
+      "container": "/riven/backend/data",
+      "mode": "rw",
+      "description": "Directory for the riven backend.",
+      "required": true
+    },
+    {
+      "name": "Zurg rclone mount -- ADD THIS DIRECTORY TO Plex/Jellyfin/Emby!",
+      "host": "/mnt/cache/DMB/Zurg/mnt",
+      "container": "/data",
+      "mode": "rw,shared",
+      "description": "MUST BE 'Read/Write - Shared'!!! You must add the full host path above to your plex container. DO NOT ADD THIS AS A LIBRARY! ONLY ADD THE PATH TO PLEX! THAT'S ALL!",
+      "required": true
+    },
+    {
+      "name": "Riven symlink mount directory -- ADD THIS DIRECTORY TO Plex/Jellyfin/Emby!",
+      "host": "/mnt/cache/DMB/Riven/mnt",
+      "container": "/mnt",
+      "mode": "rw",
+      "description": "Directory for the riven symlinks. This directory is where Plex/Jellyfin/Emby will be looking to see your shows/movies! ADD THIS DIRECTORY TO Plex/Jellyfin/Emby! ADD IT AS A LIBRARY! eg in Plex it would be a library to '/mnt/movies' and '/mnt/shows'",
+      "required": true
+    },
+    {
+      "name": "Zilean Data Path",
+      "host": "/mnt/cache/DMB/zilean/data",
+      "container": "/zilean/app/data",
+      "mode": "rw",
+      "description": "Ziilean is highly recommended to grab high quality cached torrent lists!",
+      "required": false
+    },
+    {
+      "name": "Zilean wwwroot path",
+      "host": "/mnt/cache/DMB/zilean/wwwroot/",
+      "container": "/zilean/wwwroot",
+      "mode": "rw",
+      "description": "Maybe not required. Added because the container wasn't creating it automatically and causing errors.",
+      "required": false
+    },
+    {
+      "name": "PGAdmin data directory",
+      "host": "/mnt/cache/appdata/DMB/pgadmin/data",
+      "container": "/pgadmin/data",
+      "mode": "rw",
+      "description": "Data directory for PGAdmin. Optional tool for managing the PostgreSQL database.",
+      "required": false
+    },
+    {
+      "name": "cli_debrid Data",
+      "host": "/mnt/cache/appdata/DMB/cli_debrid",
+      "container": "/cli_debrid/data",
+      "mode": "rw",
+      "description": "Optional. Similiar to plex_debrid. Read: https://github.com/godver3/cli_debrid",
+      "required": false
+    },
+    {
+      "name": "Phalanx Database",
+      "host": "/mnt/cache/appdata/DMB/phalanx_db",
+      "container": "/phalanx_db/data",
+      "mode": "rw",
+      "description": "Optional. Recommended if using cli_debrid. Read: https://github.com/godver3/phalanx_db_hyperswarm",
+      "required": false
+    },
+    {
+      "name": "Decypharr Data",
+      "host": "/mnt/cache/appdata/DMB/decypharr",
+      "container": "/decypharr",
+      "mode": "rw",
+      "description": "Optional. Read: https://github.com/sirrobot01/decypharr",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "PGAdmin 4 Port",
+      "host": "5050",
+      "container": "5050",
+      "protocol": "tcp",
+      "description": "Optional. Needed for running PGAdmin in non-host network mode. Port for pgAdmin 4. Can be removed if you aren't using pgAdmin. Host port number can be changed if required. Keep container port 5050.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DMB Frontend Port",
+      "host": "3005",
+      "container": "3005",
+      "protocol": "tcp",
+      "description": "Only needed if running in non-host network. If running in Host network mode, this can be deleted",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Riven webUI port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "This is the port the Riven webUI will show up on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Decypharr Port",
+      "host": "8282",
+      "container": "8282",
+      "protocol": "tcp",
+      "description": "This is the port the Decypharr webUI will show up on.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Enter your timezone. List here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORIGIN",
+      "key": "RIVEN_FRONTEND_ENV_ORIGIN",
+      "value": "http://0.0.0.0:3000",
+      "description": "origin URL http:// :[port] format No trailing slash!",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Real-Debrid API Key",
+      "key": "ZURG_INSTANCES_REALDEBRID_API_KEY",
+      "value": "",
+      "description": "https://real-debrid.com/apitoken Enter your real-debrid token from the link. Keep this token/key SAFE! Treat it as you would a password. If others obtain it, they can access your real-debrid account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DMB Log Level",
+      "key": "DMB_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Set this to DEBUG for extensive info for ex troubleshooting. Can be set to NOTICE for less info in the log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Set the system PID. unraid uses nobody:users (99:100). docker should match the OS if possible. recommended to not change this unless you have a reason.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Set the system PGID. unraid uses nobody:users (99:100). docker should match the OS if possible. recommended to not change this unless you have a reason.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Access Host OS fuse",
+      "host": "/dev/fuse:/dev/fuse:rwm",
+      "container": "/dev/fuse:/dev/fuse:rwm",
+      "description": "Path to docker fuse on the unraid host. Has to be included otherwise fuser fails to mount.",
+      "required": true
+    }
+  ],
+  "labels": []
+}

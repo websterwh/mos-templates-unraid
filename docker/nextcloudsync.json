@@ -1,0 +1,89 @@
+{
+  "name": "nextcloud-sync",
+  "repo": "ghcr.io/dkuhnke/nextcloud-sync",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://ghcr.io/dkuhnke/nextcloud-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/dkuhnke/nextcloud-sync/main/icon.png",
+  "project": "https://github.com/dkuhnke/nextcloud-sync",
+  "description": "Automatically sync a local Unraid folder with your Nextcloud using the official nextcloudcmd client. Features: - Continuous sync mode with configurable interval - Optional one-time run mode - Retry logic for temporary network/server issues - Non-root runtime (UID/GID 1001) - Minimal, security-focused Debian Trixie base image Recommended: use a Nextcloud app password/token instead of your main account password.",
+  "paths": [
+    {
+      "name": "Local Data Directory",
+      "host": "/mnt/cache/appdata/nextcloud-sync/data",
+      "container": "/media/nextclouddata",
+      "mode": "rw",
+      "description": "Local directory path synchronized with your Nextcloud account. Must be writable by the container.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Nextcloud Username",
+      "key": "NEXTCLOUD_USER",
+      "value": "",
+      "description": "Your Nextcloud username. This is the username you use to log into your Nextcloud instance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nextcloud Password/Token",
+      "key": "NEXTCLOUD_PASS",
+      "value": "",
+      "description": "Your Nextcloud app password or token. For security reasons, it's highly recommended to create an app-specific password in Nextcloud Settings \u2192 Security \u2192 Devices &amp; sessions instead of using your main password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Nextcloud Server URL",
+      "key": "NEXTCLOUD_URL",
+      "value": "",
+      "description": "Your Nextcloud server hostname or URL. Examples: cloud.example.com or https://cloud.example.com",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sync Interval (seconds)",
+      "key": "NEXTCLOUD_SLEEP",
+      "value": "300",
+      "description": "Time interval between synchronization attempts in seconds. Default is 300 seconds (5 minutes). Increase for less frequent syncs or decrease for more frequent syncs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Retry Attempts",
+      "key": "NEXTCLOUD_SYNC_RETRIES",
+      "value": "4",
+      "description": "Number of retry attempts when synchronization fails (1-10 range). The container uses exponential backoff between retry attempts. Increase this value for unstable network connections. v2.7 includes enhanced retry logic with improved error handling and modern client compatibility.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Run Once Mode",
+      "key": "NEXTCLOUD_RUN_ONCE",
+      "value": "false",
+      "description": "Set to 'true' to run synchronization once and exit, or 'false' for continuous operation. Use 'true' for scheduled one-time syncs via Unraid User Scripts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Logging",
+      "key": "NEXTCLOUD_DEBUG",
+      "value": "false",
+      "description": "Set to 'true' to enable verbose nextcloudcmd debug output (useful for troubleshooting).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,59 @@
+{
+  "name": "TravStats",
+  "repo": "abrechen2/travstats:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/abrechen2/travstats",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/Abrechen2/TravStats/Main/docs/images/logo.svg",
+  "project": "https://github.com/Abrechen2/TravStats",
+  "description": "Self-hosted travel logbook for small households and groups (1\u201310 users). It's a logbook, not a live tracker \u2014 you record trips manually, scan a boarding pass, or import an email/PDF; flights now, cruises in v2, hotels and POI on the roadmap. Visualise routes on interactive 2D/3D maps, collect 58 achievements, scan boarding passes (QR/barcode/OCR), import from email and PDF via an optional local Ollama LLM. Includes automated database backups with retention, optional WebDAV off-site sync, and encrypted API-key storage. **Requirements:** TravStats needs a PostgreSQL 15 database with the PostGIS extension. Install the companion template **travstats-db** (same repo) first \u2014 it is pre-configured with database, user and published port so only the password needs filling in. TravStats reaches the database through the Unraid host via `host.docker.internal:5432`, so no custom Docker network is required \u2014 both containers just sit on the default `bridge` and talk through the host. If you bring your own PostGIS container instead, make sure it joins the same `travstats-net` network and uses: - Database name: `flights` - Username: `flights` - Password: *(strong \u2014 generate with `openssl rand -base64 32`)* - Container name: `travstats-db` (or adjust DATABASE_URL below) Optional: install the [Ollama Community App](https://Unraid.net/community/apps?q=ollama) and pull `gemma3:12b` (~8 GB) for local AI parsing of flight confirmation emails. Point TravStats at it via Admin \u2192 Settings \u2192 Parser after login (no ENV variable needed). After first start, open http:// :[PORT:80]/setup \u2014 the first-run wizard captures instance name, public URL, user cap and registration mode. Everything else (API keys, backup schedule, WebDAV, Ollama endpoint + model) is configurable from the admin UI later. No ENV editing needed. The JWT secret and encryption key are auto-generated on first boot and persisted inside the Application Data mount (`/mnt/user/appdata/travstats/secrets/`) \u2014 single volume, survives container updates. **Troubleshooting \u2014 setup page shows \"Error querying the database\":** the `travstats-db` data directory was left with the wrong UID (classic Unraid bind-mount issue). Fix: stop both containers, `rm -rf /mnt/user/appdata/travstats-db/pgdata`, start `travstats-db`, then start TravStats. Full guide is in the travstats-db template Overview. **Full documentation:** https://github.com/Abrechen2/TravStats",
+  "paths": [
+    {
+      "name": "Application Data",
+      "host": "/mnt/cache/appdata/travstats",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent app data \u2014 holds the airport database, user uploads, backups, LLM training artefacts, and the auto-generated JWT secret + encryption key. Single volume; nothing else needs to be mounted.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port where TravStats will be accessible.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://flights:CHANGEME@host.docker.internal:5432/flights",
+      "description": "PostgreSQL connection string. Replace the CHANGEME part with the password you set on the travstats-db container \u2014 everything else stays as-is. Uses host.docker.internal so TravStats reaches the DB through the Unraid host rather than needing a custom Docker network. If your PostgreSQL listens on a different host port, adjust the :5432 here to match. Format: postgresql://USER:PASSWORD@host.docker.internal:HOST-PORT/DB-NAME.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone. Keep UTC (recommended).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

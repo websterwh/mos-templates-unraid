@@ -1,0 +1,85 @@
+{
+  "name": "Pi-Network-Node",
+  "repo": "bitcryptic/pi-network-node:latest",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://hub.docker.com/r/bitcryptic/pi-network-node",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "--mainnet --enable-auto-migrations",
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/bitcryptic-gw/unraid-pi-network-node/main/icon.png",
+  "project": "https://github.com/bitcryptic-gw/unraid-pi-network-node",
+  "description": "Pi Network Node (Docker) template for Unraid \u2014 maintained by BitCryptic. This image wraps the official Pi Network node image with performance tuning applied out of the box, significantly reducing CPU and host load compared to running the upstream image directly. Upstream image: pinetwork/pi-node-docker:organization-mainnet-v1.0-p23.0.1 Source / changelog: https://github.com/bitcryptic-gw/Unraid-pi-network-node Performance optimisations included: - INGEST_DISABLE_STATE_VERIFICATION=true \u2014 disables periodic full ledger state scans (main CPU reduction) - PARALLEL_JOB_SIZE=1 \u2014 reduces horizon ingestion worker parallelism - HISTORY_RETENTION_COUNT=125000 \u2014 retains ~1 weeks of ledger history instead of all history since genesis Persistent data: - Map a host path to /opt/stellar (required). Ports (Pi standard): - 31401 -> 8000 (Horizon HTTP) - 31402 -> 31402 (stellar-core peer) - 31403 -> 1570 (Local history server / webfsd) Notes: - POSTGRES_PASSWORD is required. - NODE_PRIVATE_KEY is optional (advanced): leave blank for new nodes; set only if migrating an existing node identity. - --mainnet and --enable-auto-migrations are passed as Post Arguments.",
+  "paths": [
+    {
+      "name": "/opt/stellar",
+      "host": "/mnt/cache/appdata/pi-node-mainnet/stellar",
+      "container": "/opt/stellar",
+      "mode": "rw",
+      "description": "Persistent node data (required).",
+      "required": true
+    },
+    {
+      "name": "/var/log/supervisor (optional)",
+      "host": "/mnt/cache/appdata/pi-node-mainnet/supervisor_logs",
+      "container": "/var/log/supervisor",
+      "mode": "rw",
+      "description": "Optional: persist supervisor logs.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Horizon HTTP (host 31401)",
+      "host": "31401",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Horizon HTTP (Pi standard). Forward this on your router if required by Pi port checks.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Stellar peer (host 31402)",
+      "host": "31402",
+      "container": "31402",
+      "protocol": "tcp",
+      "description": "stellar-core peer port (Pi standard). Forward this on your router if required by Pi port checks.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local history server (host 31403)",
+      "host": "31403",
+      "container": "1570",
+      "protocol": "tcp",
+      "description": "Local history server / webfsd (Pi standard). Forward this on your router if required by Pi port checks.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Required. Database password for the node (keep secret).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NODE_PRIVATE_KEY (optional)",
+      "key": "NODE_PRIVATE_KEY",
+      "value": "",
+      "description": "Optional (advanced). Existing node private key for migrations. Leave blank for new nodes; key will be auto-generated.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

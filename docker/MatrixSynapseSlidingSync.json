@@ -1,0 +1,66 @@
+{
+  "name": "Matrix-Synapse-SlidingSync",
+  "repo": "ghcr.io/matrix-org/sliding-sync:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/matrix-org/sliding-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8009]",
+  "icon": "https://raw.githubusercontent.com/Richy1989/unraid-icons/main/icons/matrix.png",
+  "project": "https://github.com/matrix-org/sliding-sync",
+  "description": "Run a sliding sync proxy. An implementation of MSC3575 for you Synapse Backend. Setup Process: Requires Postgres 13+. createdb syncv3 SYNCV3_SERVER Required. The destination homeserver to talk to (CS API HTTPS URL) e.g 'https://matrix-client.matrix.org' (Supports unix socket: /path/to/socket) SYNCV3_DB Required. The postgres connection string: https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING SYNCV3_SECRET Required. A secret to use to encrypt access tokens. Must remain the same for the lifetime of the database. SYNCV3_BINDADDR Default: 0.0.0.0:8008. The interface and port to listen on. (Supports unix socket: /path/to/socket) Create the secret with: openssl rand -hex 32 More Information: https://github.com/matrix-org/sliding-sync",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8009",
+      "container": "8009",
+      "protocol": "tcp",
+      "description": "8009 to not interfere with our default synapse installation on 8008",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SYNCV3_SERVER",
+      "key": "SYNCV3_SERVER",
+      "value": "http://192.168.0.10:8008",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNCV3_SECRET",
+      "key": "SYNCV3_SECRET",
+      "value": "",
+      "description": "Create with: openssl rand -hex 32",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNCV3_BINDADDR",
+      "key": "SYNCV3_BINDADDR",
+      "value": "0.0.0.0:8009",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SYNCV3_DB",
+      "key": "SYNCV3_DB",
+      "value": "user=user dbname=dbname sslmode=disable host=IP port=Port password='password'",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

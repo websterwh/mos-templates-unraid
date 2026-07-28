@@ -1,0 +1,83 @@
+{
+  "name": "keeparr",
+  "repo": "ghcr.io/drohack/keeparr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/drohack/keeparr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/drohack/Keeparr/main/public/icons/icon-192.png",
+  "project": "https://github.com/drohack/Keeparr",
+  "description": "Keeparr helps everyone on your media server decide what's worth KEEPING \u2014 and reports what can safely be deleted to reclaim space. HOW IT WORKS \u2022 Everyone on your Plex (or Jellyfin/Emby) server signs in and gets a \"For You\"-style Keep feed \u2014 a screenful of titles at a time, weighted toward the biggest space-hogs, so decisions happen a few at a time instead of all at once. \u2022 For each title: Keep, \"I don't care\", or \u2014 for titles they requested via Seerr \u2014 \"OK to delete\" (the requester signing off). \u2022 Keeps are protective: if anyone keeps a title, it's safe. \u2022 The Big Picture dashboard shows what's reclaimable, what nobody has watched, and per-quality storage breakdowns. NOTHING GETS DELETED Unlike rule-based cleanup tools (e.g. Maintainerr), Keeparr never deletes anything \u2014 it crowdsources the human decisions and hands you the report; you delete in your media server or Sonarr/Radarr. INTEGRATIONS (ALL OPTIONAL) Tautulli watch history, Overseerr/Jellyseerr requests, and any number of Sonarr/Radarr instances for quality/tag data and match health. SETUP No required config beyond the port and appdata path \u2014 secrets are auto-generated on first start. The first user to sign in becomes the admin, so complete first-run setup on your trusted LAN before exposing Keeparr to the internet.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/keeparr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Keeparr's database, poster cache and backups.",
+      "required": true
+    },
+    {
+      "name": "Media (optional, read-only)",
+      "host": "",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Optional. Mount a media share read-only so Keeparr can show array capacity / free space (map libraries to paths in Settings \u2192 Connections). Add more paths for more shares.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8767",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the Keeparr web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Optional \u2014 leave EMPTY and Keeparr auto-generates a secret on first start (stored in appdata as .session-secret). Set it only to manage the secret yourself; if you do, use a HIGH-ENTROPY value (e.g. `openssl rand -hex 32`) \u2014 it signs sessions AND encrypts your stored Plex/Tautulli/Seerr/Sonarr/Radarr tokens, so a weak value is unsafe. Never change it once in use.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Optional. Public URL of this app (e.g. https://keeparr.example.net) \u2014 used for the Plex sign-in redirect when behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. Keeparr fixes ownership of the appdata path to this on start. Unraid default is 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. Unraid default is 100 (users).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

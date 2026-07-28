@@ -1,0 +1,133 @@
+{
+  "name": "PixooPal",
+  "repo": "drun555/pixoopal:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/drun555/pixoopal",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5173]",
+  "icon": "https://raw.githubusercontent.com/Drun555/PixooPal/main/addons/pixoopal/icon.png",
+  "project": "https://github.com/Drun555/PixooPal",
+  "description": "PixooPal is a server-side clockface engine for your Divoom Pixoo 64.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/pixoopal",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent PixooPal clockface state.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5173",
+      "container": "5173",
+      "protocol": "tcp",
+      "description": "PixooPal Web UI port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Divoom MITM HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS port used by app.divoom-gz.com DNS redirection. Pixoo expects this to be reachable as port 443.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Embedded MQTT Broker Port",
+      "host": "1883",
+      "container": "1883",
+      "protocol": "tcp",
+      "description": "PixooPal embedded MQTT broker. Pixoo expects MQTT on port 1883.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HTTP_PORT",
+      "key": "HTTP_PORT",
+      "value": "5173",
+      "description": "Container HTTP port PixooPal listens on. Keep this aligned with the WebUI container port unless you know you need to change it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS_PORT",
+      "key": "HTTPS_PORT",
+      "value": "443",
+      "description": "Container HTTPS port PixooPal listens on using the bundled app.divoom-gz.com certificate.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pixoo Device Address",
+      "key": "PIXOO_DEVICE_ADDRESS",
+      "value": "",
+      "description": "Pixoo host or IP address on your local network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PixooPal Host IP",
+      "key": "PIXOOPAL_HOST_IP",
+      "value": "",
+      "description": "PixooPal host IP returned to Pixoo from /Device/InitV2. Must be reachable from the Pixoo device; MQTT always uses port 1883.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resolution",
+      "key": "RESOLUTION",
+      "value": "64",
+      "description": "PixooPal render resolution. Supported values are 16, 32, and 64. Lower values can improve render and push performance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home Assistant URL",
+      "key": "HOME_ASSISTANT_URL",
+      "value": "",
+      "description": "Home Assistant Address:Port, for example 192.168.1.5:8123. If only an IP is provided, PixooPal uses port 8123.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home Assistant Token",
+      "key": "HOME_ASSISTANT_TOKEN",
+      "value": "",
+      "description": "Long-lived Home Assistant access token. Generate one from Security tab in your profile.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Debug Logging",
+      "key": "DEBUG_LOGGING",
+      "value": "false",
+      "description": "Set to true to include additional queue, clockface, and Pixoo command diagnostics in logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable mDNS Discovery",
+      "key": "PIXOOPAL_DISABLE_MDNS",
+      "value": "false",
+      "description": "Set to true to disable PixooPal mDNS/Bonjour discovery announcements.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

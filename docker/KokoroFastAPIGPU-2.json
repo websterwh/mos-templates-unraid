@@ -1,0 +1,75 @@
+{
+  "name": "Kokoro-FastAPI-GPU",
+  "repo": "ghcr.io/remsky/kokoro-fastapi-gpu:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/remsky/Kokoro-FastAPI/pkgs/container/kokoro-fastapi-gpu",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--gpus all --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8880]/web",
+  "icon": "https://github.com/ds-sebastian/unraid-templates/blob/main/icons/kokoro-icon.png?raw=true",
+  "project": "https://github.com/remsky/Kokoro-FastAPI",
+  "description": "Kokoro-FastAPI is a Dockerized FastAPI wrapper for the Kokoro-82M text-to-speech model, optimized for speed and quality. Features: - High-quality Japanese and English text-to-speech. - Accelerated inference using NVIDIA GPUs. - OpenAI-compatible speech endpoint. Home Assistant Integration: This container is fully compatible with the OpenAI TTS integration in Home Assistant. You can generate local, OpenAI-level quality voice audio using your own GPU. 1. Install the OpenAI TTS integration (via HACS). 2. Set the \"API Key\" to any random text (e.g., \"123\"). 3. Set the \"Target URL\" to: http:// :8880/v1 Requirements: - Requires the Nvidia Driver plugin. - This container runs as internal user 1001 . Ensure your \"Temp Files\" output directory is writable by this user. - The WebUI is located at /web .",
+  "paths": [
+    {
+      "name": "Temp Files (Audio Output)",
+      "host": "/mnt/cache/appdata/kokoro-tts/temp",
+      "container": "/app/api/temp_files",
+      "mode": "rw",
+      "description": "Directory where generated audio files are saved. MUST be writable by UID 1001.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8880",
+      "container": "8880",
+      "protocol": "tcp",
+      "description": "Port for the FastAPI server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU UUID to pass to the container (or 'all').",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Nvidia driver capabilities.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use GPU",
+      "key": "USE_GPU",
+      "value": "true",
+      "description": "Explicitly enable GPU usage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Device Type",
+      "key": "DEVICE",
+      "value": "gpu",
+      "description": "Set inference device (gpu or cpu).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

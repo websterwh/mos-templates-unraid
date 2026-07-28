@@ -1,0 +1,66 @@
+{
+  "name": "cross-seed",
+  "repo": "ghcr.io/cross-seed/cross-seed:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/crossseed/cross-seed/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100",
+  "post_parameters": "daemon",
+  "web_ui_url": "http://[IP]:[PORT:2468]",
+  "icon": "https://raw.githubusercontent.com/cross-seed/cross-seed.org/master/static/img/cross-seed.png",
+  "project": "https://github.com/cross-seed/cross-seed",
+  "description": "Fully-automatic cross-seeding GitHub: https://github.com/cross-seed/cross-seed Documentation/Support: https://cross-seed.org/docs/tutorials/Unraid Official Containers: https://github.com/cross-seed/cross-seed/pkgs/container/cross-seed Official Docker Hub Mirror: https://hub.docker.com/r/crossseed/cross-seed",
+  "paths": [
+    {
+      "name": "configDir",
+      "host": "/mnt/cache/appdata/cross-seed/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is your configuration, logging, and torrent_cache appdata directory. A configuration file (config.js) with suggested base defaults will be generated on your first start of the container. If you already have a config.js file, you can find the latest template at the link below. Configure and rename the template to config.js and place in this directory before running. https://github.com/cross-seed/cross-seed/blob/master/src/config.template.cjs",
+      "required": true
+    },
+    {
+      "name": "data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "This is an optional path for use with linking enabled or as a source for data-based searching. You may need to add more of these mounts if you have multiple drives without using drive pooling. https://cross-seed.org/docs/tutorials/linking",
+      "required": false
+    },
+    {
+      "name": "torrentDir",
+      "host": "",
+      "container": "/torrents",
+      "mode": "ro",
+      "description": "This is unnecessary with useClientTorrents: true. This volume mount should contain all of your torrent clients .torrent files. If you don't know where your torrent client stores its file, this will typically be your somewhere in your torrent client's appdata folder. https://cross-seed.org/docs/basics/options#torrentdir",
+      "required": false
+    },
+    {
+      "name": "outputDir",
+      "host": "",
+      "container": "/cross-seeds",
+      "mode": "rw",
+      "description": "This is unnecessary in most cases, cross-seed will default to /config/cross-seeds. This directory is used as a working directory for cross-seed injections or when using action: save. https://cross-seed.org/docs/basics/options#outputdir",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "port",
+      "host": "2468",
+      "container": "2468",
+      "protocol": "tcp",
+      "description": "Required when using daemon mode. Make sure your container port matches the port option in the config file.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

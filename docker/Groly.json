@@ -1,0 +1,123 @@
+{
+  "name": "Groly",
+  "repo": "ghcr.io/peterthepeter/groly:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/peterthepeter/groly",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/peterthepeter/groly/main/static/icons/icon-512.png",
+  "project": "https://github.com/peterthepeter/groly",
+  "description": "Groly \u2013 Mobile-first grocery list, health & nutrition tracker, and meal planner for self-hosting. Designed for families and small teams. The entire UI is built from the bottom up for mobile \u2014 bottom navigation, large tap targets, swipe gestures. Install it as a PWA on iOS and Android for the full experience. No self-registration \u2014 the admin invites users via a one-time link (Menu \u2192 Users \u2192 Add User), and the user sets their own password. Features: Shared lists with real-time sync \u00b7 Offline-first \u00b7 Barcode scanner \u00b7 Push notifications \u00b7 Supplement tracker with nutrient totals, stock tracking & reminders \u00b7 Water tracker with daily goal \u00b7 Caffeine tracker with drink catalog & daily limit \u00b7 Mood tracker with history & daily reminders \u00b7 Meditation timer with history & daily reminders \u00b7 Nutrition tracker: calorie & macro food diary with Open Food Facts product search, daily goals (manual or Mifflin-St Jeor estimate), food & meal favorites, and per-serving recipe calories \u00b7 Recipes (import by URL) \u00b7 Weekly meal planner \u00b7 Category sorting \u00b7 Location-based list opening \u26a0\ufe0f HTTPS is required. Without HTTPS the following features will NOT work: offline mode, PWA installation, push notifications, barcode scanner, and location-based opening. Use a reverse proxy (Nginx Proxy Manager, Caddy, Traefik) or Tailscale to get HTTPS \u2014 even on a local network. Push notifications (optional): The VAPID keys (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, PUBLIC_VAPID_PUBLIC_KEY, VAPID_SUBJECT) are only needed if you want push notifications on iOS and Android. You can leave them empty to start \u2014 push can be enabled later in Settings. Documentation & setup guide: https://github.com/peterthepeter/groly",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/groly",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Directory where the SQLite database is stored. The container runs as UID/GID 1000 \u2014 make sure this path is owned by user 1000 (run: chown -R 1000:1000 /mnt/user/appdata/groly).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the Groly web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ORIGIN",
+      "key": "ORIGIN",
+      "value": "",
+      "description": "Full HTTPS URL of your Groly instance, e.g. https://groly.example.com or your Tailscale hostname. Required \u2014 HTTPS is mandatory for offline mode, push notifications, and the barcode scanner.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_USERNAME",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Username for the initial admin account. Only used on first start. Can be safely deleted from the container afterwards \u2014 it is also the user that ADMIN_PASSWORD_RESET will reset if you ever forget your admin password.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the initial admin account. ONLY used on first start (when no users exist yet). After first start this variable is ignored and can \u2014 and should \u2014 be deleted from the container template for security. If you ever forget the admin password, use ADMIN_PASSWORD_RESET below instead.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ADMIN_PASSWORD_RESET",
+      "key": "ADMIN_PASSWORD_RESET",
+      "value": "",
+      "description": "Emergency password reset for the user defined in ADMIN_USERNAME. Leave EMPTY in normal operation. Only set this if you have forgotten your admin password: enter a new password, restart the container, log in, then DELETE this variable. While set, the password is reset on every container start and all existing sessions are invalidated.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ADDRESS_HEADER",
+      "key": "ADDRESS_HEADER",
+      "value": "",
+      "description": "Only fill this in if Groly is running behind a reverse proxy (Nginx Proxy Manager, Caddy, Traefik) \u2014 set it to X-Forwarded-For. Leave empty if you access Groly directly. Setting this without a reverse proxy will cause login to fail.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID_PUBLIC_KEY",
+      "key": "VAPID_PUBLIC_KEY",
+      "value": "",
+      "description": "VAPID public key for push notifications (optional). Generate a key pair once with: node -e &quot;const wp=require('web-push'); const k=wp.generateVAPIDKeys(); console.log(JSON.stringify(k,null,2))&quot;",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID_PRIVATE_KEY",
+      "key": "VAPID_PRIVATE_KEY",
+      "value": "",
+      "description": "VAPID private key for push notifications (optional). Must match VAPID_PUBLIC_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUBLIC_VAPID_PUBLIC_KEY",
+      "key": "PUBLIC_VAPID_PUBLIC_KEY",
+      "value": "",
+      "description": "Must be the same value as VAPID_PUBLIC_KEY. Required for push notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID_SUBJECT",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "A https:// URL or mailto: address for VAPID identification (e.g. https://your-domain.com). Required for push notifications. Must not be a .local domain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OFF_COUNTRY",
+      "key": "OFF_COUNTRY",
+      "value": "",
+      "description": "Optional: restricts the nutrition tracker's Open Food Facts product search to one country for more locally relevant results, e.g. germany, france, switzerland. Leave empty to search worldwide (default).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

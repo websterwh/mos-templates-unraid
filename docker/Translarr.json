@@ -1,0 +1,187 @@
+{
+  "name": "Translarr",
+  "repo": "ghcr.io/jesposito/translarr:main",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/jesposito/translarr/pkgs/container/translarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]/",
+  "icon": "https://raw.githubusercontent.com/jesposito/unraid_templates/main/images/translarr-icon.png",
+  "project": "https://github.com/jesposito/translarr",
+  "description": "Translarr translates subtitle tracks from the wrong language into your preferred language using AI. It plugs into Sonarr, Radarr, Emby, Jellyfin, and Plex via webhooks and drops translated `.srt` files next to your media. When a release lands with Russian fansubs on a Japanese anime, or hardcoded Spanish on a Korean drama, Translarr extracts the track, translates it with a context-aware LLM, adjusts timing for the target language's reading rate, and writes a clean `.srt` next to the video. Features: - LLM-powered translation with context awareness (Anthropic Claude, OpenAI, DeepSeek, Gemini, or local Ollama) - Automatic reading-rate adaptation so subtitles stay readable - Tag-based opt-in via Sonarr/Radarr: only translates what you tag - On-demand translation when you press Play in Emby - 6 translation presets: Quick & Cheap, Balanced, Best Quality, Local & Free, DeepSeek Budget, Gemini Flash - Cost guards: daily and per-job spend caps - Push notifications via ntfy.sh - Web UI: dashboard, job history, settings, library browser, glossary editor - All settings are live-mutable, no container restart needed",
+  "paths": [
+    {
+      "name": "Media Library",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Path to your media library (movies, TV shows). Translarr writes translated .srt files next to source videos.",
+      "required": true
+    },
+    {
+      "name": "Config / Data",
+      "host": "/mnt/cache/appdata/translarr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for database and settings. Include this in backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "9100",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "Host port to map to container port 9000 (Web UI and API).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LLM Provider",
+      "key": "LLM_PROVIDER",
+      "value": "anthropic",
+      "description": "anthropic, openai, ollama, deepseek, or gemini",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLM Model",
+      "key": "LLM_MODEL",
+      "value": "claude-sonnet-4-6",
+      "description": "Model identifier (e.g. claude-sonnet-4-6, deepseek-chat, gemini-2.5-flash).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Required when LLM Provider is anthropic. Get one at console.anthropic.com.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Target Language",
+      "key": "TARGET_LANG",
+      "value": "en",
+      "description": "ISO 639-1 code for target language (en, de, es, fr, ja, etc.).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Daily Cost Cap (cents)",
+      "key": "MAX_COST_CENTS_PER_DAY",
+      "value": "1000",
+      "description": "Hard kill-switch in cents (1000 = $10). Translations stop until midnight UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Required when LLM Provider is openai.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DeepSeek API Key",
+      "key": "DEEPSEEK_API_KEY",
+      "value": "",
+      "description": "Required when LLM Provider is deepseek. Approximately $0.10 per episode.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Required when LLM Provider is gemini. Flash tier is approximately $0.08 per episode.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Per-Job Cost Cap (cents)",
+      "key": "MAX_COST_CENTS_PER_JOB",
+      "value": "500",
+      "description": "Max spend per single translation in cents (500 = $5).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Concurrent Jobs",
+      "key": "MAX_CONCURRENT",
+      "value": "2",
+      "description": "How many translations may run in parallel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Secret",
+      "key": "WEBHOOK_SECRET",
+      "value": "",
+      "description": "Shared secret for arr webhook auth. Empty = no auth (fine on a private LAN).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Emby server URL for library refresh hooks (e.g. http://emby:8096).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby API Key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Emby API key for library refresh and the in-player subtitle picker.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin server URL for library refresh hooks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API Key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Jellyfin API key for library refresh.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ntfy URL",
+      "key": "NTFY_URL",
+      "value": "",
+      "description": "ntfy.sh push endpoint for job notifications. Empty = off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Host",
+      "key": "OLLAMA_HOST",
+      "value": "http://ollama:11434",
+      "description": "Ollama server URL (for the free local provider).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

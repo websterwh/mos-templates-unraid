@@ -1,0 +1,107 @@
+{
+  "name": "tracearr-supervised",
+  "repo": "ghcr.io/connorgallopo/tracearr:supervised",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/connorgallopo/tracearr/pkgs/container/tracearr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --shm-size=512m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/connorgallopo/tracearr-unraid-template/main/img/tracearr-icon.png",
+  "project": "https://github.com/connorgallopo/tracearr",
+  "description": "Tracearr monitors your Plex, Jellyfin, and Emby servers from a single dashboard. ALL-IN-ONE IMAGE INCLUDES: - TimescaleDB (PostgreSQL 15 with time-series extensions) - Redis (caching and real-time updates) - GeoIP database (GeoLite2-City for geolocation) - Auto-generated secrets (persisted across restarts) No external database or Redis required! Features: - Multi-server support (Plex, Jellyfin, Emby) - Session tracking with full history - Stream analytics (transcoding, bandwidth, codecs) - Live TV and music tracking - Geolocation and interactive stream map - Sharing detection rules (impossible travel, simultaneous locations, device velocity, concurrent streams, geo restriction) - Trust scores and real-time alerts - Discord + Webhook notifications",
+  "paths": [
+    {
+      "name": "PostgreSQL Data",
+      "host": "/mnt/cache/appdata/tracearr/postgres",
+      "container": "/data/postgres",
+      "mode": "rw",
+      "description": "PostgreSQL database storage. DO NOT change after first run. bPerformance tip:/b For best performance, use a path that bypasses the Unraid array (e.g. /mnt/cache/appdata or /mnt/appdata if configured). Paths under /mnt/user go through a FUSE layer that significantly slows database operations.",
+      "required": true
+    },
+    {
+      "name": "Redis Data",
+      "host": "/mnt/cache/appdata/tracearr/redis",
+      "container": "/data/redis",
+      "mode": "rw",
+      "description": "Redis data storage.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/tracearr/data",
+      "container": "/data/tracearr",
+      "mode": "rw",
+      "description": "Application data including secrets and GeoIP database. Place GeoLite2-City.mmdb here for geolocation.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the Tracearr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "(Optional) JWT signing key. Auto-generated if not set. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cookie Secret",
+      "key": "COOKIE_SECRET",
+      "value": "",
+      "description": "(Optional) Cookie signing key. Auto-generated if not set. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity: debug, info, warn, error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (e.g., America/New_York, Europe/London)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origin",
+      "key": "CORS_ORIGIN",
+      "value": "*",
+      "description": "Allowed origins for CORS. Use * for all origins, or specify a domain (e.g., https://example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Max Memory",
+      "key": "PG_MAX_MEMORY",
+      "value": "2GB",
+      "description": "Maximum memory for PostgreSQL tuning. Set this if PostgreSQL crashes or uses too much RAM. Examples: 2GB, 4GB, 8GB",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,73 @@
+{
+  "name": "gitlab-runner",
+  "repo": "gitlab/gitlab-runner:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/gitlab/gitlab-runner",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--entrypoint /bin/sh",
+  "post_parameters": "-c if [ ! -f /etc/gitlab-runner/config.toml ]; then gitlab-runner register --non-interactive --url $GITLAB_URL --registration-token $GITLAB_TOKEN --name $RUNNER_NAME --executor docker --docker-image alpine:latest --request-concurrency 2 && sed -i s/^concurrent = [0-9]*/concurrent = 2/ /etc/gitlab-runner/config.toml; fi; exec gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner",
+  "web_ui_url": null,
+  "icon": "https://about.gitlab.com/images/press/gitlab-logo-500-rgb.png",
+  "project": "https://gitlab.com/gitlab-org/gitlab-runner",
+  "description": "GitLab Runner is the open source project that is used to run your CI/CD jobs and send the results back to GitLab. This template is pre-configured for the Docker executor. First-run setup: Fill in the GitLab URL, Registration Token, and Runner Name below, then start the container. It will automatically register itself on first boot and start accepting jobs. No manual steps required.",
+  "paths": [
+    {
+      "name": "AppData Config Path",
+      "host": "/mnt/cache/appdata/gitlab-runner",
+      "container": "/etc/gitlab-runner",
+      "mode": "rw",
+      "description": "Path to store the runner configuration.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required for the Docker executor to spawn job containers.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "GitLab URL",
+      "key": "GITLAB_URL",
+      "value": "https://gitlab.com/",
+      "description": "The URL of your GitLab instance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Registration Token",
+      "key": "GITLAB_TOKEN",
+      "value": "",
+      "description": "The registration token from your GitLab project or instance.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Runner Name",
+      "key": "RUNNER_NAME",
+      "value": "unraid-runner",
+      "description": "A descriptive name for this runner.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Set your timezone for logs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

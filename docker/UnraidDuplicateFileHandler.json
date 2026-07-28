@@ -1,0 +1,59 @@
+{
+  "name": "Unraid-Duplicate-File-Handler",
+  "repo": "ghcr.io/bovive/unraid-duplicate-file-handler:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/Bovive/unraid-duplicate-file-handler",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "-it",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/Bovive/unraid-duplicate-file-handler/refs/heads/main/static/images/logo-big.png",
+  "project": "https://github.com/Bovive/unraid-duplicate-file-handler",
+  "description": "A web-based tool designed for Unraid to identify and clean up duplicate files across array disks and/or pools. Compare files by relative path, review keep/delete decisions, and either move or delete them with full progress feedback. Ideal for cleaning up after interrupted Unbalance runs (https://github.com/jbrodriguez/unbalance) or manual copy operations.",
+  "paths": [
+    {
+      "name": "Mount Path",
+      "host": "/mnt",
+      "container": "/mnt",
+      "mode": "rw",
+      "description": "Read/write access to Unraid array or pool disks.",
+      "required": true
+    },
+    {
+      "name": "Output Files",
+      "host": "/mnt/cache/appdata/unraid-duplicate-file-handler",
+      "container": "/app/static/output",
+      "mode": "rw",
+      "description": "Stores scan/cleanup results.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Flask web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Required for session security \u2022 Use a 32-character hex string (0-9, a-f) \u2022 In the Unraid terminal, run: openssl rand -hex 16",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

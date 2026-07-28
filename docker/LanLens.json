@@ -1,0 +1,73 @@
+{
+  "name": "LanLens",
+  "repo": "alexrosbach/lanlens:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/alexrosbach/lanlens",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --cap-add=NET_RAW",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7765]",
+  "icon": "https://raw.githubusercontent.com/AlexRosbach/LanLens/main/frontend/public/logo.svg",
+  "project": "https://github.com/AlexRosbach/LanLens",
+  "description": "LanLens is a self-hosted network discovery and documentation tool for home labs and small environments.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/lanlens",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent LanLens data, including SQLite database, settings, and TLS material.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Optional encryption/signing key for restores or migrations. Leave empty for normal first startup; LanLens will generate and persist a strong key in /data/secret_key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default Admin Password",
+      "key": "DEFAULT_ADMIN_PASSWORD",
+      "value": "admin",
+      "description": "Initial admin password for first startup. Change it after login.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "LanLens Web UI Port",
+      "key": "LANLENS_PORT",
+      "value": "7765",
+      "description": "Host-mode port used by the LanLens Web UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend Port",
+      "key": "BACKEND_PORT",
+      "value": "17765",
+      "description": "Internal FastAPI backend port behind nginx. Leave unchanged unless there is a port conflict.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone, for example Europe/Berlin.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

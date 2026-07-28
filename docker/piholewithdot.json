@@ -1,0 +1,159 @@
+{
+  "name": "pihole-with-dot",
+  "repo": "testdasi/pihole-with-dot:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/testdasi/pihole-with-dot/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/admin",
+  "icon": "https://raw.githubusercontent.com/testdasi/pihole-base-buster-plus/master/pi_hole_bw.png",
+  "project": "https://docs.pi-hole.net/guides/dns-over-https/",
+  "description": "Pi-Hole - let's block those pesky ads! Now with DNS-over-TLS! You have already browsed the web securely with https, don't send your DNS queries in plain text. This docker uses the official Pi-Hole template with added stubby to enable DoT (DNS-over-TLS). Your DNS queries are now encrypted. Set both DNS1 and DNS2 to 127.2.2.2#5253 will exclusively use DoT. These are default values. Otherwise, same instructions as official Pi-Hole. NOTE 1: Port 53 can only be used with custom br0/br1 network and a unique IP address. NOTE 2: Unraid network settings DNS server cannot point to a docker IP.",
+  "paths": [
+    {
+      "name": "pihole config",
+      "host": "/mnt/cache/appdata/pihole-dot/pihole/",
+      "container": "/etc/pihole/",
+      "mode": "rw",
+      "description": "Container Path: /etc/pihole/",
+      "required": true
+    },
+    {
+      "name": "dnsmasq config",
+      "host": "/mnt/cache/appdata/pihole-dot/dnsmasq.d/",
+      "container": "/etc/dnsmasq.d/",
+      "mode": "rw",
+      "description": "Container Path: /etc/dnsmasq.d/",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "DNS Port TCP",
+      "host": "53",
+      "container": "53",
+      "protocol": "tcp",
+      "description": "Container Port: 53",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS Port UDP",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": "Container Port: 53",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DHCP Port",
+      "host": "67",
+      "container": "67",
+      "protocol": "udp",
+      "description": "Container Port: 67",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Container Port: 80",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Container Port: 443",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ENV 1",
+      "key": "DNS1",
+      "value": "127.2.2.2#5253",
+      "description": "Container Variable: DNS1",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 2",
+      "key": "DNS2",
+      "value": "127.2.2.2#5253",
+      "description": "Container Variable: DNS2",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 3",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Container Variable: TZ",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 4",
+      "key": "WEBPASSWORD",
+      "value": "password",
+      "description": "Container Variable: WEBPASSWORD",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 5",
+      "key": "INTERFACE",
+      "value": "br0",
+      "description": "Container Variable: INTERFACE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 6",
+      "key": "ServerIP",
+      "value": "192.168.1.24",
+      "description": "Container Variable: ServerIP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 7",
+      "key": "ServerIPv6",
+      "value": "",
+      "description": "Container Variable: ServerIPv6",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 8",
+      "key": "IPv6",
+      "value": "False",
+      "description": "Container Variable: IPv6",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV 9",
+      "key": "DNSMASQ_LISTENING",
+      "value": "all",
+      "description": "Container Variable: DNSMASQ_LISTENING",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

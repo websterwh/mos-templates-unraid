@@ -1,0 +1,94 @@
+{
+  "name": "AdGuard-Home-Unbound",
+  "repo": "ghcr.io/mainfrezzer/adguardhome",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/Mainfrezzer/adguardhome-unbound/pkgs/container/adguardhome",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/Mainfrezzer/UnRaid-Templates/main/icon/adguard.png",
+  "project": "https://github.com/AdguardTeam/AdGuardHome",
+  "description": "AdGuard Home is a network-wide software for blocking ads & tracking. After you set it up, it\u2019ll cover ALL your home devices, and you don\u2019t need any client-side software for that. With the rise of Internet-Of-Things and connected devices, it becomes more and more important to be able to control your whole network. This AdGuard Home container includes Unbound. Just set the address to 127.0.0.1:8053 and/or (SQUARE BRACKET LEFT)::1(SQUARE BRACKET RIGHT):8053 to use it. It will download roothints upon first start and then once weekly.",
+  "paths": [
+    {
+      "name": "Working Directory",
+      "host": "/mnt/cache/appdata/adguard/workingdir",
+      "container": "/opt/adguardhome/work",
+      "mode": "rw",
+      "description": "/opt/adguardhome/work",
+      "required": true
+    },
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/adguard/config",
+      "container": "/opt/adguardhome/conf",
+      "mode": "rw",
+      "description": "Configuration Directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Install WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port of the Web UI for the first install",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebGUI",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port of the WebGUI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Server TCP",
+      "host": "53",
+      "container": "53",
+      "protocol": "tcp",
+      "description": "TCP Port that is used for the DNS Server (Changing this is not recomended)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS Server UDP",
+      "host": "53",
+      "container": "53",
+      "protocol": "udp",
+      "description": "UDP Port that is used for the DNS Server (Changing this is not recomended)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Preconfigure",
+      "key": "PROVIDE_CONFIG",
+      "value": "no",
+      "description": "Should the container provide a preconfigured AdGuard Home config? Login would be admin and adguardhome as password",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable DNSSEC",
+      "key": "DNSSEC_ENABLE",
+      "value": "0",
+      "description": "If enabled (1) creates the root.key upon startup",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

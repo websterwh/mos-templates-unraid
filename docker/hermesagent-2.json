@@ -1,0 +1,499 @@
+{
+  "name": "hermes-agent",
+  "repo": "nousresearch/hermes-agent:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/nousresearch/hermes-agent/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --user 0:0 --hostname=hermes-agent --restart=unless-stopped",
+  "post_parameters": "gateway run",
+  "web_ui_url": "http://[IP]:[PORT:9119]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/hermes-agent-logo.png",
+  "project": "https://hermes-agent.nousresearch.com/",
+  "description": "Hermes Agent is a self-improving AI agent built by Nous Research. Features a built-in learning loop, memory system, and supports multiple messaging platforms (Telegram, Discord, Slack, WhatsApp, Matrix, Email, etc.). Stores all config, memory, sessions, and skills in /opt/data. Access the web dashboard at the same port as the gateway API (default: 9119). For detailed setup instructions, see the official docs: https://hermes-agent.nousresearch.com/docs",
+  "paths": [
+    {
+      "name": "Path: Config",
+      "host": "/mnt/cache/appdata/hermes-agent",
+      "container": "/opt/data",
+      "mode": "rw",
+      "description": "Persistent config directory for Hermes (.env, config.yaml, skills, memories, logs).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Dashboard",
+      "host": "9119",
+      "container": "9119",
+      "protocol": "tcp",
+      "description": "HTTP port for the web dashboard. After setup, configure Hermes to run the dashboard command. See: https://hermes-agent.nousresearch.com/docs/user-guide/features/web-dashboard",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone for scheduling. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- API Server ---",
+      "key": "--- API Server ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: API_SERVER_ENABLED",
+      "key": "API_SERVER_ENABLED",
+      "value": "true",
+      "description": "Enable the built-in HTTP API server (required for dashboard and integrations).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: API_SERVER_HOST",
+      "key": "API_SERVER_HOST",
+      "value": "0.0.0.0",
+      "description": "Host address for the API server (0.0.0.0 for all interfaces).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: API_SERVER_PORT",
+      "key": "API_SERVER_PORT",
+      "value": "8642",
+      "description": "Port for the API server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: API_SERVER_KEY",
+      "key": "API_SERVER_KEY",
+      "value": "",
+      "description": "Bearer token for API authentication. Required when binding to non-localhost. Use the same value in Open WebUI. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "--- Matrix ---",
+      "key": "--- Matrix ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/matrix",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_HOMESERVER",
+      "key": "MATRIX_HOMESERVER",
+      "value": "https://matrix-client.matrix.org",
+      "description": "Matrix homeserver URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_ACCESS_TOKEN",
+      "key": "MATRIX_ACCESS_TOKEN",
+      "value": "",
+      "description": "Matrix access token (recommended). User ID is auto-detected from token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MATRIX_USER_ID",
+      "key": "MATRIX_USER_ID",
+      "value": "",
+      "description": "Matrix user ID. Not required if MATRIX_ACCESS_TOKEN is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_PASSWORD",
+      "key": "MATRIX_PASSWORD",
+      "value": "",
+      "description": "Matrix password. Not required if MATRIX_ACCESS_TOKEN is set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MATRIX_RECOVERY_KEY",
+      "key": "MATRIX_RECOVERY_KEY",
+      "value": "",
+      "description": "Matrix recovery key for cross-signing (for E2EE).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MATRIX_DEVICE_ID",
+      "key": "MATRIX_DEVICE_ID",
+      "value": "HERMES_BOT",
+      "description": "Matrix device ID (leave empty for auto-generated).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_HOME_ROOM",
+      "key": "MATRIX_HOME_ROOM",
+      "value": "",
+      "description": "Matrix room ID for bot's home room (for cron notifications).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_ALLOWED_USERS",
+      "key": "MATRIX_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated list of allowed Matrix user IDs (empty = deny all except self).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_ENCRYPTION",
+      "key": "MATRIX_ENCRYPTION",
+      "value": "true",
+      "description": "Enable end-to-end encryption (requires libolm).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_REQUIRE_MENTION",
+      "key": "MATRIX_REQUIRE_MENTION",
+      "value": "false",
+      "description": "Bot only responds when mentioned in rooms (DMs always respond).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_REACTIONS",
+      "key": "MATRIX_REACTIONS",
+      "value": "true",
+      "description": "Show emoji reactions during message processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_AUTO_THREAD",
+      "key": "MATRIX_AUTO_THREAD",
+      "value": "true",
+      "description": "Auto-create threads for responses in rooms.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: MATRIX_FREE_RESPONSE_ROOMS",
+      "key": "MATRIX_FREE_RESPONSE_ROOMS",
+      "value": "",
+      "description": "Comma-separated room IDs that respond without mention.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Telegram ---",
+      "key": "--- Telegram ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/telegram",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TELEGRAM_BOT_TOKEN",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Telegram bot token from @BotFather.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TELEGRAM_ALLOWED_USERS",
+      "key": "TELEGRAM_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated list of allowed Telegram user IDs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Discord ---",
+      "key": "--- Discord ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/discord",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: DISCORD_BOT_TOKEN",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "Discord bot token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: DISCORD_GUILD_ID",
+      "key": "DISCORD_GUILD_ID",
+      "value": "",
+      "description": "Discord guild/server ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "--- Slack ---",
+      "key": "--- Slack ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/slack",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SLACK_BOT_TOKEN",
+      "key": "SLACK_BOT_TOKEN",
+      "value": "",
+      "description": "Slack Bot Token (xoxb-...).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: SLACK_APP_TOKEN",
+      "key": "SLACK_APP_TOKEN",
+      "value": "",
+      "description": "Slack App Token (xapp-...).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- LLM Provider ---",
+      "key": "--- LLM Provider ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENAI_API_KEY",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OPENROUTER_API_KEY",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "OpenRouter API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: ANTHROPIC_API_KEY",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic API key (for Claude).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: GOOGLE_API_KEY",
+      "key": "GOOGLE_API_KEY",
+      "value": "",
+      "description": "Google AI API key (for Gemini).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: DEEPSEEK_API_KEY",
+      "key": "DEEPSEEK_API_KEY",
+      "value": "",
+      "description": "DeepSeek API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: GROQ_API_KEY",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "Groq API key (for Groq Whisper STT).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OLLAMA_BASE_URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "",
+      "description": "Ollama base URL (e.g. http://host:11434).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: OPENAI_BASE_URL",
+      "key": "OPENAI_BASE_URL",
+      "value": "",
+      "description": "Custom OpenAI-compatible API base URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GLM_API_KEY",
+      "key": "GLM_API_KEY",
+      "value": "",
+      "description": "z.ai / ZhipuAI GLM API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: KIMI_API_KEY",
+      "key": "KIMI_API_KEY",
+      "value": "",
+      "description": "Kimi / Moonshot API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MINIMAX_API_KEY",
+      "key": "MINIMAX_API_KEY",
+      "value": "",
+      "description": "MiniMax global API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: MINIMAX_CN_API_KEY",
+      "key": "MINIMAX_CN_API_KEY",
+      "value": "",
+      "description": "MiniMax China endpoint API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: KILOCODE_API_KEY",
+      "key": "KILOCODE_API_KEY",
+      "value": "",
+      "description": "Kilo Code API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: XIAOMI_API_KEY",
+      "key": "XIAOMI_API_KEY",
+      "value": "",
+      "description": "Xiaomi MiMo API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: HF_TOKEN",
+      "key": "HF_TOKEN",
+      "value": "",
+      "description": "Hugging Face Inference Providers token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: DASHSCOPE_API_KEY",
+      "key": "DASHSCOPE_API_KEY",
+      "value": "",
+      "description": "Alibaba DashScope API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OPENCODE_ZEN_API_KEY",
+      "key": "OPENCODE_ZEN_API_KEY",
+      "value": "",
+      "description": "OpenCode Zen API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: OPENCODE_GO_API_KEY",
+      "key": "OPENCODE_GO_API_KEY",
+      "value": "",
+      "description": "OpenCode Go API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: AI_GATEWAY_API_KEY",
+      "key": "AI_GATEWAY_API_KEY",
+      "value": "",
+      "description": "Vercel AI Gateway API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: TAVILY_API_KEY",
+      "key": "TAVILY_API_KEY",
+      "value": "",
+      "description": "Tavily API key for AI-native web search, extract, and crawl.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: EXA_API_KEY",
+      "key": "EXA_API_KEY",
+      "value": "",
+      "description": "Exa API key for AI-native web search and content retrieval.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "--- User &amp; Permissions ---",
+      "key": "--- User &amp; Permissions ---",
+      "value": "",
+      "description": "Docs: https://hermes-agent.nousresearch.com/docs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: SUDO_PASSWORD",
+      "key": "SUDO_PASSWORD",
+      "value": "",
+      "description": "Sudo password for the container (stored in plaintext - use with caution).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: HERMES_UID",
+      "key": "HERMES_UID",
+      "value": "99",
+      "description": "UID for the hermes user inside container. Match to your Unraid user (default: nobody). Set to 0 for root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HERMES_GID",
+      "key": "HERMES_GID",
+      "value": "100",
+      "description": "GID for the hermes user. Match to your Unraid users group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for files created by the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HERMES_HOME",
+      "key": "HERMES_HOME",
+      "value": "/opt/data",
+      "description": "Home directory for Hermes config and data.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

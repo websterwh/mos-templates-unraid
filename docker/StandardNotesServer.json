@@ -1,0 +1,172 @@
+{
+  "name": "StandardNotes-Server",
+  "repo": "standardnotes/server:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://hub.docker.com/r/standardnotes/server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/healthcheck",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/standardnotes-server/icon.png",
+  "project": "https://standardnotes.com",
+  "description": "Standard Notes self-hosted backend for Unraid (community template). End-to-end encrypted notes, sync, files, auth and API gateway in the official standardnotes/server image. Required side containers, in this order: 1. MariaDB. Create an empty database \"standard_notes_db\" and a user \"std_notes_user\" with all privileges on it. 2. Redis (default port 6379, no auth). 3. StandardNotes-LocalStack companion (SNS and SQS). The server resolves the hostname \"localstack\" at port 4566. Without it, files-worker.log fills with \"getaddrinfo ENOTFOUND localstack\" and notes can duplicate. 4. This template. Generate three 32-byte hex secrets before starting: openssl rand -hex 32 (run three times) Ports: 3000/tcp - API gateway (HTTP, put behind a reverse proxy). 3125/tcp host - 3104 container - files server (per upstream docker-compose). Reverse-proxy traffic must forward to host port 3125. URL and cookie shapes: COOKIE_DOMAIN: bare domain only, no https://, no trailing slash. Example: standardnotesserver.mydomain.tld PUBLIC_FILES_SERVER_URL: full HTTPS URL, includes https://. Example: https://files.standardnotesserver.mydomain.tld Custom Sync Server (entered in the Standard Notes client): full HTTPS URL. Example: https://standardnotesserver.mydomain.tld Notes: Unofficial community template. Always reach the server over HTTPS. The web client (standardnotes/web) is a separate Unraid template in the companion repo standardnotes-webui (container name \"StandardNotes-WebUI\"). See the project README for details. Hostname \"localstack\" resolution: User-defined Docker network: put both containers on the same custom bridge and give LocalStack the network alias \"localstack\". br0 / macvlan / VLAN / static-IP install: put LocalStack on the same VLAN with a fixed IP, then append --add-host=localstack:LocalStack-IP to this container's Extra Parameters and restart. Verify with: docker exec StandardNotes-Server getent hosts localstack Notes can duplicate in seconds if Redis, LocalStack, COOKIE_DOMAIN, the reverse proxy, or the image tag is misconfigured. Always test with a fresh throwaway account and one client first. See the README section \"Sync-Loop / Duplicate Notes Guardrails\". Detailed README (full setup & options): https://github.com/junkerderprovinz/Unraid-apps/blob/main/standardnotes-server/README.md",
+  "paths": [
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/standardnotes/logs",
+      "container": "/var/lib/server/logs",
+      "mode": "rw",
+      "description": "Persistent server logs.",
+      "required": true
+    },
+    {
+      "name": "Uploads Path",
+      "host": "/mnt/cache/appdata/standardnotes/uploads",
+      "container": "/opt/server/packages/files/dist/uploads",
+      "mode": "rw",
+      "description": "Persistent storage for encrypted file uploads.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API / Gateway Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port of the Standard Notes API gateway. Put behind a reverse proxy with HTTPS. Do not expose directly to the public internet.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Files Server Port",
+      "host": "3125",
+      "container": "3104",
+      "protocol": "tcp",
+      "description": "Host port 3125 maps to container port 3104. Forward your reverse proxy to host port 3125 (not 3104). Upstream's docker-compose maps 3125 host to 3104 container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MariaDB Host",
+      "key": "DB_HOST",
+      "value": "192.168.1.10",
+      "description": "IP address of your MariaDB container. 192.168.1.10 is a placeholder \u2014 replace it with your MariaDB container's IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Port",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "MariaDB server port. Default 3306.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MariaDB User",
+      "key": "DB_USERNAME",
+      "value": "std_notes_user",
+      "description": "Database user. Must match the user created in MariaDB.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MariaDB Password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Password for the MariaDB user above.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MariaDB Database Name",
+      "key": "DB_DATABASE",
+      "value": "standard_notes_db",
+      "description": "Database name. Must already exist. Empty is fine; migrations run on first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Driver",
+      "key": "DB_TYPE",
+      "value": "mysql",
+      "description": "Leave at 'mysql'. Internal TypeORM driver value used to talk to MariaDB. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Host",
+      "key": "REDIS_HOST",
+      "value": "192.168.1.10",
+      "description": "IP address of your Redis container. 192.168.1.10 is a placeholder \u2014 replace it with your Redis container's IP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Redis Port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis server port. Default 6379. Reachability must be tested from inside this container (same network namespace the server uses). See README for the exact node TCP probe.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cache Backend",
+      "key": "CACHE_TYPE",
+      "value": "redis",
+      "description": "Cache backend. Leave at 'redis'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "AUTH_JWT_SECRET",
+      "value": "",
+      "description": "Required. 32-byte hex secret. Generate with: openssl rand -hex 32. Changing this invalidates all existing sessions.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Server Encryption Key",
+      "key": "AUTH_SERVER_ENCRYPTION_SERVER_KEY",
+      "value": "",
+      "description": "Required. 32-byte hex secret. Generate with: openssl rand -hex 32. Encrypts data at rest server-side. Back it up. Losing it means losing access to that data.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Valet Token Secret",
+      "key": "VALET_TOKEN_SECRET",
+      "value": "",
+      "description": "Required. 32-byte hex secret. Generate with: openssl rand -hex 32. Signs short-lived upload/download tokens for the files server.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public Files Server URL",
+      "key": "PUBLIC_FILES_SERVER_URL",
+      "value": "",
+      "description": "Optional. Full HTTPS URL of the files server. Includes the https:// scheme. Example: https://files.standardnotesserver.mydomain.tld. Set only if you reverse-proxy the files server on its own subdomain. Leave empty to skip attachments; note creation, editing, and sync work without it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Domain",
+      "key": "COOKIE_DOMAIN",
+      "value": "",
+      "description": "Bare domain only. No https://, no trailing slash, no path. Example: standardnotesserver.mydomain.tld. Wrong: https://standardnotesserver.mydomain.tld. A URL here breaks session cookies. The Custom Sync Server URL entered into clients is a separate value and is a full HTTPS URL.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

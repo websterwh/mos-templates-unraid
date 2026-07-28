@@ -1,0 +1,115 @@
+{
+  "name": "arc-relay",
+  "repo": "ghcr.io/comma-compliance/arc-relay:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/comma-compliance/arc-relay/pkgs/container/arc-relay",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JeremiahChurch/arc-relay-unraid/main/images/arc-relay-icon.png",
+  "project": "https://github.com/comma-compliance/arc-relay",
+  "description": "Arc Relay is a management proxy for Model Context Protocol (MCP) servers. It sits between your AI tools (Claude Code, Claude Desktop, Cursor, etc.) and your MCP servers, providing a single authenticated endpoint that handles Docker container lifecycle, health monitoring, OAuth flows, access control, and multi-transport proxying. Manage all your MCP servers from one web UI. (Formerly MCP Wrangler)",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/arc-relay",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for SQLite database. Upgrading from MCP Wrangler? Point this at your existing /mnt/user/appdata/mcp-wrangler directory.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket for managing MCP server containers (stdio and HTTP server types).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Arc Relay web UI and API proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption Key",
+      "key": "ARC_RELAY_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Encrypts stored credentials (OAuth tokens, API keys, env vars). Generate with: openssl rand -hex 32. IMPORTANT: Do not lose this key - encrypted data becomes unreadable without it. Upgrading from MCP Wrangler? Use the same key as before.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Secret",
+      "key": "ARC_RELAY_SESSION_SECRET",
+      "value": "",
+      "description": "Signs web UI session cookies. Generate with: openssl rand -hex 32. If omitted, a random secret is generated on each restart (sessions won't survive restarts).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ARC_RELAY_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the admin web UI account (only used on first run to create the admin user).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Path",
+      "key": "ARC_RELAY_DB_PATH",
+      "value": "/data/arc-relay.db",
+      "description": "Path to SQLite database inside the container. Upgrading from MCP Wrangler? Set to /data/mcp-wrangler.db or rename your DB file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "ARC_RELAY_BASE_URL",
+      "value": "",
+      "description": "External URL for OAuth callbacks and install scripts (e.g., https://mcp.yourdomain.com). Required for OAuth and invite token onboarding. Leave blank for http://localhost:PORT.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sentry DSN",
+      "key": "ARC_RELAY_SENTRY_DSN",
+      "value": "",
+      "description": "Sentry DSN for error tracking. Leave blank to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM API Key",
+      "key": "ARC_RELAY_LLM_API_KEY",
+      "value": "",
+      "description": "Anthropic API key for LLM-powered tool context optimization. Enables the 'Run Optimization' feature on server detail pages to compress tool descriptions and reduce token usage. Get a key at https://console.anthropic.com/. Leave blank to disable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LLM Model",
+      "key": "ARC_RELAY_LLM_MODEL",
+      "value": "claude-haiku-4-5-20251001",
+      "description": "Model to use for tool optimization. Default is claude-haiku-4-5-20251001 (fast and cheap). Only change if you want to use a different Anthropic model.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

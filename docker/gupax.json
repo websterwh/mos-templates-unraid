@@ -1,0 +1,160 @@
+{
+  "name": "gupax",
+  "repo": "ghcr.io/libre-7/gupax-docker:latest",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6080]",
+  "icon": "https://raw.githubusercontent.com/gupax-io/gupax/main/assets/images/icons/icon.png",
+  "project": "https://github.com/libre-7/gupax-docker",
+  "description": "Browser-based Monero mining \u2014 P2Pool + XMRig GUI with optional Tor",
+  "paths": [
+    {
+      "name": "Gupax config",
+      "host": "/mnt/cache/appdata/gupax/config",
+      "container": "/home/miner/.local/state/gupax",
+      "mode": "rw",
+      "description": "Gupax configuration and state (wallet, settings persist here)",
+      "required": false
+    },
+    {
+      "name": "Gupax share",
+      "host": "/mnt/cache/appdata/gupax/share",
+      "container": "/home/miner/.local/share/gupax",
+      "mode": "rw",
+      "description": "Downloaded mining binaries (P2Pool, XMRig, monerod) \u2014 persist across container updates",
+      "required": false
+    },
+    {
+      "name": "Monero blockchain",
+      "host": "/mnt/cache/appdata/gupax/monero",
+      "container": "/home/miner/.bitmonero",
+      "mode": "rw",
+      "description": "Monero blockchain data. In Gupax UI, go to Node tab and set database path to /home/miner/.bitmonero",
+      "required": false
+    },
+    {
+      "name": "Tor keys",
+      "host": "/mnt/cache/appdata/gupax/tor",
+      "container": "/home/miner/.tor",
+      "mode": "rw",
+      "description": "Tor hidden service keys (keeps the same .onion address across container restarts)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "6080",
+      "container": "6080",
+      "protocol": "tcp",
+      "description": "noVNC web interface - connect your browser here",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC",
+      "host": "5900",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "VNC server \u2014 disabled by default. Only enable if VNC_AUTH_TOKEN is set (exposing unprotected VNC gives full GUI control)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "P2Pool Stratum",
+      "host": "3333",
+      "container": "3333",
+      "protocol": "tcp",
+      "description": "P2Pool Stratum - Connect external miners here",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "P2Pool P2P",
+      "host": "37889",
+      "container": "37889",
+      "protocol": "tcp",
+      "description": "P2Pool P2P (p2pool peer connections)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Monero P2P",
+      "host": "18080",
+      "container": "18080",
+      "protocol": "tcp",
+      "description": "Monero P2P Network",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Monero RPC",
+      "host": "18081",
+      "container": "18081",
+      "protocol": "tcp",
+      "description": "Monero RPC",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TOR_ENABLED",
+      "key": "TOR_ENABLED",
+      "value": "false",
+      "description": "Enable Tor hidden service for Monero transaction broadcast (tx-only mode, P2P sync stays on clearnet)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC_AUTH_TOKEN",
+      "key": "VNC_AUTH_TOKEN",
+      "value": "",
+      "description": "Password for VNC web interface access (leave empty for no authentication)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (Unraid default: 99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (Unraid default: 100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCREEN_RESOLUTION",
+      "key": "SCREEN_RESOLUTION",
+      "value": "1920x1080x24",
+      "description": "Display resolution for Gupax GUI inside the container (default: 1920x1080x24)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MONERO_RPC_RESTRICTED",
+      "key": "MONERO_RPC_RESTRICTED",
+      "value": "true",
+      "description": "Restrict RPC to safe, view-only commands (default: true). Set to false only if you need full RPC access for external wallets.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

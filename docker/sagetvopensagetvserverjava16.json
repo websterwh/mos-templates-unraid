@@ -1,0 +1,203 @@
+{
+  "name": "sagetvopen-sagetv-server-java16",
+  "repo": "sagetvopen/sagetv-server-java16",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/sagetvopen/sagetv-server-java16/",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/OpenSageTV/sagetv-dockers/master/resources/SageTVOS_icon.png",
+  "project": "https://github.com/google/sagetv",
+  "description": "SageTV is an Open Source PVR and Media Player Configuration - /opt/sagetv - This is the base directory for the server and other sagetv related files. Under this location there can be a 'server' directory and if the existing 'server' directory exists it will be upgraded. - /var/media - Path for sagetv recordings and videos. Under this directory there should be (or will be created) a 'tv' directory where SageTV recordings will get recorded. - /var/tv - Path for tv recordings if you want to store those in an alternate location. - /var/mediaext - Path for extra media files. This can be whatever you want, but you will configure SageTV to look for videos, music, pictures, etc from this location. Permissions - PUID - Should be the 'nobody' user for Unraid - PGID - Should be the 'users' group for Unraid - VIDEO_GUID - Should be the 'video' group for Unraid (used if you use PCI/USB video capture devices) Notes - SageTV will need to use 'host' or 'br0' (set a unique IP) networking, so while the ports are defined, they are not required to be edited. Without 'host' or 'br0', sagetv will think your network clients are connecting as remote placeshifters, and present the placeshifter login. If using br0 mode (preferred) as the IP is unique the WebUI port of 8080 will not have any issues. If running in host mode, make sure you don't have other docker containers that are using port 8080. If you do, then EITHER change SageTV Jetty Port (in plugin configuration) after install, or, update the other docker containers to NOT use port 8080. - On every Docker start, it will check for a new version of SageTV and install it, if it exists. You can force it to stay on a sepcific version by setting the Version in the template. The Version must match exactly the version tag from the github releases. - There are Java 8, 11, and 16 version of these containers. Java 8 will be the default moving forward, but it currently has issues with the the /apps/ path in the Jetty Web UI. ###Container version: 2.0.7",
+  "paths": [
+    {
+      "name": "SageTV Appdata Path",
+      "host": "/mnt/cache/appdata/sagetv/",
+      "container": "/opt/sagetv",
+      "mode": "rw",
+      "description": "SageTV base directory",
+      "required": true
+    },
+    {
+      "name": "Media Path",
+      "host": "/mnt/cache/sagemedia/",
+      "container": "/var/media",
+      "mode": "rw",
+      "description": "SageTV Media Directory (for recordings, etc)",
+      "required": true
+    },
+    {
+      "name": "Extra Media Path",
+      "host": "/mnt/cache/media/videos/",
+      "container": "/var/mediaext",
+      "mode": "rw",
+      "description": "SageTV videos directory for other imported video files",
+      "required": true
+    },
+    {
+      "name": "unRAID Share Path",
+      "host": "/mnt/user",
+      "container": "/unraid",
+      "mode": "rw",
+      "description": "Container Path: /unraid",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "SageTV WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "SageTV WebServer Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 2",
+      "host": "42024",
+      "container": "42024",
+      "protocol": "tcp",
+      "description": "Container Port: 42024",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 3",
+      "host": "7818",
+      "container": "7818",
+      "protocol": "tcp",
+      "description": "Container Port: 7818",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 4",
+      "host": "8270",
+      "container": "8270",
+      "protocol": "udp",
+      "description": "Container Port: 8270",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 5",
+      "host": "31100",
+      "container": "31100",
+      "protocol": "udp",
+      "description": "Container Port: 31100",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 6",
+      "host": "31099",
+      "container": "31099",
+      "protocol": "tcp",
+      "description": "Container Port: 31099",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 7",
+      "host": "16867",
+      "container": "16867",
+      "protocol": "udp",
+      "description": "Container Port: 16867",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 8",
+      "host": "16869",
+      "container": "16869",
+      "protocol": "udp",
+      "description": "Container Port: 16869",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port 9",
+      "host": "16881",
+      "container": "16881",
+      "protocol": "tcp",
+      "description": "Container Port: 16881",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SageTV version",
+      "key": "VERSION",
+      "value": "latest",
+      "description": "SageTV Version",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JVM Memory",
+      "key": "JAVA_MEM_MB",
+      "value": "1024",
+      "description": "Java Memory in MB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "License Key",
+      "key": "LICENCE_DATA",
+      "value": "",
+      "description": "SageTV License Key",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install Gentuner",
+      "key": "OPT_GENTUNER",
+      "value": "Y",
+      "description": "Install Gentuner Plugin",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install CommandIR",
+      "key": "OPT_COMMANDIR",
+      "value": "N",
+      "description": "Install CommandIR files",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install Native Comskip",
+      "key": "OPT_COMSKIP",
+      "value": "Y",
+      "description": "Install native comskip files",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Set permissions",
+      "key": "OPT_SETPERMS",
+      "value": "Y",
+      "description": "Set permissions on startup",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable LIRC",
+      "key": "OPT_LIRC",
+      "value": "N",
+      "description": "Enable LIRC Daemon with Configuration from SageTV lirc.d Directory",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

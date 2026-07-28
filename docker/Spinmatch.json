@@ -1,0 +1,155 @@
+{
+  "name": "Spinmatch",
+  "repo": "ghcr.io/yoshiofthewire/spinmatch:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Yoshiofthewire/Spinmatch/pkgs/container/spinmatch",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/Yoshiofthewire/unraid_docker_apps/main/spinmatch-icon.png",
+  "project": "https://github.com/Yoshiofthewire/Spinmatch",
+  "description": "Clean, Sort, Repair, and Expand your music collection. Search MusicBrainz for an artist, album, or song, browse album art and tracklists, and get a YouTube link for a track, verified by cross-checking the video's duration against the MusicBrainz-recorded track length. Spinmatch only finds and verifies YouTube links; it does not download or rip audio itself. It can also organize a local folder of unsorted audio files into your music library, tagging tracks either automatically via acoustic fingerprinting (AcoustID/Chromaprint) or by manual MusicBrainz search. Requires a free MusicBrainz-compatible contact email (set below). The optional local library ingest feature needs Ingest Directory and Music Directory; a free AcoustID API key from https://acoustid.org/new-application additionally enables automatic fingerprint identification; without one, files are matched by their existing tags instead.",
+  "paths": [
+    {
+      "name": "Ingest Directory",
+      "host": "/mnt/cache/appdata/spinmatch/ingest",
+      "container": "/data/ingest",
+      "mode": "rw",
+      "description": "Drop-folder for unsorted audio (loose files or whole album folders) to be identified and filed into Music Directory. Only used if MB Contact Email, Music Directory, and this path are all set. AcoustID API Key is optional on top of that \u2014 without it, files are matched by the tags they already carry, and anything that can't be confirmed is listed for manual review.",
+      "required": false
+    },
+    {
+      "name": "Music Directory",
+      "host": "/mnt/cache/Music",
+      "container": "/data/music",
+      "mode": "rw",
+      "description": "Your organized music library. Confirmed ingested tracks are moved here into an {Artist}/{Album}/{Track} - {Title} structure. Point this at your existing music share.",
+      "required": false
+    },
+    {
+      "name": "Library DB Directory",
+      "host": "/mnt/cache/appdata/spinmatch/db",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "Storage for the SQLite library index (library.db) that powers the collection dashboard and album gap detection. Must be a persistent, mounted path so the index survives container rebuilds.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port the web UI listens on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id the server runs as. Unraid's shares are owned by nobody:users (99:100), which is the default here \u2014 leave it alone unless you know your shares are owned by something else. It must be a uid that can write the Library DB Directory below, and the Music/Ingest directories if you use them. Upgrading from a version that ran as root? The container fixes up the DB directory itself on start; your music share is left alone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id the server runs as. Pairs with PUID above; 100 is Unraid's `users` group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MB Contact Email",
+      "key": "MB_CONTACT_EMAIL",
+      "value": "",
+      "description": "Required: a real contact email, per the MusicBrainz API usage policy (https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting). Every request identifies itself with this address; MusicBrainz may block the app's IP without it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MB App Name",
+      "key": "MB_APP_NAME",
+      "value": "Spinmatch",
+      "description": "Application name sent in the MusicBrainz User-Agent header.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MB App Version",
+      "key": "MB_APP_VERSION",
+      "value": "0.1.0",
+      "description": "Application version sent in the MusicBrainz User-Agent header.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AcoustID API Key",
+      "key": "ACOUSTID_API_KEY",
+      "value": "",
+      "description": "Optional: enables automatic track identification for the local library ingest feature (which itself just needs Ingest Directory and Music Directory above). Get a free key at https://acoustid.org/new-application. Leave blank and ingest still works, falling back to matching files by their existing tags (confirmed against MusicBrainz by title and duration), with anything unconfirmed listed for manual review.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library DB Path",
+      "key": "LIBRARY_DB",
+      "value": "/data/db/library.db",
+      "description": "Path (inside the container) to the SQLite library index. Should point into Library DB Directory above so it persists across container rebuilds. The collection dashboard is enabled automatically whenever Music Directory is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ingest Dir Path",
+      "key": "INGEST_DIR",
+      "value": "/data/ingest",
+      "description": "Path (inside the container) to the ingest drop-folder. Must match the container side of Ingest Directory above \u2014 the path mapping alone doesn't tell the app where to look, this variable does. Clearing it disables the Ingest page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Music Dir Path",
+      "key": "MUSIC_DIR",
+      "value": "/data/music",
+      "description": "Path (inside the container) to the organized music library. Must match the container side of Music Directory above \u2014 the path mapping alone doesn't tell the app where to look, this variable does. Clearing it disables both the Ingest and Library pages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "",
+      "description": "Set to 1 when Spinmatch sits behind a reverse proxy you control (SWAG, Nginx Proxy Manager, Traefik, Cloudflare Tunnel). It makes the app trust X-Forwarded-For, so the login rate limit sees real client IPs instead of lumping everyone into one bucket, and X-Forwarded-Proto, so the session cookie is marked Secure when your users are on HTTPS even though the proxy talks plain HTTP to the container. Leave blank if you reach the container directly by IP and port \u2014 when it is set, the app trusts headers that any client can send.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YTDLP Path",
+      "key": "YTDLP_PATH",
+      "value": "yt-dlp",
+      "description": "Path/name of the yt-dlp binary. The image installs yt-dlp on PATH already; only change this if you've customized the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FPCALC Path",
+      "key": "FPCALC_PATH",
+      "value": "fpcalc",
+      "description": "Path/name of the fpcalc (Chromaprint) binary used for acoustic fingerprinting. The image installs it on PATH already; only change this if you've customized the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

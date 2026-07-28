@@ -1,0 +1,83 @@
+{
+  "name": "Grafana-MCP",
+  "repo": "grafana/mcp-grafana:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/grafana/mcp-grafana",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/healthz",
+  "icon": "https://raw.githubusercontent.com/paulmeier/mcp-grafana-unraid/main/icons/mcp-grafana.png",
+  "project": "https://github.com/grafana/mcp-grafana",
+  "description": "Grafana MCP is the official Model Context Protocol server from Grafana Labs. It exposes your Grafana instance to AI assistants and other MCP clients through a single endpoint, so a client such as Claude can search dashboards, run Prometheus and Loki queries, inspect datasources, review alert rules and incidents, explore profiles, and more, using scoped tools instead of raw API calls. The container runs the server in SSE transport mode on port 8000 and serves the MCP endpoint at /sse. It needs a reachable Grafana instance and a Grafana service account token to authenticate. This is a headless server with no browsable web interface: point your MCP client at http:// :8000/sse.",
+  "paths": [
+    {
+      "name": "Appdata (Tailscale state)",
+      "host": "/mnt/cache/appdata/mcp-grafana",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "Small writable folder used only to persist Tailscale state when you enable Unraid built-in Tailscale integration. The Grafana MCP server itself is stateless and stores nothing here. If you do not use Tailscale you can safely leave this at its default. Keeping it mapped lets the Use Tailscale toggle work without the Couldn't detect persistent Docker directory error.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "MCP Server Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Host port mapped to the Grafana MCP server. MCP clients connect to http:// :[this port]/sse for the SSE transport. Change only the host side if 8000 is already taken on your server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Grafana URL",
+      "key": "GRAFANA_URL",
+      "value": "http://GRAFANA-HOST-IP:3000",
+      "description": "Full base URL of the Grafana instance the MCP server connects to, including scheme and port. Example http://192.168.1.10:3000 or https://grafana.example.com . Do not use localhost or 127.0.0.1 here, because inside the container those refer to the MCP server itself, not your Grafana. If Grafana runs as another Docker container on this same Unraid host, use the Unraid host LAN IP with the published Grafana port, or put both containers on one custom Docker network and use the Grafana container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Grafana Service Account Token",
+      "key": "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+      "value": "",
+      "description": "Grafana service account token used to authenticate every request to Grafana. In Grafana go to Administration, then Users and access, then Service accounts, create a service account with the roles you want to grant, add a token, and paste it here. This is the recommended authentication method and replaces the deprecated API key. Treat it like a password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Grafana Org ID",
+      "key": "GRAFANA_ORG_ID",
+      "value": "",
+      "description": "Optional Grafana organization ID to scope requests to. Useful on multi-org instances. Leave blank to use the default organization for the token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Headers",
+      "key": "GRAFANA_EXTRA_HEADERS",
+      "value": "",
+      "description": "Optional extra HTTP headers sent with every Grafana request, given as a JSON object mapping header names to values. Handy for tenant routing on Grafana Cloud or Mimir, for example an X-Scope-OrgID header. Leave blank if you do not need it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Container timezone, used for log timestamps. Example Europe/Madrid or America/New_York. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

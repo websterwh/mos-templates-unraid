@@ -1,0 +1,201 @@
+{
+  "name": "TimeMachine",
+  "repo": "mbentley/timemachine",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/mbentley/timemachine",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--hostname timemachine",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://upload.wikimedia.org/wikipedia/de/f/f4/Time_Machine_%28Apple%29_Logo.png",
+  "project": "https://github.com/mbentley/docker-timemachine",
+  "description": "This application provides a Samba based Time Machine network share. It can be configured to support multiple or single users and restrict the maximum size used for Time Machine backups.",
+  "paths": [
+    {
+      "name": "Time Machine Backup Data",
+      "host": "/mnt/cache/timemachine/",
+      "container": "/opt/timemachine",
+      "mode": "rw",
+      "description": "Directory to store the time machine backups. If you change the User Name (TM_USERNAME) value that it will change the data path from /opt/timemachine to /opt/value-of-TM_USERNAME.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Size Limit",
+      "key": "VOLUME_SIZE_LIMIT",
+      "value": "1 T",
+      "description": "Limits the reported disksize, thus preventing Time Machine from using the whole real disk space for backup. The option takes a number plus an optional unit (e.g. 1 T for 1 Terrabyte). IMPORTANT: This is an approximated calculation that only takes into account the contents of Time Machine sparsebundle images. Therefore you MUST NOT use this volume to store other content when using this option, because it would NOT be accounted. The calculation works by reading the band size from the Info.plist XML file of the sparsebundle, reading the bands/ directory counting the number of band files, and then multiplying one with the other.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User Name",
+      "key": "TM_USERNAME",
+      "value": "timemachine",
+      "description": "sets the username time machine runs as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User Password",
+      "key": "PASSWORD",
+      "value": "Z92efVNcokU26x",
+      "description": "sets the password for the timemachine user. The default value is Z92efVNcokU26x.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Advertised Hostname",
+      "key": "ADVERTISED_HOSTNAME",
+      "value": "timemachine",
+      "description": "Avahi will advertise the smb services at this hostname instead of the local hostname",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Custom SMB Configuration",
+      "key": "CUSTOM_SMB_CONF",
+      "value": "false",
+      "description": "indicates that you are going to bind mount a custom config to /etc/samba/smb.conf if set to true",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom User",
+      "key": "CUSTOM_USER",
+      "value": "false",
+      "description": "indicates that you are going to bind mount /etc/password, /etc/group, and /etc/shadow; and create data directories if set to true",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Level",
+      "key": "DEBUG_LEVEL",
+      "value": "1",
+      "description": "sets the debug level for nmbd and smbd",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mimic Model",
+      "key": "MIMIC_MODEL",
+      "value": "TimeCapsule8,119",
+      "description": "sets the value of time machine to mimic (e.g. TimeCapsule8,119 or TimeCapsule6,116)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External Configuration Directory",
+      "key": "EXTERNAL_CONF",
+      "value": "",
+      "description": "specifies a directory in which individual variable files, ending in .conf. In order to add multiple users who have their own shares, you will need to create a file for each user and put them in a directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hide Shares",
+      "key": "HIDE_SHARES",
+      "value": "no",
+      "description": "set to yes if you would like only the share(s) a user can access to appear",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group Name",
+      "key": "TM_GROUPNAME",
+      "value": "timemachine",
+      "description": "sets the group name time machine runs as",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User UID",
+      "key": "TM_UID",
+      "value": "1000",
+      "description": "sets the UID of the Executing User (TM_USERNAME)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Set Permissions",
+      "key": "SET_PERMISSIONS",
+      "value": "false",
+      "description": "set to true to have the entrypoint set ownership and permission on the /opt/ in the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB Inherit Permissions",
+      "key": "SMB_INHERIT_PERMISSIONS",
+      "value": "no",
+      "description": "if yes, permissions for new files will be forced to match the parent folder",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB fruit:nfs_aces",
+      "key": "SMB_NFS_ACES",
+      "value": "yes",
+      "description": "value of fruit:nfs_aces; support for querying and modifying the UNIX mode of directory entries via NFS ACEs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB fruit:metadata",
+      "key": "SMB_METADATA",
+      "value": "stream",
+      "description": "value of fruit:metadata; controls where the OS X metadata stream is stored",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB Port",
+      "key": "SMB_PORT",
+      "value": "445",
+      "description": "sets the port that Samba will be available on",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB vfs objects",
+      "key": "SMB_VFS_OBJECTS",
+      "value": "acl_xattr fruit streams_xattr",
+      "description": "value of vfs objects",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMB Workgroup Name",
+      "key": "WORKGROUP",
+      "value": "WORKGROUP",
+      "description": "set the SMB workgroup name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group GID",
+      "key": "TM_GID",
+      "value": "1000",
+      "description": "sets the GID of the TM_GROUPNAME group",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Share Name",
+      "key": "SHARE_NAME",
+      "value": "TimeMachine",
+      "description": "sets the name of the timemachine share to.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

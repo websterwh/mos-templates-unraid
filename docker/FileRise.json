@@ -1,0 +1,180 @@
+{
+  "name": "FileRise",
+  "repo": "error311/filerise-docker:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/error311/filerise-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/error311/filerise-docker/main/logo.png",
+  "project": "https://forums.unraid.net/topic/187337-support-filerise/",
+  "description": "FileRise is a lightweight, secure web file manager with uploads, tagging, share links, gallery/table views, and an in-browser editor. If you change HTTP_PORT / HTTPS_PORT, also edit the corresponding Container Port (Target) in the Port mappings to the same numbers. Otherwise the container will listen on a different internal port and the WebUI won\u2019t be reachable. Bridge mode (default): leave defaults (host 8080 \u2192 container 80). Access at http://SERVER_IP:8080/. Custom br0 (own IP): change host ports to 80/443 so you can use http://CONTAINER_IP/ (and https://CONTAINER_IP/ if you actually terminate TLS in-container). Directions: - UPLOADS PATH: folder where uploaded files are stored. **Recommended:** use a dedicated folder (e.g. /mnt/user/appdata/FileRise/uploads/), not the root of a huge media share. - USERS_DIR: persistent location for users.txt. - META_DIR: persistent location for metadata JSON files. - SESSIONS_DIR: persistent storage for PHP session files. Environment Variables: - TIMEZONE: e.g. America/New_York. - DATE_TIME_FORMAT: display format for \u201cUploaded\u201d and \u201cModified\u201d (e.g. m/d/y h:iA). - TOTAL_UPLOAD_SIZE: Apache/PHP upload limit (e.g. 5G). - HTTP_PORT / HTTPS_PORT: internal Apache ports. Default 80/443. (If you change these, set the Unraid Container Port fields to the same numbers.) - SHARE_URL: optional, set site root or full endpoint; leave empty to auto-detect. - PERSISTENT_TOKENS_KEY: You can leave blank for pristine installs, or set it if you want to manage the key yourself - PUID / PGID: map www-data to host UID/GID (Unraid: nobody=99, users=100). - SCAN_ON_START: true/false. If true, run a one-shot scan of /var/www/uploads at container start to build the metadata index. Good for first run on an existing folder tree. - CHOWN_ON_START: true/false. If true, recursively chown /var/www/uploads and /var/www/metadata to www-data on startup. Recommended true on first run, then set to false once permissions are correct. - SECURE: true/false; if true, set secure cookies (use with HTTPS). Ports: - Map a host port to Container Port 80 for HTTP (e.g. Host 8080 \u2192 Container 80). - (Optional) Map a host port to Container Port 443 for HTTPS (e.g. Host 8443 \u2192 Container 443). - WebUI can be set to http:// :[PORT:80]/ or https:// :[PORT:443]/ accordingly. More info: https://github.com/error311/filerise https://github.com/error311/filerise-docker",
+  "paths": [
+    {
+      "name": "UPLOADS PATH",
+      "host": "/mnt/cache/appdata/FileRise/uploads/",
+      "container": "/var/www/uploads",
+      "mode": "rw",
+      "description": "Folder where FileRise stores uploaded files (use a dedicated folder, not the root of a large media share).",
+      "required": true
+    },
+    {
+      "name": "USERS_DIR",
+      "host": "/mnt/cache/appdata/FileRise/",
+      "container": "/var/www/users",
+      "mode": "rw",
+      "description": "Path for persistent users file",
+      "required": true
+    },
+    {
+      "name": "META_DIR",
+      "host": "/mnt/cache/appdata/FileRise/",
+      "container": "/var/www/metadata",
+      "mode": "rw",
+      "description": "Path for persistent metadata JSON files (tags, search index, share links, etc.)",
+      "required": true
+    },
+    {
+      "name": "SESSIONS_DIR",
+      "host": "/mnt/cache/appdata/FileRise/sessions/",
+      "container": "/var/www/sessions",
+      "mode": "rw",
+      "description": "Path for persistent PHP session data",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host\u2192Container mapping for HTTP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "8443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Host\u2192Container mapping for HTTPS",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TIMEZONE",
+      "key": "TIMEZONE",
+      "value": "America/New_York",
+      "description": "PHP/container timezone, e.g. America/New_York",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATE_TIME_FORMAT",
+      "key": "DATE_TIME_FORMAT",
+      "value": "m/d/y  h:iA",
+      "description": "Display format for dates (Uploaded/Modified). Defaults to m/d/y h:iA if not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TOTAL_UPLOAD_SIZE",
+      "key": "TOTAL_UPLOAD_SIZE",
+      "value": "5G",
+      "description": "Max total upload size per request (e.g. 5G, 10G). Sets PHP and Apache limits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_PORT",
+      "key": "HTTP_PORT",
+      "value": "",
+      "description": "Advanced: internal Apache HTTP listen port (default 80). Leave blank. Only change if you also change the container port target mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS_PORT",
+      "key": "HTTPS_PORT",
+      "value": "",
+      "description": "Advanced: internal Apache HTTPS listen port (default 443). Leave blank. Only change if you also change the container port target mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PERSISTENT_TOKENS_KEY",
+      "key": "PERSISTENT_TOKENS_KEY",
+      "value": "",
+      "description": "Encrypts stored secrets (tokens, permissions, admin config). Pristine Docker installs auto-generate one. Keep empty to auto generate.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Numeric UID to map www-data (Unraid: nobody=99)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Numeric GID to map www-data (Unraid: users=100)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCAN_ON_START",
+      "key": "SCAN_ON_START",
+      "value": "true",
+      "description": "true/false. If true, run a one-shot scan of /var/www/uploads on container start to build metadata (good for first run on existing files).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CHOWN_ON_START",
+      "key": "CHOWN_ON_START",
+      "value": "true",
+      "description": "true/false. If true, recursively chown uploads/ and metadata/ to www-data at startup. Recommended true on first run, then false once perms are correct.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHARE_URL",
+      "key": "SHARE_URL",
+      "value": "",
+      "description": "Optional. Set to site root or full endpoint; leave empty to auto-detect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SECURE",
+      "key": "SECURE",
+      "value": "false",
+      "description": "true/false. If true, set secure cookies (use when served over HTTPS).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_STREAM",
+      "key": "LOG_STREAM",
+      "value": "error",
+      "description": "Which logs to stream to console: error|access|both|none",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

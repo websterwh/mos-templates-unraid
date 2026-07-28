@@ -1,0 +1,65 @@
+{
+  "name": "bifrost",
+  "repo": "ghcr.io/others-git/bifrost:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:3000/",
+  "icon": "https://raw.githubusercontent.com/others-git/bifrost/main/assets/icon.png",
+  "project": "https://github.com/others-git/bifrost",
+  "description": "Self-hosted smart-home control hub. It brings your supported devices \u2014 direct integrations plus anything from Home Assistant \u2014 under one web UI and REST API, organizes them into rooms, saves scenes you can restore in one tap, and lets you control everything by voice or AI assistants through the embedded MCP server. It aims to keep device connections live and show each device's real state. Runs as a single binary with one SQLite file; pair Hue from the UI via the bridge link button. Full supported-device list: https://others-git.github.io/bifrost/providers/ Runs on the host network so device auto-detect works: discovery uses SSDP/eISCP broadcast, multicast, and a local-subnet sweep, none of which cross a bridged container's NAT. The web UI is on port 3000 (set by Bind Address below); change that variable to use a different port.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/bifrost/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Directory for the SQLite database (bifrost.db). All state lives here: password, providers (credentials encrypted), lights, scenes, groups, floor plans.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "BIFROST_SECRET",
+      "value": "",
+      "description": "REQUIRED. Encrypts provider credentials at rest (AES-256-GCM). Generate one with: openssl rand -hex 32. Changing it later orphans stored provider credentials (you would re-add providers).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "sqlite:///data/bifrost.db",
+      "description": "SQLite connection string. Leave at the default unless you move the Data Directory mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bind Address",
+      "key": "BIND_ADDR",
+      "value": "0.0.0.0:3000",
+      "description": "Address and port the app listens on. With host networking this is the actual host port \u2014 open http://[server-ip]:3000 after install. If you change the port here (e.g. 0.0.0.0:8080), browse to that port instead; the WebUI shortcut is fixed at 3000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "RUST_LOG",
+      "value": "bifrost=info",
+      "description": "Log filter, e.g. bifrost=info or bifrost=debug.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

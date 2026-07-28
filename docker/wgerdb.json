@@ -1,0 +1,99 @@
+{
+  "name": "wger-db",
+  "repo": "postgres:15-alpine",
+  "category": [
+    "System"
+  ],
+  "registry": "https://registry.hub.docker.com/_/postgres",
+  "network": "wger_network",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--health-cmd=pg_isready -U wger --health-interval=10s --health-retries=5 --health-start-period=30s --health-timeout=5s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/wger-logo.png",
+  "project": "https://wger.de",
+  "description": "PostgreSQL database server for the wger application. Persistent data is stored in the configured host directory.",
+  "paths": [
+    {
+      "name": "DB_DATA",
+      "host": "/mnt/cache/appdata/wger/db/",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Persistent data directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PORT",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL database port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "wger",
+      "description": "Database username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "wger",
+      "description": "Database password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "wger",
+      "description": "Database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

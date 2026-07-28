@@ -1,0 +1,107 @@
+{
+  "name": "decide",
+  "repo": "ghcr.io/hk21x/decide:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/hk21x/decide/pkgs/container/decide",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/hk21x/decide/main/frontend/public/decide-icon-512.png",
+  "project": "https://github.com/hk21x/decide",
+  "description": "decide \u2014 Swipe. Decide. Watch. A self-hosted swipe-to-match film picker for your Plex library. Two to four people swipe through the same small, filtered deck of films from your server; when everyone says \"Tonight\" to the same one it's a match, a Final Round crowns the winner, and ticket stubs remember your movie nights. Features: film AND whole-series decks, mood-based filters (runtime, rating, certificate, collections), join codes with a dual QR (local + Tailscale/remote), live matches over WebSocket plus push alerts, async swiping (together or hours apart), a Final Round that crowns tonight's pick, taste-compatibility stats, a keepsake stub album, \"Open in Plex\" and play-on-your-TV, installable PWA with offline swiping, dark and light themes. Privacy: your Plex token never leaves the container \u2014 every Plex call, including artwork, is proxied by the backend. Once the library is synced, everything works on the LAN with no internet access. First run: open the WebUI and follow the setup wizard \u2014 sign in with Plex via a 4-character code at plex.tv/link (decide never asks for your password), pick your server and film libraries, and let the first sync run. decide is an independent project that works with Plex Media Server. It is not affiliated with or endorsed by Plex, Inc.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/decide",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database and artwork cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the decide web app.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run as (99 = nobody on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run as (100 = users on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Artwork cache cap (MB)",
+      "key": "ART_CACHE_MB",
+      "value": "500",
+      "description": "Disk cap for the poster/backdrop cache under /data/art.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex URL (optional)",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Optional declarative setup: your Plex server address (e.g. http://192.168.1.10:32400). Leave empty to use the in-browser setup wizard instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex token (optional)",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Optional declarative setup: an X-Plex-Token. Leave empty to sign in with the wizard's plex.tv/link flow instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Local join address (optional)",
+      "key": "LOCAL_URL",
+      "value": "",
+      "description": "Address the join QR shows to people on your LAN (e.g. http://192.168.1.10:8080). Auto-detected if empty; also settable in-app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remote join address (optional)",
+      "key": "REMOTE_URL",
+      "value": "",
+      "description": "Address the join QR shows to remote friends (e.g. your Tailscale https://... name). Also settable in-app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex sections (optional)",
+      "key": "PLEX_SECTIONS",
+      "value": "",
+      "description": "Optional declarative setup: comma-separated movie library section ids (e.g. 1,4).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,715 @@
+{
+  "name": "ImmichKiosk",
+  "repo": "ghcr.io/damongolding/immich-kiosk:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/damongolding/immich-kiosk/pkgs/container/immich-kiosk",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/damongolding/immich-kiosk/main/assets/logo.png",
+  "project": "https://github.com/damongolding/immich-kiosk",
+  "description": "Immich Kiosk is a lightweight slideshow for running on kiosk devices and browsers that uses Immich as a data source.",
+  "paths": [
+    {
+      "name": "Config File",
+      "host": "/mnt/cache/appdata/immich_kiosk/config.yaml",
+      "container": "/config.yaml",
+      "mode": "rw",
+      "description": "Config file for application. Remove this if using environmental variables instead.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Container Port: 3000",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Language",
+      "key": "LANG",
+      "value": "en_GB",
+      "description": "The language code for Kiosk to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "The timezone for Kiosk to use",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Immich Api Key",
+      "key": "KIOSK_IMMICH_API_KEY",
+      "value": "",
+      "description": "The API for your Immich server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Immich Url",
+      "key": "KIOSK_IMMICH_URL",
+      "value": "",
+      "description": "The URL of your Immich server. MUST include a port if one is needed e.g. `http://192.168.1.123:2283`.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Immich External Url",
+      "key": "KIOSK_IMMICH_EXTERNAL_URL",
+      "value": "",
+      "description": "The public URL of your Immich server used for generating links and QR codes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Time",
+      "key": "KIOSK_SHOW_TIME",
+      "value": "false",
+      "description": "Display clock.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time Format",
+      "key": "KIOSK_TIME_FORMAT",
+      "value": "24",
+      "description": "Display clock time in either 12-hour or 24-hour format. This can either be 12 or 24.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Date",
+      "key": "KIOSK_SHOW_DATE",
+      "value": "false",
+      "description": "Display the date.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Date Format",
+      "key": "KIOSK_DATE_FORMAT",
+      "value": "DD/MM/YYYY",
+      "description": "The format of the date. default is day/month/year.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Clock Source",
+      "key": "KIOSK_CLOCK_SOURCE",
+      "value": "client",
+      "description": "The source of the clock. Either client or server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Duration",
+      "key": "KIOSK_DURATION",
+      "value": "60",
+      "description": "The amount in seconds an image will be displayed for.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Screensaver",
+      "key": "KIOSK_DISABLE_SCREENSAVER",
+      "value": "false",
+      "description": "Ask browser to request a lock that prevents device screens from dimming or locking. NOTE: I haven't been able to get this to work consistently on IOS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Optimize Images",
+      "key": "KIOSK_OPTIMIZE_IMAGES",
+      "value": "false",
+      "description": "Whether Kiosk should resize images to match your browser screen dimensions for better performance. NOTE: In most cases this is not necessary, but if you are accessing Kiosk on a low-powered device, this may help.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Gpu",
+      "key": "KIOSK_USE_GPU",
+      "value": "true",
+      "description": "Enable GPU acceleration for improved performance (e.g., CSS transforms)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Archived",
+      "key": "KIOSK_SHOW_ARCHIVED",
+      "value": "false",
+      "description": "Allow assets marked as archived to be displayed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Albums",
+      "key": "KIOSK_ALBUMS",
+      "value": "",
+      "description": "The ID(s) of one or more albums to display.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Album Order",
+      "key": "KIOSK_ALBUM_ORDER",
+      "value": "random",
+      "description": "The order an album's assets will be displayed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Excluded Albums",
+      "key": "KIOSK_EXCLUDED_ALBUMS",
+      "value": "",
+      "description": "The ID(s) of a specific album or albums you want to exclude.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Videos",
+      "key": "KIOSK_SHOW_VIDEOS",
+      "value": "false",
+      "description": "Enable video playback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live Photos",
+      "key": "KIOSK_LIVE_PHOTOS",
+      "value": "false",
+      "description": "Enable live photos playback for albums.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live Photo Loop Delay",
+      "key": "KIOSK_LIVE_PHOTO_LOOP_DELAY",
+      "value": "0",
+      "description": "Delay in seconds before looping live photos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "People",
+      "key": "KIOSK_PEOPLE",
+      "value": "",
+      "description": "The ID(s) of a specific person or people you want to display.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require All People",
+      "key": "KIOSK_REQUIRE_ALL_PEOPLE",
+      "value": "false",
+      "description": "Require all people to be present in an asset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Excluded People",
+      "key": "KIOSK_EXCLUDED_PEOPLE",
+      "value": "",
+      "description": "The ID(s) of a specific person or people you want to exclude.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dates",
+      "key": "KIOSK_DATES",
+      "value": "",
+      "description": "A date range or ranges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tags",
+      "key": "KIOSK_TAGS",
+      "value": "",
+      "description": "Tag or tags you want to display.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Excluded Tags",
+      "key": "KIOSK_EXCLUDED_TAGS",
+      "value": "",
+      "description": "The tag or tags you want to exclude.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Memories",
+      "key": "KIOSK_MEMORIES",
+      "value": "false",
+      "description": "Display memories.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Blacklist",
+      "key": "KIOSK_BLACKLIST",
+      "value": "",
+      "description": "The ID(s) of any specific assets you want Kiosk to skip/exclude from displaying.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Date Filter",
+      "key": "KIOSK_DATE_FILTER",
+      "value": "",
+      "description": "Filter person and random assets by date.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Navigation",
+      "key": "KIOSK_DISABLE_NAVIGATION",
+      "value": "false",
+      "description": "Disable all Kiosk's navigation (touch/click, keyboard and menu).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Ui",
+      "key": "KIOSK_DISABLE_UI",
+      "value": "false",
+      "description": "A shortcut to set show_time, show_date, show_image_time and show_image_date to false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Menu Position",
+      "key": "KIOSK_MENU_POSITION",
+      "value": "top",
+      "description": "Sets the position of the menu bar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Frameless",
+      "key": "KIOSK_FRAMELESS",
+      "value": "false",
+      "description": "Remove borders and rounded corners on images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hide Cursor",
+      "key": "KIOSK_HIDE_CURSOR",
+      "value": "false",
+      "description": "Hide cursor/mouse via CSS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Font Size",
+      "key": "KIOSK_FONT_SIZE",
+      "value": "100",
+      "description": "The base font size for Kiosk. Default is 100% (16px). DO NOT include the % character.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Background Blur",
+      "key": "KIOSK_BACKGROUND_BLUR",
+      "value": "true",
+      "description": "Display a blurred version of the image as a background.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Background Blur Amount",
+      "key": "KIOSK_BACKGROUND_BLUR_AMOUNT",
+      "value": "10",
+      "description": "The amount of blur to apply to the background image (sigma).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Theme",
+      "key": "KIOSK_THEME",
+      "value": "fade",
+      "description": "Which theme to use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Layout",
+      "key": "KIOSK_LAYOUT",
+      "value": "single",
+      "description": "Which layout to use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sleep Start",
+      "key": "KIOSK_SLEEP_START",
+      "value": "",
+      "description": "Time (in 24hr format) to start sleep mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sleep End",
+      "key": "KIOSK_SLEEP_END",
+      "value": "",
+      "description": "Time (in 24hr format) to end sleep mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sleep Icon",
+      "key": "KIOSK_SLEEP_ICON",
+      "value": "",
+      "description": "Display icon during sleep mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sleep Dim Screen",
+      "key": "KIOSK_SLEEP_DIM_SCREEN",
+      "value": "false",
+      "description": "Dim screen during sleep mode when using Fully Kiosk Browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transition",
+      "key": "KIOSK_TRANSITION",
+      "value": "none",
+      "description": "Which transition to use when changing images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fade Transition Duration",
+      "key": "KIOSK_FADE_TRANSITION_DURATION",
+      "value": "1",
+      "description": "The duration of the fade (in seconds) transition.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cross Fade Transition Duration",
+      "key": "KIOSK_CROSS_FADE_TRANSITION_DURATION",
+      "value": "1",
+      "description": "The duration of the cross-fade (in seconds) transition.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Progress Bar",
+      "key": "KIOSK_SHOW_PROGRESS_BAR",
+      "value": "false",
+      "description": "Display a progress bar for when image will refresh.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Progress Bar Position",
+      "key": "KIOSK_PROGRESS_BAR_POSITION",
+      "value": "top",
+      "description": "Sets the position of the progress bar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Fit",
+      "key": "KIOSK_IMAGE_FIT",
+      "value": "contain",
+      "description": "How the image should fit on the screen. Default is \"contain\".",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Effect",
+      "key": "KIOSK_IMAGE_EFFECT",
+      "value": "none",
+      "description": "Add an effect to images.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Effect Amount",
+      "key": "KIOSK_IMAGE_EFFECT_AMOUNT",
+      "value": "120",
+      "description": "Set the intensity of the image effect. Use a number between 100 (minimum) and higher, without the % symbol.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Original Image",
+      "key": "KIOSK_USE_ORIGINAL_IMAGE",
+      "value": "false",
+      "description": "Use the original image. NOTE: If the original is not a png, gif, jpeg or webp Kiosk will fall back to using the preview.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Owner",
+      "key": "KIOSK_SHOW_OWNER",
+      "value": "false",
+      "description": "Display the asset owner. Useful for shared albums.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Album Name",
+      "key": "KIOSK_SHOW_ALBUM_NAME",
+      "value": "false",
+      "description": "Display album names that the asset appears in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Person Name",
+      "key": "KIOSK_SHOW_PERSON_NAME",
+      "value": "false",
+      "description": "Display people's names.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Person Age",
+      "key": "KIOSK_SHOW_PERSON_AGE",
+      "value": "false",
+      "description": "Display people's ages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Time",
+      "key": "KIOSK_SHOW_IMAGE_TIME",
+      "value": "false",
+      "description": "Display image time from METADATA (if available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Time Format",
+      "key": "KIOSK_IMAGE_TIME_FORMAT",
+      "value": "12",
+      "description": "Display image time in either 12-hour or 24-hour format. This can either be 12 or 24.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Date",
+      "key": "KIOSK_SHOW_IMAGE_DATE",
+      "value": "false",
+      "description": "Display the image date from METADATA (if available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image Date Format",
+      "key": "KIOSK_IMAGE_DATE_FORMAT",
+      "value": "DD/MM/YYYY",
+      "description": "The format of the image date. default is day/month/year.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Description",
+      "key": "KIOSK_SHOW_IMAGE_DESCRIPTION",
+      "value": "false",
+      "description": "Display image description from METADATA (if available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Exif",
+      "key": "KIOSK_SHOW_IMAGE_EXIF",
+      "value": "false",
+      "description": "Display image Fnumber, Shutter speed, focal length, ISO from METADATA (if available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Location",
+      "key": "KIOSK_SHOW_IMAGE_LOCATION",
+      "value": "false",
+      "description": "Display the image location from METADATA (if available).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Image Qr",
+      "key": "KIOSK_SHOW_IMAGE_QR",
+      "value": "false",
+      "description": "Displays a QR code linking to the original image (in Immich) next to the image metadata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hide Countries",
+      "key": "KIOSK_HIDE_COUNTRIES",
+      "value": "",
+      "description": "List of countries to hide from image_location",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show More Info",
+      "key": "KIOSK_SHOW_MORE_INFO",
+      "value": "true",
+      "description": "Enables the display of additional information about the current image(s)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show More Info Image Link",
+      "key": "KIOSK_SHOW_MORE_INFO_IMAGE_LINK",
+      "value": "true",
+      "description": "Shows a link to the original image (in Immich) in the additional information overlay",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show More Info Qr Code",
+      "key": "KIOSK_SHOW_MORE_INFO_QR_CODE",
+      "value": "true",
+      "description": "Displays a QR code linking to the original image (in Immich) in the additional information overlay",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Like Button Action",
+      "key": "KIOSK_LIKE_BUTTON_ACTION",
+      "value": "[favorite]",
+      "description": "Action(s) to perform when the like button is clicked. Supported actions are [favorite, album].",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hide Button Action",
+      "key": "KIOSK_HIDE_BUTTON_ACTION",
+      "value": "[tag, archive]",
+      "description": "Action(s) to perform when the hide button is clicked. Supported actions are [tag, archive].",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show User",
+      "key": "KIOSK_SHOW_USER",
+      "value": "false",
+      "description": "Display the user used to fetch the image.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Use Offline Mode",
+      "key": "KIOSK_USE_OFFLINE_MODE",
+      "value": "false",
+      "description": "Enable offline mode for the device.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Iframe",
+      "key": "KIOSK_IFRAME",
+      "value": "",
+      "description": "Add iframes into Kiosk.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Validation Level",
+      "key": "KIOSK_CONFIG_VALIDATION_LEVEL",
+      "value": "error",
+      "description": "The level of validation to perform on the config.yaml file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "KIOSK_PORT",
+      "value": "3000",
+      "description": "Which port Kiosk should use. NOTE: This is only typically needed when running Kiosk outside of a container. If you are running inside a container the port will need to be reflected in your compose file, e.g. `HOST_PORT:KIOSK_PORT`",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Behind Proxy",
+      "key": "KIOSK_BEHIND_PROXY",
+      "value": "false",
+      "description": "Is Kiosk running behind a proxy?",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watch Config",
+      "key": "KIOSK_WATCH_CONFIG",
+      "value": "false",
+      "description": "Should Kiosk watch config.yaml file for changes. Reloads all connect clients if a change is detected.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fetched Assets Size",
+      "key": "KIOSK_FETCHED_ASSETS_SIZE",
+      "value": "1000",
+      "description": "The number of assets (data) requested from Immich per api call. min=1 max=1000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Http Timeout",
+      "key": "KIOSK_HTTP_TIMEOUT",
+      "value": "20",
+      "description": "The number of seconds before an http request will time out.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "KIOSK_PASSWORD",
+      "value": "",
+      "description": "Please see FAQs for more info. If set, requests MUST contain the password in the GET parameters, e.g. `http://192.168.0.123:3000?password=PASSWORD`.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache",
+      "key": "KIOSK_CACHE",
+      "value": "true",
+      "description": "Cache selective Immich api calls to reduce unnecessary calls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prefetch",
+      "key": "KIOSK_PREFETCH",
+      "value": "true",
+      "description": "Pre-fetch assets in the background, so images load much quicker when duration timer ends.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Asset Weighting",
+      "key": "KIOSK_ASSET_WEIGHTING",
+      "value": "true",
+      "description": "Balances asset selection when multiple sources are used, e.g. multiple people and albums. When enabled, sources with fewer assets will show less often.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

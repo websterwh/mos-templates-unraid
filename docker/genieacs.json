@@ -1,0 +1,94 @@
+{
+  "name": "genieacs",
+  "repo": "drumsergio/genieacs:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/genieacs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/master/drumsergio/images/genieacs.png",
+  "project": "https://github.com/GeiserX/genieacs-container",
+  "description": "Production-ready Docker image for GenieACS, an open-source TR-069 (CWMP) Auto Configuration Server. Manage and provision CPE devices (routers, ONTs, gateways) via TR-069 protocol with a built-in web UI, REST API, and firmware file server. Multi-arch (amd64/arm64), non-root runtime, integrated log rotation. Includes 4 services managed by supervisord: CWMP (device communication), NBI (REST API), FS (file server), and UI (web dashboard). Requires MongoDB. Set GENIEACS_MONGODB_CONNECTION_URL to your MongoDB instance. More info: https://github.com/GeiserX/genieacs-container",
+  "paths": [
+    {
+      "name": "Extensions",
+      "host": "/mnt/cache/appdata/genieacs/ext",
+      "container": "/opt/genieacs/ext",
+      "mode": "rw",
+      "description": "Custom extension scripts directory",
+      "required": false
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/genieacs/log",
+      "container": "/var/log/genieacs",
+      "mode": "rw",
+      "description": "Log files (rotated daily, 30-day retention)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "GenieACS web dashboard port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CWMP Port",
+      "host": "7547",
+      "container": "7547",
+      "protocol": "tcp",
+      "description": "TR-069 CWMP port for CPE device communication",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NBI Port",
+      "host": "7557",
+      "container": "7557",
+      "protocol": "tcp",
+      "description": "Northbound Interface (REST API) port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "FS Port",
+      "host": "7567",
+      "container": "7567",
+      "protocol": "tcp",
+      "description": "File server port for firmware and config uploads",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MongoDB URL",
+      "key": "GENIEACS_MONGODB_CONNECTION_URL",
+      "value": "mongodb://mongo:27017",
+      "description": "MongoDB connection string (e.g. mongodb://host:27017)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "GENIEACS_UI_JWT_SECRET",
+      "value": "changeme",
+      "description": "JWT secret for web UI authentication. Change in production!",
+      "required": true,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

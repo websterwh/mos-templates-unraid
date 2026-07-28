@@ -1,0 +1,99 @@
+{
+  "name": "MediaLyze",
+  "repo": "ghcr.io/frederikemmer/medialyze:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/frederikemmer/MediaLyze/main/frontend/public/favicon-512.png",
+  "project": "https://github.com/frederikemmer/MediaLyze",
+  "description": "Self-hosted technical media analysis for large video and audio collections.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/medialyze",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent configuration and SQLite database storage.",
+      "required": true
+    },
+    {
+      "name": "Primary Media Mount",
+      "host": "/mnt/cache/media",
+      "container": "/media/Media",
+      "mode": "ro",
+      "description": "Required read-only media mount. Change the container path to your preferred visible name, but keep it below /media, for example /media/Movies.",
+      "required": true
+    },
+    {
+      "name": "Movies Media Mount",
+      "host": "",
+      "container": "/media/Movies",
+      "mode": "ro",
+      "description": "Optional additional read-only media mount. Change the container path to your preferred visible name, but keep it below /media, for example /media/Movies.",
+      "required": false
+    },
+    {
+      "name": "Shows Media Mount",
+      "host": "",
+      "container": "/media/Shows",
+      "mode": "ro",
+      "description": "Optional additional read-only media mount. Change the container path to your preferred visible name, but keep it below /media, for example /media/Shows.",
+      "required": false
+    },
+    {
+      "name": "Music Media Mount",
+      "host": "",
+      "container": "/media/Music",
+      "mode": "ro",
+      "description": "Optional additional read-only media mount. Change the container path to your preferred visible name, but keep it below /media, for example /media/Music.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the MediaLyze web interface. The container target port stays 8080.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone, for example Europe/Berlin or America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Optional runtime user id. On Unraid, 99 is usually nobody.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Optional runtime group id. On Unraid, 100 is usually users.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

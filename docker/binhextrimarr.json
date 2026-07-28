@@ -1,0 +1,313 @@
+{
+  "name": "binhex-trimarr",
+  "repo": "ghcr.io/binhex/arch-trimarr",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/binhex/arch-trimarr/pkgs/container/arch-trimarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/trimarr-icon.png",
+  "project": "https://github.com/binhex/arch-trimarr",
+  "description": "Removes (trims) unwanted audio and subtitles from matroska container format video files using mkvmerge. Features recursive scanning, smart skip via SQLite tracking, commentary track safety, multi-language support, auto-managed mkvmerge binary, and space savings reporting. Supports one-shot or cron-scheduled operation.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/trimarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container path for configuration files, database (trimarr.db), and logs.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Container path to your media files (e.g. movies, tv). Matches the default TRIMARR_MEDIA_PATH.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Variable: TRIMARR_LANGUAGE",
+      "key": "TRIMARR_LANGUAGE",
+      "value": "",
+      "description": "(Required) ISO 639-2 language code(s) for tracks to keep. Comma-separate multiple codes, e.g. 'eng' or 'eng,fre'. See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_MEDIA_PATH",
+      "key": "TRIMARR_MEDIA_PATH",
+      "value": "/media",
+      "description": "Directories containing media files to process. Use pipe (|) as separator for multiple paths, e.g. /media/Movies|/media/TV",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_SCHEDULE",
+      "key": "TRIMARR_SCHEDULE",
+      "value": "",
+      "description": "Cron schedule for repeated runs, e.g. '0 2 * * *' (daily at 2am), '@daily', '*/30 * * * *'. Omit for one-shot mode (container exits after processing).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_EDIT_METADATA_TITLE",
+      "key": "TRIMARR_EDIT_METADATA_TITLE",
+      "value": "no|yes",
+      "description": "If set to 'yes', each file's title metadata is updated to match its filename.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_DELETE_METADATA_TITLE",
+      "key": "TRIMARR_DELETE_METADATA_TITLE",
+      "value": "no|yes",
+      "description": "If set to 'yes', title metadata is deleted from files. Mutually exclusive with TRIMARR_EDIT_METADATA_TITLE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_KEEP_SUBTITLES",
+      "key": "TRIMARR_KEEP_SUBTITLES",
+      "value": "no|yes",
+      "description": "If set to 'yes', all subtitle tracks are kept regardless of language.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_KEEP_AUDIO",
+      "key": "TRIMARR_KEEP_AUDIO",
+      "value": "no|yes",
+      "description": "If set to 'yes', all audio tracks are kept regardless of language.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_KEEP_NATIVE_AUDIO",
+      "key": "TRIMARR_KEEP_NATIVE_AUDIO",
+      "value": "no|yes",
+      "description": "If set to 'yes', audio tracks matching the film's original language (detected via IMDb/TMDb) are kept even if they don't match TRIMARR_LANGUAGE. Useful for dubbed films.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_NO_BACKUP",
+      "key": "TRIMARR_NO_BACKUP",
+      "value": "no|yes",
+      "description": "If set to 'yes', original files are deleted instead of renamed to .bak after successful processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_DRY_RUN",
+      "key": "TRIMARR_DRY_RUN",
+      "value": "yes|no",
+      "description": "If set to 'yes', performs a dry run without modifying any files. Defaults to 'yes' for safety \u2014 set to 'no' to allow actual processing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_STRIP_LOWER_CHANNELS",
+      "key": "TRIMARR_STRIP_LOWER_CHANNELS",
+      "value": "no|yes",
+      "description": "If set to 'yes', audio tracks with channel count below the maximum surviving track are removed (e.g. drops 2ch if 8ch exists).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_STRIP_COMMENTARY",
+      "key": "TRIMARR_STRIP_COMMENTARY",
+      "value": "no|yes",
+      "description": "If set to 'yes', audio and subtitle tracks whose name contains 'commentary' (case-insensitive) are removed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_STRIP_SUBTITLE_REGEX",
+      "key": "TRIMARR_STRIP_SUBTITLE_REGEX",
+      "value": "",
+      "description": "Python regex pattern. Any subtitle track whose name matches is removed after language filtering, regardless of language. Uses Python re syntax. Example: '(?i)songs.*signs'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_RUN_ON_START",
+      "key": "TRIMARR_RUN_ON_START",
+      "value": "no|yes",
+      "description": "If set to 'yes', fires one run immediately on startup before the first scheduled cron fire. Requires TRIMARR_SCHEDULE to be set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_TMDB_API_KEY",
+      "key": "TRIMARR_TMDB_API_KEY",
+      "value": "",
+      "description": "Optional TMDb API key. Used as a fallback when IMDb identification fails. Get a free key at https://www.themoviedb.org/settings/api",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_TVDB_API_KEY",
+      "key": "TRIMARR_TVDB_API_KEY",
+      "value": "",
+      "description": "Optional TVDB API key. Used as a fallback when IMDb and TMDb identification fails. Useful for TV shows whose NFO files contain only a TVDB ID. Get a free key at https://thetvdb.com/api",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_KEEP_UNDEFINED_AUDIO",
+      "key": "TRIMARR_KEEP_UNDEFINED_AUDIO",
+      "value": "no|yes",
+      "description": "If set to 'yes', audio tracks with an undefined language code ('und') are kept rather than dropped by the language filter. Useful when source files have missing or incorrect language tags.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_LOG_LEVEL",
+      "key": "TRIMARR_LOG_LEVEL",
+      "value": "INFO|DEBUG|SUCCESS|WARNING|ERROR",
+      "description": "Logging level. Dropdown shows valid choices; INFO is default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_DATABASE_PATH",
+      "key": "TRIMARR_DATABASE_PATH",
+      "value": "/config/trimarr/db/trimarr.db",
+      "description": "Path to SQLite database for tracking processed files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_LOG_PATH",
+      "key": "TRIMARR_LOG_PATH",
+      "value": "/config/trimarr/logs/trimarr.log",
+      "description": "Path to log file for tracking application events.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_MKVMERGE_PATH",
+      "key": "TRIMARR_MKVMERGE_PATH",
+      "value": "",
+      "description": "Path to mkvmerge executable. When omitted, trimarr manages its own binary (auto-downloaded and updated).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_PRE_PROCESS",
+      "key": "TRIMARR_PRE_PROCESS",
+      "value": "",
+      "description": "Shell command to run before processing a directory. Use {leaf} for basename, {dir} for full path. Example: 'no_ransom.sh --unlock yes {leaf}'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_POST_PROCESS",
+      "key": "TRIMARR_POST_PROCESS",
+      "value": "",
+      "description": "Shell command to run after processing a directory. Use {leaf} for basename, {dir} for full path. Example: 'no_ransom.sh --unlock no {leaf}'",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_COMMAND_TIMEOUT_MINS",
+      "key": "TRIMARR_COMMAND_TIMEOUT_MINS",
+      "value": "5",
+      "description": "Timeout in minutes for each pre/post process command. Set to 0 to disable timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_NO_UPDATE_CHECK",
+      "key": "TRIMARR_NO_UPDATE_CHECK",
+      "value": "no|yes",
+      "description": "If set to 'yes', skips the automatic check for a newer mkvmerge version.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: TRIMARR_SKIP_SIZE_CHECK",
+      "key": "TRIMARR_SKIP_SIZE_CHECK",
+      "value": "no|yes",
+      "description": "If set to 'yes', bypasses the 50% output size guard. Use when legitimate remuxes produce significantly smaller files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_STARTUP_SCRIPTS",
+      "key": "ENABLE_STARTUP_SCRIPTS",
+      "value": "no|yes",
+      "description": "Specify whether to run startup scripts to install and/or configure additional applications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

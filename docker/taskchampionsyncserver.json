@@ -1,0 +1,83 @@
+{
+  "name": "taskchampion-sync-server",
+  "repo": "ghcr.io/furan917/taskchampion-sync-server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/furan917/taskchampion-sync-wrapper/pkgs/container/taskchampion-sync-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://avatars.githubusercontent.com/u/7008500",
+  "project": "https://github.com/GothenburgBitFactory/taskchampion-sync-server",
+  "description": "TaskChampion Sync Server is the official sync backend for Taskwarrior 3.x. It allows tasks to be synchronised across multiple devices. Task data is encrypted client-side \u2014 the server never sees plaintext. IMPORTANT: you must set Client ID(s) before the container will start. The upstream taskchampion-sync-server provides no HTTP authentication by design; access control is via UUID allowlisting only. For internet-facing deployments, place this behind a reverse proxy with HTTP Basic Auth (e.g. Nginx Proxy Manager).",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/taskchampion-sync-server",
+      "container": "/var/lib/taskchampion-sync-server",
+      "mode": "rw",
+      "description": "Persistent storage for the SQLite task database.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8007",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port mapped to the container's internal port 8080. Default is 8007 to avoid conflicts with common Unraid services.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID the server process runs as. Defaults to Unraid's nobody user (99). Change to match your user ID on other systems (run `id` to find it).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID the server process runs as. Defaults to Unraid's users group (100). Change to match your group ID on other systems (run `id` to find it).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Client ID(s)",
+      "key": "CLIENT_ID",
+      "value": "",
+      "description": "Required. UUID(s) allowed to sync. Comma-separated for multiple devices (e.g. uuid1,uuid2). Generate a UUID with `uuidgen` on Linux/Mac or use an online generator. The container will not start without this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "No Create Clients",
+      "key": "NO_CREATE_CLIENTS",
+      "value": "false",
+      "description": "Set to true to prevent new clients from registering after initial setup. Only useful after all your devices have synced at least once \u2014 enabling this before first sync will block even allowed clients.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen Address",
+      "key": "LISTEN",
+      "value": "0.0.0.0:8080",
+      "description": "Address and port the server binds to inside the container. Only change this if you also adjust the container port above.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

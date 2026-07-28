@@ -1,0 +1,111 @@
+{
+  "name": "lightnvr",
+  "repo": "ghcr.io/opensensor/lightnvr",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://github.com/opensensor/lightNVR",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/lightnvr-logo.png",
+  "project": "https://github.com/opensensor/lightNVR",
+  "description": "LightNVR is a tiny, memory-optimized Network Video Recorder software written in C. While originally designed for resource-constrained devices like the Ingenic A1 SoC with only 256MB of RAM, it can run on any Linux system. LightNVR provides a lightweight yet powerful solution for recording and managing IP camera streams. It's designed to run efficiently on low-power, memory-constrained devices while still providing essential NVR functionality with a modern, responsive web interface.",
+  "paths": [
+    {
+      "name": "Configuration files",
+      "host": "/mnt/cache/appdata/lightnvr/config",
+      "container": "/etc/lightnvr",
+      "mode": "rw",
+      "description": "- lightnvr.ini - Main configuration - go2rtc/go2rtc.yaml - go2rtc WebRTC/RTSP configuration",
+      "required": true
+    },
+    {
+      "name": "Data Dir - Persistent data",
+      "host": "",
+      "container": "/var/lib/lightnvr/data",
+      "mode": "rw",
+      "description": "- database/ - SQLite database - recordings/ - Video recordings (HLS and MP4) - models/ - Object detection models Note : recommend a share on your array for this",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WEBUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RTSP",
+      "host": "8554",
+      "container": "8554",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebRTC TCP",
+      "host": "8555",
+      "container": "8555",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebRTC UDP",
+      "host": "8555",
+      "container": "8555",
+      "protocol": "udp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "go2rtc API",
+      "host": "1984",
+      "container": "1984",
+      "protocol": "tcp",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "go2rtc configuration persistence",
+      "key": "GO2RTC_CONFIG_PERSIST",
+      "value": "True",
+      "description": "Set to 'false' to let go2rtc regenerate config on each restart",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto-initialize configuration files on first run",
+      "key": "LIGHTNVR_AUTO_INIT",
+      "value": "True",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

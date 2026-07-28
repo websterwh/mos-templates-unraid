@@ -1,0 +1,99 @@
+{
+  "name": "scanservjs",
+  "repo": "sbs20/scanservjs",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/sbs20/scanservjs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://github.com/sbs20/scanservjs/blob/master/app-ui/src/icons/android-chrome-512x512.png?raw=true",
+  "project": "https://github.com/sbs20/scanservjs",
+  "description": "scanservjs is a web UI frontend for your scanner. You can perform scans using your USB or network scanner through this web UI. The application allows you to share one or more scanners (using SANE) on a network without the need for drivers or complicated installation. To discover your devices, open the docker console and run: scanimage -L This will return a list of discovered devices. Copy the device id e.g. \"epson2:libusb:001:002\" and put it into the devices variable.",
+  "paths": [
+    {
+      "name": "Path for Scan Output",
+      "host": "",
+      "container": "/var/lib/scanservjs/output",
+      "mode": "rw",
+      "description": "Path for the file output from performed scans",
+      "required": false
+    },
+    {
+      "name": "AppData Config Path",
+      "host": "/mnt/cache/appdata/scanservjs",
+      "container": "/etc/scanservjs",
+      "mode": "rw",
+      "description": "Folder for persisting configuration data",
+      "required": true
+    },
+    {
+      "name": "dbus",
+      "host": "/var/run/dbus",
+      "container": "/var/run/dbus",
+      "mode": "rw",
+      "description": "dbus (needed for automatic detection of network scanners through bonjour)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Interface Port",
+      "host": "1234",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Saned Net Hosts",
+      "key": "SANED_NET_HOSTS",
+      "value": "",
+      "description": "If you want to use a SaneOverNetwork scanner then to perform the equivalent of adding hosts to /etc/sane.d/net.conf specify a list of ip addresses separated by semicolons in the SANED_NET_HOSTS environment variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Airscan Devices",
+      "key": "AIRSCAN_DEVICES",
+      "value": "",
+      "description": "If you want to specifically add sane-airscan devices to your /etc/sane.d/airscan.conf then use the AIRSCAN_DEVICES environment variable (semicolon delimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore Scanimage List",
+      "key": "SCANIMAGE_LIST_IGNORE",
+      "value": "false",
+      "description": "Forces the application to ignore the result of the automatic device detection (scanimage -L) and instead only uses the entries present in the configuration file and docker environment variables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Devices",
+      "key": "DEVICES",
+      "value": "",
+      "description": "Force add devices use DEVICES (semicolon delimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCR Language",
+      "key": "OCR_LANG",
+      "value": "",
+      "description": "Determines the language that is to be used for OCR (optical character recognition). The value has to conform with tesseracts naming scheme.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

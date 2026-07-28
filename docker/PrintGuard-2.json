@@ -1,0 +1,68 @@
+{
+  "name": "PrintGuard",
+  "repo": "ghcr.io/oliverbravery/printguard:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/oliverbravery/PrintGuard/pkgs/container/printguard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--add-host host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/oliverbravery/PrintGuard/main/web/public/apple-touch-icon.png",
+  "project": "https://github.com/oliverbravery/PrintGuard",
+  "description": "PrintGuard watches your 3D-printer cameras with an on-device vision model, pauses or cancels the print the moment it starts to fail, and sends a snapshot to your phone over ntfy, Telegram or Discord. No cloud, no account \u2014 camera frames never leave your server. Works with OctoPrint, Klipper (Moonraker), Elegoo, PrusaLink and Bambu Lab, and publishes every monitor to Home Assistant over MQTT. Everything is in this one image \u2014 the streaming server is built in, so there is no second container to install. Open the WebUI, pick a mode, add a camera and printer, then create a monitor that binds them. PrintGuard ships no authentication: anyone who can reach the WebUI can control your printers. Keep it on your LAN, or put Tailscale / Cloudflare Access / an auth proxy in front before exposing it. See the deployment guide: https://github.com/oliverbravery/PrintGuard/blob/main/docs/deployment.md",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/printguard",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stored settings and engine state",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Dashboard, engine socket and live video (HTTP)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Camera RTSP publish",
+      "host": "8554",
+      "container": "8554",
+      "protocol": "tcp",
+      "description": "Optional: only needed for cameras that push an RTSP stream into PrintGuard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Camera RTMP publish",
+      "host": "1935",
+      "container": "1935",
+      "protocol": "tcp",
+      "description": "Optional: only needed for cameras that push an RTMP stream into PrintGuard",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [
+    {
+      "name": "Intel GPU",
+      "host": "",
+      "container": "/dev/dri",
+      "description": "Optional: expose an Intel GPU for accelerated model inference. For an NVIDIA GPU instead, change the repository to ghcr.io/oliverbravery/printguard:latest-nvidia and add --runtime=nvidia --gpus all to Extra Parameters",
+      "required": false
+    }
+  ],
+  "labels": []
+}
