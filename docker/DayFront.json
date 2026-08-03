@@ -1,0 +1,91 @@
+{
+  "name": "DayFront",
+  "repo": "ghcr.io/erik-a-smith/dayfront:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/Erik-A-Smith/DayFront/pkgs/container/dayfront",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt no-new-privileges=true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Erik-A-Smith/DayFront/main/apps/web/public/dayfront-logo-tile.png",
+  "project": "https://github.com/Erik-A-Smith/DayFront",
+  "description": "DayFront is the open-source CalDAV frontend for calendars and tasks. Connect it to an existing standards-compliant CalDAV server and keep ownership of your data. DayFront has no built-in user login; expose it only through a trusted network or authenticating reverse proxy.",
+  "paths": [
+    {
+      "name": "Advanced Configuration Directory",
+      "host": "/mnt/cache/appdata/dayfront",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Optional directory containing config.yaml for advanced settings and external calendar subscriptions. Environment fields above take precedence. Mounted read-only because DayFront never modifies it.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "DayFront HTTP port. Put this behind HTTPS and authentication when exposed outside a trusted LAN.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "CalDAV Server URL",
+      "key": "DAYFRONT_CALDAV_URL",
+      "value": "",
+      "description": "Full HTTP or HTTPS URL of the CalDAV server. This environment value overrides caldav.url in config.yaml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Username",
+      "key": "DAYFRONT_CALDAV_USERNAME",
+      "value": "",
+      "description": "Username used to authenticate with the CalDAV server. This environment value overrides caldav.username in config.yaml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Password",
+      "key": "DAYFRONT_CALDAV_PASSWORD",
+      "value": "",
+      "description": "Password or application token used to authenticate with the CalDAV server. Stored in the local Unraid Docker template and hidden in the form. This environment value overrides caldav.password in config.yaml.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Container Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "System timezone used for container logs and runtime behavior, for example UTC or America/Toronto.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Calendar Display Timezone",
+      "key": "DAYFRONT_CALENDAR_TIMEZONE",
+      "value": "local",
+      "description": "Timezone used to display and interpret calendar values. Use local for each browser's timezone, UTC, or an IANA name such as America/Toronto.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Reverse Proxy",
+      "key": "DAYFRONT_SERVER_TRUST_PROXY",
+      "value": "false",
+      "description": "Set true only when DayFront is directly behind a trusted proxy that overwrites forwarded headers.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

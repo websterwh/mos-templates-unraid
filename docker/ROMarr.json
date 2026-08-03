@@ -1,0 +1,219 @@
+{
+  "name": "ROMarr",
+  "repo": "ghcr.io/blizzhacker/romarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/BlizzHacker/romarr/pkgs/container/romarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6868]",
+  "icon": "https://raw.githubusercontent.com/BlizzHacker/cartridge-unraid/main/icon/romarr.png",
+  "project": "https://github.com/BlizzHacker/romarr",
+  "description": "The *arr for games. Request a title, ROMarr searches your indexers through Prowlarr, hands the winner to your download client, and files the ROM into your game library where it can actually be played. If you run Radarr for films and Sonarr for TV, this is the missing one. ROMarr is not tied to one library: RomM, Gaseous and Retrom are all supported and chosen with a single setting. There is also a \"folder\" mode that writes a plain directory tree laid out by platform, which is what Batocera, RetroPie, EmulationStation, ES-DE, EmuDeck, Pegasus, Lakka, muOS and LaunchBox all read. READ THIS BEFORE YOU HIT APPLY. ROMarr reads these variables ONCE, on first start, and copies them into its own settings. After that the saved settings win and editing the variables here does nothing at all. That is deliberate -- it is what lets you change things on the Settings page without the template overriding you every restart -- but it is the opposite of how most Unraid containers behave, so get the values right the first time. To change something later, use ROMarr's own Settings page, not this template. One more thing worth getting right up front: The \"Completed downloads\" path must match what your download client REPORTS, character for character. ROMarr asks the client where a finished download is and then opens that path itself, so if qBittorrent says /data/completed then ROMarr needs to see /data/completed too. Check qBittorrent's Options - Downloads \"Save path\", or SABnzbd's Config - Folders \"Completed Download Folder\", and set the container path to match. If the two genuinely cannot agree, leave it and add a remap under Settings - Media Management instead. Unofficial. Not affiliated with RomM, Gaseous or Retrom. A project of the Move Weight Foundation, an Oklahoma non-profit corporation with 501(c)(3) status pending.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/romarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "ROMarr's settings, history and indexer configuration. Keep this.",
+      "required": true
+    },
+    {
+      "name": "ROM library",
+      "host": "/mnt/cache/roms",
+      "container": "/roms",
+      "mode": "rw",
+      "description": "Where finished ROMs are filed. Point the left-hand side at the same share your library app reads. The right-hand side must match the Library path variable below.",
+      "required": true
+    },
+    {
+      "name": "Completed downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Your download client's completed folder. The RIGHT-hand side must be the path your client reports, character for character -- ROMarr asks the client where a finished download is and then opens that path itself. qBittorrent shows it under Options - Downloads as Save path; SABnzbd under Config - Folders as Completed Download Folder. If they cannot be made to agree, add a remap under Settings - Media Management instead.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "6868",
+      "container": "6868",
+      "protocol": "tcp",
+      "description": "Port for ROMarr's web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Prowlarr URL",
+      "key": "PROWLARR_URL",
+      "value": "",
+      "description": "How ROMarr finds releases. Use your server's LAN address, not localhost -- localhost inside this container is this container. Example: http://192.168.1.10:9696",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Prowlarr API key",
+      "key": "PROWLARR_API_KEY",
+      "value": "",
+      "description": "Prowlarr - Settings - General - API Key.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Library kind",
+      "key": "LIBRARY_KIND",
+      "value": "romm",
+      "description": "Which game library to file into: romm, gaseous, retrom, or folder. Use folder for Batocera, RetroPie, ES-DE, EmuDeck, Pegasus, Lakka, muOS or LaunchBox -- those read a plain directory tree and need no URL or account.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Library URL",
+      "key": "LIBRARY_URL",
+      "value": "",
+      "description": "Your library server's address. Leave empty when Library kind is folder. Example: http://192.168.1.10:8080",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library path",
+      "key": "LIBRARY_PATH",
+      "value": "/roms",
+      "description": "Where ROMs are written, as seen INSIDE this container. This is the right-hand side of the ROM library mount above, not the host path. Leave it as /roms unless you changed that mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library username",
+      "key": "LIBRARY_USERNAME",
+      "value": "",
+      "description": "Use a dedicated account, not your admin one. All ROMarr needs is permission to trigger a rescan. Leave empty when Library kind is folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library password",
+      "key": "LIBRARY_PASSWORD",
+      "value": "",
+      "description": "Password for the library account. Leave empty when Library kind is folder.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "qBittorrent URL",
+      "key": "QBITTORRENT_URL",
+      "value": "",
+      "description": "Your qBittorrent WebUI address, for example http://192.168.1.10:8080 . At least one download client is required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent username",
+      "key": "QBITTORRENT_USER",
+      "value": "",
+      "description": "qBittorrent WebUI username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent password",
+      "key": "QBITTORRENT_PASS",
+      "value": "",
+      "description": "qBittorrent WebUI password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SABnzbd URL",
+      "key": "SABNZBD_URL",
+      "value": "",
+      "description": "Optional usenet client. Example: http://192.168.1.10:8080",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SABnzbd API key",
+      "key": "SABNZBD_API_KEY",
+      "value": "",
+      "description": "SABnzbd - Config - General - API Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NZBGet URL",
+      "key": "NZBGET_URL",
+      "value": "",
+      "description": "Optional usenet client. Example: http://192.168.1.10:6789",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NZBGet username",
+      "key": "NZBGET_USER",
+      "value": "",
+      "description": "NZBGet control username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NZBGet password",
+      "key": "NZBGET_PASS",
+      "value": "",
+      "description": "NZBGet control password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Download category",
+      "key": "QBITTORRENT_CATEGORY",
+      "value": "romarr",
+      "description": "What ROMarr labels its own downloads with, so they stay distinguishable in a client you also use for other things. The category does not have to exist in the client beforehand.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the ROMs ROMarr writes. 99 is Unraid's nobody. Match whatever your library app uses.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the ROMs ROMarr writes. 100 is Unraid's users. Match whatever your library app uses.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone, used for timestamps in history and logs. For example America/Chicago.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "INFO, or DEBUG when you are filing a bug report.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

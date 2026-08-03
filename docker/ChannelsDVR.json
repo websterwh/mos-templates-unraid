@@ -1,67 +1,97 @@
 {
-  "name": "Channels-DVR",
-  "repo": "fancybits/channels-dvr:latest",
+  "name": "ChannelsDVR",
+  "repo": "ghcr.io/mackid1993/channels-dvr:latest",
   "category": [
     "Media"
   ],
-  "registry": "https://hub.docker.com/r/fancybits/channels-dvr",
+  "registry": "https://ghcr.io/",
   "network": "host",
   "custom_ip": null,
   "default_shell": "bash",
-  "privileged": true,
+  "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8089]",
-  "icon": "https://getchannels.com/assets/img/avatar-120.png",
-  "project": "https://getchannels.com/dvr",
-  "description": "The Channels DVR server",
+  "web_ui_url": "http://[IP]:8089",
+  "icon": "https://raw.githubusercontent.com/mackid1993/unraid-templates/refs/heads/main/ChannelsDVR/channels-dvr.png",
+  "project": "https://github.com/mackid1993/channels-dvr",
+  "description": "Unoffical Channels DVR Docker for Unraid. **FANCY BITS LLC IS NOT AFFILIATED WITH THIS PACKAGE AND WILL *NOT* PROVIDE SUPPORT** Based on Debian Bookworm with minimal tini init system. Key Features: - Proper PUID/PGID mapping (no root-owned files) - TV Everywhere (TVE) support with Google Chrome - Intel QuickSync and NVIDIA GPU transcoding - App handles its own updates like the official container (including pre-releases) - Automated container rebuilds on the 1st of every month for security patches. **REMOVE THE INTEL GPU VARIABLE IF NOT USING INTEL QUICKSYNC** GPU Setup: Intel QuickSync: 1. Edit this container, scroll to Intel GPU 2. Set the value to: /dev/dri 3. Apply NVIDIA GPU: 1. Install Nvidia-Driver plugin from Community Apps 2. Edit this container, add --runtime=nvidia to Extra Parameters 3. In Advanced View, set NVIDIA Visible Devices to: all 4. Remove the Intel GPU variable 5. Apply, shell into the container and verify with nvidia-smi",
   "paths": [
     {
-      "name": "DVR Storage",
-      "host": "",
-      "container": "/shares/DVR",
-      "mode": "rw",
-      "description": "Path to DVR recordings storage",
-      "required": true
-    },
-    {
-      "name": "Config Path",
+      "name": "Config Storage",
       "host": "/mnt/cache/appdata/channels-dvr",
       "container": "/channels-dvr",
       "mode": "rw",
-      "description": "Path to config storage",
+      "description": "Container Path: /channels-dvr - Stores Channels DVR configuration and binary",
+      "required": true
+    },
+    {
+      "name": "Recordings",
+      "host": "",
+      "container": "/shares/DVR",
+      "mode": "rw",
+      "description": "Container Path: /shares/DVR - Where recordings are stored",
       "required": true
     }
   ],
-  "ports": [
-    {
-      "name": "WebUI",
-      "host": "8089",
-      "container": "8089",
-      "protocol": "tcp",
-      "description": "Container Port: 8089",
-      "required": true,
-      "mask": false
-    }
-  ],
+  "ports": [],
   "variables": [
     {
       "name": "PUID",
       "key": "PUID",
       "value": "500",
-      "description": null,
-      "required": true,
+      "description": "User ID - Use 99 for nobody on Unraid",
+      "required": false,
       "mask": false
     },
     {
       "name": "PGID",
       "key": "PGID",
       "value": "500",
-      "description": null,
-      "required": true,
+      "description": "Group ID - Use 100 for users on Unraid",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone - Set to your timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "0000",
+      "description": "File permission mask. Default 0000 allows SMB file deletion. Use 0022 for standard permissions (755/644).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "To enable NVIDIA GPU: 1) Install Nvidia-Driver plugin from Community Apps, 2) Add --runtime=nvidia to Extra Parameters above, 3) Set this to: all 4) remove Intel QuickSync Variable",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,video,utility",
+      "description": "Leave as default (compute,video,utility) for transcoding. Only change if you know what you're doing.",
+      "required": false,
       "mask": false
     }
   ],
-  "devices": [],
+  "devices": [
+    {
+      "name": "Intel GPU",
+      "host": "",
+      "container": "/dev/dri",
+      "description": "**Remove this variable if using NVIDIA or not using QuickSync.** - For Intel QuickSync hardware transcoding, set this to: /dev/dri",
+      "required": false
+    }
+  ],
   "labels": []
 }

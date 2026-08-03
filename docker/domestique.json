@@ -25,11 +25,11 @@
       "required": true
     },
     {
-      "name": "Downloads Share (read-only)",
+      "name": "Downloads Share",
       "host": "/mnt/cache/downloads",
       "container": "/downloads",
-      "mode": "ro",
-      "description": "The SAME share Transmission's own container maps to /downloads internally - check Transmission's Docker template path mappings to confirm what that is. This is the whole share (not just its 'complete' subfolder), mounted read-only since Domestique only ever copies from here.",
+      "mode": "rw",
+      "description": "The SAME share Transmission's own container maps to /downloads internally - check Transmission's Docker template path mappings to confirm what that is. This is the whole share (not just its 'complete' subfolder). Read-write: the normal ingestion pipeline only ever copies from here, but the Reseed tab's Dedupe feature deletes a torrent's original download-folder copy once it's confirmed hardlinked to the library instead (an explicit, two-click-confirmed action). Set Mode to ro instead if you'd rather keep this share read-only - Dedupe's relink/verify step still works either way, only its optional 'Delete original copy' follow-up needs write access here.",
       "required": true
     },
     {
@@ -63,6 +63,54 @@
       "mode": "rw",
       "description": "Persists the web UI's recent-activity log across container updates and restarts. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/domestique/activity.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
       "required": true
+    },
+    {
+      "name": "Dedupe State",
+      "host": "/mnt/cache/appdata/domestique/dedupe-state.json",
+      "container": "/config/dedupe-state.json",
+      "mode": "rw",
+      "description": "Records where a deduped torrent's data lived before the Reseed tab's Dedupe feature relinked it to your library - Transmission itself forgets a torrent's previous location once relocated, so this is the app's own persisted memory of it instead. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/domestique/dedupe-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Verify State",
+      "host": "/mnt/cache/appdata/domestique/verify-state.json",
+      "container": "/config/verify-state.json",
+      "mode": "rw",
+      "description": "Persists the Index tab's 'Verify data' integrity-check results across container updates. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/domestique/verify-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Match Overrides",
+      "host": "/mnt/cache/appdata/domestique/match-overrides.json",
+      "container": "/config/match-overrides.json",
+      "mode": "rw",
+      "description": "Persists a human's own picks from the Index tab's 'Resolve ambiguous files' modal across container updates - without this, a resolved pick silently reverts to 'ambiguous' again on the next update. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/domestique/match-overrides.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Archive State",
+      "host": "/mnt/cache/appdata/domestique/archive-state.json",
+      "container": "/config/archive-state.json",
+      "mode": "rw",
+      "description": "Persists which torrents you've archived from the Index tab (hidden from the list without deleting anything - see the Settings tab's Archive panel to undo) across container updates. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/domestique/archive-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Torrent Registry",
+      "host": "/mnt/cache/appdata/domestique/torrent-registry",
+      "container": "/config/torrent-registry",
+      "mode": "rw",
+      "description": "A durable copy of every .torrent Domestique has a record of (staged through the Index tab, or synced in from Transmission's own torrents directory below), keyed by info-hash - lets you download any of them back later or skip re-processing an already-registered one on a repeat batch drop. A directory mount - unlike the file mounts above, there's no first-run empty-directory gotcha here, since a directory is exactly what's wanted.",
+      "required": true
+    },
+    {
+      "name": "Transmission's own torrents dir (read-only, optional)",
+      "host": "/mnt/cache/appdata/transmission/torrents",
+      "container": "/transmission-torrents",
+      "mode": "ro",
+      "description": "Optional: Transmission's OWN .torrent-storage directory (its config dir's 'torrents' subfolder, next to its own settings.json/resume/ - check Transmission's Docker template path mappings to find its config directory's host path). When set AND TRANSMISSION_TORRENTS_DIR below is also set to /transmission-torrents, every .torrent Transmission has ever been handed - including anything autobrr added directly, never touching Domestique - gets synced into the Torrent Registry above automatically. Leave blank to disable; this share is only ever read, never written to.",
+      "required": false
     }
   ],
   "ports": [
@@ -107,6 +155,54 @@
       "value": "/config/activity.json",
       "description": "Where the app looks for the activity log above, from inside the container. Matches the Activity Log mount target - no need to change this.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "DEDUPE_STATE_PATH",
+      "key": "DEDUPE_STATE_PATH",
+      "value": "/config/dedupe-state.json",
+      "description": "Where the app looks for the dedupe-state file above, from inside the container. Matches the Dedupe State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VERIFY_STATE_PATH",
+      "key": "VERIFY_STATE_PATH",
+      "value": "/config/verify-state.json",
+      "description": "Where the app looks for the verify-state file above, from inside the container. Matches the Verify State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MATCH_OVERRIDES_PATH",
+      "key": "MATCH_OVERRIDES_PATH",
+      "value": "/config/match-overrides.json",
+      "description": "Where the app looks for the match-overrides file above, from inside the container. Matches the Match Overrides mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ARCHIVE_STATE_PATH",
+      "key": "ARCHIVE_STATE_PATH",
+      "value": "/config/archive-state.json",
+      "description": "Where the app looks for the archive-state file above, from inside the container. Matches the Archive State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TORRENT_REGISTRY_DIR",
+      "key": "TORRENT_REGISTRY_DIR",
+      "value": "/config/torrent-registry",
+      "description": "Where the app looks for the torrent registry above, from inside the container. Matches the Torrent Registry mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRANSMISSION_TORRENTS_DIR",
+      "key": "TRANSMISSION_TORRENTS_DIR",
+      "value": "",
+      "description": "Set to /transmission-torrents (matching the mount target above) to enable the sync described there. Leave blank to disable, same as leaving the mount above blank - both need to be set together.",
+      "required": false,
       "mask": false
     },
     {

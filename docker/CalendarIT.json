@@ -1,0 +1,139 @@
+{
+  "name": "CalendarIT",
+  "repo": "richy1989/calendarit:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/richy1989/calendarit",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/Richy1989/calendarIT/refs/heads/main/public/logo.png",
+  "project": "https://github.com/Richy1989/calendarIT",
+  "description": "A lightweight, modern, self-hosted calendar. Make events (one-off and recurring), get email or browser (Web Push) reminders, colour-code your events, import/export iCalendar (.ics), and sync to your phone with any CalDAV client. It does what you want \u2014 and just that.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/calendarit",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Host folder where CalendarIT stores its SQLite database, uploaded avatars, and the auto-generated JWT signing key. Point this at your appdata share to persist data across updates.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the CalendarIT web UI. Browse to http:// :[this port].",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Signing Key",
+      "key": "JWT_SIGNING_KEY",
+      "value": "",
+      "description": "Optional. Secret (at least 32 characters) used to sign login tokens. LEAVE EMPTY to auto-generate one and persist it under /data (recommended). Set your own only if you need a fixed key across multiple instances; changing it later signs everyone out.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Environment",
+      "key": "ASPNETCORE_ENVIRONMENT",
+      "value": "Production",
+      "description": "Optional. Production (default) or Development. Development also exposes the OpenAPI document at /openapi/v1.json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Provider",
+      "key": "DATABASE_PROVIDER",
+      "value": "Sqlite",
+      "description": "Optional. Sqlite (built-in, default \u2014 recommended for most self-hosters) or Postgres. If set to Postgres, also fill in the Postgres Connection string.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Connection",
+      "key": "POSTGRES_CONNECTION",
+      "value": "",
+      "description": "Optional. Full Npgsql connection string, required only when Database Provider is Postgres. Example: Host=192.168.1.10;Port=5432;Database=calendarit;Username=calendarit;Password=secret. Ignored while Database Provider is Sqlite.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Registration",
+      "key": "DISABLE_REGISTRATION",
+      "value": "false",
+      "description": "Optional. Set to true once everyone who needs an account has one. Your server is reachable by anyone who knows its address \u2014 that is what makes phone sync work \u2014 so leaving sign-up open means strangers can create accounts on it. Existing accounts keep working and the Register tab disappears from the sign-in screen.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public Base URL",
+      "key": "PUBLIC_BASE_URL",
+      "value": "",
+      "description": "Optional \u2014 required only for self-service password reset: the address users actually type, e.g. https://calendar.example.com. Reset links are built from this and never from the request, because the address in a request is a header anyone can set \u2014 otherwise a stranger could have a working reset link mailed to a site of their choosing. Leave empty and reset emails are simply not sent; sign-in and everything else still work.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxy Hops",
+      "key": "FORWARDED_PROXY_HOPS",
+      "value": "1",
+      "description": "Optional. How many proxies sit in front of the app, used to work out each visitor's real IP address (which the login rate limit and the logs rely on). Leave at 1 when you browse straight to this container's port. Set it to 2 if you put your own reverse proxy in front of it \u2014 counting too few makes every visitor look like one address, too many lets visitors fake theirs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Rate Limit",
+      "key": "AUTH_RATE_LIMIT_PER_MINUTE",
+      "value": "20",
+      "description": "Optional. How many sign-in, registration, and token-refresh requests one IP address may make per minute before being turned away. The default suits a household; raise it only if legitimate users share one address and hit the limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "Serilog__MinimumLevel__Default",
+      "value": "Information",
+      "description": "Optional. Minimum log level written to the container log: Verbose, Debug, Information (default), Warning, Error, or Fatal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID Public Key",
+      "key": "VAPID_PUBLIC_KEY",
+      "value": "",
+      "description": "Optional. Public half of the VAPID key pair that signs browser (Web Push) reminder notifications. LEAVE EMPTY to auto-generate a pair on first run and persist it under /data (recommended) \u2014 browser notifications then work with no setup. Set your own (both keys) only to keep the same keys across multiple instances or rebuilds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID Private Key",
+      "key": "VAPID_PRIVATE_KEY",
+      "value": "",
+      "description": "Optional. Private half of the VAPID key pair (keep secret). Leave empty to auto-generate it alongside the public key. Only set this if you also set the VAPID Public Key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "VAPID Subject",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "Optional. Contact URI sent to push services with each notification, e.g. mailto:admin@example.com. Leave empty to use the built-in default. Only relevant when browser notifications are used.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

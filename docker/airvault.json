@@ -1,0 +1,121 @@
+{
+  "name": "airvault",
+  "repo": "ghcr.io/wizier/airvault:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/wizier/airvault/pkgs/container/airvault",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--device-cgroup-rule=c 189:* rmw",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:32298]",
+  "icon": "https://raw.githubusercontent.com/wizier/unraid-templates/main/icons/airvault-icon.png",
+  "project": "https://airvault.cloud",
+  "description": "Self-hosted iPhone backups for your Unraid server. Pair an iPhone once over USB, then back it up over Wi-Fi or USB to a local share. AirVault provides incremental, versioned backups, selectable restore points, optional backup encryption, and a web UI for backup and restore. FIRST RUN: set a Web UI token below or read the generated token from the container log, then sign in",
+  "paths": [
+    {
+      "name": "Backups directory",
+      "host": "",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Folder the backups are written to \u2014 pick one on the array",
+      "required": true
+    },
+    {
+      "name": "Application Data",
+      "host": "/mnt/cache/appdata/airvault",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings, database and iPhone pairing records",
+      "required": true
+    },
+    {
+      "name": "USB Devices",
+      "host": "/dev/bus/usb",
+      "container": "/dev/bus/usb",
+      "mode": "rw",
+      "description": "Passes USB-connected iPhones through to the container for pairing",
+      "required": false
+    },
+    {
+      "name": "USB Hotplug Events",
+      "host": "/run/udev",
+      "container": "/run/udev",
+      "mode": "ro",
+      "description": "Read-only access to host USB events, allowing AirVault to detect an iPhone connected",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Web UI Port",
+      "key": "AIRVAULT_PORT",
+      "value": "32298",
+      "description": "Port used by the AirVault web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web UI Token",
+      "key": "AIRVAULT_AUTH_TOKEN",
+      "value": "",
+      "description": "Password for the airvault user; Leave blank to generate one",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone used for log timestamps",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Application Log Level",
+      "key": "AIRVAULT_LOG_LEVEL",
+      "value": "info",
+      "description": "AirVault log detail: debug, info, warn, or error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connection Log Level",
+      "key": "AIRVAULT_MUX_LOG_LEVEL",
+      "value": "warn",
+      "description": "iPhone connection-service log detail: trace, debug, info, warn, or error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Backups and settings are written as this user ID; 99 = nobody",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for written files; 100 = users",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permission mask for newly created files",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

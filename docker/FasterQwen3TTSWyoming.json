@@ -1,0 +1,292 @@
+{
+  "name": "Faster-Qwen3-TTS-Wyoming",
+  "repo": "ghcr.io/agrestisdavid/faster-qwen3-tts-wyoming:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/users/agrestisdavid/packages/container/package/faster-qwen3-tts-wyoming",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --gpus all",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7860]/ui/",
+  "icon": "https://raw.githubusercontent.com/agrestisdavid/faster-qwen3-tts-wyoming/main/icon.png",
+  "project": "https://github.com/agrestisdavid/faster-qwen3-tts-wyoming",
+  "description": "Local Faster Qwen3-TTS with a WebUI, an OpenAI-compatible streaming API, and an integrated Wyoming TTS adapter for Home Assistant. Both interfaces share one NVIDIA GPU model instance.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/faster-qwen3-tts-wyoming",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent Hugging Face, Gradio, and Torch caches.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Qwen WebUI and API Port",
+      "host": "7860",
+      "container": "7860",
+      "protocol": "tcp",
+      "description": "Gradio WebUI and OpenAI-compatible TTS API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Wyoming TTS Port",
+      "host": "10210",
+      "container": "10210",
+      "protocol": "tcp",
+      "description": "Wyoming protocol endpoint for Home Assistant.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Qwen3-TTS Model",
+      "key": "QWEN3_TTS_MODEL",
+      "value": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "description": "Hugging Face model identifier. Use Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice for the default quality profile or Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice for lower VRAM usage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default Voice",
+      "key": "QWEN3_TTS_DEFAULT_VOICE",
+      "value": "sohee",
+      "description": "Default CustomVoice speaker. Supported: aiden, dylan, eric, ono_anna, ryan, serena, sohee, uncle_fu, vivian.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Language",
+      "key": "QWEN3_TTS_LANGUAGE",
+      "value": "english",
+      "description": "Qwen synthesis language.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Instruct",
+      "key": "QWEN3_TTS_STYLE_INSTRUCTION",
+      "value": "Speak naturally, clearly, and warmly in English. Use a calm, fluent pace, lively but restrained prosody, and natural sentence pauses. Articulate sibilants and numbers clearly. Avoid monotonous intonation, exaggerated emotion, and dramatic pitch changes.",
+      "description": "Default instruction applied to TTS requests without their own instruction.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Temperature",
+      "key": "QWEN3_TTS_TEMPERATURE",
+      "value": "0.5",
+      "description": "Sampling temperature. Lower values are calmer and more stable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Top P",
+      "key": "QWEN3_TTS_TOP_P",
+      "value": "0.3",
+      "description": "Nucleus sampling probability.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Top K",
+      "key": "QWEN3_TTS_TOP_K",
+      "value": "150",
+      "description": "Number of token candidates used during sampling.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Repetition Penalty",
+      "key": "QWEN3_TTS_REPETITION_PENALTY",
+      "value": "1.3",
+      "description": "Penalty used to reduce repeated speech artifacts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sampling Enabled",
+      "key": "QWEN3_TTS_DO_SAMPLE",
+      "value": "true",
+      "description": "Enable stochastic token sampling.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seed",
+      "key": "QWEN3_TTS_SEED",
+      "value": "0",
+      "description": "Default random seed for reproducible requests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum New Tokens",
+      "key": "QWEN3_TTS_MAX_NEW_TOKENS",
+      "value": "4096",
+      "description": "Upper generation limit per text segment.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Non-Streaming Mode",
+      "key": "QWEN3_TTS_NON_STREAMING_MODE",
+      "value": "false",
+      "description": "Keep false for incremental PCM generation.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Streaming Chunk Size",
+      "key": "QWEN3_TTS_STREAMING_CHUNK_SIZE",
+      "value": "120",
+      "description": "Model token chunk size used for streaming output.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Token Safety Margin",
+      "key": "QWEN3_TTS_TOKEN_SAFETY_MARGIN",
+      "value": "8.0",
+      "description": "Multiplier used when estimating the segment token budget.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Segment Characters",
+      "key": "QWEN3_TTS_MAX_SEGMENT_CHARS",
+      "value": "500",
+      "description": "Long text is split into bounded segments at natural boundaries.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Segment Pause Milliseconds",
+      "key": "QWEN3_TTS_SEGMENT_PAUSE_MS",
+      "value": "120",
+      "description": "Silence inserted between long-text segments.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Pending Queue Limit",
+      "key": "QWEN3_TTS_QUEUE_MAX_PENDING",
+      "value": "8",
+      "description": "Maximum queued synthesis requests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend",
+      "key": "QWEN3_TTS_BACKEND",
+      "value": "ggml",
+      "description": "Faster Qwen3-TTS inference backend.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Device",
+      "key": "QWEN3_TTS_DEVICE",
+      "value": "cuda",
+      "description": "Inference device. The default image is intended for CUDA.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torch DType",
+      "key": "QWEN3_TTS_DTYPE",
+      "value": "bfloat16",
+      "description": "Torch model dtype.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Attention Implementation",
+      "key": "QWEN3_TTS_ATTN_IMPLEMENTATION",
+      "value": "sdpa",
+      "description": "Torch attention implementation.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GGML Quantization",
+      "key": "QWEN3_TTS_QUANT",
+      "value": "BF16",
+      "description": "Quantization passed to the GGML backend.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Force Language",
+      "key": "QWEN3_TTS_FORCE_LANGUAGE",
+      "value": "true",
+      "description": "Always synthesize using the configured language.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Startup Timeout Seconds",
+      "key": "QWEN3_TTS_STARTUP_TIMEOUT_SECONDS",
+      "value": "1800",
+      "description": "Maximum first-start model download and initialization time.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Host user ID used for appdata files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Host group ID used for appdata files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "NVIDIA GPU selection.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "Required NVIDIA driver capabilities.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

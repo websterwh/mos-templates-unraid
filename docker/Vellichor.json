@@ -21,7 +21,7 @@
       "host": "/mnt/cache/appdata/vellichor/data",
       "container": "/data",
       "mode": "rw",
-      "description": "Uploads, job history, and the model cache (Kokoro). Persisted.",
+      "description": "Accounts, each user's private library (users/name/), job history, and the model cache (Kokoro). Persisted.",
       "required": true
     },
     {
@@ -46,12 +46,20 @@
   ],
   "variables": [
     {
-      "name": "Login password",
+      "name": "Admin password",
       "key": "VELLICHOR_PASSWORD",
       "value": "",
-      "description": "Web UI login password. LEAVE BLANK ONLY ON A TRUSTED LAN \u2014 blank disables authentication entirely.",
+      "description": "Initial password for the admin account, applied on first start only (change it afterwards in the app: \ud83d\udc64 \u2192 Your password). LEAVE BLANK ONLY ON A TRUSTED LAN \u2014 blank disables sign-in entirely.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Admin username",
+      "key": "VELLICHOR_ADMIN_USER",
+      "value": "admin",
+      "description": "Username for the admin account. Only used when the account list is first created. Other people are added from inside the app (\ud83d\udc64 \u2192 People).",
+      "required": false,
+      "mask": false
     },
     {
       "name": "Secret key",
@@ -60,6 +68,30 @@
       "description": "Session-cookie signing key. Generate with: openssl rand -hex 32. Blank = a random key each restart (everyone gets logged out on restart).",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "TRUSTED_PROXIES",
+      "value": "private",
+      "description": "Whose X-Forwarded-For header to believe when identifying a caller for login rate limiting. &quot;private&quot; (default) trusts loopback + LAN/Docker ranges, which is right when Vellichor is behind a reverse proxy. Use &quot;none&quot; if nothing proxies it, or list IPs/CIDRs. Wrong value = every visitor shares one lockout bucket, or the limit can be bypassed with a spoofed header.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login max failures",
+      "key": "LOGIN_MAX_FAILS",
+      "value": "5",
+      "description": "Failed sign-ins before a caller is locked out.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login lockout seconds",
+      "key": "LOGIN_LOCK_SECONDS",
+      "value": "10",
+      "description": "Length of the first lockout in seconds; it doubles with each further failure, up to 15 minutes.",
+      "required": false,
+      "mask": false
     },
     {
       "name": "Ollama URL (AI Smart cast)",

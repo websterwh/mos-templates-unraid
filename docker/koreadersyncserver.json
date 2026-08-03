@@ -1,0 +1,67 @@
+{
+  "name": "koreader-sync-server",
+  "repo": "koreader/kosync:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/koreader/kosync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:7200]/healthcheck",
+  "icon": "https://raw.githubusercontent.com/koreader/koreader/master/resources/koreader.png",
+  "project": "https://github.com/koreader/koreader-sync-server",
+  "description": "KOReader Sync Server is a self-hosted sync service for KOReader devices. The official image serves HTTPS on container port 7200 with a self-signed certificate and stores its state in Redis, so persistent Redis storage is required. Keep the exposed port on a trusted network, or place the container behind a reverse proxy that terminates TLS.",
+  "paths": [
+    {
+      "name": "Application Logs",
+      "host": "/mnt/cache/appdata/kosync/logs/app",
+      "container": "/app/kosync/logs",
+      "mode": "rw",
+      "description": "Optional persistent application log directory",
+      "required": false
+    },
+    {
+      "name": "Redis Logs",
+      "host": "/mnt/cache/appdata/kosync/logs/redis",
+      "container": "/var/log/redis",
+      "mode": "rw",
+      "description": "Optional persistent Redis log directory",
+      "required": false
+    },
+    {
+      "name": "Redis Data",
+      "host": "/mnt/cache/appdata/kosync/data/redis",
+      "container": "/var/lib/redis",
+      "mode": "rw",
+      "description": "Required persistent Redis data directory",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPS Port",
+      "host": "7200",
+      "container": "7200",
+      "protocol": "tcp",
+      "description": "Host port mapped to the container HTTPS listener",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Enable User Registration",
+      "key": "ENABLE_USER_REGISTRATION",
+      "value": "true",
+      "description": "Set to false to require pre-created accounts only",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

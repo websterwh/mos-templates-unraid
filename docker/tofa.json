@@ -1,0 +1,81 @@
+{
+  "name": "tofa",
+  "repo": "ghcr.io/tofatv/tofa:beta",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/tofatv/tofa",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:33333",
+  "icon": "https://raw.githubusercontent.com/tofatv/unraid-templates/main/icon.png",
+  "project": "https://tofa.tv/",
+  "description": "tofa is a media server for your movies and shows. One container runs everything, including its own database and automatic backups. Point it at your media, claim it with your tofa account, and watch on the web, Apple TV, iPhone, iPad, Android TV, and Windows. First start: open http://[your-server]:33333 from a device on your network and sign in to claim the server. Config note: keep the app data path on a fast pool device (the default below uses /mnt/cache). tofa runs its own database in there; database files on the /mnt/user FUSE layer are slower and not recommended. tofa is in beta and needs a tofa account. Sign up at https://tofa.tv.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/tofa",
+      "container": "/data",
+      "mode": "rw",
+      "description": "tofa's own data: database, backups, transcode cache, logs. Keep this on a pool (cache) device, not /mnt/user.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media library. Set Mode to Read Only if tofa should never delete files from disk.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id tofa runs as. 99 is Unraid's nobody user, which owns appdata and shares by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id tofa runs as. 100 is Unraid's users group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "0022",
+      "description": "File-creation mask for files tofa writes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADVERTISED_LAN_IP",
+      "key": "ADVERTISED_LAN_IP",
+      "value": "",
+      "description": "Only needed if you switch the container off host networking (bridge/custom network): set it to your Unraid server's LAN IP so devices at home can connect directly. You can also set this later in the app under Settings &gt; Remote Access. With host networking (the default) tofa detects the address automatically and this can stay empty.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Hardware transcoding (Intel / AMD)",
+      "host": "",
+      "container": "/dev/dri",
+      "description": "Leave empty unless you have an Intel or AMD GPU or iGPU. Set both sides to /dev/dri to let tofa use it for hardware transcoding. NVIDIA users leave this empty and instead install the Nvidia-Driver plugin, add --runtime=nvidia to Extra Parameters, and set NVIDIA_VISIBLE_DEVICES=all plus NVIDIA_DRIVER_CAPABILITIES=compute,video,utility as variables.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

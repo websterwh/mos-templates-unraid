@@ -12,62 +12,126 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:1867]",
-  "icon": "https://raw.githubusercontent.com/tquizzle/Docker-xml/master/img/sportarr.png",
-  "project": "https://github.com/Sportarr/Sportarr",
-  "description": "Sportarr is an automated media management application for all sports. It works similar to Sonarr and Radarr but specifically designed for combat sports, basketball, football, hockey, motorsports, and hundreds of other sports worldwide.",
+  "icon": "https://raw.githubusercontent.com/Sportarr/unraid-templates/main/images/sportarr.png",
+  "project": "https://sportarr.net",
+  "description": "Sportarr is a sports PVR for Usenet and BitTorrent users. It monitors sports leagues and events across hundreds of sports worldwide (fighting sports, football, soccer, basketball, motorsports, and more), searches your indexers for releases, and will grab, sort, and rename them, upgrading quality automatically when a better format becomes available. Multi-part event support handles prelims and main cards for fighting sports, an IPTV DVR can record events straight from live streams, and dedicated metadata agents keep Plex, Jellyfin, and Emby libraries correctly identified. Subtitles via Bazarr, notifications via Discord, ntfy, Apprise, webhooks, or custom scripts.",
   "paths": [
     {
-      "name": "Path to Sports",
-      "host": "",
-      "container": "/sports",
-      "mode": "rw",
-      "description": null,
-      "required": false
-    },
-    {
-      "name": "Config",
-      "host": "",
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/sportarr",
       "container": "/config",
       "mode": "rw",
-      "description": null,
-      "required": false
+      "description": "This is the container path to your configuration files, e.g. database, settings, logs.",
+      "required": true
+    },
+    {
+      "name": "Path: /data",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "This is the container path to your media library root. Add your sports library as a root folder inside Sportarr under this mount, and keep downloads under the same mount for hardlinked imports.",
+      "required": true
     }
   ],
   "ports": [
     {
-      "name": "Web UI",
+      "name": "Port: Web Interface",
       "host": "1867",
       "container": "1867",
       "protocol": "tcp",
-      "description": null,
-      "required": false,
+      "description": "This is the Web UI port for the application.",
+      "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "TZ",
-      "key": "TZ",
-      "value": "UTC",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "UID",
+      "name": "Variable: PUID",
       "key": "PUID",
       "value": "500",
-      "description": null,
+      "description": "User ID for the running container (99 = nobody).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container (100 = users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "UMASK for files created by the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone, e.g. America/New_York. Keeps event air times and the calendar correct.",
       "required": false,
       "mask": false
     },
     {
-      "name": "GID",
-      "key": "PGID",
-      "value": "500",
-      "description": null,
+      "name": "Variable: Sportarr__Database__Provider",
+      "key": "Sportarr__Database__Provider",
+      "value": "sqlite",
+      "description": "Database provider: sqlite (default, zero config) or postgres. PostgreSQL is for fresh installs only; there is no SQLite to Postgres migration path.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "Variable: Sportarr__Database__Host",
+      "key": "Sportarr__Database__Host",
+      "value": "",
+      "description": "PostgreSQL server hostname. Only used when the provider is postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Sportarr__Database__Port",
+      "key": "Sportarr__Database__Port",
+      "value": "5432",
+      "description": "PostgreSQL port. Only used when the provider is postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Sportarr__Database__Name",
+      "key": "Sportarr__Database__Name",
+      "value": "sportarr",
+      "description": "PostgreSQL database name. Only used when the provider is postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Sportarr__Database__Username",
+      "key": "Sportarr__Database__Username",
+      "value": "",
+      "description": "PostgreSQL user. Only used when the provider is postgres.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: Sportarr__Database__Password",
+      "key": "Sportarr__Database__Password",
+      "value": "",
+      "description": "PostgreSQL password. Only used when the provider is postgres. Any Sportarr__ variable can instead be read from a file by prefixing it with FILE__ and pointing the value at the file path (Docker secrets).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: Sportarr__Database__ConnectionString",
+      "key": "Sportarr__Database__ConnectionString",
+      "value": "",
+      "description": "Full PostgreSQL connection string; overrides the individual database fields above when set.",
+      "required": false,
+      "mask": true
     }
   ],
   "devices": [],

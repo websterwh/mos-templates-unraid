@@ -1,0 +1,123 @@
+{
+  "name": "Indexarr",
+  "repo": "gabryk83/indexarr:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/gabryk91/Indexarr/main/src/Indexarr.Web/wwwroot/images/indexarr_logo.png",
+  "project": "https://github.com/gabryk91/Indexarr",
+  "description": "Monitor, protect, and automate the health of your Prowlarr indexers.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent application data, including SQLite database and saved settings.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/backups",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Folder where Indexarr writes backup exports before changes.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Optional application log folder.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port exposed by Indexarr.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Rome",
+      "description": "Container timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ConfigPathEnv",
+      "key": "Indexarr__ConfigPath",
+      "value": "/config",
+      "description": "Internal path used by Indexarr for persistent configuration and SQLite storage. Keep /config when using the default template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BackupPathEnv",
+      "key": "Indexarr__BackupPath",
+      "value": "/backups",
+      "description": "Internal path used by Indexarr for backup exports. Keep /backups when using the default template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LogsPathEnv",
+      "key": "Indexarr__LogsPath",
+      "value": "/logs",
+      "description": "Internal path used by Indexarr for application logs. Keep /logs when using the default template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ProwlarrUrl",
+      "key": "Indexarr__Prowlarr__Url",
+      "value": "http://prowlarr:9696",
+      "description": "Base URL of the Prowlarr instance that Indexarr must manage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ProwlarrApiKey",
+      "key": "Indexarr__Prowlarr__ApiKey",
+      "value": "",
+      "description": "Prowlarr API key required for health checks and automation.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AutomationEnabled",
+      "key": "Indexarr__Automation__Enabled",
+      "value": "true",
+      "description": "Enable the built-in background scheduler. Keep true for internal scheduling; set false if you want Unraid cron or User Scripts to orchestrate runs externally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AutomationIntervalMinutes",
+      "key": "Indexarr__Automation__IntervalMinutes",
+      "value": "60",
+      "description": "Minutes between background automation runs when the built-in scheduler is enabled.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

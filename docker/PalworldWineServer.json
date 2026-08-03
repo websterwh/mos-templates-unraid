@@ -1,0 +1,285 @@
+{
+  "name": "Palworld-Wine-Server",
+  "repo": "ghcr.io/ripps818/docker-palworld-dedicated-server-wine:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/ripps818/docker-palworld-dedicated-server-wine/pkgs/container/docker-palworld-dedicated-server-wine",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8211]",
+  "icon": "https://raw.githubusercontent.com/Malclir/Palworld-wine-unraid-template/main/icon.png",
+  "project": "https://github.com/ripps818/docker-palworld-dedicated-server-wine",
+  "description": "Community-maintained Unraid template for ripps818's Palworld Dedicated Server running the Windows server under Wine. Includes documented REST API, backups, Workshop authentication, and optional UE4SS settings; no mods are bundled.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/palworld-wine-server",
+      "container": "/palworld",
+      "mode": "rw",
+      "description": "Persistent Palworld installation, configuration, saves, backups, and mods.",
+      "required": true
+    },
+    {
+      "name": "Steam Session Cache",
+      "host": "/mnt/cache/appdata/palworld-wine-server/steam-cache",
+      "container": "/home/steam/Steam",
+      "mode": "rw",
+      "description": "Persists the Steam Guard login token used for authenticated Workshop downloads.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port",
+      "host": "8211",
+      "container": "8211",
+      "protocol": "udp",
+      "description": "Public Palworld gameplay port. Forward this UDP port through your router for Internet players.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REST API Port",
+      "host": "8212",
+      "container": "8212",
+      "protocol": "tcp",
+      "description": "Palworld REST API used by container management, player detection, and safe announcements. Do not router-forward this port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port",
+      "host": "27015",
+      "container": "27015",
+      "protocol": "tcp",
+      "description": "Upstream Steam query port mapping.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid user ID used for files in appdata.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid users group ID used for files in appdata.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "IANA timezone used for logs, backups, and scheduled jobs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": "Palworld Wine Server",
+      "description": "Name shown to players.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Join Password",
+      "key": "SERVER_PASSWORD",
+      "value": "",
+      "description": "Optional password players enter when joining. Do not reuse the admin password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Admin / REST API Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required private password for Palworld administration and REST API Basic Auth. Use a strong unique value.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Maximum Players",
+      "key": "MAX_PLAYERS",
+      "value": "16",
+      "description": "Maximum concurrent players. Increase only when the host has sufficient CPU and memory.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Community Server Listing",
+      "key": "COMMUNITY_SERVER",
+      "value": "false",
+      "description": "Set true to advertise the server in Palworld's community server list.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Crossplay Platforms",
+      "key": "CROSSPLAY_PLATFORMS",
+      "value": "(Steam,Xbox,PS5,Mac)",
+      "description": "Platforms allowed to connect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Settings Mode",
+      "key": "SERVER_SETTINGS_MODE",
+      "value": "auto",
+      "description": "auto: template environment variables control settings. manual: edit PalWorldSettings.ini and most game-setting variables are ignored.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REST API Enabled",
+      "key": "RESTAPI_ENABLED",
+      "value": "true",
+      "description": "Required by current container management, player detection, safe backup announcements, and restapicli.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REST API Internal Port",
+      "key": "RESTAPI_PORT",
+      "value": "8212",
+      "description": "Must match the REST API container port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON Enabled (Deprecated)",
+      "key": "RCON_ENABLED",
+      "value": "false",
+      "description": "Deprecated by current container tooling. Leave false unless using an external legacy RCON client.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Multithreaded Server",
+      "key": "MULTITHREAD_ENABLED",
+      "value": "true",
+      "description": "Enables the upstream multithreaded dedicated-server launch options.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups Enabled",
+      "key": "BACKUP_ENABLED",
+      "value": "true",
+      "description": "Creates server backups in the persistent /palworld directory.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup Schedule",
+      "key": "BACKUP_CRON_EXPRESSION",
+      "value": "0 * * * *",
+      "description": "Supercronic expression. The default creates one backup every hour.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup Retention Enabled",
+      "key": "BACKUP_RETENTION_POLICY",
+      "value": "true",
+      "description": "Automatically removes old backups beyond the configured count.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups to Keep",
+      "key": "BACKUP_RETENTION_AMOUNT_TO_KEEP",
+      "value": "72",
+      "description": "Number of server backups retained when retention is enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Player Detection",
+      "key": "PLAYER_DETECTION_ENABLED",
+      "value": "true",
+      "description": "Logs joins and leaves and supports webhooks. Requires the REST API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Update Server on Start",
+      "key": "ALWAYS_UPDATE_ON_START",
+      "value": "true",
+      "description": "Checks and installs Palworld Dedicated Server updates whenever the container starts.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Validate Steam Files",
+      "key": "STEAMCMD_VALIDATE_FILES",
+      "value": "true",
+      "description": "Validates game files on startup. Validation can overwrite direct modifications to upstream game files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Automatic Update Checks",
+      "key": "AUTO_UPDATE_ENABLED",
+      "value": "false",
+      "description": "Periodically checks for game updates and can restart after an announced countdown.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Workshop Mod IDs",
+      "key": "WORKSHOP_MOD_IDS",
+      "value": "",
+      "description": "Optional comma-separated Steam Workshop Published File IDs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Workshop Update Schedule",
+      "key": "WORKSHOP_MOD_UPDATE_CRON",
+      "value": "0 */6 * * *",
+      "description": "Supercronic expression for Workshop update checks; default is every six hours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Username",
+      "key": "STEAM_USERNAME",
+      "value": "",
+      "description": "Optional Steam username for paid Workshop content. Authenticate interactively once and use the persistent Steam cache; do not store STEAM_PASSWORD here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Install Experimental UE4SS",
+      "key": "INSTALL_UE4SS_EXPERIMENTAL",
+      "value": "false",
+      "description": "Downloads and deploys the upstream Palworld-specific experimental UE4SS framework for compatible server mods.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow Client Mods",
+      "key": "ALLOW_CLIENT_MOD",
+      "value": "true",
+      "description": "Allows clients using supported client-side mods to connect.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

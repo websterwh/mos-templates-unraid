@@ -1,0 +1,315 @@
+{
+  "name": "paddock",
+  "repo": "ghcr.io/nordada/paddock",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/nordada/paddock/pkgs/container/paddock",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8420]/ui",
+  "icon": "https://raw.githubusercontent.com/nordada/paddock/main/public/icon.png",
+  "project": "https://github.com/nordada/paddock",
+  "description": "Quietly files completed race torrent downloads (autobrr, Transmission, or a manual drop) into a Plex-friendly library layout, renaming them into a standardized \"Show - SYYYYEnn - Title - ptNN.ext\" scheme. Copies only, never moves or deletes from your download share, so seeding is unaffected. Matching/naming vocabulary is driven by an \"event profile\" (Settings tab) - Formula 1 and cycling ship built in. See the project's README for full setup: Transmission's script-torrent-done hook, optional Plex partial-scan refresh, optional hot-folder ingestion, optional Discord notifications, and a password-gated web UI for editing show definitions and testing the matcher. IMPORTANT: on first run, \"Config File\" below is auto-seeded from the image's own bundled config/events.json (a small starter list) - open the web UI (set WEBUI_PASSWORD below) or edit that file directly to add the shows/events your own tracker covers, since this list is intentionally not exhaustive.",
+  "paths": [
+    {
+      "name": "Library Root",
+      "host": "/mnt/cache/media/motorsport",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your Plex media library root - point this at your actual racing library folder. Renamed/copied files land here.",
+      "required": true
+    },
+    {
+      "name": "Downloads Share",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "The SAME share Transmission's own container maps to /downloads internally - check Transmission's Docker template path mappings to confirm what that is. This is the whole share (not just its 'complete' subfolder). Read-write: the normal ingestion pipeline only ever copies from here, but the Reseed tab's Dedupe feature deletes a torrent's original download-folder copy once it's confirmed hardlinked to the library instead (an explicit, two-click-confirmed action). Set Mode to ro instead if you'd rather keep this share read-only - Dedupe's relink/verify step still works either way, only its optional 'Delete original copy' follow-up needs write access here.",
+      "required": true
+    },
+    {
+      "name": "Hot-folder (read-write, optional)",
+      "host": "/mnt/cache/downloads/paddock",
+      "container": "/downloads/paddock",
+      "mode": "rw",
+      "description": "Optional read-write overlay on a 'paddock' subfolder of the share above, for hot-folder ingestion (drop a file/folder here to bypass Transmission entirely). Only takes effect if HOTFOLDER_DIR below is also set to /downloads/paddock; otherwise this is just an unused empty folder.",
+      "required": false
+    },
+    {
+      "name": "Config File",
+      "host": "/mnt/cache/appdata/paddock/events.json",
+      "container": "/config/events.json",
+      "mode": "rw",
+      "description": "Persists your show/event definitions across container updates and image upgrades. Auto-created from the image's bundled config/events.json the first time this file doesn't exist yet (see the Overview above) - edit it by hand or through the web UI afterward.",
+      "required": true
+    },
+    {
+      "name": "Settings File",
+      "host": "/mnt/cache/appdata/paddock/settings.json",
+      "container": "/config/settings.json",
+      "mode": "rw",
+      "description": "Persists your Plex/Discord/hot-folder settings across container updates. Auto-created (seeded from the PLEX_*/DISCORD_*/HOTFOLDER_* variables below) the first time this file doesn't exist yet - edit it live afterward through the web UI's Settings panel instead of these variables. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/settings.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Activity Log",
+      "host": "/mnt/cache/appdata/paddock/activity.json",
+      "container": "/config/activity.json",
+      "mode": "rw",
+      "description": "Persists the web UI's recent-activity log across container updates and restarts. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/activity.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Dedupe State",
+      "host": "/mnt/cache/appdata/paddock/dedupe-state.json",
+      "container": "/config/dedupe-state.json",
+      "mode": "rw",
+      "description": "Records where a deduped torrent's data lived before the Reseed tab's Dedupe feature relinked it to your library - Transmission itself forgets a torrent's previous location once relocated, so this is the app's own persisted memory of it instead. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/dedupe-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Verify State",
+      "host": "/mnt/cache/appdata/paddock/verify-state.json",
+      "container": "/config/verify-state.json",
+      "mode": "rw",
+      "description": "Persists the Index tab's 'Verify data' integrity-check results across container updates. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/verify-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Match Overrides",
+      "host": "/mnt/cache/appdata/paddock/match-overrides.json",
+      "container": "/config/match-overrides.json",
+      "mode": "rw",
+      "description": "Persists a human's own picks from the Index tab's 'Resolve ambiguous files' modal across container updates - without this, a resolved pick silently reverts to 'ambiguous' again on the next update. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/match-overrides.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Archive State",
+      "host": "/mnt/cache/appdata/paddock/archive-state.json",
+      "container": "/config/archive-state.json",
+      "mode": "rw",
+      "description": "Persists which torrents you've archived from the Index tab (hidden from the list without deleting anything - see the Settings tab's Archive panel to undo) across container updates. Auto-created empty the first time this file doesn't exist yet. BEFORE FIRST APPLY: from the Unraid terminal, run 'touch /mnt/user/appdata/paddock/archive-state.json' (or your own path above if changed) - otherwise Docker creates an empty directory there instead of a file, which the app can't clean up on its own.",
+      "required": true
+    },
+    {
+      "name": "Torrent Registry",
+      "host": "/mnt/cache/appdata/paddock/torrent-registry",
+      "container": "/config/torrent-registry",
+      "mode": "rw",
+      "description": "A durable copy of every .torrent Paddock has a record of (staged through the Index tab, or synced in from Transmission's own torrents directory below), keyed by info-hash - lets you download any of them back later or skip re-processing an already-registered one on a repeat batch drop. A directory mount - unlike the file mounts above, there's no first-run empty-directory gotcha here, since a directory is exactly what's wanted.",
+      "required": true
+    },
+    {
+      "name": "Transmission's own torrents dir (read-only, optional)",
+      "host": "/mnt/cache/appdata/transmission/torrents",
+      "container": "/transmission-torrents",
+      "mode": "ro",
+      "description": "Optional: Transmission's OWN .torrent-storage directory (its config dir's 'torrents' subfolder, next to its own settings.json/resume/ - check Transmission's Docker template path mappings to find its config directory's host path). When set AND TRANSMISSION_TORRENTS_DIR below is also set to /transmission-torrents, every .torrent Transmission has ever been handed - including anything autobrr added directly, never touching Paddock - gets synced into the Torrent Registry above automatically. Leave blank to disable; this share is only ever read, never written to.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / Webhook / Health Port",
+      "host": "8420",
+      "container": "8420",
+      "protocol": "tcp",
+      "description": "Port the web UI (/ui), the Transmission webhook (/webhook/torrent-done), and the health check (/health) all listen on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LIBRARY_ROOT",
+      "key": "LIBRARY_ROOT",
+      "value": "/media",
+      "description": "The container-side path the app uses for the library (must match Library Root's fixed mount point above - you shouldn't need to change this).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CONFIG_PATH",
+      "key": "CONFIG_PATH",
+      "value": "/config/events.json",
+      "description": "Where the app looks for the config file above, from inside the container. Matches the Config File mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SETTINGS_PATH",
+      "key": "SETTINGS_PATH",
+      "value": "/config/settings.json",
+      "description": "Where the app looks for the settings file above, from inside the container. Matches the Settings File mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ACTIVITY_PATH",
+      "key": "ACTIVITY_PATH",
+      "value": "/config/activity.json",
+      "description": "Where the app looks for the activity log above, from inside the container. Matches the Activity Log mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DEDUPE_STATE_PATH",
+      "key": "DEDUPE_STATE_PATH",
+      "value": "/config/dedupe-state.json",
+      "description": "Where the app looks for the dedupe-state file above, from inside the container. Matches the Dedupe State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VERIFY_STATE_PATH",
+      "key": "VERIFY_STATE_PATH",
+      "value": "/config/verify-state.json",
+      "description": "Where the app looks for the verify-state file above, from inside the container. Matches the Verify State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MATCH_OVERRIDES_PATH",
+      "key": "MATCH_OVERRIDES_PATH",
+      "value": "/config/match-overrides.json",
+      "description": "Where the app looks for the match-overrides file above, from inside the container. Matches the Match Overrides mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ARCHIVE_STATE_PATH",
+      "key": "ARCHIVE_STATE_PATH",
+      "value": "/config/archive-state.json",
+      "description": "Where the app looks for the archive-state file above, from inside the container. Matches the Archive State mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TORRENT_REGISTRY_DIR",
+      "key": "TORRENT_REGISTRY_DIR",
+      "value": "/config/torrent-registry",
+      "description": "Where the app looks for the torrent registry above, from inside the container. Matches the Torrent Registry mount target - no need to change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRANSMISSION_TORRENTS_DIR",
+      "key": "TRANSMISSION_TORRENTS_DIR",
+      "value": "",
+      "description": "Set to /transmission-torrents (matching the mount target above) to enable the sync described there. Leave blank to disable, same as leaving the mount above blank - both need to be set together.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "One-time seed only: used to create Settings File above if it doesn't exist yet, then ignored - edit Plex settings live afterward via the web UI. Enables a Plex partial-scan refresh after each successful archive. e.g. http://192.168.1.10:32400",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "One-time seed only (see PLEX_URL above). Your Plex auth token, required if PLEX_URL is set. See the README's Plex section for how to find it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PLEX_SECTION_ID",
+      "key": "PLEX_SECTION_ID",
+      "value": "",
+      "description": "One-time seed only (see PLEX_URL above). The racing library's Plex section id, required if PLEX_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PLEX_LIBRARY_ROOT",
+      "key": "PLEX_LIBRARY_ROOT",
+      "value": "",
+      "description": "One-time seed only (see PLEX_URL above). Only needed if Plex's own container sees this library at a different internal path than Library Root above (the same category of issue as the Downloads Share mapping).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HOTFOLDER_DIR",
+      "key": "HOTFOLDER_DIR",
+      "value": "",
+      "description": "One-time seed only: used to create Settings File above if it doesn't exist yet, then ignored - edit hot-folder settings live afterward via the web UI. Set to /downloads/paddock to enable hot-folder ingestion (matches the read-write mount above). Leave unset to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HOTFOLDER_POLL_INTERVAL_MS",
+      "key": "HOTFOLDER_POLL_INTERVAL_MS",
+      "value": "60000",
+      "description": "One-time seed only (see HOTFOLDER_DIR above). Tuning: how often (ms) to check a hot-folder drop for size/mtime stability before processing it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HOTFOLDER_STABLE_POLLS",
+      "key": "HOTFOLDER_STABLE_POLLS",
+      "value": "3",
+      "description": "One-time seed only (see HOTFOLDER_DIR above). Tuning: consecutive stable polls required before a hot-folder drop is treated as done.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISCORD_WEBHOOK_URL",
+      "key": "DISCORD_WEBHOOK_URL",
+      "value": "",
+      "description": "One-time seed only: used to create Settings File above if it doesn't exist yet, then ignored - edit Discord settings live afterward via the web UI. Posts a summary message to a Discord channel after every torrent-done event. Create one via the target channel's Settings, Integrations, Webhooks.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCORD_MENTION_USER_ID",
+      "key": "DISCORD_MENTION_USER_ID",
+      "value": "",
+      "description": "One-time seed only (see DISCORD_WEBHOOK_URL above). A Discord user id to @mention, but only on review-worthy notifications (auto-created shows, warnings, errors). Leave unset to have every notification post without a mention.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBUI_PASSWORD",
+      "key": "WEBUI_PASSWORD",
+      "value": "",
+      "description": "Set this to enable the web UI at /ui (events editor, match tester, upload, activity log). Fails CLOSED, not open: leaving this unset keeps /ui and /api/* returning 503, since that surface can read and overwrite your config.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WEBUI_USER",
+      "key": "WEBUI_USER",
+      "value": "",
+      "description": "Optional: also require this exact username (HTTP Basic Auth) alongside WEBUI_PASSWORD. Leave unset to accept any username, checking only the password.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Run the app as this user id instead of root (99 = Unraid's 'nobody', the same user most containers including Transmission run as). The container fixes ownership of its two config files automatically; the Library Root (and hot-folder, if used) must be writable by this user - on a default Unraid share that's already true, otherwise run once from the terminal: chown -R 99:100 on those paths. Blank = run as root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id to run as (100 = Unraid's 'users' group, paired with PUID 99 above). Blank = run as root.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

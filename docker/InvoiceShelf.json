@@ -14,67 +14,68 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/",
   "icon": "https://raw.githubusercontent.com/clairekardas/docker-icons/refs/heads/main/invoiceshelf.png",
   "project": "https://github.com/InvoiceShelf/InvoiceShelf",
-  "description": "This is the template of InvoiceShelf that just works. InvoiceShelf is a self-hosted, open source invoicing and estimates app built with Laravel and VueJS. This template runs the webapp only (pgsql variant) and expects an external PostgreSQL 16 server/container to already be running - it does NOT deploy its own database. Before starting this container, create a database and a dedicated user for InvoiceShelf on your existing Postgres instance, then fill in the DB_* variables below. Reference compose file: https://github.com/InvoiceShelf/docker/blob/master/docker-compose.pgsql.yml Storage is handled with Docker-managed named volumes (invoiceshelf_storage, invoiceshelf_modules) so the container works immediately with zero manual setup - no directories to create, no permissions to fix. Docker auto-populates them with the correct files and ownership from the image on first start. Note: this means logo uploads, custom PDF templates, and logs live inside Docker's own volume storage rather than a visible /mnt/user/appdata folder, so they are NOT included in typical Appdata Backup plugin runs. Your invoices, customers, and payments are unaffected either way since those live in your external Postgres database. If you want those files backed up too, see the \"Backing up named volumes\" note in Support/docs, or switch these to bind-mounted paths if you prefer visibility over zero-touch setup. If running behind Nginx reverse proxy with a nonstandard port (eg. https://your-domain.com:50443), the custom configuration for location '/' must be: proxy_set_header X-Forwarded-Host $host:50443; proxy_set_header X-Forwarded-Port 50443;",
-  "paths": [],
+  "description": "InvoiceShelf is a self-hosted, open source invoicing and estimates app built with Laravel and VueJS. ===================================================== READ THIS FIRST - 3 STEPS, THEN YOU'RE DONE ===================================================== STEP 1 - Create the database. This template runs the webapp only (pgsql variant). It does NOT deploy its own database and expects an external PostgreSQL 16 server or container to already be running. On that Postgres instance, create a database and a dedicated user that owns it, then fill in the DB_* fields below. Use a real password, not the Postgres superuser. Reference compose file: https://github.com/InvoiceShelf/docker/blob/master/docker-compose.pgsql.yml STEP 2 - Create the two appdata folders BEFORE clicking Apply. Paste this into the Unraid terminal (adjust paths if you changed the Uploads/Logs mappings below): mkdir -p /mnt/user/appdata/InvoiceShelf/uploads /mnt/user/appdata/InvoiceShelf/logs chown -R 82:82 /mnt/user/appdata/InvoiceShelf chmod -R 775 /mnt/user/appdata/InvoiceShelf Why: this image runs as the unprivileged user www-data (UID/GID 82:82 on Alpine). If Unraid creates these folders itself they come out root-owned and the setup wizard's permission check will fail. This is a one-time command - the ownership survives container recreation, image pulls and app updates, so you never run it again. STEP 3 - Run the setup wizard, and expect one red dot. On the wizard's Permissions screen, bootstrap/cache/ shows red. This is expected and harmless. That folder ships inside the image as mode 755, and the wizard compares the octal mode against 775 instead of testing whether the folder is actually writable. It IS writable - it is owned by www-data and Laravel caches config and routes into it successfully on every boot. Click Continue. storage/framework/ and storage/logs/ should both be green. If storage/logs/ is red, you skipped Step 2. ===================================================== STORAGE LAYOUT ===================================================== The full Laravel storage tree lives on a Docker-managed named volume (invoiceshelf_storage) which Docker auto-populates from the image on first start. Two folders are bind-mounted on top of it into /mnt/user/appdata so the Appdata Backup plugin can see them: Uploads = company logos and files added through the UI (Laravel's public disk). Logs = laravel.log, for troubleshooting. DO NOT bind-mount the whole /var/www/html/storage directory to an empty appdata folder. Unlike named volumes, bind mounts do not copy content out of the image, so doing that erases the shipped PDF templates and the container dies on boot with: The \"/var/www/html/storage/app/templates/pdf\" directory does not exist. The nested layout in this template exists specifically to avoid that. Consequence: the stock PDF templates stay inside the named volume and are not covered by Appdata Backup. That is fine for almost everyone, since they ship with the image and are restored on every pull. If you hand-edit them, back up the named volume separately. Your invoices, customers and payments live in your external Postgres database. Back that database up - this template cannot do it for you. ===================================================== REVERSE PROXY ===================================================== If running behind Nginx reverse proxy with a nonstandard port (eg. https://your-domain.com:50443), the custom configuration for location '/' must be: proxy_set_header X-Forwarded-Host $host:50443; proxy_set_header X-Forwarded-Port 50443; If login bounces you back to the login screen or throws a 419 / CSRF token mismatch, the host:port you typed in the browser is missing from SANCTUM_STATEFUL_DOMAINS. That variable must list every address you load the app from, including the port whenever it is not 80 or 443.",
+  "paths": [
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/InvoiceShelf/uploads",
+      "container": "/var/www/html/storage/app/public",
+      "mode": "rw",
+      "description": "Company logos and files uploaded through the web UI. Kept in appdata so the Appdata Backup plugin picks them up. IMPORTANT: create this folder and chown it to 82:82 before first start - see Step 2 in the description above.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/InvoiceShelf/logs",
+      "container": "/var/www/html/storage/logs",
+      "mode": "rw",
+      "description": "Laravel application logs (laravel.log), for troubleshooting. IMPORTANT: create this folder and chown it to 82:82 before first start - see Step 2 in the description above.",
+      "required": true
+    }
+  ],
   "ports": [
     {
       "name": "WebUI Port",
       "host": "8090",
       "container": "8080",
       "protocol": "tcp",
-      "description": "Host port for the InvoiceShelf web UI. If you're routing to this container by name through a reverse proxy on a custom network, you can leave this or remove it.",
+      "description": "Host port for the InvoiceShelf web UI. Change the left-hand host port if 8090 is already taken. If you route to this container by name through a reverse proxy on a custom network, you can remove this mapping entirely.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "APP_NAME",
-      "key": "APP_NAME",
-      "value": "InvoiceShelf",
-      "description": "Application name",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "APP_URL",
-      "key": "APP_URL",
-      "value": "https://YOUR-DOMAIN.COM",
-      "description": "Primary public URL used for generated links (emails, PDFs). Use your external https URL if you access from outside; local network access still works independently as long as SANCTUM_STATEFUL_DOMAINS below includes it too.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "SESSION_DOMAIN",
-      "key": "SESSION_DOMAIN",
-      "value": "",
-      "description": "Leave BLANK if you access InvoiceShelf from more than one hostname/IP (e.g. local IP + external domain) - a blank value lets the session cookie scope itself to whichever host was used. Only set this to a single domain if you exclusively access via that one domain.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "SANCTUM_STATEFUL_DOMAINS",
-      "key": "SANCTUM_STATEFUL_DOMAINS",
-      "value": "SERVER-IP:8080,YOUR-DOMAIN.COM",
-      "description": "Comma-separated list of every host:port you'll load the app from - e.g. your LAN IP:port AND your external reverse-proxy domain:port. Include the port whenever it isn't the default 80/443.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "TRUSTED_PROXIES",
-      "key": "TRUSTED_PROXIES",
-      "value": "*",
-      "description": "Required for correct HTTPS/host detection behind a reverse proxy. Set to * to trust all proxies, or restrict to your reverse proxy's container/LAN IP for tighter security.",
-      "required": true,
-      "mask": false
-    },
-    {
       "name": "DB_HOST",
       "key": "DB_HOST",
-      "value": "CHANGE_ME",
-      "description": "Hostname/container name or IP of your existing PostgreSQL 16 server. If it's on the serverproxy network, its container name works; otherwise use the Unraid server IP.",
+      "value": "",
+      "description": "Hostname, container name, or IP of your existing PostgreSQL 16 server. If it shares a custom Docker network with this container, the container name works; otherwise use your Unraid server IP.",
       "required": true,
       "mask": false
+    },
+    {
+      "name": "DB_DATABASE",
+      "key": "DB_DATABASE",
+      "value": "invoiceshelf",
+      "description": "Database name. Must already exist on the external Postgres server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_USERNAME",
+      "key": "DB_USERNAME",
+      "value": "invoiceshelf",
+      "description": "Database user. Must already exist and own the database above. Use a dedicated user - do NOT use the postgres superuser, since that account can read and modify every other database on the server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Password for the database user above. Set a strong unique value - this protects your invoices, customers and payment records.",
+      "required": true,
+      "mask": true
     },
     {
       "name": "DB_PORT",
@@ -85,34 +86,58 @@
       "mask": false
     },
     {
-      "name": "DB_DATABASE",
-      "key": "DB_DATABASE",
-      "value": "invoiceshelf",
-      "description": "Database name (must already exist on the external Postgres server)",
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "https://YOUR-DOMAIN.COM",
+      "description": "Primary public URL, used for links in emails and PDFs. Use your external https URL if you access from outside. Local network access still works independently, as long as SANCTUM_STATEFUL_DOMAINS below also lists it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SANCTUM_STATEFUL_DOMAINS",
+      "key": "SANCTUM_STATEFUL_DOMAINS",
+      "value": "SERVER-IP:8090,YOUR-DOMAIN.COM",
+      "description": "Comma-separated list of every host:port you will load the app from - typically your LAN IP with the host port, plus your external reverse-proxy domain. Include the port whenever it is not 80 or 443. Getting this wrong is the #1 cause of login failing with a 419 / CSRF token mismatch.",
       "required": true,
       "mask": false
     },
     {
-      "name": "DB_USERNAME",
-      "key": "DB_USERNAME",
-      "value": "postgres",
-      "description": "Database user (must already exist and own the database)",
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "*",
+      "description": "Required for correct HTTPS and host detection behind a reverse proxy. Leave as * to trust all proxies, or restrict to your reverse proxy's container/LAN IP for tighter security.",
       "required": true,
       "mask": false
     },
     {
-      "name": "DB_PASSWORD",
-      "key": "DB_PASSWORD",
-      "value": "postgres",
-      "description": "Database user password",
+      "name": "APP_NAME",
+      "key": "APP_NAME",
+      "value": "InvoiceShelf",
+      "description": "Application name shown in the UI.",
       "required": true,
-      "mask": true
+      "mask": false
+    },
+    {
+      "name": "SESSION_DOMAIN",
+      "key": "SESSION_DOMAIN",
+      "value": "",
+      "description": "Leave BLANK if you reach InvoiceShelf from more than one hostname or IP (e.g. LAN IP plus external domain) - blank lets the session cookie scope itself to whichever host was used. Only set a single domain here if you exclusively use that one domain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone, used for timestamps on invoices and logs.",
+      "required": false,
+      "mask": false
     },
     {
       "name": "APP_ENV",
       "key": "APP_ENV",
       "value": "production",
-      "description": "Application environment",
+      "description": "Application environment. Leave as production.",
       "required": true,
       "mask": false
     },
@@ -120,7 +145,7 @@
       "name": "APP_DEBUG",
       "key": "APP_DEBUG",
       "value": "false",
-      "description": "Enable debug mode",
+      "description": "Debug mode. Leave false in production - true leaks stack traces and config values to anyone who can reach the app.",
       "required": true,
       "mask": false
     },
@@ -128,7 +153,7 @@
       "name": "DB_CONNECTION",
       "key": "DB_CONNECTION",
       "value": "pgsql",
-      "description": "Database driver",
+      "description": "Database driver. This template is the pgsql variant - do not change.",
       "required": true,
       "mask": false
     },
@@ -136,7 +161,7 @@
       "name": "DB_PASSWORD_FILE",
       "key": "DB_PASSWORD_FILE",
       "value": "",
-      "description": "Optional: path to a Docker secret file containing the DB password, instead of DB_PASSWORD",
+      "description": "Optional: path to a Docker secret file containing the DB password, used instead of DB_PASSWORD.",
       "required": false,
       "mask": false
     },
@@ -144,7 +169,7 @@
       "name": "CACHE_STORE",
       "key": "CACHE_STORE",
       "value": "file",
-      "description": "Cache driver",
+      "description": "Cache driver.",
       "required": false,
       "mask": false
     },
@@ -152,7 +177,7 @@
       "name": "SESSION_DRIVER",
       "key": "SESSION_DRIVER",
       "value": "file",
-      "description": "Session driver",
+      "description": "Session driver.",
       "required": false,
       "mask": false
     },
@@ -160,7 +185,7 @@
       "name": "SESSION_LIFETIME",
       "key": "SESSION_LIFETIME",
       "value": "240",
-      "description": "Session lifetime in minutes",
+      "description": "Session lifetime in minutes before an idle user is logged out.",
       "required": false,
       "mask": false
     },
@@ -168,7 +193,7 @@
       "name": "AUTORUN_ENABLED",
       "key": "AUTORUN_ENABLED",
       "value": "true",
-      "description": "Run startup automation on container boot",
+      "description": "Run startup automation (config/route/view caching, storage symlink) on container boot.",
       "required": false,
       "mask": false
     },
@@ -176,7 +201,7 @@
       "name": "AUTORUN_LARAVEL_MIGRATION",
       "key": "AUTORUN_LARAVEL_MIGRATION",
       "value": "false",
-      "description": "Auto-run DB migrations on boot (set true for first run against a fresh DB, then false)",
+      "description": "Auto-run database migrations on boot. Leave false - the setup wizard handles the initial schema. Set true temporarily only if an app update tells you migrations are pending.",
       "required": false,
       "mask": false
     },
@@ -184,7 +209,7 @@
       "name": "AUTORUN_LARAVEL_OPTIMIZE",
       "key": "AUTORUN_LARAVEL_OPTIMIZE",
       "value": "false",
-      "description": "Auto-run Laravel optimize on boot",
+      "description": "Auto-run Laravel optimize on boot.",
       "required": false,
       "mask": false
     },
@@ -192,7 +217,7 @@
       "name": "PHP_OPCACHE_ENABLE",
       "key": "PHP_OPCACHE_ENABLE",
       "value": "1",
-      "description": "Enable PHP OPcache",
+      "description": "Enable PHP OPcache. Recommended for production performance.",
       "required": false,
       "mask": false
     }

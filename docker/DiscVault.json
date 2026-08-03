@@ -1,6 +1,6 @@
 {
   "name": "DiscVault",
-  "repo": "ghcr.io/helmerznl/discvault-launcher:v26-beta",
+  "repo": "ghcr.io/helmerznl/discvault-launcher:beta",
   "category": [
     "System"
   ],
@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]",
   "icon": "https://raw.githubusercontent.com/helmerzNL/DiscVault/main/app/frontend/favicon-192.png",
   "project": "https://github.com/helmerzNL/DiscVault-Launcher",
-  "description": "DiscVault launcher for Unraid Community Apps. The latest/legacy launcher channel starts the legacy single-container app; v26 channels update and manage the PostgreSQL-backed DiscVault 26 stack while reusing the existing DiscVault beta appdata directory for migration.",
+  "description": "DiscVault launcher for Unraid Community Apps. It updates and manages the PostgreSQL-backed DiscVault 26 stack while reusing the existing DiscVault beta appdata directory for migration. There are two channels. Use ghcr.io/helmerznl/discvault-launcher:latest for the production release, or ghcr.io/helmerznl/discvault-launcher:beta for the beta release. If your Repository is still set to discvault-launcher:v26-beta or :v26, those tags keep working as aliases of :beta and :latest for now, but switch to the new names when convenient. The :dev, :stable and :legacy tags are no longer published; move to :latest or :beta.",
   "paths": [
     {
       "name": "Data Path",
@@ -29,7 +29,7 @@
       "host": "/mnt/cache/appdata/discvault-launcher",
       "container": "/config",
       "mode": "rw",
-      "description": "Launcher state, generated Compose file, and generated secrets.",
+      "description": "Launcher state, generated Compose file, generated secrets and boot logs.",
       "required": true
     },
     {
@@ -54,10 +54,26 @@
   ],
   "variables": [
     {
+      "name": "DiscVault Channel",
+      "key": "DISCVAULT_CHANNEL",
+      "value": "auto",
+      "description": "Which DiscVault release to run. auto follows the channel built into this launcher image (matching the Repository above). latest deploys discvault:latest, beta deploys discvault:beta. manual deploys whatever you put in DiscVault Image below - if that reference does not exist, the launcher falls back to discvault:latest and says so in the log.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DiscVault Image (manual channel only)",
+      "key": "DISCVAULT_IMAGE",
+      "value": "auto",
+      "description": "Only used when DiscVault Channel is set to manual; ignored otherwise. Accepts any DiscVault tag name such as latest, stable, v26, beta, v26-beta, dev or v26.7.7, or a full image reference. Digest pinning is supported, for example ghcr.io/helmerznl/discvault:beta@sha256:digest - note that a pinned digest disables automatic updates until you change it back.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Existing DiscVault Host Data Path",
       "key": "DISCVAULT_DATA_DIR_HOST",
       "value": "/mnt/user/appdata/discvault",
-      "description": "Host path of the existing DiscVault beta appdata. Must match Data Path so the managed stack can mount the same data from the Docker host.",
+      "description": "Host path of the existing DiscVault beta appdata. Must match Data Path above so the managed stack can mount the same data from the Docker host.",
       "required": true,
       "mask": false
     },
@@ -65,72 +81,8 @@
       "name": "PostgreSQL Data Path",
       "key": "DISCVAULT_POSTGRES_DATA_DIR_HOST",
       "value": "/mnt/user/appdata/discvault-postgres",
-      "description": "Host path where the launcher stores PostgreSQL data for DiscVault Next.",
+      "description": "Host path where the launcher stores PostgreSQL data. Use a directory of its own: PostgreSQL only reads the password when it first initialises this directory, so reusing one from another install keeps that install&apos;s password.",
       "required": true,
-      "mask": false
-    },
-    {
-      "name": "DiscVault Next Image Override",
-      "key": "DISCVAULT_NEXT_IMAGE",
-      "value": "",
-      "description": "Primary DiscVault image override for v26 stack rollouts. Accepts shorthand values auto/prod/latest/v26 - discvault:latest, beta - discvault:beta, v26-beta - discvault:v26-beta, or a full image reference. Supports digest pinning, for example ghcr.io/helmerznl/discvault:v26-beta@sha256:digest.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DiscVault Image (Fallback)",
-      "key": "DISCVAULT_IMAGE",
-      "value": "auto",
-      "description": "Fallback DiscVault image when DISCVAULT_NEXT_IMAGE is empty. Shorthand values auto/prod/latest/v26 map to discvault:latest, beta maps to discvault:beta, and v26-beta maps to discvault:v26-beta.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Compose Project Name",
-      "key": "DISCVAULT_PROJECT_NAME",
-      "value": "discvault_stack",
-      "description": "Stable Docker Compose project name for the managed stack.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Stack Network",
-      "key": "DISCVAULT_NETWORK",
-      "value": "discvault-stack",
-      "description": "Shared Docker network for launcher, API, worker, and PostgreSQL.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Always Recreate Stack",
-      "key": "DISCVAULT_ALWAYS_RECREATE_STACK",
-      "value": "false",
-      "description": "When true, the launcher recreates the managed DiscVault stack on every start after pulling images. Useful for development and troubleshooting.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Check Health SHA After Deploy",
-      "key": "DISCVAULT_CHECK_HEALTH_SHA",
-      "value": "true",
-      "description": "When true, the launcher validates /api/next/health sha against the deployed image revision and fails startup on mismatch.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Boot Log Retention",
-      "key": "DISCVAULT_BOOT_LOG_RETENTION",
-      "value": "50",
-      "description": "How many launcher boot-session log files to keep in /config/logs.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Rollout Lock Timeout Seconds",
-      "key": "DISCVAULT_ROLLOUT_LOCK_TIMEOUT",
-      "value": "300",
-      "description": "Maximum wait time for the launcher rollout lock before startup fails to avoid parallel update races.",
-      "required": false,
       "mask": false
     },
     {
@@ -158,10 +110,18 @@
       "mask": false
     },
     {
+      "name": "Legacy Authentication",
+      "key": "LEGACY_AUTH_ENABLED",
+      "value": "false",
+      "description": "Opt-in capability gate for password + TOTP login. Passkeys remain the recommended method. Existing installs must also enable it in Users and roles with a fresh passkey.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "PostgreSQL Password",
       "key": "POSTGRES_PASSWORD",
       "value": "",
-      "description": "Optional stable PostgreSQL password. Leave empty and the launcher generates one in /config/stack.env on first start.",
+      "description": "Optional stable PostgreSQL password. Leave empty and the launcher generates one in /config/stack.env on first start. Only takes effect when the PostgreSQL data directory is first initialised.",
       "required": false,
       "mask": true
     },
@@ -172,6 +132,78 @@
       "description": "Optional stable JWT signing secret. Leave empty and the launcher generates one in /config/stack.env on first start.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Key Encryption Key",
+      "key": "DISCVAULT_NEXT_KEY_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Optional separate stable key for MovieVault credentials encrypted in PostgreSQL. Leave empty to derive them from the JWT secret. Setting this on an existing install makes previously stored credentials unreadable, so only set it before first use or re-enter the credentials afterwards.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Compose Project Name",
+      "key": "DISCVAULT_PROJECT_NAME",
+      "value": "discvault_stack",
+      "description": "Stable Docker Compose project name for the managed stack. Give each parallel install its own value.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Stack Network",
+      "key": "DISCVAULT_NETWORK",
+      "value": "discvault-stack",
+      "description": "Shared Docker network for launcher, API, worker, MCP and PostgreSQL. Give each parallel install its own value.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Always Recreate Stack",
+      "key": "DISCVAULT_ALWAYS_RECREATE_STACK",
+      "value": "false",
+      "description": "When true, the launcher recreates the managed DiscVault stack on every start after pulling images. Useful for development and troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check Health SHA After Deploy",
+      "key": "DISCVAULT_CHECK_HEALTH_SHA",
+      "value": "true",
+      "description": "When true, the launcher validates /api/next/health sha against the deployed image revision and fails startup on mismatch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resync PostgreSQL Password",
+      "key": "DISCVAULT_POSTGRES_SYNC_PASSWORD",
+      "value": "false",
+      "description": "When true, the launcher runs ALTER USER to make the database password match its own configuration if PostgreSQL rejects it. Leave false unless you know the configured password is the one you want; this writes to your database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Dedup Execution",
+      "key": "DISCVAULT_ADMIN_DEDUP_EXECUTE_ENABLED",
+      "value": "false",
+      "description": "Enables destructive admin dedup execution. Keep false unless you have reviewed the matching and report workflow for the deployed release.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Boot Log Retention",
+      "key": "DISCVAULT_BOOT_LOG_RETENTION",
+      "value": "50",
+      "description": "How many launcher boot-session log files to keep in /config/logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rollout Lock Timeout Seconds",
+      "key": "DISCVAULT_ROLLOUT_LOCK_TIMEOUT",
+      "value": "300",
+      "description": "Maximum wait time for the launcher rollout lock before startup fails to avoid parallel update races.",
+      "required": false,
+      "mask": false
     }
   ],
   "devices": [],

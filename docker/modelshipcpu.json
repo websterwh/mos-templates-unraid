@@ -1,0 +1,100 @@
+{
+  "name": "modelship-cpu",
+  "repo": "ghcr.io/modelship-ai/modelship:latest-cpu",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://ghcr.io/modelship-ai/modelship",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--shm-size=2g -e MSHIP_UID=99 -e MSHIP_GID=100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/modelship-ai/modelship-unraid/main/icon.png",
+  "project": "https://github.com/modelship-ai/modelship",
+  "description": "Self-hosted, OpenAI-compatible inference for the agentic era. Modelship runs your whole AI stack -- reasoning LLMs with universal tool calling, embeddings, speech-to-text, text-to-speech, and image generation -- as multiple models sharing your CPU behind a single OpenAI-compatible gateway. Built on Ray Serve with pluggable backends (llama.cpp, vLLM, Diffusers, plugins). This is the CPU-only variant -- no GPU or NVIDIA Container Toolkit needed, works on any box (amd64 or arm64, including Apple Silicon hosts). For GPU support instead, use the separate \"modelship-cuda\" template. IMPORTANT: create your models.yaml at the path below BEFORE starting the container -- it will not start without one. See https://github.com/modelship-ai/modelship/blob/main/docs/model-configuration.md and https://github.com/modelship-ai/modelship/tree/main/config/examples for the format and ready-made examples. IMPORTANT: the default --shm-size=2g in Extra Parameters is sized only for a single small quick-start model. Ray sizes its object store to roughly 30% of the RAM it sees as available AT STARTUP -- if --shm-size is smaller than that, Ray crashes immediately. Raise --shm-size (roughly 30% of the RAM you want to give modelship) for bigger or multi-model stacks.",
+  "paths": [
+    {
+      "name": "Models Config",
+      "host": "/mnt/cache/appdata/modelship/models.yaml",
+      "container": "/modelship/config/models.yaml",
+      "mode": "rw",
+      "description": "Your models.yaml defining which models to run on CPU. MUST exist before first start or the container will exit. See docs/model-configuration.md and config/examples/ in the modelship repo for the format.",
+      "required": true
+    },
+    {
+      "name": "Model Cache",
+      "host": "/mnt/cache/appdata/modelship/cache",
+      "container": "/.cache",
+      "mode": "rw",
+      "description": "Persistent cache for downloaded model weights (HuggingFace, vLLM, plugins). Keep this outside the container so weights survive updates/restarts.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible API port (chat completions, embeddings, STT, TTS, images)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Metrics Port",
+      "host": "8079",
+      "container": "8079",
+      "protocol": "tcp",
+      "description": "Prometheus metrics scrape port (Ray cluster, Ray Serve, vLLM, and modelship:* metrics). Only useful if Metrics Enabled is true.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HF_TOKEN",
+      "key": "HF_TOKEN",
+      "value": "",
+      "description": "HuggingFace access token, required only for gated models (e.g. Llama, Gemma, Mistral variants).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MSHIP_API_KEYS",
+      "key": "MSHIP_API_KEYS",
+      "value": "",
+      "description": "Comma-separated API keys clients must send as 'Authorization: Bearer key'. Leave empty to disable auth (fine for a LAN-only deployment).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MSHIP_LOG_LEVEL",
+      "key": "MSHIP_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: TRACE, DEBUG, INFO, or WARNING.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MSHIP_METRICS",
+      "key": "MSHIP_METRICS",
+      "value": "true",
+      "description": "Enable Prometheus metrics on the Metrics Port. Set to false to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USER",
+      "key": "USER",
+      "value": "modelship",
+      "description": "Username the container reports to Python's getpass.getuser(). The container runs as UID 99 (MSHIP_UID), which has no /etc/passwd entry, so without this vLLM/torch init crashes with 'getpwuid(): uid not found: 99'. Leave as-is unless you know why you're changing it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

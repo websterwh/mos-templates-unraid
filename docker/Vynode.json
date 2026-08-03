@@ -1,0 +1,99 @@
+{
+  "name": "Vynode",
+  "repo": "ghcr.io/minerport/vynodetemplatearr:serious-test",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/minerport/VynodeTemplateArr/pkgs/container/vynodetemplatearr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=SETGID --cap-add=SETUID",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7171]/",
+  "icon": "https://raw.githubusercontent.com/minerport/VynodeTemplateArr/main/unraid/vynode-icon.png",
+  "project": "https://github.com/minerport/VynodeTemplateArr",
+  "description": "Manage Plex collections, posters, overlays, watchlists, and missing media from one self-hosted interface.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/vynode",
+      "container": "/var/lib/vynode",
+      "mode": "rw",
+      "description": "Persistent database, secrets, jobs, assets, and logs.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Shares allowed for placeholders and local poster folders. Narrow this path when possible.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "7171",
+      "container": "7171",
+      "protocol": "tcp",
+      "description": "Vynode web and API port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "VYNODE_PUBLIC_URL",
+      "value": "http://[IP]:[PORT:7171]",
+      "description": "Browser-visible URL, including the selected Web UI host port or reverse-proxy address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Master Key",
+      "key": "VYNODE_MASTER_KEY",
+      "value": "",
+      "description": "Base64-encoded 32-byte encryption key. Back it up securely; changing it makes stored credentials unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Media Roots",
+      "key": "VYNODE_MEDIA_ROOTS",
+      "value": "/media",
+      "description": "Comma-separated container paths Vynode may browse.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid nobody user ID.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid users group ID.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "VYNODE_TRUST_PROXY",
+      "value": "false",
+      "description": "Set true only behind a trusted reverse proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

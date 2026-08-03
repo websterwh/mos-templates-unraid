@@ -1,0 +1,115 @@
+{
+  "name": "Reaper-Dev",
+  "repo": "ghcr.io/scythe-labs/reaper:dev",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/scythe-labs/reaper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8420]/",
+  "icon": "https://raw.githubusercontent.com/scythe-labs/reaper/dev/frontend/public/icon-512.png",
+  "project": "https://github.com/scythe-labs/reaper",
+  "description": "This is Reaper's dev channel: it follows the dev branch and changes daily. Run it to help test what is coming; the Reaper entry is the steadier choice. Reaper finds media nobody watches, explains why it thinks each item is expendable, and removes it safely through Sonarr and Radarr. It reads watch history from Tautulli and requests from Seerr, and it refreshes Plex when it is done. Deletion is off until you turn it on. Until then Reaper can only scan, score and explain, so you can run it for weeks and just read the results. It never touches your files directly: everything goes through Sonarr and Radarr, so this container needs no access to your media shares. Ownership of the data folder is handled for you. The container fixes it on start and then drops to the user set by PUID and PGID (default 99 and 100, Unraid's nobody:users), so you do not need to chown anything first. Then open the WebUI and follow the setup wizard. It creates your admin login and links Plex, Sonarr, Radarr, Tautulli and Seerr. API keys are entered there and stored encrypted, not in this template. Back up the data folder. It holds reaper.db and secret.key, and secret.key is the only thing that can decrypt your stored API keys. Locked out? Open this container's console and run: reaper-admin reset-password --username yourname",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/reaper-dev",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Reaper's database, its encryption key, and the cached data it scans. Back this folder up. Its ownership is fixed automatically on start, so you do not need to chown it.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8421",
+      "container": "8420",
+      "protocol": "tcp",
+      "description": "The port you reach this dev build's web interface on. It defaults to 8421 so the stable Reaper entry can keep 8420 beside it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The user id Reaper runs as. The container fixes the data folder to this user on start, then drops to it before opening the database. The default 99 is Unraid's nobody, so your appdata stays owned the usual way.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The group id Reaper runs as, paired with PUID. The default 100 is Unraid's users group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow deletion",
+      "key": "REAPER_DESTRUCTIVE_ACTIONS_ENABLED",
+      "value": "false",
+      "description": "The starting state for deletion, used on the first run only. Leave it false. After the first run Reaper remembers your choice and this field is ignored: you turn deletion on in the web interface under Policy, which asks for your password. Set it true only if you want a fresh install to come up ready to delete.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Encryption key",
+      "key": "REAPER_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Encrypts your stored API keys. Leave it empty and Reaper makes one on first start and saves it to the data folder as secret.key, which you back up with the database. Fill it in only if you would rather hold the key yourself, for example from a password manager. Generate one with: python -c &quot;import secrets; print(secrets.token_urlsafe(32))&quot;",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Recovery mode",
+      "key": "REAPER_RECOVERY",
+      "value": "false",
+      "description": "Set true and restart to print a single-use login link to this container's log, good for 15 minutes. Use it if you are locked out, then set it back to false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Warn users before deletion is on",
+      "key": "REAPER_ALLOW_UNARMED_LEAVING_SOON",
+      "value": "false",
+      "description": "Set true to let Reaper add the Leaving Soon label in Plex while deletion is still off, so your users see the warning during the countdown rather than after you turn deletion on. The label is reversible and touches no files, and this can never permit a deletion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "REAPER_LOG_LEVEL",
+      "value": "INFO",
+      "description": "How much detail goes to the log: DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logs as JSON",
+      "key": "REAPER_LOG_JSON",
+      "value": "false",
+      "description": "Set true to write the log as one JSON object per line, for a log collector. Leave false for logs meant to be read by a person.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discord webhook",
+      "key": "REAPER_DISCORD_WEBHOOK",
+      "value": "",
+      "description": "Optional, and used on the first start only. It tells your users what is leaving soon. The whole URL is a secret. After the first start the web interface is where you change it, and a value left here is ignored, so removing it later does not turn notifications off.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

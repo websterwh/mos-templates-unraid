@@ -1,0 +1,187 @@
+{
+  "name": "floppy",
+  "repo": "ghcr.io/dannyvfilms/floppy:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/dannyvfilms/Floppy/pkgs/container/floppy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/dannyvfilms/Floppy/latest/src/static/favicon/android-chrome-512x512.png",
+  "project": "https://github.com/dannyvfilms/Floppy",
+  "description": "Floppy is a self-hosted, all-in-one media tracker: movies, TV, anime, manga, books, comics, games, board games, music, and podcasts in one library, history, and set of stats. A broader alternative to Trakt, Letterboxd, and TV Time. Requires a reachable Redis instance (used for caching and as the Celery broker). This is not bundled - run a Redis container on this same Unraid server (for example redis:8-alpine) with port 6379 published to the host. REDIS_URL defaults to host.docker.internal, which resolves to this server automatically, so no IP address needs to be entered - just make sure Redis' port is published to the host and matches the port in REDIS_URL. SQLite is used by default; PostgreSQL is supported via the DB_* variables. Set SECRET to a long random string before first run. See the README for the full environment variable list: https://github.com/dannyvfilms/Floppy#configuration-and-deployment",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/floppy/db",
+      "container": "/floppy/db",
+      "mode": "rw",
+      "description": "Persistent storage for SQLite database and local app data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port the Floppy web UI listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SECRET",
+      "key": "SECRET",
+      "value": "",
+      "description": "Long random string used as the Django secret key. Required.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "redis://host.docker.internal:6379",
+      "description": "URL of a reachable Redis instance, used for caching and as the Celery broker. Defaults to this same server via host.docker.internal - just run a Redis container here with port 6379 published to the host. Change the port if you published Redis on a different one. Required.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Timezone used for scheduling and displayed dates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REGISTRATION",
+      "key": "REGISTRATION",
+      "value": "True",
+      "description": "Allow new account sign-ups. Set to False after creating your account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEMO_ACCOUNT_ENABLED",
+      "key": "DEMO_ACCOUNT_ENABLED",
+      "value": "False",
+      "description": "Provision the public demo/demodemo account after migrations. Leave False unless you want it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB_API",
+      "key": "TMDB_API",
+      "value": "",
+      "description": "TMDB API key for movie/TV metadata. Optional but recommended.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "PostgreSQL host. Leave blank to use SQLite instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_NAME",
+      "key": "DB_NAME",
+      "value": "floppy",
+      "description": "PostgreSQL database name (only used when DB_HOST is set).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "floppy",
+      "description": "PostgreSQL user (only used when DB_HOST is set).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password (only used when DB_HOST is set).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port (only used when DB_HOST is set).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "URLS",
+      "key": "URLS",
+      "value": "",
+      "description": "Public URL if using a reverse proxy, e.g. https://floppy.yourdomain.com",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_ENABLED",
+      "key": "ADMIN_ENABLED",
+      "value": "False",
+      "description": "Enable the Django admin interface at /admin/.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEB_CONCURRENCY",
+      "key": "WEB_CONCURRENCY",
+      "value": "2",
+      "description": "Gunicorn worker processes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUNICORN_THREADS",
+      "key": "GUNICORN_THREADS",
+      "value": "4",
+      "description": "Gunicorn threads per worker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUG",
+      "key": "DEBUG",
+      "value": "False",
+      "description": "Enable Django debug mode. Leave False in production - it slows every request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the container as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the container as.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

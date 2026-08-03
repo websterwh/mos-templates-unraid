@@ -1,0 +1,227 @@
+{
+  "name": "nullGuard",
+  "repo": "nullata/nullguard",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/nullata/nullguard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --sysctl net.ipv4.ip_forward=1",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/nullata/nullGuard/refs/heads/main/static/images/logo.png",
+  "project": "https://github.com/nullata/nullGuard",
+  "description": "WireGuard VPN management application for creating and managing VPN servers and clients. For the full documentation of this project, please visit: https://github.com/nullata/nullGuard/",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WireGuard UDP Port",
+      "host": "51820",
+      "container": "51820",
+      "protocol": "udp",
+      "description": "WireGuard server UDP port. Add additional UDP port mappings for each extra WireGuard server instance.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SERVER_PORT",
+      "key": "SERVER_PORT",
+      "value": "8080",
+      "description": "Container-side port the web UI listens on. Must match the WebUI Port Target value above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Sofia",
+      "description": "Your UTC TZ offset. List of available TZs: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "changeme",
+      "description": "Your MariaDB/MySQL database host or container name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "MariaDB/MySQL database port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "nullguard",
+      "description": "The designated user for this application in the database. For more info on the requirements, please visit: https://github.com/nullata/nullGuard/blob/main/README.md#database-setup",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASS",
+      "key": "DB_PASS",
+      "value": "changeme",
+      "description": "Your MariaDB/MySQL database user password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_NAME",
+      "key": "DB_NAME",
+      "value": "nullguard",
+      "description": "Your MariaDB/MySQL database name. For more info on the requirements, please visit: https://github.com/nullata/nullGuard/blob/main/README.md#database-setup",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_TYPE",
+      "key": "DB_TYPE",
+      "value": "mysql",
+      "description": "Database backend: mysql (default) or sqlite. To use sqlite: set this to 'sqlite', then manually add a Path mapping (e.g. /mnt/user/appdata/nullguard/data) to /data inside the container so the database file persists across updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_SSL_ENABLED",
+      "key": "SERVER_SSL_ENABLED",
+      "value": "false",
+      "description": "Enable SSL for the web UI. Default: false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_SECRET_KEY",
+      "key": "SESSION_SECRET_KEY",
+      "value": "",
+      "description": "Secret key for session encryption. Auto-generated if not set, but highly recommended to set a random value to prevent all users being logged out on container update.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SESSION_MAX_AGE",
+      "key": "SESSION_MAX_AGE",
+      "value": "3600",
+      "description": "Maximum session age in seconds. Default: 3600.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COOKIE_SECURE",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set secure flag on cookies. Enable when using SSL. Default: false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENV",
+      "key": "ENV",
+      "value": "production",
+      "description": "Environment mode. Set to production for secure session cookies. Default: production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_NAME",
+      "key": "WG_SERVER_DEFAULT_NAME",
+      "value": "wg0",
+      "description": "Default interface name for new WireGuard servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_COMMENT",
+      "key": "WG_SERVER_DEFAULT_COMMENT",
+      "value": "nullguard",
+      "description": "Default comment for new WireGuard servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_ADDR",
+      "key": "WG_SERVER_DEFAULT_ADDR",
+      "value": "10.252.0.1/24",
+      "description": "Default address in CIDR notation for new WireGuard servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_PORT",
+      "key": "WG_SERVER_DEFAULT_PORT",
+      "value": "51820",
+      "description": "Default WireGuard listen port for new servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_SUPERNET",
+      "key": "WG_SERVER_DEFAULT_SUPERNET",
+      "value": "128.0.0.0/1, 0.0.0.0/1",
+      "description": "Default supernet CIDRs for new servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_KEEPALIVE",
+      "key": "WG_SERVER_DEFAULT_KEEPALIVE",
+      "value": "30",
+      "description": "Default client keepalive in seconds (0-600) for new servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_DEFAULT_CONF_PATH",
+      "key": "WG_SERVER_DEFAULT_CONF_PATH",
+      "value": "/etc/wireguard",
+      "description": "Default config file path for new WireGuard servers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_SERVER_CONF_PATH",
+      "key": "WG_SERVER_CONF_PATH",
+      "value": "/etc/wireguard",
+      "description": "Path inside the container where WireGuard server configs are generated. Not mandatory to persist via volume - server configurations are stored in the database and regenerated from there on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WG_CLIENT_DEFAULT_NAME",
+      "key": "WG_CLIENT_DEFAULT_NAME",
+      "value": "my-wg-client",
+      "description": "Default name for new WireGuard clients.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_START_SERVERS",
+      "key": "AUTO_START_SERVERS",
+      "value": "false",
+      "description": "Automatically start all WireGuard servers on application startup. Default: false.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

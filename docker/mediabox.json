@@ -1,0 +1,107 @@
+{
+  "name": "media-box",
+  "repo": "ghcr.io/devblaze/media-box:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/devblaze/media-box/pkgs/container/media-box",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7878]",
+  "icon": "https://raw.githubusercontent.com/devblaze/torbox-client/main/icons/media-box.png",
+  "project": "https://github.com/devblaze/media-box",
+  "description": "All-in-one series and movie PVR: a self-hosted Sonarr + Radarr + request-management replacement. Monitors your libraries, searches Torznab indexers, grabs via qBittorrent or TorBox, imports and renames automatically, and lets your users request media Jellyseerr-style. Migrate your existing Sonarr/Radarr libraries from Settings > Migrate. USE WITH CAUTION ON EXISTING MEDIA LIBRARIES: media-box manages files \u2014 it can move, rename, upgrade and delete media it imports. If you point it at a library that Sonarr/Radarr or your media server already manage, start safe: set Settings > Media Management > File operations to Read-only (no file changes) or Ask (every change waits for your approval on the File Changes page), and only switch to Allow once you trust what it does. PATHS: this template maps three separate shares \u2014 Downloads, Movies and TV. If Downloads is on a DIFFERENT filesystem than Movies/TV, imports COPY the file (slower, needs free space). To get instant, space-free hardlink imports, point all three at subfolders of ONE share.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/media-box",
+      "container": "/config",
+      "mode": "rw",
+      "description": "App configuration and SQLite database (persist this)",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Download client output (torrents/usenet). Put on the SAME share as Movies/TV for hardlinks.",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/movies",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Movie library",
+      "required": true
+    },
+    {
+      "name": "TV",
+      "host": "/mnt/cache/tv",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Series (TV) library",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7878",
+      "container": "7878",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Athens",
+      "description": "Timezone (e.g. Europe/Athens)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel/AMD GPU",
+      "host": "/dev/dri",
+      "container": "/dev/dri",
+      "description": "Pass the iGPU for hardware transcoding (Intel QuickSync / AMD VAAPI). Then set Settings &gt; Transcoding &gt; Hardware acceleration to VAAPI or QSV. Leave unset for CPU transcoding. For NVIDIA, install the Unraid Nvidia-Driver plugin and add Extra Parameters: --runtime=nvidia plus NVIDIA_VISIBLE_DEVICES.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

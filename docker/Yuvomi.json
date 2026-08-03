@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:3000]",
   "icon": "https://raw.githubusercontent.com/ulsklyc/yuvomi/main/icon.svg",
   "project": "https://github.com/ulsklyc/yuvomi",
-  "description": "Yuvomi is a private, self-hosted family planner \u2014 one calm home for everything your household needs to stay organized. No cloud accounts, no subscriptions, no tracking: your data lives on your server and nowhere else. Independent modules \u2014 turn on what fits, ignore the rest: - Dashboard \u2014 today's tasks, events, meals and reminders at a glance - Tasks \u2014 shared to-dos with priorities, due dates and assignees - Shopping \u2014 collaborative grocery lists, auto-sorted by category - Meals & Recipes \u2014 weekly meal planner with a built-in recipe book - Calendar \u2014 family calendar with recurring events and reminders - Budget \u2014 shared expenses, split costs and a spending overview - Housekeeping \u2014 chores, supplies and staff/session tracking - Documents \u2014 store and find important household files - Notes, Contacts & Birthdays \u2014 everything else in one tidy place Why Yuvomi: - Mobile-first PWA \u2014 install it on any phone, works offline - Light & dark mode, fast and polished (no bloated frameworks, no build step) - Optional sync \u2014 CalDAV / CardDAV, Apple and Google Calendar - OIDC single sign-on for households that already run an identity provider - Encrypted-at-rest storage (SQLCipher) with automated, scheduled backups - Multi-language, fully self-contained and MIT-licensed \u2014 Setup \u2014 REQUIRED: Set a long random SESSION_SECRET. RECOMMENDED: Set a strong DB_ENCRYPTION_KEY to encrypt the database at rest \u2014 without it the database and any synced calendar/contact credentials are stored unencrypted. Generate either secret with: openssl rand -base64 48 After the container starts, open the WebUI \u2014 the first visit guides you through creating your admin account. (Headless setups can alternatively run node setup.js in the container console.) Then log in \u2014 pick the modules you want and invite your family.",
+  "description": "Yuvomi is a private, self-hosted family planner \u2014 one calm home for everything your household needs to stay organized. No cloud accounts, no subscriptions, no tracking: your data lives on your server and nowhere else. Independent modules \u2014 turn on what fits, ignore the rest: - Dashboard \u2014 today's tasks, events, meals and reminders at a glance - Tasks \u2014 shared to-dos with priorities, due dates and assignees - Shopping \u2014 collaborative grocery lists, auto-sorted by category - Meals & Recipes \u2014 weekly meal planner with a built-in recipe book - Pantry \u2014 what's actually in the house, with storage places and best-before alerts - Calendar \u2014 family calendar with recurring events and reminders - Budget \u2014 shared expenses, split costs and a spending overview - Housekeeping \u2014 chores, supplies and staff/session tracking - Documents \u2014 store and find important household files - Notes, Contacts & Birthdays \u2014 everything else in one tidy place Why Yuvomi: - Mobile-first PWA \u2014 install it on any phone, works offline - Light & dark mode, fast and polished (no bloated frameworks, no build step) - Optional sync \u2014 CalDAV / CardDAV, Apple and Google Calendar - OIDC single sign-on for households that already run an identity provider - Encrypted-at-rest storage (SQLCipher) with automated, scheduled backups - Multi-language, fully self-contained and MIT-licensed \u2014 Setup \u2014 REQUIRED: Set a long random SESSION_SECRET. RECOMMENDED: Set a strong DB_ENCRYPTION_KEY to encrypt the database at rest \u2014 without it the database and any synced calendar/contact credentials are stored unencrypted. Generate either secret with: openssl rand -base64 48 After the container starts, open the WebUI \u2014 the first visit guides you through creating your admin account. (Headless setups can alternatively run node setup.js in the container console.) Then log in \u2014 pick the modules you want and invite your family.",
   "paths": [
     {
       "name": "Data",
@@ -508,6 +508,30 @@
       "description": "Optional but required for password-reset emails to be sent. Absolute origin used to build reset links, e.g. https://yuvomi.example.com. The request Host header is never trusted as a fallback, to prevent reset-link poisoning.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "VAPID_SUBJECT",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "Optional. Contact URI sent to push services, either a mailto: address or an https: origin, e.g. mailto:admin@example.com. Must be reachable from the internet: Apple rejects a localhost or .local subject with 403 BadJwtToken, which disables push on iPhone/iPad while Android keeps working. Falls back to the SMTP sender address, then BASE_URL, then a placeholder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID_PUBLIC_KEY",
+      "key": "VAPID_PUBLIC_KEY",
+      "value": "",
+      "description": "Optional. VAPID public key. Auto-generated on first use and stored in the database when left empty. Set together with the private key to keep existing device subscriptions valid across a redeployment. Generate with: npx web-push generate-vapid-keys",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID_PRIVATE_KEY",
+      "key": "VAPID_PRIVATE_KEY",
+      "value": "",
+      "description": "Optional. VAPID private key. Must be set together with the public key.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "FIXER_API_KEY",

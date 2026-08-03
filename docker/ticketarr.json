@@ -1,0 +1,283 @@
+{
+  "name": "ticketarr",
+  "repo": "jivandabeast/ticketarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/jivandabeast/ticketarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8765]",
+  "icon": "https://raw.githubusercontent.com/jivandabeast/ticketarr/main/icon.svg",
+  "project": "https://github.com/jivandabeast/ticketarr",
+  "description": "Watches an email inbox for AMC A-List and Regal Unlimited movie ticket confirmations, resolves the movie on TMDB, then scrobbles it to your tracker (Trakt, Ryot, or Yamtrack) with the correct showtime and (optionally) requests it in Jellyseerr/Overseerr or Ombi. Headless - no WebUI, only a private /healthz endpoint for Docker healthchecks.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/ticketarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent state (state.json), cached Trakt OAuth token, and optional config.yml. On first run ticketarr drops a `config.yml.sample` here - copy it to `config.yml` if you'd rather configure via YAML than environment variables. Must be writable by the container.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Healthcheck",
+      "host": "8765",
+      "container": "8765",
+      "protocol": "tcp",
+      "description": "Private HTTP port that serves /healthz for Docker/Unraid healthchecks. Only exposed to the Docker network; no WebUI is served here.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "IMAP_HOST",
+      "key": "IMAP_HOST",
+      "value": "",
+      "description": "IMAP server hostname (e.g. imap.gmail.com, outlook.office365.com). Required unless set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_PORT",
+      "key": "IMAP_PORT",
+      "value": "993",
+      "description": "IMAP TLS port. Defaults to 993 (implicit TLS).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_USERNAME",
+      "key": "IMAP_USERNAME",
+      "value": "",
+      "description": "IMAP account username (usually your email address). Required unless set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_PASSWORD",
+      "key": "IMAP_PASSWORD",
+      "value": "",
+      "description": "IMAP account password. For Gmail/Google Workspace you MUST use an App Password, not your real password. Required unless set in /config/config.yml.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "IMAP_MAILBOX",
+      "key": "IMAP_MAILBOX",
+      "value": "INBOX",
+      "description": "Mailbox to poll.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_SSL",
+      "key": "IMAP_SSL",
+      "value": "true",
+      "description": "Use implicit TLS on the IMAP connection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_SENDER_FILTERS",
+      "key": "IMAP_SENDER_FILTERS",
+      "value": "",
+      "description": "Comma-separated list of From-addresses to poll. Leave empty to use every registered parser's default senders (AMC + Regal). Set to override, e.g. to add a friend who forwards you tickets.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_INITIAL_LOOKBACK_DAYS",
+      "key": "IMAP_INITIAL_LOOKBACK_DAYS",
+      "value": "7",
+      "description": "On first run, skip messages older than this many days. 0 = process every message in the inbox.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_POLL_INTERVAL_SECONDS",
+      "key": "IMAP_POLL_INTERVAL_SECONDS",
+      "value": "120",
+      "description": "Fallback polling interval when the server doesn't support IMAP IDLE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP_MARK_SEEN",
+      "key": "IMAP_MARK_SEEN",
+      "value": "true",
+      "description": "Mark processed messages as seen. Set false if you want them to stay unread.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB_API_KEY",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "TMDB v3 API key. Free - request at https://www.themoviedb.org/settings/api. Either this OR TMDB_BEARER_TOKEN is required (or set one of them in /config/config.yml).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB_BEARER_TOKEN",
+      "key": "TMDB_BEARER_TOKEN",
+      "value": "",
+      "description": "TMDB v4 read access token (Bearer). Optional alternative to TMDB_API_KEY.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TRACKER_PROVIDER",
+      "key": "TRACKER_PROVIDER",
+      "value": "",
+      "description": "Which watch tracker to scrobble to. One of: none, trakt, ryot, yamtrack. Leave blank to inherit the value from /config/config.yml (defaults to `none` when unset). See the matching credential variables below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REQUESTER_PROVIDER",
+      "key": "REQUESTER_PROVIDER",
+      "value": "",
+      "description": "Where to request the movie so it's available in your library. One of: none, seerr, ombi. Leave blank to inherit from /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRAKT_CLIENT_ID",
+      "key": "TRAKT_CLIENT_ID",
+      "value": "",
+      "description": "Trakt application Client ID. Create a free app at https://trakt.tv/oauth/applications - Redirect URI must be `urn:ietf:wg:oauth:2.0:oob`. Required only when TRACKER_PROVIDER=trakt.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TRAKT_CLIENT_SECRET",
+      "key": "TRAKT_CLIENT_SECRET",
+      "value": "",
+      "description": "Trakt application Client Secret. Required only when TRACKER_PROVIDER=trakt.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RYOT_BASE_URL",
+      "key": "RYOT_BASE_URL",
+      "value": "",
+      "description": "Base URL of your Ryot instance (e.g. http://ryot:8000). Required only when TRACKER_PROVIDER=ryot, and only if not set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RYOT_USERNAME",
+      "key": "RYOT_USERNAME",
+      "value": "",
+      "description": "Ryot username. ticketarr logs in via the loginUser GraphQL mutation at startup and uses the returned session token for all subsequent calls. Required only when TRACKER_PROVIDER=ryot (unless RYOT_API_KEY is set instead).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RYOT_PASSWORD",
+      "key": "RYOT_PASSWORD",
+      "value": "",
+      "description": "Ryot password. Required only when TRACKER_PROVIDER=ryot (unless RYOT_API_KEY is set instead).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RYOT_API_KEY",
+      "key": "RYOT_API_KEY",
+      "value": "",
+      "description": "Advanced fallback: a pre-issued Ryot session token (e.g. from a processAccessLink access link). Use instead of RYOT_USERNAME/RYOT_PASSWORD. Most users should leave this blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "YAMTRACK_BASE_URL",
+      "key": "YAMTRACK_BASE_URL",
+      "value": "",
+      "description": "Base URL of your Yamtrack instance (e.g. http://yamtrack:8000). Required only when TRACKER_PROVIDER=yamtrack, and only if not set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YAMTRACK_USERNAME",
+      "key": "YAMTRACK_USERNAME",
+      "value": "",
+      "description": "Yamtrack web-UI username. ticketarr drives Yamtrack's internal /media_save form (no REST API supports backdated watched-at). Required only when TRACKER_PROVIDER=yamtrack.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "YAMTRACK_PASSWORD",
+      "key": "YAMTRACK_PASSWORD",
+      "value": "",
+      "description": "Yamtrack web-UI password. Required only when TRACKER_PROVIDER=yamtrack.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SEERR_BASE_URL",
+      "key": "SEERR_BASE_URL",
+      "value": "",
+      "description": "Base URL of your Jellyseerr or Overseerr instance (e.g. http://jellyseerr:5055). Required only when REQUESTER_PROVIDER=seerr, and only if not set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SEERR_API_KEY",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Jellyseerr/Overseerr API key. Required only when REQUESTER_PROVIDER=seerr.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SEERR_REQUEST_4K",
+      "key": "SEERR_REQUEST_4K",
+      "value": "false",
+      "description": "Set true to file 4K requests instead of standard quality.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OMBI_BASE_URL",
+      "key": "OMBI_BASE_URL",
+      "value": "",
+      "description": "Base URL of your Ombi instance (e.g. http://ombi:3579). Required only when REQUESTER_PROVIDER=ombi, and only if not set in /config/config.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OMBI_API_KEY",
+      "key": "OMBI_API_KEY",
+      "value": "",
+      "description": "Ombi API key. Required only when REQUESTER_PROVIDER=ombi.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OMBI_LANGUAGE_CODE",
+      "key": "OMBI_LANGUAGE_CODE",
+      "value": "en",
+      "description": "ISO 639-1 language code sent with Ombi requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TICKETARR_LOG_LEVEL",
+      "key": "TICKETARR_LOG_LEVEL",
+      "value": "INFO",
+      "description": "Python logging level (DEBUG, INFO, WARNING, ERROR).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

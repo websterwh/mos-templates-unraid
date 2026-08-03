@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:9001]",
   "icon": "https://github.com/MitchellThompkins/unraid-templates/blob/main/assets/tor_icon.png?raw=true",
   "project": "https://github.com/MitchellThompkins/tor-relay/tree/master",
-  "description": "This allows a tor to act as a relay on your Unraid system. It does NOT allow it to act as an exit node. It automatically enables account bandwidth tracking to prevent from using too much network bandwidth. These are the container variables which can be modified: IPV4_ONLY OR_PORT DIR_PORT RELAY_BANDWIDTH_RATE RELAY_BANDWIDTH_BURST ACCOUNTING_MAX ACCOUNTING_START NICKNAME CONTACT_INFO A few defaults are pre-set, otherwise they are set by the container itself. Two manual steps are required, in addition to one highly recommended configuration: 1. (Step1) Users must create a data/ folder somewhere on their Unraid system, by default it is expected that this is at /mnt/user/appdata/tor-relay/data/ 2. (Step2) The root user must change the folder permissions to that of the unprivileged tor user. This is required for tor container to create a .tor folder to track bandwidth stats between reboots. 3. (Configuration) Assign this container a static ip on the network, and forward the ports for OR_PORT and DIR_PORT to that static ip. These two manual steps from above are: mkdir -p /mnt/user/appdata/tor-relay/data/ sudo chown 100:100 /mnt/user/appdata/tor-relay/data/ The port forwarding configuration must be configured at the router.",
+  "description": "This allows a tor to act as a relay on your Unraid system. It does NOT allow it to act as an exit node. It automatically enables account bandwidth tracking to prevent from using too much network bandwidth. These are the container variables which can be modified: IPV4_ONLY OR_PORT DIR_PORT RELAY_BANDWIDTH_RATE RELAY_BANDWIDTH_BURST ACCOUNTING_MAX ACCOUNTING_START NICKNAME CONTACT_INFO ENABLE_METRICS METRICS_PORT METRICS_PORT_POLICY A few defaults are pre-set, otherwise they are set by the container itself. Metrics are disabled unless ENABLE_METRICS is set to 1. Two manual steps are required, in addition to one highly recommended configuration: 1. (Step1) Users must create a data/ folder somewhere on their Unraid system, by default it is expected that this is at /mnt/user/appdata/tor-relay/data/ 2. (Step2) The root user must change the folder permissions to that of the unprivileged tor user. This is required for tor container to create a .tor folder to track bandwidth stats between reboots. 3. (Configuration) Assign this container a static ip on the network, and forward the ports for OR_PORT and DIR_PORT to that static ip. These two manual steps from above are: mkdir -p /mnt/user/appdata/tor-relay/data/ sudo chown 100:100 /mnt/user/appdata/tor-relay/data/ The port forwarding configuration must be configured at the router.",
   "paths": [
     {
       "name": "Server data directory",
@@ -41,6 +41,15 @@
       "container": "9030",
       "protocol": "tcp",
       "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics Port",
+      "host": "9035",
+      "container": "9035",
+      "protocol": "tcp",
+      "description": "Only used when ENABLE_METRICS is enabled.",
       "required": false,
       "mask": false
     }
@@ -75,6 +84,14 @@
       "key": "RELAY_BANDWIDTH_BURST",
       "value": "1024 KBytes",
       "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_METRICS",
+      "key": "ENABLE_METRICS",
+      "value": "0",
+      "description": "Enables the tor metrics port for monitoring. Off by default.",
       "required": false,
       "mask": false
     }

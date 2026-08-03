@@ -1,50 +1,59 @@
 {
   "name": "FluxDown",
-  "repo": "ghcr.io/zerx-lab/fluxdown-server:latest",
+  "repo": "ghcr.io/zerx-lab/fluxdown-server:0.1.54",
   "category": [
     "Downloader"
   ],
-  "registry": "https://github.com/zerx-lab/FluxDown/pkgs/container/fluxdown-server",
+  "registry": "https://ghcr.io/zerx-lab/fluxdown-server",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:17800]",
-  "icon": "https://raw.githubusercontent.com/zerx-lab/FluxDown/main/assets/logo/fluxdown_logo.png",
+  "web_ui_url": "http://[IP]:[PORT:17800]/",
+  "icon": "https://cdn.jsdelivr.net/gh/zerx-lab/FluxDown@main/assets/logo/fluxdown_logo.svg",
   "project": "https://github.com/zerx-lab/FluxDown",
-  "description": "Multi-protocol download manager with a built-in web UI, written in Rust/Tokio. Handles HTTP/HTTPS, FTP, BitTorrent (DHT and magnet links), eD2K/Kad, HLS and DASH. Dynamic file segmentation, per-task and global rate limiting, and SQLite-backed crash-safe resume. It also exposes an aria2-compatible JSON-RPC API, so existing aria2 front-ends can drive it. First launch prints a one-time admin token to the container log. Open the container log from the Docker tab and look for the line containing the word token - the management API needs it, and the web UI asks for it on first visit. The Downloads path is where finished files land. The Data path holds the database, logs and the admin token, so keep it on appdata.",
+  "description": "A blazing fast, multi-protocol download manager powered by a Rust engine. Supports HTTP/HTTPS/FTP/BitTorrent/HLS with intelligent segmentation, resume, speed control, a browser extension, aria2-compatible JSON-RPC and an MCP endpoint. A free alternative to Internet Download Manager and aria2. NOTE: first launch prints a one-time admin token in the container log (grep -i token). The management API and MCP endpoint require this token.",
   "paths": [
     {
-      "name": "Downloads",
-      "host": "",
-      "container": "/root/Downloads",
+      "name": "Data",
+      "host": "/mnt/cache/appdata/fluxdown/data",
+      "container": "/data",
       "mode": "rw",
-      "description": "Default download directory",
+      "description": "Database, logs and admin token",
       "required": true
     },
     {
-      "name": "Data",
-      "host": "/mnt/cache/appdata/fluxdown",
-      "container": "/data",
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/root/Downloads",
       "mode": "rw",
-      "description": "Database, logs and the admin token",
+      "description": "Default download directory",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Web UI Port",
+      "name": "WebUI Port",
       "host": "17800",
       "container": "17800",
       "protocol": "tcp",
-      "description": "Web UI, REST API and WebSocket",
+      "description": "FluxDown Web UI / REST API / WebSocket",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

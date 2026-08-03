@@ -1,0 +1,1168 @@
+{
+  "name": "slskdn",
+  "repo": "ghcr.io/snapetech/slskdn:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5030]/",
+  "icon": "https://github.com/snapetech/slskdN/raw/refs/heads/main/etc/icon.svg",
+  "project": "https://github.com/snapetech/slskdN",
+  "description": "slskdN is a feature-rich Soulseek web client and an unofficial batteries-included fork of slskd. FEATURES: - Auto-replace stuck downloads with alternative sources - Wishlist / background search with auto-download - Smart source ranking based on speed, queue, and history - User notes and download history badges - Block users from search results - Multiple download destinations - Delete files on disk from UI - Push notifications (Ntfy, Pushover, Pushbullet) - Tabbed browse sessions - Clear all searches button - And more... No scripts required. Everything built-in.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/slskdn",
+      "container": "/app",
+      "mode": "rw",
+      "description": "Application data, config, and databases",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Choose the Unraid share and directory where downloaded files are saved",
+      "required": true
+    },
+    {
+      "name": "Music Library",
+      "host": "",
+      "container": "/music",
+      "mode": "ro",
+      "description": "Optional read-only Unraid share containing the music you want to share",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5030",
+      "container": "5030",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "5031",
+      "container": "5031",
+      "protocol": "tcp",
+      "description": "Port for HTTPS (uses self-signed cert)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Soulseek Port",
+      "host": "50300",
+      "container": "50300",
+      "protocol": "tcp",
+      "description": "Port for incoming Soulseek connections (must be forwarded in router)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mesh Overlay TCP Port",
+      "host": "50305",
+      "container": "50305",
+      "protocol": "tcp",
+      "description": "Optional TCP port for the slskdN mesh overlay",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DHT and Mesh UDP Port",
+      "host": "50305",
+      "container": "50305",
+      "protocol": "udp",
+      "description": "Optional UDP port shared by public DHT and UDP/QUIC mesh traffic",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QUIC Data Overlay UDP Port",
+      "host": "50401",
+      "container": "50401",
+      "protocol": "udp",
+      "description": "Optional QUIC data overlay port; used only when overlay_data is enabled",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (run 'id' in terminal)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (run 'id' in terminal)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Your timezone (e.g., America/New_York, Europe/London)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Soulseek Username",
+      "key": "SLSKD_SLSK_USERNAME",
+      "value": "",
+      "description": "Your Soulseek username (or set in web UI)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Soulseek Password",
+      "key": "SLSKD_SLSK_PASSWORD",
+      "value": "",
+      "description": "Your Soulseek password (or set in web UI)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Application Directory Override",
+      "key": "SLSKD_APP_DIR",
+      "value": "/app",
+      "description": "Container application-data directory; keep /app with the App Data mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Listen Address",
+      "key": "SLSKD_HTTP_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Container bind address; keep 0.0.0.0 for Unraid access",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port Environment Override",
+      "key": "SLSKD_HTTP_PORT",
+      "value": "5030",
+      "description": "Must match the Web UI Port container mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port Environment Override",
+      "key": "SLSKD_HTTPS_PORT",
+      "value": "5031",
+      "description": "Must match the HTTPS Port container mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Soulseek Port Environment Override",
+      "key": "SLSKD_SLSK_LISTEN_PORT",
+      "value": "50300",
+      "description": "Must match the Soulseek Port container mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Umask",
+      "key": "SLSKD_UMASK",
+      "value": "0022",
+      "description": "File-creation umask inside the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Downloads Directory Override",
+      "key": "SLSKD_DOWNLOADS_DIR",
+      "value": "/downloads",
+      "description": "Optional override; normally use the Downloads path mapping above",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Incomplete Directory Override",
+      "key": "SLSKD_INCOMPLETE_DIR",
+      "value": "/downloads/incomplete",
+      "description": "Optional override for incomplete files inside the Downloads mapping",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Username",
+      "key": "SLSKD_USERNAME",
+      "value": "slskd",
+      "description": "Web UI username; change from the default",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web UI Password",
+      "key": "SLSKD_PASSWORD",
+      "value": "slskd",
+      "description": "Web UI password; change from the default",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Strict App Data Permissions",
+      "key": "SLSKD_STRICT_APP_DIR_PERMISSIONS",
+      "value": "",
+      "description": "Optional Docker startup hardening; set true to enforce restrictive app-data permissions",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET Enable Diagnostics",
+      "key": "DOTNET_EnableDiagnostics",
+      "value": "0",
+      "description": "Image runtime setting; leave 0 unless intentionally debugging the process",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET Bundle Extract Directory",
+      "key": "DOTNET_BUNDLE_EXTRACT_BASE_DIR",
+      "value": "/.net",
+      "description": "Image runtime extraction directory",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET Server GC",
+      "key": "DOTNET_gcServer",
+      "value": "0",
+      "description": "Image runtime GC setting",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET Concurrent GC",
+      "key": "DOTNET_gcConcurrent",
+      "value": "1",
+      "description": "Image runtime GC setting",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET GC Heap Hard Limit",
+      "key": "DOTNET_GCHeapHardLimit",
+      "value": "0x80000000",
+      "description": "Image runtime memory limit; change only for advanced tuning",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOTNET GC Conserve Memory",
+      "key": "DOTNET_GCConserveMemory",
+      "value": "9",
+      "description": "Image runtime memory tuning",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONFIG",
+      "key": "SLSKD_CONFIG",
+      "value": "",
+      "description": "Optional alternate configuration file path; leave blank to use /app/slskd.yml",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_BLACKLIST",
+      "key": "SLSKD_BLACKLIST",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_BLACKLIST_FILE",
+      "key": "SLSKD_BLACKLIST_FILE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CASE_SENSITIVE_REGEX",
+      "key": "SLSKD_CASE_SENSITIVE_REGEX",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONTENT_PATH",
+      "key": "SLSKD_CONTENT_PATH",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONTROLLER_ADDRESS",
+      "key": "SLSKD_CONTROLLER_ADDRESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONTROLLER_API_KEY",
+      "key": "SLSKD_CONTROLLER_API_KEY",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_CONTROLLER_DOWNLOADS",
+      "key": "SLSKD_CONTROLLER_DOWNLOADS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONTROLLER_IGNORE_CERTIFICATE_ERRORS",
+      "key": "SLSKD_CONTROLLER_IGNORE_CERTIFICATE_ERRORS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_CONTROLLER_SECRET",
+      "key": "SLSKD_CONTROLLER_SECRET",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_DEBUG",
+      "key": "SLSKD_DEBUG",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_DISK_LOGGER",
+      "key": "SLSKD_DISK_LOGGER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_DOWNLOAD_COMPLETED_LAYOUT",
+      "key": "SLSKD_DOWNLOAD_COMPLETED_LAYOUT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_DOWNLOAD_COMPLETED_PATH_TEMPLATE",
+      "key": "SLSKD_DOWNLOAD_COMPLETED_PATH_TEMPLATE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_DOWNLOAD_SLOTS",
+      "key": "SLSKD_DOWNLOAD_SLOTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_DOWNLOAD_SPEED_LIMIT",
+      "key": "SLSKD_DOWNLOAD_SPEED_LIMIT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_EXPERIMENTAL",
+      "key": "SLSKD_EXPERIMENTAL",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FILE_PERMISSION_MODE",
+      "key": "SLSKD_FILE_PERMISSION_MODE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FORCE_MIGRATIONS",
+      "key": "SLSKD_FORCE_MIGRATIONS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FORCE_SHARE_SCAN",
+      "key": "SLSKD_FORCE_SHARE_SCAN",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP",
+      "key": "SLSKD_FTP",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_ADDRESS",
+      "key": "SLSKD_FTP_ADDRESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_CONNECTION_TIMEOUT",
+      "key": "SLSKD_FTP_CONNECTION_TIMEOUT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_ENCRYPTION_MODE",
+      "key": "SLSKD_FTP_ENCRYPTION_MODE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_IGNORE_CERTIFICATE_ERRORS",
+      "key": "SLSKD_FTP_IGNORE_CERTIFICATE_ERRORS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_OVERWRITE_EXISTING",
+      "key": "SLSKD_FTP_OVERWRITE_EXISTING",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_PASSWORD",
+      "key": "SLSKD_FTP_PASSWORD",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_FTP_PORT",
+      "key": "SLSKD_FTP_PORT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_REMOTE_PATH",
+      "key": "SLSKD_FTP_REMOTE_PATH",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_RETRY_ATTEMPTS",
+      "key": "SLSKD_FTP_RETRY_ATTEMPTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_FTP_USERNAME",
+      "key": "SLSKD_FTP_USERNAME",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_HEADLESS",
+      "key": "SLSKD_HEADLESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_HTTPS_CERT_PASSWORD",
+      "key": "SLSKD_HTTPS_CERT_PASSWORD",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_HTTPS_CERT_PFX",
+      "key": "SLSKD_HTTPS_CERT_PFX",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_HTTPS_FORCE",
+      "key": "SLSKD_HTTPS_FORCE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_HTTP_LOGGING",
+      "key": "SLSKD_HTTP_LOGGING",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_HTTP_SOCKET",
+      "key": "SLSKD_HTTP_SOCKET",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_INSTANCE_NAME",
+      "key": "SLSKD_INSTANCE_NAME",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_JWT_KEY",
+      "key": "SLSKD_JWT_KEY",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_JWT_TTL",
+      "key": "SLSKD_JWT_TTL",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_LEGACY_WINDOWS_TCP_KEEPALIVE",
+      "key": "SLSKD_LEGACY_WINDOWS_TCP_KEEPALIVE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_LOG_SQL",
+      "key": "SLSKD_LOG_SQL",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_LOG_UNOBSERVED_EXCEPTIONS",
+      "key": "SLSKD_LOG_UNOBSERVED_EXCEPTIONS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_LOKI",
+      "key": "SLSKD_LOKI",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_METRICS",
+      "key": "SLSKD_METRICS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_METRICS_NO_AUTH",
+      "key": "SLSKD_METRICS_NO_AUTH",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_METRICS_PASSWORD",
+      "key": "SLSKD_METRICS_PASSWORD",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_METRICS_URL",
+      "key": "SLSKD_METRICS_URL",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_METRICS_USERNAME",
+      "key": "SLSKD_METRICS_USERNAME",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_AUTH",
+      "key": "SLSKD_NO_AUTH",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_COLOR",
+      "key": "SLSKD_NO_COLOR",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_CONFIG_WATCH",
+      "key": "SLSKD_NO_CONFIG_WATCH",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_CONNECT",
+      "key": "SLSKD_NO_CONNECT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_HTTPS",
+      "key": "SLSKD_NO_HTTPS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_LOGO",
+      "key": "SLSKD_NO_LOGO",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_SHARE_SCAN",
+      "key": "SLSKD_NO_SHARE_SCAN",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_START",
+      "key": "SLSKD_NO_START",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_NO_VERSION_CHECK",
+      "key": "SLSKD_NO_VERSION_CHECK",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET",
+      "key": "SLSKD_PUSHBULLET",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_COOLDOWN_TIME",
+      "key": "SLSKD_PUSHBULLET_COOLDOWN_TIME",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_NOTIFY_ON_PRIVATE_MESSAGE",
+      "key": "SLSKD_PUSHBULLET_NOTIFY_ON_PRIVATE_MESSAGE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_NOTIFY_ON_ROOM_MENTION",
+      "key": "SLSKD_PUSHBULLET_NOTIFY_ON_ROOM_MENTION",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_PREFIX",
+      "key": "SLSKD_PUSHBULLET_PREFIX",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_RETRY_ATTEMPTS",
+      "key": "SLSKD_PUSHBULLET_RETRY_ATTEMPTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_PUSHBULLET_TOKEN",
+      "key": "SLSKD_PUSHBULLET_TOKEN",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_RELAY",
+      "key": "SLSKD_RELAY",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_RELAY_MODE",
+      "key": "SLSKD_RELAY_MODE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_REMOTE_CONFIGURATION",
+      "key": "SLSKD_REMOTE_CONFIGURATION",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_REMOTE_FILE_MANAGEMENT",
+      "key": "SLSKD_REMOTE_FILE_MANAGEMENT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_ROOMS",
+      "key": "SLSKD_ROOMS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SEARCH_REQUEST_FILTER",
+      "key": "SLSKD_SEARCH_REQUEST_FILTER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARED_DIR",
+      "key": "SLSKD_SHARED_DIR",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARES_PROBE_MEDIA_ATTRIBUTES",
+      "key": "SLSKD_SHARES_PROBE_MEDIA_ATTRIBUTES",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARE_CACHE_RETENTION",
+      "key": "SLSKD_SHARE_CACHE_RETENTION",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARE_CACHE_STORAGE_MODE",
+      "key": "SLSKD_SHARE_CACHE_STORAGE_MODE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARE_CACHE_WORKERS",
+      "key": "SLSKD_SHARE_CACHE_WORKERS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SHARE_FILTER",
+      "key": "SLSKD_SHARE_FILTER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_ADDRESS",
+      "key": "SLSKD_SLSK_ADDRESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_CONNECTION_TIMEOUT",
+      "key": "SLSKD_SLSK_CONNECTION_TIMEOUT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_DESCRIPTION",
+      "key": "SLSKD_SLSK_DESCRIPTION",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_DIAG_LEVEL",
+      "key": "SLSKD_SLSK_DIAG_LEVEL",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_DNET_CHILDREN",
+      "key": "SLSKD_SLSK_DNET_CHILDREN",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_DNET_LOGGING",
+      "key": "SLSKD_SLSK_DNET_LOGGING",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_DNET_NO_CHILDREN",
+      "key": "SLSKD_SLSK_DNET_NO_CHILDREN",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_HATED_INTERESTS",
+      "key": "SLSKD_SLSK_HATED_INTERESTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_INACTIVITY_TIMEOUT",
+      "key": "SLSKD_SLSK_INACTIVITY_TIMEOUT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_LIKED_INTERESTS",
+      "key": "SLSKD_SLSK_LIKED_INTERESTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_LISTEN_IP_ADDRESS",
+      "key": "SLSKD_SLSK_LISTEN_IP_ADDRESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_NO_DNET",
+      "key": "SLSKD_SLSK_NO_DNET",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_OBFUSCATION",
+      "key": "SLSKD_SLSK_OBFUSCATION",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_OBFUSCATION_ADVERTISE_REGULAR_PORT",
+      "key": "SLSKD_SLSK_OBFUSCATION_ADVERTISE_REGULAR_PORT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_OBFUSCATION_LISTEN_PORT",
+      "key": "SLSKD_SLSK_OBFUSCATION_LISTEN_PORT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_OBFUSCATION_MODE",
+      "key": "SLSKD_SLSK_OBFUSCATION_MODE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_OBFUSCATION_PREFER_OUTBOUND",
+      "key": "SLSKD_SLSK_OBFUSCATION_PREFER_OUTBOUND",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PICTURE",
+      "key": "SLSKD_SLSK_PICTURE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PORT",
+      "key": "SLSKD_SLSK_PORT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PROXY",
+      "key": "SLSKD_SLSK_PROXY",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PROXY_ADDRESS",
+      "key": "SLSKD_SLSK_PROXY_ADDRESS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PROXY_PASSWORD",
+      "key": "SLSKD_SLSK_PROXY_PASSWORD",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLSKD_SLSK_PROXY_PORT",
+      "key": "SLSKD_SLSK_PROXY_PORT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_PROXY_USERNAME",
+      "key": "SLSKD_SLSK_PROXY_USERNAME",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_READ_BUFFER",
+      "key": "SLSKD_SLSK_READ_BUFFER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_TRANSFER_BUFFER",
+      "key": "SLSKD_SLSK_TRANSFER_BUFFER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_TRANSFER_TIMEOUT",
+      "key": "SLSKD_SLSK_TRANSFER_TIMEOUT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_WRITE_BUFFER",
+      "key": "SLSKD_SLSK_WRITE_BUFFER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SLSK_WRITE_QUEUE",
+      "key": "SLSKD_SLSK_WRITE_QUEUE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_SWAGGER",
+      "key": "SLSKD_SWAGGER",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_UPLOAD_SLOTS",
+      "key": "SLSKD_UPLOAD_SLOTS",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_UPLOAD_SPEED_LIMIT",
+      "key": "SLSKD_UPLOAD_SPEED_LIMIT",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_URL_BASE",
+      "key": "SLSKD_URL_BASE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLSKD_VOLATILE",
+      "key": "SLSKD_VOLATILE",
+      "value": "",
+      "description": "Optional Docker environment override; leave blank to use image and YAML defaults",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

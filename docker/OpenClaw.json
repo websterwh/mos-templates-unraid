@@ -1,177 +1,98 @@
 {
   "name": "OpenClaw",
-  "repo": "ghcr.io/openclaw/openclaw:latest",
+  "repo": "medzin/openclaw",
   "category": [
-    "Productivity"
+    "Misc"
   ],
-  "registry": "https://github.com/openclaw/openclaw/pkgs/container/openclaw",
+  "registry": "https://hub.docker.com/r/medzin/openclaw",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--user root --hostname OpenClaw",
-  "post_parameters": "sh -c mkdir -p /root/.openclaw /home/linuxbrew; [ -s /root/.openclaw/openclaw.json ] || echo {\\gateway\\:{\\mode\\:\\local\\,\\bind\\:\\lan\\,\\controlUi\\:{\\allowInsecureAuth\\:true},\\auth\\:{\\mode\\:\\token\\}}} > /root/.openclaw/openclaw.json; exec node dist/index.js gateway --bind lan",
-  "web_ui_url": "http://[IP]:[PORT:18789]/",
-  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/openclaw.png",
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:18789]",
+  "icon": "https://raw.githubusercontent.com/medzin/docker-templates/main/images/openclaw-icon.png",
   "project": "https://github.com/openclaw/openclaw",
-  "description": "OpenClaw is a powerful AI assistant gateway that connects Claude and other LLMs to messaging platforms like Discord, Telegram, WhatsApp, and more. Features include file access, shell commands, web browsing, cron jobs, and a web-based Control UI. To access the Control UI, add your token to the URL: http://YOUR-IP:18789/?token=YOUR-GATEWAY-TOKEN For setup details and documentation, see: https://github.com/jdhill777/openclaw-Unraid OpenClaw project and source: https://github.com/openclaw/openclaw Requires at least one LLM API key. Anthropic (Claude) is recommended, but many providers are supported. Optional Homebrew: Some skills require tools installed via brew/go. This is completely optional and at your own discretion. If needed, open OpenClaw's container console and run: NONINTERACTIVE=1 /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\" We recommend reviewing the install script at brew.sh before running. You can ignore the \"Next steps\" output - the template has already configured the PATH for you.",
+  "description": "Your own personal AI assistant. Any OS. Any Platform. The lobster way.",
   "paths": [
     {
-      "name": "Config Path",
-      "host": "/mnt/cache/appdata/openclaw/config",
-      "container": "/root/.openclaw",
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/openclaw",
+      "container": "/home/node/.openclaw",
       "mode": "rw",
-      "description": "Path to store OpenClaw configuration files, sessions, and credentials",
+      "description": "OpenClaw state, config, and workspace.",
       "required": true
     },
     {
-      "name": "Workspace Path",
-      "host": "/mnt/cache/appdata/openclaw/workspace",
-      "container": "/home/node/clawd",
+      "name": "Auth Profile Secrets",
+      "host": "/mnt/cache/appdata/openclaw/auth-profile-secrets",
+      "container": "/home/node/.config/openclaw",
       "mode": "rw",
-      "description": "Path for agent workspace (files, memory, AGENTS.md, projects)",
+      "description": "OpenClaw auth profile secrets directory.",
       "required": true
-    },
-    {
-      "name": "Projects Path",
-      "host": "/mnt/cache/appdata/openclaw/projects",
-      "container": "/projects",
-      "mode": "rw",
-      "description": "Optional additional path for coding projects",
-      "required": false
-    },
-    {
-      "name": "Homebrew Path",
-      "host": "/mnt/cache/appdata/openclaw/homebrew",
-      "container": "/home/linuxbrew/.linuxbrew",
-      "mode": "rw",
-      "description": "Persistent storage for Homebrew packages. If you install Homebrew manually via console, this mount ensures it persists across restarts.",
-      "required": false
     }
   ],
   "ports": [
     {
-      "name": "Control UI Port",
+      "name": "WebUI",
       "host": "18789",
       "container": "18789",
       "protocol": "tcp",
-      "description": "Port for Control UI and Gateway API. Access at http://IP:18789/?token=YOUR_TOKEN",
+      "description": "OpenClaw gateway web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bridge",
+      "host": "18790",
+      "container": "18790",
+      "protocol": "tcp",
+      "description": "OpenClaw bridge port.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Gateway Token",
+      "name": "OPENCLAW_GATEWAY_TOKEN",
       "key": "OPENCLAW_GATEWAY_TOKEN",
       "value": "",
-      "description": "Secret token for authentication. Generate with: openssl rand -hex 24 (or use any secret value). Required to access the Control UI.",
+      "description": "Shared token required to connect to the OpenClaw gateway. Set this before exposing the WebUI port.",
       "required": true,
       "mask": true
     },
     {
-      "name": "Anthropic API Key",
-      "key": "ANTHROPIC_API_KEY",
-      "value": "",
-      "description": "API key for Claude models (recommended). Get from console.anthropic.com",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "OpenAI API Key",
-      "key": "OPENAI_API_KEY",
-      "value": "",
-      "description": "API key for GPT models. Get from platform.openai.com",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "OpenRouter API Key",
-      "key": "OPENROUTER_API_KEY",
-      "value": "",
-      "description": "API key for OpenRouter - access 100+ models. Get from openrouter.ai",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Gemini API Key",
-      "key": "GEMINI_API_KEY",
-      "value": "",
-      "description": "API key for Google Gemini models. Get from aistudio.google.com",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Groq API Key",
-      "key": "GROQ_API_KEY",
-      "value": "",
-      "description": "API key for Groq (fast Llama/Mixtral inference). Get from console.groq.com",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "xAI API Key",
-      "key": "XAI_API_KEY",
-      "value": "",
-      "description": "API key for xAI Grok models. Get from console.x.ai",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Z.AI API Key",
-      "key": "ZAI_API_KEY",
-      "value": "",
-      "description": "API key for Z.AI/Zhipu GLM models. Get from z.ai/model-api",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "GitHub Copilot Token",
-      "key": "COPILOT_GITHUB_TOKEN",
-      "value": "",
-      "description": "(Advanced) GitHub Copilot OAuth token. Requires running 'openclaw models auth login-github-copilot' on another machine first.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Discord Bot Token",
-      "key": "DISCORD_BOT_TOKEN",
-      "value": "",
-      "description": "(Optional) Discord bot token for Discord integration. Can also configure via Control UI after install.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Telegram Bot Token",
-      "key": "TELEGRAM_BOT_TOKEN",
-      "value": "",
-      "description": "(Optional) Telegram bot token from @BotFather. Can also configure via Control UI after install.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Gateway Port",
-      "key": "OPENCLAW_GATEWAY_PORT",
-      "value": "18789",
-      "description": "Internal gateway port. Change if 18789 is already in use (must match Control UI Port).",
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
       "required": false,
       "mask": false
     },
     {
-      "name": "PATH",
-      "key": "PATH",
-      "value": "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-      "description": "System PATH including Homebrew. Do not modify unless you know what you're doing.",
+      "name": "OPENCLAW_DISABLE_BONJOUR",
+      "key": "OPENCLAW_DISABLE_BONJOUR",
+      "value": "1",
+      "description": "Disable Bonjour/mDNS discovery inside the container.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Web Search API Key",
-      "key": "BRAVE_API_KEY",
-      "value": "",
-      "description": "(Optional) Brave Search API key for web search. Free tier: 2000 queries/month at brave.com/search/api",
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the OpenClaw process and file permissions.",
       "required": false,
-      "mask": true
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the OpenClaw process and file permissions.",
+      "required": false,
+      "mask": false
     }
   ],
   "devices": [],

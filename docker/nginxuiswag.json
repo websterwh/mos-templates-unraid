@@ -1,0 +1,123 @@
+{
+  "name": "nginx-ui-swag",
+  "repo": "uozi/nginx-ui:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/uozi/nginx-ui",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]",
+  "icon": "https://raw.githubusercontent.com/nginxui/unraid/main/icon.svg",
+  "project": "https://nginxui.com",
+  "description": "Official Nginx UI controller template for an existing LinuxServer SWAG container. The bundled Nginx instance is disabled. This template requires the Docker socket and a shared SWAG /config mount; review the security warning in the README before installing.",
+  "paths": [
+    {
+      "name": "Nginx UI appdata",
+      "host": "/mnt/cache/appdata/nginx-ui-swag",
+      "container": "/etc/nginx-ui",
+      "mode": "rw",
+      "description": "Nginx UI database, settings, and startup secret.",
+      "required": true
+    },
+    {
+      "name": "SWAG appdata",
+      "host": "/mnt/cache/appdata/swag",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Use the same host directory SWAG mounts at /config. The container target must remain /config.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required to test, reload, and restart Nginx in SWAG. Grants root-equivalent host control.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "Direct Nginx UI backend port. Do not expose it to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "IANA timezone, for example Europe/Berlin.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable bundled Nginx",
+      "key": "NGINX_UI_DISABLE_BUNDLED_NGINX",
+      "value": "true",
+      "description": "Run Nginx UI only and leave the bundled Nginx service idle.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SWAG container name",
+      "key": "NGINX_UI_NGINX_CONTAINER_NAME",
+      "value": "swag",
+      "description": "Exact Docker container name of the existing SWAG instance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nginx configuration directory",
+      "key": "NGINX_UI_NGINX_CONFIG_DIR",
+      "value": "/config/nginx",
+      "description": "SWAG Nginx configuration directory in the shared mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nginx configuration file",
+      "key": "NGINX_UI_NGINX_CONFIG_PATH",
+      "value": "/config/nginx/nginx.conf",
+      "description": "SWAG main Nginx configuration file in the shared mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nginx access log",
+      "key": "NGINX_UI_NGINX_ACCESS_LOG_PATH",
+      "value": "/config/log/nginx/access.log",
+      "description": "SWAG access log in the shared mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nginx error log",
+      "key": "NGINX_UI_NGINX_ERROR_LOG_PATH",
+      "value": "/config/log/nginx/error.log",
+      "description": "SWAG error log in the shared mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Nginx log allowlist",
+      "key": "NGINX_UI_NGINX_LOG_DIR_WHITE_LIST",
+      "value": "/config/log/nginx",
+      "description": "Directory Nginx UI may read for log analysis.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
