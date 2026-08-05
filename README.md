@@ -20,10 +20,6 @@ Everything in `docker/` is pulled from Unraid's Community Applications feed. Plu
 
 Host paths are set to `/mnt/cache/...` by default, matching MOS's own convention for published templates.
 
-## Contributing
-
-Templates are regenerated from the upstream feed on every run, so a PR editing a file in `docker/` will get overwritten the next time it runs. If a specific app's template is wrong, the fix usually belongs in that app's own Unraid CA template upstream. If the conversion logic itself is broken, that's a real bug here and worth a PR.
-
 ## Credit
 
 Template data comes from Unraid's Community Applications project. This repo just converts it for MOS.
