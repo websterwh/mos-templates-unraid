@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:5000]/",
   "icon": "https://raw.githubusercontent.com/heckpiet/find-my-timeline-unraid/master/icon.svg",
   "project": "https://github.com/heckpiet/find-my-timeline-unraid",
-  "description": "Find My Timeline is a self-hosted location-history dashboard for Apple devices available through the Find My service. It polls device locations at configurable intervals, stores the history locally in SQLite and displays routes, timestamps, battery levels and chronological timelines on an interactive map. The Unraid edition includes persistent appdata storage, Docker health monitoring and optional protected Apple re-authentication. This is an unofficial project and the WebUI must not be exposed directly to the internet.",
+  "description": "Find My Timeline v0.4.5 provides private, self-hosted location history for Apple Find My devices. It stores positions locally in SQLite and presents routes, timestamps, battery levels and a chronological timeline in a responsive WebUI. Includes persistent Unraid appdata, Docker health checks and guided Apple two-factor authentication.",
   "paths": [
     {
       "name": "Database",
@@ -46,18 +46,10 @@
   ],
   "variables": [
     {
-      "name": "Apple ID",
-      "key": "ICLOUD_USERNAME",
-      "value": "",
-      "description": "Email address of the Apple ID whose Find My devices should be recorded. Do not enter the Apple password in this field.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Enable WebUI authentication flow",
-      "key": "WEB_AUTH_ENABLED",
+      "name": "Disable WebUI authentication flow",
+      "key": "WEB_AUTH_DISABLED",
       "value": "false",
-      "description": "Set to true to allow Apple re-authentication from the WebUI. Requires a WebUI administrator password and protected network access.",
+      "description": "Leave false to use guided Apple re-authentication. Set true only when browser authentication must be explicitly unavailable.",
       "required": true,
       "mask": false
     },
@@ -65,7 +57,7 @@
       "name": "WebUI administrator password",
       "key": "WEB_ADMIN_PASSWORD",
       "value": "",
-      "description": "Create a long and unique password for starting Apple authentication from the WebUI. This protects only authentication actions, not the location map or APIs.",
+      "description": "Optional environment-managed password. Leave empty to create a persistent hashed administrator password through guided first-run setup.",
       "required": false,
       "mask": true
     },
@@ -86,14 +78,6 @@
       "mask": false
     },
     {
-      "name": "Apple ID password",
-      "key": "ICLOUD_PASSWORD",
-      "value": "",
-      "description": "Optional persistent Apple password. Leaving this empty reduces stored secrets and is recommended for most installations.",
-      "required": false,
-      "mask": true
-    },
-    {
       "name": "Minimum polling interval",
       "key": "POLL_MIN_INTERVAL",
       "value": "7",
@@ -106,6 +90,14 @@
       "key": "POLL_MAX_INTERVAL",
       "value": "10",
       "description": "Maximum number of minutes between Apple location requests. Must be equal to or greater than the minimum interval.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication retry interval",
+      "key": "AUTH_RETRY_INTERVAL_MINUTES",
+      "value": "5",
+      "description": "Minutes to wait before retrying after Apple authentication or polling failures. Successful WebUI re-authentication triggers an immediate retry.",
       "required": true,
       "mask": false
     },

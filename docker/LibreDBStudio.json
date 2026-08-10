@@ -1,0 +1,91 @@
+{
+  "name": "LibreDB-Studio",
+  "repo": "ghcr.io/libredb/libredb-studio:0.9.66",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/libredb/libredb-studio/pkgs/container/libredb-studio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/libredb/unraid-templates/main/icons/libredb-studio.png",
+  "project": "https://github.com/libredb/libredb-studio",
+  "description": "LibreDB Studio is an open source (MIT), self-hosted SQL IDE. Use a clean web UI to connect to your SQL databases, browse schemas, write and run queries, and manage your data from any browser on your network. It runs as a single container and stores its own settings in an embedded SQLite file under appdata, so there is no extra database to set up just to run it, and your data persists across container updates.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/libredb-studio",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage. The SQLite database is kept here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3006",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the LibreDB Studio web UI (maps to container port 3000). Any free host port works; avoid 3000 to prevent a conflict with other apps.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Email",
+      "key": "ADMIN_EMAIL",
+      "value": "",
+      "description": "Email for the initial admin account, created on first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the initial admin account (minimum 8 characters).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret used to sign authentication tokens. Set a long random value (minimum 32 characters).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Storage Provider",
+      "key": "STORAGE_PROVIDER",
+      "value": "sqlite",
+      "description": "Storage backend. Keep as sqlite for this template.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SQLite Path",
+      "key": "STORAGE_SQLITE_PATH",
+      "value": "/app/data/libredb-storage.db",
+      "description": "Path to the SQLite file inside the App Data mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Cookie Secure",
+      "key": "AUTH_COOKIE_SECURE",
+      "value": "false",
+      "description": "Keep false for plain HTTP on the LAN. Set true only when serving over HTTPS.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

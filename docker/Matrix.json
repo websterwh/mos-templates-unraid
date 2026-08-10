@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/element/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/matrix/icon.png?v=1",
   "project": "https://matrix.org",
-  "description": "All-in-one Matrix homeserver for Unraid: Synapse + coturn + Element Web (/element/) + Synapse-Admin (/admin/). Plug-and-play \u2014 just fill in SERVER_NAME and Postgres connection, everything else is generated automatically. PREREQUISITES (before starting the container): 1) PostgreSQL database \u2014 connect to your Postgres container and run: CREATE USER matrix WITH PASSWORD 'yourpass'; CREATE DATABASE matrix ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE template0 OWNER matrix; (UTF8 + LC_COLLATE='C' is mandatory \u2014 Synapse will refuse to start otherwise.) 2) Reverse proxy (Nginx Proxy Manager) for matrix.yourdomain.tld \u2192 Unraid-IP:8008. In the proxy host \u2192 Advanced tab, add: client_max_body_size 100m; proxy_read_timeout 600s; (Without these, media uploads fail and long-running requests time out.) 3) Federation discovery works out of the box: Synapse serves /.well-known/matrix/server and /.well-known/matrix/client itself on the API port (8008), so the proxy host from step 2 already covers them. No extra Custom Locations needed (remove any manual ones from older setups). Full step-by-step guide (NPM screenshots, well-known, first user): https://github.com/junkerderprovinz/matrix#readme",
+  "description": "All-in-one Matrix homeserver for Unraid: Synapse + coturn + Element Web (/element/) + Ketesa admin UI (/admin/). Plug-and-play \u2014 just fill in SERVER_NAME and Postgres connection, everything else is generated automatically. OPTIONAL, OFF BY DEFAULT: delegated authentication via Matrix Authentication Service, which is what makes QR code device linking (\"Link new device\" in Element) possible. Leave the Delegated Auth field alone and the container behaves exactly as before. Enabling it needs a second empty Postgres database and a second reverse-proxy host with HTTPS, and it changes how your users sign in \u2014 read the README section \"Delegated Auth and QR Code Login\" first. PREREQUISITES (before starting the container): 1) PostgreSQL database \u2014 connect to your Postgres container and run: CREATE USER matrix WITH PASSWORD 'yourpass'; CREATE DATABASE matrix ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE template0 OWNER matrix; (UTF8 + LC_COLLATE='C' is mandatory \u2014 Synapse will refuse to start otherwise.) 2) Reverse proxy (Nginx Proxy Manager) for matrix.yourdomain.tld \u2192 Unraid-IP:8008. In the proxy host \u2192 Advanced tab, add: client_max_body_size 100m; proxy_read_timeout 600s; (Without these, media uploads fail and long-running requests time out.) 3) Federation discovery works out of the box: Synapse serves /.well-known/matrix/server and /.well-known/matrix/client itself on the API port (8008), so the proxy host from step 2 already covers them. No extra Custom Locations needed (remove any manual ones from older setups). Full step-by-step guide (NPM screenshots, well-known, first user): https://github.com/junkerderprovinz/matrix#readme",
   "paths": [
     {
       "name": "Data Directory",
@@ -105,6 +105,15 @@
       "description": "Prometheus metrics at /_synapse/metrics. Bind to a private network only.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "Auth Service (MAS)",
+      "host": "8090",
+      "container": "8090",
+      "protocol": "tcp",
+      "description": "Matrix Authentication Service. Only listens when Delegated Auth is set to true. Needs its own reverse-proxy host (e.g. auth.yourdomain.tld) with a certificate.",
+      "required": false,
+      "mask": false
     }
   ],
   "variables": [
@@ -138,6 +147,78 @@
       "value": "false",
       "description": "false = accounts created by the admin only (recommended). true = open self-service signup WITHOUT verification (shows Element's Create Account button) \u2014 only enable behind a CAPTCHA or on a trusted network, or you will get spam signups.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Delegated Auth (QR login)",
+      "key": "AUTH_ENABLED",
+      "value": "false",
+      "description": "false = normal Synapse logins (default, unchanged). true = start Matrix Authentication Service and delegate authentication to it, which is what makes QR code device linking possible. Switching this on is a one-way trip for existing accounts: they stay in Synapse until you run 'mas-cli syn2mas migrate', and after that only a database restore gets you back. Read the README section 'Delegated auth' first. It also needs its own reverse-proxy host and breaks encrypted bridges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Public URL",
+      "key": "AUTH_PUBLIC_BASE",
+      "value": "",
+      "description": "Required when Delegated Auth is true. Public https URL of the auth service, e.g. https://auth.yourdomain.tld/ \u2014 point a second reverse-proxy host at this container's port 8090. Must be https: the auth service rejects plain-http redirect URLs and Element's sign-in then fails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Database Name",
+      "key": "AUTH_POSTGRES_DB",
+      "value": "",
+      "description": "Required when Delegated Auth is true. Name of a SEPARATE, EMPTY PostgreSQL database for the auth service \u2014 it cannot share Synapse's. Create it with: CREATE DATABASE mas TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C';",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth DB Host",
+      "key": "AUTH_POSTGRES_HOST",
+      "value": "",
+      "description": "Optional. Leave empty to reuse the PostgreSQL host above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth DB User",
+      "key": "AUTH_POSTGRES_USER",
+      "value": "",
+      "description": "Optional. Leave empty to reuse the PostgreSQL user above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth DB Password",
+      "key": "AUTH_POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Optional. Leave empty to reuse the PostgreSQL password above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Auth: allow registration",
+      "key": "AUTH_ALLOW_REGISTRATION",
+      "value": "false",
+      "description": "Only relevant when Delegated Auth is true. Self-service signup through the auth service's own web UI. Registration through Synapse is impossible under delegated auth, so this replaces Enable Registration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth: migrate accounts (ONE WAY)",
+      "key": "AUTH_MIGRATE",
+      "value": "false",
+      "description": "Only relevant when Delegated Auth is true, and only needed once. true = migrate your existing Synapse accounts into the auth service on the next start, before Synapse comes up. BACK UP YOUR DATABASE FIRST: this cannot be undone once anyone has signed in afterwards. Users keep their sessions and are not signed out. It refuses to run if the pre-flight check fails, and it never runs twice. You can leave it on true afterwards, it is a no-op once done.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth: QR code login",
+      "key": "AUTH_QR_LOGIN",
+      "value": "true",
+      "description": "Only relevant when Delegated Auth is true. Enables MSC4108 so Element offers 'Link new device' with a QR code. Leave on unless you have a reason not to.",
+      "required": false,
       "mask": false
     },
     {

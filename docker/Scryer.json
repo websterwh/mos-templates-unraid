@@ -1,0 +1,107 @@
+{
+  "name": "Scryer",
+  "repo": "ghcr.io/scryer-media/scryer:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/scryer-media/scryer/pkgs/container/scryer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/scryer-media/scryer-unraid/main/icon.png",
+  "project": "https://www.scryer.media/scryer/",
+  "description": "Scryer is a self-hosted, all-in-one media automation platform for movies, TV series, and anime. It can replace Radarr for movie management, Sonarr for series and anime management, Seerr for discovery and request approval workflows, and Bazarr for subtitle automation. Scryer monitors libraries and missing or cutoff-unmet media; discovers and searches releases through pluggable indexers; applies quality profiles, delay profiles, custom rules, and upgrade policies; coordinates download clients; imports, renames, organizes, and post-processes files; and integrates with downstream media servers. It also includes discovery recommendations, calendars, wanted and activity views, request queues, multi-user access controls, notifications, plugin-based providers, multilingual metadata, backups, security and audit tooling, and a responsive embedded web UI. Scryer was written from scratch and is not affiliated with the Servarr projects.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/scryer",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent database, settings, metadata, and encryption key.",
+      "required": true
+    },
+    {
+      "name": "Movies Library",
+      "host": "",
+      "container": "/data/movies",
+      "mode": "rw",
+      "description": "Optional host directory containing or receiving managed movies.",
+      "required": false
+    },
+    {
+      "name": "Series Library",
+      "host": "",
+      "container": "/data/series",
+      "mode": "rw",
+      "description": "Optional host directory containing or receiving managed TV series.",
+      "required": false
+    },
+    {
+      "name": "Anime Library",
+      "host": "",
+      "container": "/data/anime",
+      "mode": "rw",
+      "description": "Optional host directory containing or receiving managed anime.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port for the Scryer web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Metadata Gateway",
+      "key": "SCRYER_METADATA_GATEWAY_GRAPHQL_URL",
+      "value": "https://smg.scryer.media/graphql",
+      "description": "Scryer metadata gateway GraphQL endpoint.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID used to own /config and run Scryer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID used to own /config and run Scryer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone, for example America/Denver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Login",
+      "key": "SCRYER_AUTH_ENABLED",
+      "value": "false",
+      "description": "Require Scryer login instead of using the built-in administrator session.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

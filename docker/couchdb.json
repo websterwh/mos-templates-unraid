@@ -1,0 +1,75 @@
+{
+  "name": "couchdb",
+  "repo": "couchdb:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/_/couchdb",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5984]/_utils/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/couchdb/icon.png?v=1",
+  "project": "https://couchdb.apache.org",
+  "description": "Apache CouchDB is a document database that speaks HTTP and stores JSON. It is the sync backend behind Obsidian LiveSync and many offline-first apps. This is a plug-and-play Unraid Community Applications template that wraps the official couchdb image (3.x), fixed so your data and settings actually survive a container recreate or update. WHY THIS TEMPLATE EXISTS: the old community CouchDB template maps the 1.x data path (/usr/local/var/lib/couchdb). On the current 3.x image the real data lives in /opt/couchdb/data and the config in /opt/couchdb/etc/local.d - if those are not mapped, your databases sit in an anonymous Docker volume and CORS resets on every recreate. This template maps both to appdata, so nothing is lost. FIRST-RUN SETUP (two quick steps, see the README): 1. Set an Admin User + Admin Password below (CouchDB 3.x will not start without an admin). 2. After it starts, finish the single-node setup so the system databases are created - run once on the Unraid console (replace IP / user / pass): curl -X POST -u admin:PASS http://SERVER_IP:5984/_cluster_setup -H \"Content-Type: application/json\" -d '{\"action\":\"enable_single_node\",\"bind_address\":\"0.0.0.0\",\"username\":\"admin\",\"password\":\"PASS\",\"port\":5984,\"singlenode\":true}' OBSIDIAN LIVESYNC / BROWSER APPS need CORS. The image regenerates docker.ini from the admin env on every start, so CORS set in Fauxton is wiped on recreate. Instead drop a persistent file at appdata/couchdb/local.d/10-cors.ini (full contents in the README) - it is preserved forever. Then browse to http://SERVER_IP:5984/_utils/ (Fauxton). Detailed README (setup, CORS file, backup, reverse proxy): https://github.com/junkerderprovinz/Unraid-apps/blob/main/couchdb/README.md",
+  "paths": [
+    {
+      "name": "Data (databases)",
+      "host": "/mnt/cache/appdata/couchdb/data",
+      "container": "/opt/couchdb/data",
+      "mode": "rw",
+      "description": "Where CouchDB 3.x stores every database (the .couch files). This MUST be mapped - if it is not, your databases live in an anonymous Docker volume and are lost on the next recreate or image update.",
+      "required": true
+    },
+    {
+      "name": "Config (local.d)",
+      "host": "/mnt/cache/appdata/couchdb/local.d",
+      "container": "/opt/couchdb/etc/local.d",
+      "mode": "rw",
+      "description": "Persistent config drop-in directory. The image regenerates docker.ini here from the admin user/password on every start, but any OTHER .ini you add - e.g. 10-cors.ini for Obsidian LiveSync - is preserved across restarts AND recreates. Map this or config changes are lost.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / API Port",
+      "host": "5984",
+      "container": "5984",
+      "protocol": "tcp",
+      "description": "CouchDB HTTP API and the Fauxton web UI (reachable at /_utils/). This is the only port a single-node instance needs.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin User",
+      "key": "COUCHDB_USER",
+      "value": "admin",
+      "description": "Server admin username, created on first start. CouchDB 3.x refuses to run without an admin ('admin party' is disabled). Only used on the very first start - change it later in Fauxton, not here.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "COUCHDB_PASSWORD",
+      "value": "",
+      "description": "Password for the admin user. Use a strong one - CouchDB is a database, keep it on your LAN or behind a reverse proxy, never exposed raw to the internet.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cookie Secret (COUCHDB_SECRET)",
+      "key": "COUCHDB_SECRET",
+      "value": "",
+      "description": "Optional. A fixed secret for signing session/proxy-auth cookies. Leave empty for a single node (one is generated). Set a stable value (openssl rand -hex 32) if you use proxy auth or plan to cluster. Masked.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "MagicMirror",
+  "repo": "karsten13/magicmirror:wolfi-server",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/karsten13/magicmirror",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/heckpiet/magicmirror-unraid/main/icon.svg",
+  "project": "https://khassel.gitlab.io/magicmirror/",
+  "description": "MagicMirror\u00b2 is an open source modular smart mirror platform. It turns a display behind a two-way mirror, a wall tablet or simply a browser tab into a personal dashboard showing clock, calendar, weather, news and hundreds of community modules. This template runs MagicMirror\u00b2 in server-only mode, the correct mode for a headless Unraid server: the interface is served over HTTP and rendered in any browser or on a separate client device such as a Raspberry Pi. The electron scenario, which draws to a locally attached display, will not work on Unraid and is deliberately not offered. No setup is required. Install it, open the WebUI, done. On first start the image writes a working config.js that listens on all interfaces and already permits the usual private network ranges, including 10.x, 172.16-31.x and 192.168.x. The template also runs the container as user 99:100 so that everything it writes into appdata is owned nobody:users like the rest of your Unraid shares. That same config.js is where you enable modules and change the layout, at /mnt/user/appdata/magicmirror/config/config.js. Third party modules go into the modules directory. See https://docs.magicmirror.builders and https://modules.magicmirror.builders. Security note. MagicMirror\u00b2 has no built-in authentication. Anyone who can reach the port sees your calendar and whatever else you configure. Keep it on a trusted network and do not forward the port. Use a VPN or an authenticated HTTPS reverse proxy for remote access. The container image is built and maintained by Karsten Hassel at https://gitlab.com/khassel/magicmirror. This template provides only the Unraid packaging.",
+  "paths": [
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/magicmirror/config",
+      "container": "/opt/magic_mirror/config",
+      "mode": "rw",
+      "description": "Persistent directory holding config.js and custom.css. A working config.js is created here on first start; edit it to enable modules and change the layout. Include this directory in backups.",
+      "required": true
+    },
+    {
+      "name": "Modules",
+      "host": "/mnt/cache/appdata/magicmirror/modules",
+      "container": "/opt/magic_mirror/modules",
+      "mode": "rw",
+      "description": "Persistent directory holding third party modules. Include this directory in backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port used to open the MagicMirror\u00b2 interface. It must match the port set in config.js. Keep this port limited to your trusted network and do not forward it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone used for logs and displayed times, for example Europe/Berlin. If left empty the container falls back to UTC and logs a warning.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Run mode",
+      "key": "MM_SCENARIO",
+      "value": "server",
+      "description": "Run mode of the container. Keep this at server on Unraid. The electron mode requires a locally attached display and will not work on a headless server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Show mouse cursor",
+      "key": "MM_SHOW_CURSOR",
+      "value": "false",
+      "description": "Set to true to show the mouse cursor in the interface. Useful when MagicMirror\u00b2 is displayed on a touchscreen or wall tablet.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

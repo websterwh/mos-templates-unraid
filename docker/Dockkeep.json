@@ -1,0 +1,211 @@
+{
+  "name": "Dockkeep",
+  "repo": "ghcr.io/davidkrgh/dockkeep:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/DavidKrGH/Dockkeep/pkgs/container/dockkeep",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname=dockkeep",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/DavidKrGH/Dockkeep/main/docs/Icon/icon_original.png",
+  "project": "https://github.com/DavidKrGH/Dockkeep",
+  "description": "Scheduled Restic backups and Rclone syncs for your server - in one container, with a web UI. You describe what to back up, where to, and when in the web UI. Dockkeep stores that as one plain TOML file you can still read and edit, then runs the jobs, prunes old snapshots, mirrors repositories off-site with Rclone, logs everything, notifies you when something breaks, and gets your files back when you need them. Underneath it is plain Restic and Rclone. Dockkeep does not invent a backup format: your repositories stay ordinary Restic repositories that any restic binary can read, with or without Dockkeep. What it does: back up mounted directories to local or cloud repositories, keep several copies with their own schedules and retention rules, prune and clean up automatically, mirror repositories off-site with Rclone, browse snapshots and restore single files or whole trees, run pre/post hooks (including stopping and starting containers), and send notifications by e-mail or Pushover. IMPORTANT: the web UI ships WITHOUT built-in authentication. It is an administrative interface with full access to your configuration and secrets. Keep port 8080 on a trusted network, or put it behind a VPN or an authenticating reverse proxy. Do not port-forward it. First steps after installing: open the WebUI, create a job with a backup, point it at a source path you mounted and at a repository under /backups, and set a Restic password (either directly in the config or via the DK_RESTIC_PASSWORD variable below, referenced from the config as password_env). Full documentation is in the project README.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/dockkeep/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds config.toml and rclone.conf. Written by the web UI. Back this up somewhere outside Dockkeep - together with your repository passwords it is the only thing that cannot be regenerated.",
+      "required": true
+    },
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/dockkeep/appdata",
+      "container": "/appdata",
+      "mode": "rw",
+      "description": "SQLite database with run history, restore records, repository cache and statistics. Convenience state - can be rebuilt from the repositories.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/dockkeep/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Per-job run logs and system logs.",
+      "required": true
+    },
+    {
+      "name": "Repositories",
+      "host": "",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Mount point for local Restic repositories, for example /mnt/user/backups/dockkeep. Pick a share that already exists - Docker silently creates a new one otherwise, with cache settings you never chose. Do not point this at the appdata share. The actual repository paths come from your configuration; put them below this directory.",
+      "required": true
+    },
+    {
+      "name": "Restore target",
+      "host": "",
+      "container": "/restore",
+      "mode": "rw",
+      "description": "Where restores are written, for example /mnt/user/backups/dockkeep-restore. Dockkeep never restores outside this directory. The same advice applies: use an existing share.",
+      "required": true
+    },
+    {
+      "name": "Backup source 1",
+      "host": "/mnt/cache/appdata",
+      "container": "/mnt/user/appdata",
+      "mode": "ro",
+      "description": "A share you want to back up, mounted read-only. This is a root, not a single backup source: everything below it can be named in your configuration, so with this mount in place a backup can use sources = [&quot;/mnt/user/appdata/paperless&quot;] or any other path underneath. Host path and container path are deliberately identical, so a path you see in Unraid is the same path in your configuration. Exclude Dockkeep's own config and appdata directories: the config holds your repository passwords, and the SQLite database cannot be copied consistently while it is in use.",
+      "required": false
+    },
+    {
+      "name": "Backup source 2",
+      "host": "",
+      "container": "/mnt/user/documents",
+      "mode": "ro",
+      "description": "A second share, empty by default. You only need this for a directory that is not already below the first mount - subdirectories of that one are reachable without any extra entry. Set host path and container path to the same value here as well, and use 'Add another Path, Port, Variable, Label or Device' for further shares. Leave empty if one is enough.",
+      "required": false
+    },
+    {
+      "name": "Hook scripts",
+      "host": "/mnt/cache/appdata/dockkeep/scripts",
+      "container": "/scripts",
+      "mode": "rw",
+      "description": "The only directory script hooks may be run from. Leave as is if you do not use hooks.",
+      "required": false
+    },
+    {
+      "name": "Docker socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Optional and only needed if hooks should stop and start other containers. Granting access to the Docker socket is equivalent to root on the host - leave empty unless you need it.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port of the Dockkeep web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Restic password",
+      "key": "DK_RESTIC_PASSWORD",
+      "value": "",
+      "description": "Repository password. Reference it from config.toml as password_env = &quot;DK_RESTIC_PASSWORD&quot;. Leave empty if you use a password file or store the password in the configuration instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Time zone used for schedules, next-run times and log timestamps, e.g. Europe/Berlin. Set this - it decides what '02:00' means for your schedules.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mode",
+      "key": "DK_MODE",
+      "value": "gui",
+      "description": "gui = web UI plus scheduler (recommended). cli = headless scheduler, no web UI and no persisted history.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restic password (second repository)",
+      "key": "DK_RESTIC_PASSWORD_SECONDARY",
+      "value": "",
+      "description": "Password for a second repository, for example an off-site copy. Reference it from config.toml as password_env = &quot;DK_RESTIC_PASSWORD_SECONDARY&quot;. The variable name is only a convention - any name you reference works.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP user",
+      "key": "SMTP_USER",
+      "value": "",
+      "description": "User name for mail notifications. Reference it from the [global.notifications.mail] section as username_env = &quot;SMTP_USER&quot;. Leave empty if your mail server needs no authentication or you do not use mail notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "Password for mail notifications. Reference it from the [global.notifications.mail] section as password_env = &quot;SMTP_PASSWORD&quot;.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Pushover token",
+      "key": "PUSHOVER_TOKEN",
+      "value": "",
+      "description": "Application token for Pushover notifications. Reference it from the [global.notifications.pushover] section as token_env = &quot;PUSHOVER_TOKEN&quot;.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Pushover user key",
+      "key": "PUSHOVER_USER_KEY",
+      "value": "",
+      "description": "User or group key for Pushover notifications. Reference it from the [global.notifications.pushover] section as user_key_env = &quot;PUSHOVER_USER_KEY&quot;.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allow inline hooks",
+      "key": "DK_ALLOW_INLINE_HOOKS",
+      "value": "false",
+      "description": "Set to true to allow inline shell commands as hooks instead of script files only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App data retention (days)",
+      "key": "DK_APPDATA_RETENTION_DAYS",
+      "value": "",
+      "description": "Maximum age of persisted run history records. Empty means unlimited - the database grows for as long as the installation runs. 360 is a reasonable value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App data retention (count)",
+      "key": "DK_APPDATA_RETENTION_COUNT",
+      "value": "",
+      "description": "Maximum number of persisted records per group. Empty means unlimited. 1000 is a reasonable value.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Optional non-root operation. Set PUID and PGID together or not at all - the container refuses to start with only one of them. Dockkeep does NOT recursively chown mounted directories; grant this user access on the host first. Leave both empty to run as root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "See PUID. Both values or neither.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

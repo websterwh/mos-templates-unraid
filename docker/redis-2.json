@@ -1,36 +1,28 @@
 {
   "name": "redis",
-  "repo": "redis",
+  "repo": "bitnamisecure/redis:latest",
   "category": [
-    "Network"
+    "System"
   ],
-  "registry": "https://registry.hub.docker.com/_/redis/",
+  "registry": "https://hub.docker.com/r/bitnamisecure/redis/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--user 99:100",
-  "post_parameters": "redis-server /config/redis.conf",
+  "extra_parameters": null,
+  "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:6379]",
-  "icon": "https://raw.githubusercontent.com/nodiaque/unraid_template/master/nodiaque/images/redis.png",
+  "icon": "https://raw.githubusercontent.com/A75G/docker-templates/master/templates/icons/redis.png",
   "project": "https://redis.io/",
-  "description": "Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. Based on official Redis Docker image. You must create the config file first located at /mnt/user/appdata/redis/conf/redis.conf. See following link to get the files https://redis.io/docs/latest/operate/oss_and_stack/management/config/ If you want to use redis-full.conf, you must change the \"Post Arguments\" accordingly and refer to https://hub.docker.com/_/redis There's currently a bug with the template the path for /config isn't properly set. It must be /mnt/user/appdata/redis/conf/ Be sure to chmod to nobody:users the appdata folder and all files.",
+  "description": "Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.",
   "paths": [
     {
-      "name": "Database dumb folder",
-      "host": "/mnt/cache/appdata/redis/db/",
-      "container": "/data",
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/redis",
+      "container": "/bitnami/redis",
       "mode": "rw",
-      "description": null,
-      "required": true
-    },
-    {
-      "name": "Config folder",
-      "host": "/mnt/cache/appdata/redis/conf/",
-      "container": "/config",
-      "mode": "rw",
-      "description": null,
-      "required": true
+      "description": "Appdata folder for database persistence. Remove if unneeded",
+      "required": false
     }
   ],
   "ports": [
@@ -39,12 +31,37 @@
       "host": "6379",
       "container": "6379",
       "protocol": "tcp",
-      "description": "This is Redis default connection port.",
+      "description": "Redis Port",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "ALLOW_EMPTY_PASSWORD",
+      "key": "ALLOW_EMPTY_PASSWORD",
+      "value": "yes",
+      "description": "ALLOW_EMPTY_PASSWORD",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "REDIS_PASSWORD",
+      "value": "941378",
+      "description": "If you want password put ALLOW_EMPTY_PASSWORD to no, then put the password here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis Extra Flags",
+      "key": "REDIS_EXTRA_FLAGS",
+      "value": "--auto-aof-rewrite-percentage 100 --auto-aof-rewrite-min-size 64mb",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

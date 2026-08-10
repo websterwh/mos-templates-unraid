@@ -1,0 +1,299 @@
+{
+  "name": "TREK",
+  "repo": "mauriceboe/trek",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/mauriceboe/trek",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/liketrek/TREK/main/docs/trek-icon.png",
+  "project": "https://github.com/liketrek/TREK",
+  "description": "TREK is a self-hosted, real-time collaborative travel planner with interactive maps, budgets, bookings, packing lists, file management, and more. Plan trips together with your group \u2014 changes sync instantly across all connected users. Includes OIDC/SSO support, dark mode, PWA, and a modular addon system (Vacay, Atlas, Collab, Budget, Packing).",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/trek/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database and app data",
+      "required": true
+    },
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/trek/uploads",
+      "container": "/app/uploads",
+      "mode": "rw",
+      "description": "Uploaded files (photos, documents)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ENCRYPTION_KEY",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "At-rest encryption key for stored secrets (API keys, MFA, SMTP, OIDC). Recommended: generate with: openssl rand -hex 32. If unset, falls back to data/.jwt_secret (existing installs) or auto-generates a key (fresh installs).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal server port (must match the container port mapping above).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node environment (production / development).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for logs, reminders and scheduled tasks (e.g. Europe/Berlin).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: info = concise user actions, debug = verbose admin-level details.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TREK_WIKI_DIR",
+      "key": "TREK_WIKI_DIR",
+      "value": "",
+      "description": "Where the in-app Help pages (/help) read their content from. Leave empty: the container ships the wiki at /app/wiki and finds it automatically. Only set this to serve your own docs from a mounted path. If the path does not exist, Help falls back to fetching the public GitHub wiki (needs outbound network, and tracks the latest release rather than your version).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_LANGUAGE",
+      "key": "DEFAULT_LANGUAGE",
+      "value": "en",
+      "description": "Default language shown on the login page for users with no saved preference. Browser/OS language is auto-detected first; this is the fallback when no match is found. Supported: de, en, es, fr, hu, nl, br, cs, pl, ru, zh, zh-TW, it, ar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOWED_ORIGINS",
+      "key": "ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated origins allowed for CORS and used as base URL in email notification links (e.g. https://trek.example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Public base URL of this instance (e.g. https://trek.example.com). Required when OIDC is enabled \u2014 must match the redirect URI registered with your IdP. Also used as base URL for email notification links.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FORCE_HTTPS",
+      "key": "FORCE_HTTPS",
+      "value": "false",
+      "description": "Optional. When true: HTTPS redirect, HSTS header, CSP upgrade-insecure-requests, and secure cookies. Only useful behind a TLS-terminating proxy. Requires TRUST_PROXY.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HSTS_INCLUDE_SUBDOMAINS",
+      "key": "HSTS_INCLUDE_SUBDOMAINS",
+      "value": "false",
+      "description": "When true: adds includeSubDomains to the HSTS header, extending HTTPS enforcement to all subdomains. Only effective when HSTS is active (FORCE_HTTPS=true or NODE_ENV=production). Leave false if you run other services on sibling subdomains over plain HTTP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COOKIE_SECURE",
+      "key": "COOKIE_SECURE",
+      "value": "true",
+      "description": "Auto-derived (true in production or when FORCE_HTTPS=true). Set to false to force session cookies over plain HTTP. Not recommended for production.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUST_PROXY",
+      "key": "TRUST_PROXY",
+      "value": "1",
+      "description": "Trusted proxy hops for X-Forwarded-For/X-Forwarded-Proto. Defaults to 1 in production; off in development unless set. Required for FORCE_HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_INTERNAL_NETWORK",
+      "key": "ALLOW_INTERNAL_NETWORK",
+      "value": "false",
+      "description": "Allow outbound requests to private/RFC-1918 IP addresses. Set to true if Immich or other integrated services are hosted on your local network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_DURATION",
+      "key": "SESSION_DURATION",
+      "value": "24h",
+      "description": "How long a login session stays valid when 'Remember me' is unchecked (the default): trek_session JWT exp + a browser-session cookie cleared when the browser closes. Accepts 1h, 12h, 7d, 30d, 90d. Defaults to 24h.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_DURATION_REMEMBER",
+      "key": "SESSION_DURATION_REMEMBER",
+      "value": "30d",
+      "description": "Session length when 'Remember me' is ticked at login: a longer-lived JWT + persistent cookie that survives browser restarts. Same format as SESSION_DURATION. Defaults to 30d.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_EMAIL",
+      "key": "ADMIN_EMAIL",
+      "value": "admin@trek.local",
+      "description": "Email for the first admin account created on initial boot. Has no effect once any user exists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the first admin account created on initial boot. If omitted a random password is generated and printed to the server log. Has no effect once any user exists.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_ISSUER",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "OpenID Connect provider URL (e.g. https://auth.example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID registered with your identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret registered with your identity provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_DISPLAY_NAME",
+      "key": "OIDC_DISPLAY_NAME",
+      "value": "SSO",
+      "description": "Label shown on the SSO login button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ONLY",
+      "key": "OIDC_ONLY",
+      "value": "false",
+      "description": "Set to true to force SSO-only mode. Disables password login and password registration \u2014 overrides the granular toggles in Admin &gt; Settings and cannot be changed at runtime. First SSO login becomes admin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ADMIN_CLAIM",
+      "key": "OIDC_ADMIN_CLAIM",
+      "value": "",
+      "description": "OIDC claim used to identify admin users (e.g. groups).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ADMIN_VALUE",
+      "key": "OIDC_ADMIN_VALUE",
+      "value": "",
+      "description": "Value of the OIDC claim that grants admin role (e.g. app-trek-admins).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_SCOPE",
+      "key": "OIDC_SCOPE",
+      "value": "openid email profile",
+      "description": "Space-separated OIDC scopes to request. Fully overrides the default \u2014 always include openid email profile plus any extra scopes you need (e.g. add groups when using OIDC_ADMIN_CLAIM).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_DISCOVERY_URL",
+      "key": "OIDC_DISCOVERY_URL",
+      "value": "",
+      "description": "Override the auto-constructed OIDC discovery endpoint. Useful for providers with a non-standard path (e.g. Authentik).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEMO_MODE",
+      "key": "DEMO_MODE",
+      "value": "false",
+      "description": "Enable demo mode (resets all data hourly). Not intended for regular use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP_RATE_LIMIT",
+      "key": "MCP_RATE_LIMIT",
+      "value": "300",
+      "description": "Max MCP API requests per user per minute.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP_MAX_SESSION_PER_USER",
+      "key": "MCP_MAX_SESSION_PER_USER",
+      "value": "20",
+      "description": "Max concurrent MCP sessions per user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNSPLASH_ACCESS_KEY",
+      "key": "UNSPLASH_ACCESS_KEY",
+      "value": "",
+      "description": "Optional Unsplash Access Key for trip-cover and place-image search. Without one, TREK uses Unsplash's unauthenticated endpoint, which some datacenter/VPS IPs are blocked from. Get a free key at unsplash.com/developers. Can also be set per-admin in Admin &gt; Settings; this env var overrides that.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

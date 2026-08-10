@@ -1,103 +1,69 @@
 {
   "name": "flexget",
-  "repo": "lscr.io/linuxserver/flexget",
+  "repo": "wiserain/flexget:latest",
   "category": [
     "Downloader"
   ],
-  "registry": "https://github.com/orgs/linuxserver/packages/container/package/flexget",
-  "network": "bridge",
+  "registry": "https://hub.docker.com/r/wiserain/flexget:latest",
+  "network": "none",
   "custom_ip": null,
-  "default_shell": "bash",
-  "privileged": false,
-  "extra_parameters": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": "--net=container:binhex-delugevpn",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5050]",
-  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/linuxserver-ls-logo.png",
+  "web_ui_url": null,
+  "icon": "https://github.com/paulpoco/docker-templates/raw/master/paulpoco/images/Deluge-Flexget-icon-small.png",
   "project": "http://flexget.com/",
-  "description": "Flexget(http://flexget.com/) is a multipurpose automation tool for all of your media.",
+  "description": "FlexGet is a multipurpose automation tool for all of your media. REQUIRES binhex-delugevpn to be installed 1st. Then follow instructions at Binhex's VPN FAQ Q24.",
   "paths": [
     {
-      "name": "Appdata",
-      "host": "",
-      "container": "/config",
+      "name": "Host Path 2",
+      "host": "/mnt/cache/Media",
+      "container": "/data",
       "mode": "rw",
-      "description": "Local path for FlexGet config files.",
+      "description": "Container Path: /data",
       "required": true
     },
     {
-      "name": "Path: /data",
-      "host": "",
-      "container": "/data",
+      "name": "AppData Config Path",
+      "host": "/mnt/cache/appdata/flexget",
+      "container": "/config",
       "mode": "rw",
-      "description": "Default path for downloads.",
-      "required": false
+      "description": "Container Path: /config",
+      "required": true
     }
   ],
-  "ports": [
-    {
-      "name": "WebUI",
-      "host": "5050",
-      "container": "5050",
-      "protocol": "tcp",
-      "description": "HTTP port for the WebUI.",
-      "required": true,
-      "mask": false
-    }
-  ],
+  "ports": [],
   "variables": [
     {
-      "name": "FG_LOG_LEVEL",
-      "key": "FG_LOG_LEVEL",
-      "value": "info",
-      "description": "Set the FlexGet logging level.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "FG_LOG_FILE",
-      "key": "FG_LOG_FILE",
-      "value": "/config/flexget.log",
-      "description": "Set the FlexGet log file location.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "FG_CONFIG_FILE",
-      "key": "FG_CONFIG_FILE",
-      "value": "/config/.flexget/config.yml",
-      "description": "Set the FlexGet config file location.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "FG_WEBUI_PASSWORD",
-      "key": "FG_WEBUI_PASSWORD",
-      "value": "info",
-      "description": "Set the FlexGet webui password. Pay attention to Bash/YAML reserved characters.",
+      "name": "Key 1",
+      "key": "FG_WEBUI_PASSWD",
+      "value": "16 charactor password",
+      "description": "Container Variable: FG_WEBUI_PASSWD",
       "required": false,
-      "mask": true
+      "mask": false
     },
     {
-      "name": "PUID",
+      "name": "Key 2",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Container Variable: UMASK",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Key 3",
       "key": "PUID",
       "value": "500",
       "description": "Container Variable: PUID",
-      "required": true,
+      "required": false,
       "mask": false
     },
     {
-      "name": "PGID",
+      "name": "Key 4",
       "key": "PGID",
       "value": "500",
       "description": "Container Variable: PGID",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "022",
-      "description": "Container Variable: UMASK",
       "required": false,
       "mask": false
     }

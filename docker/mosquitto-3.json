@@ -1,58 +1,85 @@
 {
   "name": "mosquitto",
-  "repo": "eclipse-mosquitto:2",
+  "repo": "ghcr.io/imagegenius/mosquitto",
   "category": [
-    "Home Automation"
+    "Misc"
   ],
-  "registry": "https://hub.docker.com/_/eclipse-mosquitto",
+  "registry": "https://github.com/orgs/imagegenius/packages/container/package/mosquitto",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped",
+  "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:1883]",
-  "icon": "https://raw.githubusercontent.com/simonsickle/unraid-templates/main/mosquitto/logo.png",
-  "project": "https://mosquitto.org",
-  "description": "MQTT Data Broker",
+  "icon": "https://raw.githubusercontent.com/imagegenius/templates/main/unraid/img/mosquitto.png",
+  "project": "https://mosquitto.org/",
+  "description": "Mosquitto is an open source (EPL/EDL licensed) message broker that implements the MQTT protocol versions 5.0, 3.1.1 and 3.1. Mosquitto is lightweight and is suitable for use on all devices from low power single board computers to full servers.",
   "paths": [
     {
-      "name": "config",
-      "host": "/mnt/cache/appdata/mosquitto/config/",
-      "container": "/mosquitto/config",
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
       "mode": "rw",
-      "description": "Store mosquitto.conf and passwd files",
-      "required": false
-    },
-    {
-      "name": "data",
-      "host": "/mnt/cache/appdata/mosquitto/data",
-      "container": "/mosquitto/data",
-      "mode": "rw",
-      "description": "Store persistent MQTT data. Note: Persistent data must be enabled in the mosquitto.conf config file.",
-      "required": false
-    },
-    {
-      "name": "logs",
-      "host": "/mnt/cache/appdata/mosquitto/log",
-      "container": "/mosquitto/log",
-      "mode": "rw",
-      "description": "Store mosquitto logs. Note: Logs must be enabled in the mosquitto.conf config file",
-      "required": false
+      "description": "Contains the configuration file",
+      "required": true
     }
   ],
   "ports": [
     {
-      "name": "MQTT Port",
+      "name": "WebUI",
       "host": "1883",
       "container": "1883",
       "protocol": "tcp",
-      "description": null,
+      "description": "MQTT Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: 8883",
+      "host": "8883",
+      "container": "8883",
+      "protocol": "tcp",
+      "description": "MQTT TLS Port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Port: 9001",
+      "host": "9001",
+      "container": "9001",
+      "protocol": "tcp",
+      "description": "MQTT Websockets Port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID for permissions. Do not change unless you know what you're doing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "UMASK for newly created files. Do not change unless you know what you're doing.",
       "required": false,
       "mask": false
     }
   ],
-  "variables": [],
   "devices": [],
   "labels": []
 }

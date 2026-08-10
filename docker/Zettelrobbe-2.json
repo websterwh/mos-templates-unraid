@@ -1,0 +1,67 @@
+{
+  "name": "Zettelrobbe",
+  "repo": "admonstrator/zettelrobbe:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/admonstrator/zettelrobbe",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/admonstrator/zettelrobbe/main/favicon.png",
+  "project": "https://zettelrob.be",
+  "description": "Automatically tag, sort, and search your Paperless-ngx documents \u2013 using local or hosted AI. Tagging IA fiable, OCR rescue queue (Mistral ou modeles vision locaux, PDF multi-pages), files failed/ignored, historique rescan, MFA, setup guide, custom fields enrichis. Configuration initiale via le wizard web au premier lancement (URL Paperless-ngx, token API, provider LLM/OCR).",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/zettelrobbe",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Base SQLite, config et etat de l'application",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port hote pour l'interface web (container: 3000)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "COOKIE_SECURE_MODE",
+      "key": "COOKIE_SECURE_MODE",
+      "value": "never",
+      "description": "'never' pour acces HTTP LAN. Passer en 'auto' derriere un reverse proxy HTTPS (Cloudflare Tunnel)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Zurich",
+      "description": "Fuseau horaire",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_REMOTE_SETUP",
+      "key": "ALLOW_REMOTE_SETUP",
+      "value": "yes",
+      "description": "Autorise l'acces au wizard de setup depuis le LAN (le setup n'est accessible que depuis localhost par defaut). Remettre a 'no' apres la configuration initiale.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

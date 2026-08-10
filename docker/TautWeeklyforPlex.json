@@ -1,0 +1,83 @@
+{
+  "name": "TautWeekly-for-Plex",
+  "repo": "ghcr.io/sparkmoxie/tautweekly:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/sparkmoxie/TautWeekly/pkgs/container/tautweekly",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/sparkmoxie/TautWeekly/main/platforms/nas-docker/app/assets-default/popcorn.gif",
+  "project": "https://github.com/sparkmoxie/TautWeekly",
+  "description": "Generate preview-first weekly Plex activity newsletters using Tautulli. The WebUI link opens a read-only preview viewer, not an admin panel. After installation, open the container Console and run: pwsh -NoLogo -NoProfile -File /opt/tautweekly/Setup-First.ps1. Unraid checks the configured stable latest image and applies updates from its Docker/Apps controls.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/tautweekly",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Private configuration, state, logs, assets, and generated previews.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Preview Viewer",
+      "host": "8787",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Trusted-LAN HTTP port for the read-only landing page and generated previews. This is not an admin UI. Do not expose it publicly.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "IANA timezone used by the weekly scheduler, for example America/Phoenix.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Non-root Unraid user ID used for appdata ownership.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Non-root Unraid group ID used for appdata ownership.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "077",
+      "description": "Restrictive file-creation mask for configuration and output.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Preview Base URL",
+      "key": "TAUTWEEKLY_PREVIEW_BASE_URL",
+      "value": "",
+      "description": "Optional LAN URL embedded in preview links, for example http://tower:8787. Never use a public URL.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

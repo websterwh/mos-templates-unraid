@@ -1,139 +1,226 @@
 {
   "name": "slskd",
-  "repo": "slskd/slskd:latest",
+  "repo": "ghcr.io/hotio/slskd:latest",
   "category": [
     "Downloader"
   ],
-  "registry": "https://github.com/slskd/slskd/pkgs/container/slskd",
+  "registry": "https://github.com/hotio/slskd/pkgs/container/slskd",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--hostname=slskd.internal --cap-add=NET_ADMIN",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5030]/",
-  "icon": "https://raw.githubusercontent.com/manuel-rw/unraid-templates/master/templates/slskd/logo.png",
-  "project": "https://github.com/slskd/slskd",
-  "description": "A modern client-server application for the Soulseek file-sharing network. It is accessible from a web browser and supports reverse proxies.",
+  "web_ui_url": "http://[IP]:[PORT:5030]",
+  "icon": "https://hotio.dev/webhook-avatars/slskd.png",
+  "project": "https://hotio.dev/containers/slskd",
+  "description": "WireGuard VPN, Privoxy and Unbound built-in! A modern client-server application for the Soulseek file sharing network.",
   "paths": [
     {
-      "name": "Application data",
-      "host": "/mnt/cache/appdata/slskd/",
-      "container": "/app",
+      "name": "Host Path for /config",
+      "host": "",
+      "container": "/config",
       "mode": "rw",
-      "description": null,
-      "required": false
+      "description": "Container Path: /config",
+      "required": true
+    },
+    {
+      "name": "Host Path for /data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Container Path: /data",
+      "required": true
     }
   ],
   "ports": [
     {
-      "name": "HTTP WEB UI",
+      "name": "Host Port for 5030",
       "host": "5030",
       "container": "5030",
       "protocol": "tcp",
-      "description": null,
-      "required": false,
+      "description": "Container Port: 5030",
+      "required": true,
       "mask": false
     },
     {
-      "name": "HTTPS WEB UI",
+      "name": "Host Port for 5031",
       "host": "5031",
       "container": "5031",
       "protocol": "tcp",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "SOULSEEK CLIENT",
-      "host": "50300",
-      "container": "50300",
-      "protocol": "tcp",
-      "description": null,
-      "required": false,
+      "description": "Container Port: 5031",
+      "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "SLSKD_REMOTE_CONFIGURATION",
-      "key": "SLSKD_REMOTE_CONFIGURATION",
+      "name": "PRIVOXY_ENABLED",
+      "key": "PRIVOXY_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: PRIVOXY_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNBOUND_ENABLED",
+      "key": "UNBOUND_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: UNBOUND_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNBOUND_NAMESERVERS",
+      "key": "UNBOUND_NAMESERVERS",
+      "value": "",
+      "description": "Container Variable: UNBOUND_NAMESERVERS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_ENABLED",
+      "key": "VPN_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_CONF",
+      "key": "VPN_CONF",
+      "value": "wg0",
+      "description": "Container Variable: VPN_CONF",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PROVIDER",
+      "key": "VPN_PROVIDER",
+      "value": "generic|proton|pia",
+      "description": "Container Variable: VPN_PROVIDER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_LAN_NETWORK",
+      "key": "VPN_LAN_NETWORK",
+      "value": "",
+      "description": "Container Variable: VPN_LAN_NETWORK",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_EXPOSE_PORTS_ON_LAN",
+      "key": "VPN_EXPOSE_PORTS_ON_LAN",
+      "value": "",
+      "description": "Container Variable: VPN_EXPOSE_PORTS_ON_LAN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_LAN_LEAK_ENABLED",
+      "key": "VPN_LAN_LEAK_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_LAN_LEAK_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_AUTO_PORT_FORWARD",
+      "key": "VPN_AUTO_PORT_FORWARD",
       "value": "false",
-      "description": null,
+      "description": "Container Variable: VPN_AUTO_PORT_FORWARD",
       "required": false,
       "mask": false
     },
     {
-      "name": "Http Web UI Port",
-      "key": "PORT",
-      "value": "5030",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "SLSKD_UPLOAD_SLOTS",
-      "key": "SLSKD_UPLOAD_SLOTS",
-      "value": "10",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "SLSKD_UPLOAD_SPEED_LIMIT",
-      "key": "SLSKD_UPLOAD_SPEED_LIMIT",
-      "value": "1000",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Soulseek Username",
-      "key": "SLSKD_SLSK_USERNAME",
+      "name": "VPN_PORT_REDIRECTS",
+      "key": "VPN_PORT_REDIRECTS",
       "value": "",
-      "description": null,
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Soulseek Password",
-      "key": "SLSKD_SLSK_PASSWORD",
-      "value": "",
-      "description": null,
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "SLSKD_SLSK_DESCRIPTION",
-      "key": "SLSKD_SLSK_DESCRIPTION",
-      "value": "A Soulseek user",
-      "description": null,
+      "description": "Container Variable: VPN_PORT_REDIRECTS",
       "required": false,
       "mask": false
     },
     {
-      "name": "SLSKD_SLSK_DIAG_LEVEL",
-      "key": "SLSKD_SLSK_DIAG_LEVEL",
-      "value": "None",
-      "description": null,
+      "name": "VPN_HEALTHCHECK_ENABLED",
+      "key": "VPN_HEALTHCHECK_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_HEALTHCHECK_ENABLED",
       "required": false,
       "mask": false
     },
     {
-      "name": "Web UI Username",
-      "key": "SLSKD_USERNAME",
+      "name": "VPN_NAMESERVERS",
+      "key": "VPN_NAMESERVERS",
       "value": "",
-      "description": "The username for the web UI",
-      "required": true,
+      "description": "Container Variable: VPN_NAMESERVERS",
+      "required": false,
       "mask": false
     },
     {
-      "name": "Web UI Password",
-      "key": "SLSKD_PASSWORD",
+      "name": "VPN_PIA_USER",
+      "key": "VPN_PIA_USER",
       "value": "",
-      "description": "The password for the web UI",
-      "required": true,
-      "mask": true
+      "description": "Container Variable: VPN_PIA_USER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PASS",
+      "key": "VPN_PIA_PASS",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_PASS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PREFERRED_REGION",
+      "key": "VPN_PIA_PREFERRED_REGION",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_PREFERRED_REGION",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_DIP_TOKEN",
+      "key": "VPN_PIA_DIP_TOKEN",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_DIP_TOKEN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PORT_FORWARD_PERSIST",
+      "key": "VPN_PIA_PORT_FORWARD_PERSIST",
+      "value": "false|true",
+      "description": "Container Variable: VPN_PIA_PORT_FORWARD_PERSIST",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Container Variable: UMASK",
+      "required": false,
+      "mask": false
     }
   ],
   "devices": [],

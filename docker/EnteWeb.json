@@ -1,0 +1,86 @@
+{
+  "name": "Ente-Web",
+  "repo": "ghcr.io/ente/web:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/ente/ente/pkgs/container/web",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/YoshiroMaximus/unraid-templates/main/ente/ente.png",
+  "project": "https://ente.io/",
+  "description": "The Ente Photos web app (plus the public-albums, accounts, auth and cast apps) for your self-hosted Ente instance. Requires a running Ente-Server (Museum) container - install that template first. Set ENTE_API_ORIGIN below to the URL where clients can reach Museum, e.g. http://YOUR-Unraid-IP:8080 Ports: 3000 Photos (main app), 3002 Public Albums (shared links), and optionally 3001 Accounts (passkeys), 3003 Auth, 3004 Cast. Setup guide: https://github.com/YoshiroMaximus/Unraid-templates",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Photos Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Main Ente Photos web app.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Albums Port",
+      "host": "3002",
+      "container": "3002",
+      "protocol": "tcp",
+      "description": "Public album sharing app. Needed for shared links; must match apps.public-albums in museum.yaml.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Accounts Port",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Optional Accounts app, used for passkey-based 2FA.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Port",
+      "host": "3003",
+      "container": "3003",
+      "protocol": "tcp",
+      "description": "Optional Ente Auth (2FA codes) web app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cast Port",
+      "host": "3004",
+      "container": "3004",
+      "protocol": "tcp",
+      "description": "Optional Cast app for slideshows on TVs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ENTE_API_ORIGIN",
+      "key": "ENTE_API_ORIGIN",
+      "value": "http://YOUR-UNRAID-IP:8080",
+      "description": "URL where browsers/devices can reach the Ente-Server (Museum) API, e.g. http://192.168.1.10:8080 or https://api.example.com - do NOT use localhost unless you only browse from the server itself.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ENTE_ALBUMS_ORIGIN",
+      "key": "ENTE_ALBUMS_ORIGIN",
+      "value": "http://YOUR-UNRAID-IP:3002",
+      "description": "URL where the public albums app is reachable, used when generating share links.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

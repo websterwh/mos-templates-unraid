@@ -1,0 +1,147 @@
+{
+  "name": "Canticle",
+  "repo": "ghcr.io/sydlexius/canticle",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/sydlexius/canticle/pkgs/container/canticle",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:50705]/",
+  "icon": "https://raw.githubusercontent.com/sydlexius/canticle/main/web/static/img/canticle-mark.svg",
+  "project": "https://sydlexius.github.io/canticle/",
+  "description": "Fetches time-synced (.lrc) lyrics for your music library from Musixmatch, on a schedule and via Lidarr webhooks, and writes them next to your audio files.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores config.toml, the SQLite database, and the encrypted secrets key.",
+      "required": true
+    },
+    {
+      "name": "Music Library",
+      "host": "",
+      "container": "/music",
+      "mode": "rw",
+      "description": "Your music library. Lyrics are written next to each audio file, so this must be writable. Add more Path mappings for additional libraries if needed.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / Webhook Port",
+      "host": "50705",
+      "container": "50705",
+      "protocol": "tcp",
+      "description": "Serves both the web dashboard and the Lidarr webhook endpoint.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Musixmatch Token",
+      "key": "MUSIXMATCH_TOKEN",
+      "value": "",
+      "description": "Musixmatch API token for fetching lyrics. Optional here: leave it blank and add it later in the web UI (Settings), where it is stored encrypted instead of in an env var. Without a token the dashboard shows a notice and lyric fetching stays off until you add one or switch to a tokenless provider (PetitLyrics). See the docs for how to obtain a token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Trusted Networks (CIDRs)",
+      "key": "MXLRC_TRUSTED_CIDRS",
+      "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+      "description": "Comma-separated CIDRs allowed to reach the web UI without signing in and to open the first-run setup page. The default trusts all private (RFC1918) networks, which covers both your LAN and the Docker bridge so the UI works out of the box. Narrow it to just your LAN (for example 192.168.1.0/24) to tighten access. Public IPs are never trusted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Web UI",
+      "key": "MXLRC_WEB_UI_ENABLED",
+      "value": "true",
+      "description": "Serve the browser dashboard and settings UI on the listen port. Leave true for the normal Unraid experience; set false to run headless (webhook + scheduled scans only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook API Key",
+      "key": "MXLRC_WEBHOOK_API_KEY",
+      "value": "",
+      "description": "Static API key Lidarr presents to authenticate webhook calls. Optional; you can also mint managed keys in the web UI (Settings, Webhook keys).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Master Encryption Key",
+      "key": "MXLRC_MASTER_KEY",
+      "value": "",
+      "description": "Base64 of 32 random bytes (openssl rand -base64 32). Encrypts API secrets at rest. Auto-generated to a key file under /config if left blank; set an explicit value to keep the key off the data volume and preserve secrets across container recreation.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "API Cooldown (seconds)",
+      "key": "MXLRC_API_COOLDOWN",
+      "value": "60",
+      "description": "Minimum seconds between Musixmatch calls. 60 is recommended to avoid egress-IP rate limiting; the built-in default is more aggressive.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Filesystem Watcher",
+      "key": "MXLRCGO_WATCH_ENABLED",
+      "value": "false",
+      "description": "Watch the library for changes and trigger targeted scans (in addition to the periodic scan). true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Instrumental Detector URL",
+      "key": "MXLRC_INSTRUMENTAL_DETECTOR_CLASSIFIER_URL",
+      "value": "",
+      "description": "Optional. URL of a separately-deployed YAMNet classifier sidecar (for example http://yamnet:8080) to detect instrumental tracks on provider misses. Leave blank to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "MXLRC_LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: info, debug, warn, or error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "IANA timezone, for example America/Los_Angeles. Used for dashboard timestamps.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions. Default 99 maps to nobody on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions. Default 100 maps to users on Unraid.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

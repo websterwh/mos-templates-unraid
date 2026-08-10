@@ -1,0 +1,189 @@
+{
+  "name": "mularr",
+  "repo": "ghcr.io/joecarl/mularr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/joecarl/mularr/pkgs/container/mularr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8940]",
+  "icon": "https://games.copinstar.com/img/mularr/mularr-icon-unraid.png",
+  "project": "https://github.com/joecarl/mularr",
+  "description": "Mularr is a powerful integration for aMule that provides a functional web interface with a nostalgia-infused retro touch. It bridges the gap between classic P2P and modern automation tools by offering qBittorrent-compatible APIs and Torznab indexers, making it seamless to use aMule with apps like Sonarr and Radarr. Key features: - *Arr integration: native support for Sonarr/Radarr via qBittorrent and Torznab API compatibility (API Path: /api/as-torznab-indexer, URL Base: /api/as-qbittorrent). - Bundled aMule daemon: no separate aMule container needed. - Telegram integration: download-complete notifications via bot, and optional use of the Telegram network as a download provider. - VPN ready: built-in Gluetun health checks and automatic forwarded-port updates (set GLUETUN_ENABLED=true and route this container through your Gluetun container). - Retro-style responsive web UI with multiple themes (Windows XP Classic, Windows 11 Experimental). Notes: - The container runs as UID 1000 by default. On most Unraid systems this works out of the box; if you hit permission errors on your shares, add '--user 99:100' in Extra Parameters to run as nobody:users. - If no AUTH_USERNAME/AUTH_PASSWORD is set, the web UI and API are open without authentication. Set them if the port is reachable from untrusted networks. - For a HighID on the eD2k network, keep the eD2k TCP/UDP port mappings and forward them in your router (not needed when routing through Gluetun with port forwarding).",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/mularr",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent data: SQLite database and aMule configuration.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads/mularr",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Download storage. Completed files go to /downloads, in-progress files to /downloads/.incomplete (see AMULE_INCOMING_DIR / AMULE_TEMP_DIR).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8940",
+      "container": "8940",
+      "protocol": "tcp",
+      "description": "Port for the Mularr web interface and API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "eD2k TCP Port",
+      "host": "4662",
+      "container": "4662",
+      "protocol": "tcp",
+      "description": "aMule eD2k TCP port. Forward it in your router to get a HighID. Remove if routing through Gluetun.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "eD2k UDP Port",
+      "host": "4672",
+      "container": "4672",
+      "protocol": "udp",
+      "description": "aMule eD2k UDP port (Kad and extended protocol). Forward it in your router. Remove if routing through Gluetun.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "AUTH_USERNAME",
+      "key": "AUTH_USERNAME",
+      "value": "",
+      "description": "Username for the web UI and the qBittorrent-compatible API. Leave both auth fields empty to disable authentication (not recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTH_PASSWORD",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Password for the web UI and the qBittorrent-compatible API.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "API_KEY",
+      "key": "API_KEY",
+      "value": "",
+      "description": "API key to authenticate requests from other apps without login (needed for the Torznab integration with Sonarr/Radarr). Can also be used as password with username 'apikey' for the qBittorrent API.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret used to sign JSON Web Tokens. If not set, a random secret is generated on startup and existing sessions are invalidated after each restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AMULE_INCOMING_DIR",
+      "key": "AMULE_INCOMING_DIR",
+      "value": "/downloads",
+      "description": "Directory (inside the container) where completed downloads are stored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMULE_TEMP_DIR",
+      "key": "AMULE_TEMP_DIR",
+      "value": "/downloads/.incomplete",
+      "description": "Directory (inside the container) for in-progress downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMULE_SHAREDDIR_RECURSIVE",
+      "key": "AMULE_SHAREDDIR_RECURSIVE",
+      "value": "",
+      "description": "Semicolon-separated absolute container paths to share recursively. When set, shared directories are managed at startup and become read-only in Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMULE_SHAREDDIR_EXPLICIT",
+      "key": "AMULE_SHAREDDIR_EXPLICIT",
+      "value": "",
+      "description": "Semicolon-separated absolute container paths to share (non-recursive).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMULE_RESTART_INTERVAL_HOURS",
+      "key": "AMULE_RESTART_INTERVAL_HOURS",
+      "value": "12",
+      "description": "How often (in hours) the monitoring service automatically restarts the aMule daemon. Set to 0 to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Telegram bot token for notifications about system events and transfer completions.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TELEGRAM_CHAT_ID",
+      "key": "TELEGRAM_CHAT_ID",
+      "value": "",
+      "description": "Telegram chat ID for notifications.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TELEGRAM_TOPIC_ID",
+      "key": "TELEGRAM_TOPIC_ID",
+      "value": "",
+      "description": "Telegram topic ID for notifications (optional, for forum-style groups).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GLUETUN_ENABLED",
+      "key": "GLUETUN_ENABLED",
+      "value": "false",
+      "description": "Set to true when routing this container through a Gluetun container so the VPN forwarded port is automatically applied to aMule.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GLUETUN_API",
+      "key": "GLUETUN_API",
+      "value": "http://localhost:8000/v1",
+      "description": "Gluetun control server API URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GLUETUN_PORT_INDEX",
+      "key": "GLUETUN_PORT_INDEX",
+      "value": "",
+      "description": "When Gluetun forwards multiple ports, index of the 'ports' array to use instead of the default 'port' value. Leave empty for default behavior.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

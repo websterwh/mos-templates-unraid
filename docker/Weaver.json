@@ -1,0 +1,107 @@
+{
+  "name": "Weaver",
+  "repo": "ghcr.io/scryer-media/weaver:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/scryer-media/weaver/pkgs/container/weaver",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9090]/",
+  "icon": "https://raw.githubusercontent.com/scryer-media/weaver-unraid/main/icon.png",
+  "project": "https://www.scryer.media/weaver/",
+  "description": "Weaver is engineered to be the fastest and most secure Usenet downloader. Its native Rust core downloads NZBs, decodes articles, verifies and repairs PAR2 data, and extracts archives in one tightly integrated process. A concurrent pipeline can begin extraction while later archive volumes are still downloading, reducing handoffs, disk churn, and time to completion. Security is built in with TLS-protected provider connections, encrypted-at-rest credentials and API keys, persistent encryption-key management, optional login and scoped API access, least-privilege container support, and keyless-signed release images. Weaver also provides adaptive multi-server dispatch, global and per-server speed limits, schedules, ISP bandwidth caps, provider quotas, queue controls, real-time history and progress updates, detailed logs, Prometheus metrics, and a responsive web UI, all without requiring separate unrar or PAR2 tools.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/weaver",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent database, settings, logs, and encryption key.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Download working and completed-file storage. Optional if you configure other paths in Weaver.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "9090",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "HTTP port for the Weaver web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID used to own /config and run Weaver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID used to own /config and run Weaver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone, for example America/Denver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Optional octal file-creation mask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Incomplete Directory",
+      "key": "WEAVER_INTERMEDIATE_DIR",
+      "value": "/downloads/incomplete",
+      "description": "First-run seed for incomplete and intermediate work.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Complete Directory",
+      "key": "WEAVER_COMPLETE_DIR",
+      "value": "/downloads/complete",
+      "description": "First-run seed for completed downloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Hostnames",
+      "key": "WEAVER_HTTP_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional comma-separated DNS or reverse-proxy hostnames allowed by Weaver's Host validation.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

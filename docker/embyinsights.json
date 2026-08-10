@@ -1,0 +1,91 @@
+{
+  "name": "emby-insights",
+  "repo": "ghcr.io/mrt187/emby-insights:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/mrt187/emby-insights",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/mrt187/emby-insights/main/frontend/public/emby-insights-logo.png",
+  "project": "https://github.com/mrt187/emby-insights",
+  "description": "Emby Insights is a personal, mobile-first media dashboard for Emby users. It complements the Emby player instead of replacing it: personal playback statistics (genres, weekdays, watch hours, longest sessions, most active days), a detail view per title, recently watched content, recommendations, upcoming movies/shows, and optional media requests via Seerr \u2014 all in one place, backed by the user's normal Emby login. The first Emby account to log in via the dashboard is automatically made the Emby Insights admin and configures everything else (library selection, optional Seerr/Radarr/Sonarr/TMDB/OMDB integrations) from the Verwaltung/Admin screen at runtime \u2014 no container restart needed. This is an all-in-one image: the Emby Insights backend, PostgreSQL, and Redis all run inside this single container, persisted under /config. For personal playback statistics you also need the companion Emby Insights Plugin installed on your Emby server: https://github.com/mrt187/emby-insights-plugin/releases/latest UI is available in German and English, selectable by the admin.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/emby-insights",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage: bundled PostgreSQL database and Redis session store.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8081",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the Emby Insights web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "EMBY_BASE_URL",
+      "key": "EMBY_BASE_URL",
+      "value": "",
+      "description": "Emby server address, including /emby (e.g. http://192.168.1.10:8096/emby).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "EMBY_ADMIN_API_KEY",
+      "key": "EMBY_ADMIN_API_KEY",
+      "value": "",
+      "description": "Emby API key: Emby Dashboard -> Advanced -> Security -> API Keys.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Password for the bundled PostgreSQL database. Set it once on first start and never change it afterwards, or the database becomes inaccessible.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "APP_ENCRYPTION_KEY",
+      "key": "APP_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Generate once with 'openssl rand -base64 32' and keep it stable. Encrypts stored API keys for Seerr/Radarr/Sonarr/TMDB; if lost, those become unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "COOKIE_SECURE",
+      "key": "COOKIE_SECURE",
+      "value": "true",
+      "description": "Set to false only for an initial plain-HTTP test without a reverse proxy/TLS in front, then set back to true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "Comma-separated IPs/CIDRs of an upstream reverse proxy allowed to set X-Forwarded-For. Leave empty if the container is reached directly.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

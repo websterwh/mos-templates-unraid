@@ -14,14 +14,22 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/",
   "icon": "https://raw.githubusercontent.com/Erik-A-Smith/DayFront/main/apps/web/public/dayfront-logo-tile.png",
   "project": "https://github.com/Erik-A-Smith/DayFront",
-  "description": "DayFront is the open-source CalDAV frontend for calendars and tasks. Connect it to an existing standards-compliant CalDAV server and keep ownership of your data. DayFront has no built-in user login; expose it only through a trusted network or authenticating reverse proxy.",
+  "description": "DayFront is the open-source CalDAV frontend for calendars and tasks. Connect it to an existing standards-compliant CalDAV server and let each user sign in with their own CalDAV credentials.",
   "paths": [
+    {
+      "name": "Persistent Session Data",
+      "host": "/mnt/cache/appdata/dayfront/session",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Stores the generated session secret so users remain signed in across updates and restarts.",
+      "required": true
+    },
     {
       "name": "Advanced Configuration Directory",
       "host": "/mnt/cache/appdata/dayfront",
       "container": "/config",
       "mode": "ro",
-      "description": "Optional directory containing config.yaml for advanced settings and external calendar subscriptions. Environment fields above take precedence. Mounted read-only because DayFront never modifies it.",
+      "description": "Optional directory containing config.yaml for advanced settings and external calendar subscriptions.",
       "required": false
     }
   ],
@@ -31,7 +39,7 @@
       "host": "8080",
       "container": "8080",
       "protocol": "tcp",
-      "description": "DayFront HTTP port. Put this behind HTTPS and authentication when exposed outside a trusted LAN.",
+      "description": "DayFront HTTP port. Use HTTPS through a trusted reverse proxy when exposing DayFront outside a trusted LAN.",
       "required": true,
       "mask": false
     }
@@ -41,25 +49,33 @@
       "name": "CalDAV Server URL",
       "key": "DAYFRONT_CALDAV_URL",
       "value": "",
-      "description": "Full HTTP or HTTPS URL of the CalDAV server. This environment value overrides caldav.url in config.yaml.",
+      "description": "Full HTTP or HTTPS URL of the CalDAV server.",
       "required": true,
       "mask": false
     },
     {
-      "name": "CalDAV Username",
-      "key": "DAYFRONT_CALDAV_USERNAME",
-      "value": "",
-      "description": "Username used to authenticate with the CalDAV server. This environment value overrides caldav.username in config.yaml.",
+      "name": "Authentication Mode",
+      "key": "DAYFRONT_AUTH_MODE",
+      "value": "caldav-login",
+      "description": "Prompts each user for their own CalDAV credentials. Existing containers without this setting continue using legacy single-account mode.",
       "required": true,
       "mask": false
     },
     {
-      "name": "CalDAV Password",
-      "key": "DAYFRONT_CALDAV_PASSWORD",
-      "value": "",
-      "description": "Password or application token used to authenticate with the CalDAV server. Stored in the local Unraid Docker template and hidden in the form. This environment value overrides caldav.password in config.yaml.",
+      "name": "Session Secret File",
+      "key": "DAYFRONT_AUTH_SESSION_SECRET_FILE",
+      "value": "/data/session-secret",
+      "description": "File where DayFront generates and retains its encrypted-login session key. Change only when using a custom data mapping.",
       "required": true,
-      "mask": true
+      "mask": false
+    },
+    {
+      "name": "Session Lifetime",
+      "key": "DAYFRONT_AUTH_SESSION_TTL_HOURS",
+      "value": "720",
+      "description": "Maximum login-session lifetime in hours. The default is 720 hours (30 days).",
+      "required": true,
+      "mask": false
     },
     {
       "name": "Container Timezone",
@@ -74,6 +90,22 @@
       "key": "DAYFRONT_CALENDAR_TIMEZONE",
       "value": "local",
       "description": "Timezone used to display and interpret calendar values. Use local for each browser's timezone, UTC, or an IANA name such as America/Toronto.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Display Format",
+      "key": "DAYFRONT_UI_TIME_FORMAT",
+      "value": "12h",
+      "description": "Time display format. Use 12h for AM/PM or 24h for 24-hour time.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sidebar Open by Default",
+      "key": "DAYFRONT_UI_SIDEBAR_DEFAULT_OPEN",
+      "value": "false",
+      "description": "Set true to open the sidebar when DayFront loads; false starts with the calendar maximized.",
       "required": true,
       "mask": false
     },

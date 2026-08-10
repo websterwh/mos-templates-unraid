@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:5800]/",
   "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/backblaze.png",
   "project": "https://github.com/iamfoz/backblaze-64-personal-wine-container",
-  "description": "Backblaze Personal Backup running under Wine (64-bit Windows environment) on Ubuntu 24.04. Provides a web-based GUI via browser or VNC. Automatically keeps Backblaze updated to the latest version on each restart.",
+  "description": "Backblaze Personal Backup running under Wine (64-bit Windows environment) on Ubuntu 24.04. Provides a web-based GUI via browser or VNC, and keeps Backblaze updated to the latest version on each restart. Includes a live upload dashboard (bb-monitor, run from the container console), backup-aware health status on this Docker page, optional automatic recovery from stalled backups, and built-in diagnostic tools (bb-doctor, bb-report, bb-version). Note on the beta tag: the :beta image carries two patches to Wine's socket code that are not in the stable images. One is submitted upstream. The other is a workaround that deliberately differs from how Windows behaves, is not being submitted, and will be removed once the proper fix lands in Wine. It is there because it roughly triples upload throughput on high-latency connections. Use the stable tags unless upload speed is the reason you are here.",
   "paths": [
     {
       "name": "Config",
@@ -75,6 +75,22 @@
       "key": "GROUP_ID",
       "value": "500",
       "description": "GID the app runs as. On Unraid this is normally 100 (users), matching user-share ownership. Change only if your data is owned by a different group (check with: id -g).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Latest Update",
+      "key": "FORCE_LATEST_UPDATE",
+      "value": "true",
+      "description": "When true (the default), the container downloads the newest Backblaze client on each start. Set to false to keep the installed client version and skip the update check.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Watchdog",
+      "key": "ENABLE_WATCHDOG",
+      "value": "false",
+      "description": "Set to true to let the container recover automatically when a backup stalls: it clears a stale four-hour lock left behind by an out-of-memory kill or an unclean restart, and restarts deadlocked upload threads. Actions are written to the container log. Off by default because it deletes a lock file and kills processes.",
       "required": false,
       "mask": false
     },

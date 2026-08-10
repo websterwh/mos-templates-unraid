@@ -1,0 +1,49 @@
+{
+  "name": "lymow-toolkit",
+  "repo": "ghcr.io/appguy77/lymow-toolkit:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/AppGuy77/lymow-toolkit-downloads",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--security-opt seccomp=unconfined",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:8787/",
+  "icon": "https://raw.githubusercontent.com/AppGuy77/lymow-toolkit-downloads/main/lymow_toolkit/icon.png",
+  "project": "https://github.com/AppGuy77/lymow-toolkit-downloads",
+  "description": "Monitor and control a Lymow One / One Plus robot mower from your own server \u2014 live telemetry (battery, status, RTK GNSS position, motor temperature), continuous monitoring with alerts, remote control with a live camera, map and zone management, scheduling, and safety guards that pause and recover the mower automatically. Runs entirely on your hardware and talks to your own Lymow account. Independent community project \u2014 not affiliated with Lymow. HOST NETWORKING IS USED ON PURPOSE: on a NAS, Docker's bridge often will not forward published ports to the rest of the LAN, which shows up as \"works on localhost, refused from my phone\". The web UI is at http://[YOUR-SERVER-IP]:8787 once it is running.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/lymow-toolkit",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Where your login, settings, maps, history and backups are kept. Mount a DIRECTORY, never individual files \u2014 a missing file makes Docker create a directory in its place and cloud login then fails.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "LYMOW_DATA",
+      "key": "LYMOW_DATA",
+      "value": "/app/data",
+      "description": "Where the Toolkit stores its data inside the container. Leave this alone unless you changed the path above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LYMOW_PORT",
+      "key": "LYMOW_PORT",
+      "value": "8787",
+      "description": "Port the web UI listens on. With host networking this is the port on your server itself, so change it only if 8787 is already taken.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

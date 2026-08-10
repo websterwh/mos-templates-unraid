@@ -1,0 +1,67 @@
+{
+  "name": "Ente-Server",
+  "repo": "ghcr.io/ente/server:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/ente/ente/pkgs/container/server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/YoshiroMaximus/unraid-templates/main/ente/ente.png",
+  "project": "https://ente.io/",
+  "description": "Museum, the API server for Ente Photos and Ente Auth - an end-to-end encrypted, open source alternative to Google Photos. IMPORTANT: This container is only the API server. A full Ente stack also needs: 1. PostgreSQL (15+) - install from Community Apps. 2. MinIO or any S3-compatible object storage - install from Community Apps. 3. Ente-Web (companion template in this repo) for the browser app. Before first start you MUST create the config file at /mnt/user/appdata/ente/museum.yaml. The easiest way is the one-line setup script from the Unraid terminal, which generates it with all secrets filled in: sh -c \"$(curl -fsSL https://raw.githubusercontent.com/YoshiroMaximus/Unraid-templates/main/ente/setup.sh)\" If museum.yaml does not exist when the container starts, Docker will create it as an empty DIRECTORY and the server will fail - run the script first. Full guide: https://github.com/YoshiroMaximus/Unraid-templates Client apps (mobile/desktop/web) talk to this server on port 8080 and upload photos directly to your S3/MinIO endpoint, so both must be reachable from your devices.",
+  "paths": [
+    {
+      "name": "museum.yaml",
+      "host": "/mnt/cache/appdata/ente/museum.yaml",
+      "container": "/museum.yaml",
+      "mode": "ro",
+      "description": "Museum config file (DB credentials, S3 buckets, secret keys). Must exist as a FILE before first start - see the setup guide linked above.",
+      "required": true
+    },
+    {
+      "name": "Custom Assets",
+      "host": "/mnt/cache/appdata/ente/data",
+      "container": "/data",
+      "mode": "ro",
+      "description": "Optional folder for custom assets/overrides (e.g. mail templates). Safe to leave empty.",
+      "required": false
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/ente/logs",
+      "container": "/var/logs",
+      "mode": "rw",
+      "description": "Optional: persist museum log files outside the container.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Museum API port. All Ente clients (web, mobile, desktop) connect here.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for log timestamps, e.g. America/New_York.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

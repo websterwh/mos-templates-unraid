@@ -1,0 +1,99 @@
+{
+  "name": "handoff",
+  "repo": "ghcr.io/jackmeyer/handoff:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/jackmeyer/handoff",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/jackmeyer/handoff/main/icon.svg",
+  "project": "https://github.com/jackmeyer/handoff",
+  "description": "Handoff turns a file or folder on your server into a shareable download link with an expiry date. Mount a folder the way you would for any container and browse it in the admin interface. Click a file to share it and it is served straight off the share, so nothing is copied and no extra disk is used. Or share a whole folder and Handoff zips it once with no compression, which is the fast option for photos and video since they do not compress anyway. You can also drag a file into the browser to upload it. Every link can carry an expiry, an optional password, and an optional download limit. When a link expires it is deleted, along with anything Handoff created for it \u2014 an upload or a generated archive. Your mounted folder is read-only to Handoff \u2014 it is only ever read from, never written to or deleted from. Note on disk space: generated archives are written to the Appdata path, so zipping a folder needs as much free space there as the folder itself. Map Appdata somewhere with room if you plan to share large folders. Downloads support HTTP range requests, so a 40GB file survives a dropped connection and resumes instead of restarting. Meant to sit behind your existing reverse proxy. A settings panel in the web interface caps total download throughput in Mbps, so sharing a large file does not saturate your upload and make the rest of your connection unusable. The cap is shared across every active download rather than applied per connection, and changes take effect immediately.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/handoff",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, browser uploads, and generated zip archives live here. Needs room for the largest folder you plan to share as an archive.",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/user",
+      "container": "/library",
+      "mode": "ro",
+      "description": "The folder you want to browse and share files from, mounted read-only. Point it at a single share (for example /mnt/user/Photos) if you would rather not browse everything.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Handoff web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the upload interface. Minimum 8 characters \u2014 the container will not start without it. Download links are separate and do not need this.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Optional. The outside address of this app, for example https://share.example.com. Set it so the links you copy are the ones your recipients can actually open.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Speed limit",
+      "key": "MAX_MBPS",
+      "value": "",
+      "description": "Optional. Seeds the server-wide download speed limit in Mbps on first boot \u2014 for example 500 on a 1 gigabit uplink. After first boot the Settings panel in the web interface controls it and this value is ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,85 @@
+{
+  "name": "auto-mcs",
+  "repo": "macarooniman/auto-mcs:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/macarooniman/auto-mcs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true -t -i --health-cmd=nc -z 127.0.0.1 8080 --health-interval=30s --health-timeout=5s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/YoshiroMaximus/unraid-templates/main/auto-mcs/auto-mcs.png",
+  "project": "https://www.auto-mcs.com/",
+  "description": "auto-mcs is a cross-platform Minecraft server manager that creates and runs servers (Vanilla, Paper, Fabric, Forge, and more) in under a minute, with mod/plugin management, automatic backups, and a scripting console. This container exposes the auto-mcs interface as a web terminal (ttyd) on the Web UI port. Manage everything from your browser \u2014 no desktop client needed. SECURITY: This template requires you to set a Web UI Password at install (the upstream default is root / auto-mcs \u2014 don't use it). The web terminal grants shell access inside the container, so keep it on your LAN unless you've secured it. PORTS: 8080 is the web UI, 7001 is the Telepath remote-management API, and 25565 is the default port for the Minecraft server auto-mcs runs. auto-mcs opens a new port for every server you create \u2014 if you plan to run more than one, set Network Type to \"host\" so you don't have to add a port mapping for each. TIP: If Crafty Controller or another Minecraft server already uses port 25565, change the host port here to something free (e.g. 30000).",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/auto-mcs",
+      "container": "/root/.auto-mcs",
+      "mode": "rw",
+      "description": "auto-mcs configuration, all managed servers, world files, and backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Browser interface (ttyd web terminal). Change only the host (left) side if 8080 is already in use; leave the container side at 8080.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minecraft Server Port",
+      "host": "25565",
+      "container": "25565",
+      "protocol": "tcp",
+      "description": "Default port for the Minecraft server auto-mcs runs. Change the host port if Crafty or another server already uses 25565. Add more port mappings for additional servers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Telepath API Port",
+      "host": "7001",
+      "container": "7001",
+      "protocol": "tcp",
+      "description": "Optional Telepath remote-management API. Only expose this if you use Telepath; keep it off your WAN.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WEB_USERNAME",
+      "key": "WEB_USERNAME",
+      "value": "root",
+      "description": "Username for the web UI login. Default: root.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEB_PASSWORD",
+      "key": "WEB_PASSWORD",
+      "value": "",
+      "description": "Password for the web UI login. Set a strong password here (the upstream default is 'auto-mcs' \u2014 do not use it). The web terminal is a root shell inside the container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for log timestamps, e.g. America/New_York. Defaults to UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
