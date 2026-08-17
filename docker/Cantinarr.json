@@ -1,0 +1,83 @@
+{
+  "name": "Cantinarr",
+  "repo": "ghcr.io/windoze95/cantinarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/windoze95/cantinarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8585]/",
+  "icon": "https://raw.githubusercontent.com/windoze95/cantinarr/main/app/web/icons/Icon-512.png",
+  "project": "https://github.com/windoze95/cantinarr",
+  "description": "Your media server just learned to run itself. Cantinarr is one app over your whole media stack. The people in your house browse, request movies, TV, and books, and get a push notification when something is ready. You get everything behind that: Radarr, Sonarr, and Chaptarr controlled down to the individual episode, live queues for SABnzbd, qBittorrent, NZBGet, and Transmission, Tautulli activity, and Plex invites. Nobody but you sees an API key or a quality profile. When a download gets stuck, Cantinarr reads what your services already know and tells you in plain English what went wrong, then offers to fix it. You can also turn the agent on. It watches for the same problems, waits to see whether Sonarr or Radarr sorts things out on its own, and only then brings you something to approve. You set what it is allowed to do, and nothing destructive happens without your approval. It runs as one container on one port. The same process serves the web app, and the phone apps only ever talk to this server. Your arrs and download clients can stay on the internal network under names like http://radarr:7878, because Cantinarr never hands one of those URLs to a device to dial. API keys and download client passwords are AES-256-GCM encrypted in its database and never come back out through the API. Sign-in is passwordless by default, with passwords and passkeys available if you want them.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/cantinarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Cantinarr's database and its generated encryption key. Instance API keys, download-client passwords, and AI credentials are AES-256-GCM encrypted with that key, so back up this folder and keep it out of public shares.",
+      "required": true
+    },
+    {
+      "name": "Media library (optional, read-only)",
+      "host": "",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Only needed if you want signed-in users to download completed files (ebooks, audiobooks, movies, episodes) from your library. Map the share holding that library here, then set Media roots below to /media. Leave blank to keep file downloads off.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8585",
+      "container": "8585",
+      "protocol": "tcp",
+      "description": "Port for the Cantinarr web app and API. The container always listens on 8585; change only the host side if something else already uses it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Push gateway URL",
+      "key": "CANTINARR_PUSH_GATEWAY_URL",
+      "value": "https://push.julian.codes",
+      "description": "Enables push notifications to the iOS and Android apps. Leave it set and the server enrolls itself on first start and stores its own key in the appdata volume, with no signup and no account. Clear the field to disable push entirely, or point it at your own gateway.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "CANTINARR_PUBLIC_URL",
+      "value": "",
+      "description": "Origin your Radarr, Sonarr, and Chaptarr containers POST webhooks back to, so it has to be reachable from those containers. For example http://192.168.1.10:8585, or http://cantinarr:8585 on a shared Docker network. Leave blank to use whatever address you browse to. Set it explicitly behind a reverse proxy, because forwarded headers are deliberately ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media roots",
+      "key": "CANTINARR_MEDIA_ROOTS",
+      "value": "",
+      "description": "Comma-separated container paths that completed-media downloads may serve from. Empty keeps downloads disabled. After mapping the read-only library above, set this to /media, then map each arr-reported path to a folder beneath it in that instance's settings. A bare / is refused.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP OAuth issuer",
+      "key": "CANTINARR_OAUTH_ISSUER",
+      "value": "",
+      "description": "Only needed if you expose Cantinarr's Model Context Protocol endpoint to external AI clients through a reverse proxy. Set it to the canonical external HTTPS origin, for example https://cantinarr.example.com, and keep it stable, because changing it makes existing MCP clients reconnect.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

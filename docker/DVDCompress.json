@@ -1,0 +1,83 @@
+{
+  "name": "DVDCompress",
+  "repo": "hovee/dvdcompress:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/hovee/dvdcompress",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": "--gpus all --device /dev/sr0:/dev/sr0 --device /dev/sg0:/dev/sg0",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/hoveeman/DVDCompress/main/docs/icon.png",
+  "project": "https://github.com/hoveeman/DVDCompress",
+  "description": "Hardware-accelerated web application for authoring and burning standard-compliant DVD-Video (VIDEO_TS) and Blu-ray (BDMV) discs and ISO images with NVIDIA GPU acceleration (NVENC/NVDEC) and optical drive pass-through.",
+  "paths": [
+    {
+      "name": "Media Directory",
+      "host": "/mnt/cache/Media",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Path to your unencrypted video files (Movies, TV Shows, Home Videos)",
+      "required": true
+    },
+    {
+      "name": "Output Directory",
+      "host": "/mnt/cache/Media/dvd_output",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Destination for created ISO images",
+      "required": true
+    },
+    {
+      "name": "AppData Config",
+      "host": "/mnt/cache/appdata/dvdcompress",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Application state and configuration",
+      "required": true
+    },
+    {
+      "name": "Scratch Temp Directory",
+      "host": "/mnt/cache/appdata/dvdcompress/working",
+      "container": "/tmp/dvdcompress",
+      "mode": "rw",
+      "description": "Fast scratch space for transcoding and authoring",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU UUID or all for hardware transcoding",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "NVIDIA driver capabilities (all, compute, video, utility)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "Stackyard",
+  "repo": "ghcr.io/sandobserver/stackyard:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/SandObserver/Stackyard/main/templates/icon.svg",
+  "project": "https://github.com/SandObserver/Stackyard",
+  "description": "A self-hosted homelab dashboard you actually want to look at. Most dashboards are a wall of numbers and charts. Stackyard is the opposite: a calm, launcher-style grid of app tiles, folders, and a small number of genuinely useful widgets. Built to be glanced at a hundred times a day without feeling cluttered. Everything is set up from the browser. Add app tiles, group them into folders, arrange pages, and drop in widgets for the services you already run. Widgets cover Docker, system health, downloads, media, backups, network and more. Runs as one container with no external database and no runtime dependencies. Configuration and uploaded icons persist in the two paths below. Note: most homelab services live on private addresses. The Allow Private IPs setting below is on by default so links and widgets pointing at your other containers work. Turn it off to keep the SSRF guard enabled.",
+  "paths": [
+    {
+      "name": "Config Storage",
+      "host": "/mnt/cache/appdata/stackyard/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Dashboard configuration. Keep this, or every setting is lost on update.",
+      "required": true
+    },
+    {
+      "name": "Icon Storage",
+      "host": "/mnt/cache/appdata/stackyard/icons",
+      "container": "/icons",
+      "mode": "rw",
+      "description": "Icons you upload for your app tiles.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8700",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port the dashboard is reached on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Allow Private IPs",
+      "key": "ALLOW_PRIVATE_IPS",
+      "value": "true",
+      "description": "Let widgets and badges reach private addresses, which most homelab services use. Set to false to keep the SSRF guard on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker Socket Proxy URL",
+      "key": "SOCKET_PROXY_URL",
+      "value": "",
+      "description": "Optional. Address of a Docker socket proxy, for the Docker widgets. Example: http://socket-proxy:2375",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "",
+      "description": "Optional. Set to true when running behind a reverse proxy, so client addresses are read from the forwarded headers.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

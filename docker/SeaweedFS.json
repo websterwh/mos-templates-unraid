@@ -1,0 +1,94 @@
+{
+  "name": "SeaweedFS",
+  "repo": "chrislusf/seaweedfs:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/chrislusf/seaweedfs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:23646]",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/seaweedfs/icon.png?v=2",
+  "project": "https://github.com/seaweedfs/seaweedfs",
+  "description": "SeaweedFS is a fast, S3-API-compatible object store - a genuinely maintained, actively developed alternative now that MinIO's open-source Community Edition has been archived (Apr 2026) and its Docker images stopped receiving security updates in Sep 2025. This is a plug-and-play Unraid Community Applications template wrapping the OFFICIAL chrislusf/seaweedfs image. Runs the \"mini\" single-process mode by default: master, volume, filer, S3 API and admin UI all in one container, all data under one persistent /data mount. This is SeaweedFS's own documented single-node setup, not a cut-down mode - the same binary scales out to a real cluster later by adding volume servers elsewhere if you ever need that. S3 CLIENTS (rclone, mc, aws-cli, restic, most S3 SDKs) point at http://SERVER_IP:8333 with the access key / secret key set below - no other setup needed, a bucket is pre-created if you set one. SECURITY: leaving the Access Key / Secret Key EMPTY starts S3 in unauthenticated \"Allow All\" mode - fine for a quick local test, not for anything holding real data. Set both before pointing anything real at this. File ownership inside /data is handled automatically by the image's own entrypoint (fixed internal user, chowned on start) - there is no PUID/PGID to set.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/seaweedfs/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where every volume, filer metadata and admin config lives - this MUST be mapped or everything is lost on recreate. The image's entrypoint fixes ownership automatically on start (no PUID/PGID needed).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "S3 API Port",
+      "host": "8333",
+      "container": "8333",
+      "protocol": "tcp",
+      "description": "The S3-compatible endpoint every client (rclone, mc, aws-cli, restic, ...) connects to. This is the port that matters functionally.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin UI Port",
+      "host": "23646",
+      "container": "23646",
+      "protocol": "tcp",
+      "description": "Browser-based cluster admin UI (buckets, volumes, topology). This is what WebUI opens.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Master UI Port",
+      "host": "9333",
+      "container": "9333",
+      "protocol": "tcp",
+      "description": "Master node status page (volume/cluster health). Optional to expose, useful for monitoring.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Filer UI Port",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "Browsable file-listing UI over the same data, in filer terms rather than S3 buckets. Optional.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Access Key",
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "S3 access key. Leave BOTH this and Secret Key empty only for a throwaway local test - S3 then runs unauthenticated ('Allow All'). Set both before storing real data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "S3 secret key, paired with Access Key above. Use a real generated secret (e.g. openssl rand -hex 24), not a short password - this is what protects your data over the network.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Pre-create Bucket",
+      "key": "S3_BUCKET",
+      "value": "",
+      "description": "Optional. Name of a bucket to create automatically on first start (comma-separated for more than one, e.g. backups,media). Leave empty to create buckets yourself later via any S3 client.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

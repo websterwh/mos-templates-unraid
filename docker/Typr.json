@@ -1,0 +1,51 @@
+{
+  "name": "Typr",
+  "repo": "ghcr.io/max-prime-math/typr:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/max-prime-math/typr/pkgs/container/typr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --user=101:101 --read-only --tmpfs=/tmp:rw,nosuid,nodev,noexec,size=33554432 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=64 --memory=256m --memory-swap=256m --cpus=1",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/max-prime-math/typr/main/public/icons/icon-512.png",
+  "project": "https://typr.ca",
+  "description": "Local-first Typst, LaTeX, and Markdown workspace. The stable full image keeps projects in browser storage and needs no appdata volume. Trusted LAN/VPN use only; never expose it publicly.",
+  "paths": [
+    {
+      "name": "Compiler assets directory",
+      "host": "",
+      "container": "/compiler-assets",
+      "mode": "ro",
+      "description": "Optional exact compiler-release directory for lite/local only. Never map /, /mnt, /mnt/user, an appdata root, project files, or the Docker socket.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the Typr web interface. Container port must remain 8080.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Compiler asset mode",
+      "key": "TYPR_COMPILER_ASSETS_MODE",
+      "value": "local",
+      "description": "The full image uses local. For a lite image, use r2 without a mount or local with the exact matching read-only compiler pack.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

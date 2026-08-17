@@ -1,0 +1,75 @@
+{
+  "name": "Sleutharr",
+  "repo": "dsopinka123/sleutharr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/dsopinka123/sleutharr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Dsopinka/sleutharr/main/unraid/icon.png",
+  "project": "https://sleutharr.com",
+  "description": "BETA. Actively developed and stable to run, but new: the part still settling is whether every verdict is right on setups I have not seen. If it ever tells you something confidently wrong, that is the bug I most want reported. Sleutharr answers one question: \"I requested this - where did it die?\" It stitches a single request into one timeline across your request manager, Sonarr/Radarr, your download client and your media server, then tells you where the chain broke and what to do about it. Supports Seerr, Overseerr, Jellyseerr and Ombi; Sonarr and Radarr (any number of instances, including 4K splits); qBittorrent, Transmission, Deluge, SABnzbd and NZBGet; and Plex, Jellyfin and Emby. Read-only by default. The one exception is a \"remove and blocklist\" button for stuck downloads, which always asks for confirmation and never runs automatically. All service URLs and API keys are configured in the web UI, not through environment variables. Add your services on the Settings page after first start, then press \"Find my other services\" and Sleutharr will read the rest of your setup for you.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/sleutharr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds the SQLite database, the generated secret key, and logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Sleutharr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns files written to /config.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns files written to /config.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone, e.g. Europe/London. Affects displayed timestamps.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CSRF trusted origins",
+      "key": "SLEUTHARR_CSRF_TRUSTED_ORIGINS",
+      "value": "",
+      "description": "Only needed behind an https reverse proxy. Comma-separated, e.g. https://sleutharr.example.com",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

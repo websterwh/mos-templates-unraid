@@ -1,0 +1,107 @@
+{
+  "name": "obsidian-vault-mcp",
+  "repo": "ghcr.io/jakergirard/obsidian-vault-mcp:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/jakergirard/obsidian-vault-mcp/pkgs/container/obsidian-vault-mcp",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/jakergirard/obsidian-vault-mcp/main/icon.png",
+  "project": "https://github.com/jakergirard/obsidian-vault-mcp",
+  "description": "MCP server + Obsidian Sync in one container. Keeps a live copy of your Obsidian vault synced via obsidian-headless and exposes it to Claude (or any MCP client) over Streamable HTTP with bearer-token auth, so Claude can read and write your notes from any device. Requires an Obsidian Sync subscription. To reach it from Claude web/mobile you must expose it over public HTTPS (Tailscale Funnel, Cloudflare Tunnel, or a reverse proxy) because Claude's connectors originate from Anthropic's cloud. See the project README for setup recipes. Note: obsidian-headless is downloaded from npm on first start (it is not bundled in the image).",
+  "paths": [
+    {
+      "name": "Vault",
+      "host": "/mnt/cache/appdata/obsidian-vault-mcp/vault",
+      "container": "/vault",
+      "mode": "rw",
+      "description": "Local synced copy of your Obsidian vault.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/obsidian-vault-mcp/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent state: Obsidian Sync session, obsidian-headless install, generated MCP token.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "MCP Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port the MCP server listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Obsidian Email",
+      "key": "OBSIDIAN_EMAIL",
+      "value": "",
+      "description": "Obsidian account email. Leave blank to log in manually with: docker exec -it obsidian-vault-mcp ob login",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Obsidian Password",
+      "key": "OBSIDIAN_PASSWORD",
+      "value": "",
+      "description": "Obsidian ACCOUNT password (not the vault encryption password). Leave blank to log in manually.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Obsidian TOTP Secret",
+      "key": "OBSIDIAN_TOTP_SECRET",
+      "value": "",
+      "description": "Base32 TOTP secret if 2FA is enabled on your Obsidian account (the secret, not a 6-digit code).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Vault Password (E2E)",
+      "key": "OBSIDIAN_VAULT_PASSWORD",
+      "value": "",
+      "description": "Vault end-to-end encryption password, set when the remote vault was created. This is NOT your account password. Leave blank only if the vault uses standard (non-E2E) encryption.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Vault Name",
+      "key": "OBSIDIAN_VAULT",
+      "value": "",
+      "description": "Name of the remote vault to sync, exactly as it appears in Obsidian Sync.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MCP Token",
+      "key": "MCP_TOKEN",
+      "value": "",
+      "description": "Access token used in the connector URL: https://host/t/token/mcp. Leave blank to auto-generate one (printed in the container log and saved to /data/mcp_token).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Read Only",
+      "key": "READ_ONLY",
+      "value": "false",
+      "description": "Set to true to disable write_note/append_note/patch_note.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

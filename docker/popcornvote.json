@@ -1,0 +1,91 @@
+{
+  "name": "popcorn-vote",
+  "repo": "ghcr.io/stadicus/popcorn-vote:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Stadicus/popcorn-vote/pkgs/container/popcorn-vote",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Stadicus/popcorn-vote/main/static/icon-512.png",
+  "project": "https://popcornvote.org",
+  "description": "Fair family movie night voting. Everyone suggests films, gets one vote a week and can save votes up, so a film only one person wants wins eventually too. Ties are settled by a wheel of fortune, and watched films go into a shared rated archive with star ratings. Mobile-first and installable as a PWA. Nine interface languages. Film data, posters and trailers come from TMDB, IMDb ratings through OMDb; both services are free for private use and each needs its own key. Everything is configured in the browser on first start: family PIN, members, both API keys and the languages. No configuration file to edit, no console needed.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/popcorn-vote",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, downloaded posters and the nightly backups. This is the only thing worth backing up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port the web interface listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDB API key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Free key from themoviedb.org, used for search, posters, descriptions and trailers. May be left empty here and entered in the browser during first-run setup instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OMDb API key",
+      "key": "OMDB_API_KEY",
+      "value": "",
+      "description": "Free key from omdbapi.com, used for the IMDb rating only. Optional. May also be entered during first-run setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "PV_TIMEZONE",
+      "value": "Europe/Berlin",
+      "description": "Decides when the weekly vote credit is handed out. Use your own zone, for example America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Family PIN",
+      "key": "PV_PIN",
+      "value": "",
+      "description": "Four digits, shared by the whole family. Leave empty to set it in the browser on first start, which is the recommended way: a PIN entered here is stored in the container template in plain text.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Session timeout",
+      "key": "PV_SESSION_TIMEOUT",
+      "value": "",
+      "description": "Seconds without activity before a device has to enter the PIN again. Default is one year, matching the trusted family tablet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "",
+      "description": "error, warn, info or debug. Default is info.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

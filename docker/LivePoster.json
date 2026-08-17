@@ -1,0 +1,147 @@
+{
+  "name": "LivePoster",
+  "repo": "drgonzo65/liveposter:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/drgonzo65/liveposter",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/DrGonzo65/liveposter/master/icon.png",
+  "project": "https://github.com/DrGonzo65/liveposter",
+  "description": "Turns any screen into a movie poster display for your home theatre. LivePoster watches your Kaleidescape, Plex and Jellyfin systems: when something is playing it shows that title's poster, tagline, rating and progress; when nothing is playing it cycles your library as a \"Coming Soon\" slideshow. Point a wall-mounted TV or tablet at it in kiosk mode. Artwork and metadata come from TheMovieDB, with optional Rotten Tomatoes scores from OMDb. A built-in management UI lets you correct any title that matched the wrong film and exclude titles from the slideshow, and content filters keep chosen ratings off the screen. REQUIRES a free TheMovieDB account - both the API Key and the API Read Access Token - plus at least one media system. The app starts without them and shows a setup screen telling you what is missing. NOTE: LivePoster has no authentication. It is designed for a trusted home network; do not expose it to the internet. Kaleidescape users: set the Player IP to the device that plays movies, and the Movie Server IP to the device that stores them (a Terra). On an all-in-one system such as a Strato V, set only the Player IP. Getting these backwards is the most common setup mistake - the slideshow works but \"Now Playing\" never appears. The container log says so explicitly if it detects it.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/liveposter/cache",
+      "container": "/app/.cache",
+      "mode": "rw",
+      "description": "Stores the metadata cache and any settings saved from the web UI. Keep this mapped or you re-scan your library on every update.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDb API Key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "TheMovieDB API Key (v3 auth). Free from themoviedb.org - Settings, API.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TMDb Read Access Token",
+      "key": "TMDB_READ_TOKEN",
+      "value": "",
+      "description": "TheMovieDB API Read Access Token (v4 auth), from the same page as the API key. Both values are required.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Kaleidescape Player IP",
+      "key": "KALEIDESCAPE_PLAYER_HOST",
+      "value": "",
+      "description": "IP of your Kaleidescape PLAYER - the device that reports what is playing (e.g. 192.168.1.50). On an all-in-one system such as a Strato V, this is your only Kaleidescape setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Kaleidescape Movie Server IP",
+      "key": "KALEIDESCAPE_SERVER_HOST",
+      "value": "",
+      "description": "IP of the Kaleidescape MOVIE SERVER that stores your library, such as a Terra (e.g. 192.168.1.51). Leave blank if the player and server are the same device.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Kaleidescape Control Port",
+      "key": "KALEIDESCAPE_PORT",
+      "value": "10000",
+      "description": "Kaleidescape control protocol port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin server URL including port (e.g. http://192.168.1.61:8096)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API Key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Jellyfin API key, from Dashboard, API Keys",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Plex server URL including port (e.g. http://192.168.1.60:32400)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Plex authentication token (X-Plex-Token)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OMDb API Key",
+      "key": "OMDB_API_KEY",
+      "value": "",
+      "description": "Optional. Adds Rotten Tomatoes scores. Free key from omdbapi.com.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Display Scale",
+      "key": "DISPLAY_SCALE",
+      "value": "1.0",
+      "description": "Text scaling for the display, 0.5 to 3.0. Also adjustable live in the settings UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poll Interval",
+      "key": "POLL_INTERVAL",
+      "value": "10000",
+      "description": "How often to check for playback changes (milliseconds)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Slideshow Interval",
+      "key": "SLIDESHOW_INTERVAL",
+      "value": "30000",
+      "description": "How long each poster stays on screen when idle (milliseconds)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

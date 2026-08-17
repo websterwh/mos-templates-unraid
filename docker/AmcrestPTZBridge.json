@@ -1,0 +1,131 @@
+{
+  "name": "Amcrest-PTZ-Bridge",
+  "repo": "ghcr.io/gaming09/amcrest-ptz-bridge:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/gaming09/amcrest-ptz-bridge/pkgs/container/amcrest-ptz-bridge",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m --cap-drop=ALL --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:18880]/health",
+  "icon": "https://raw.githubusercontent.com/gaming09/amcrest-ptz-bridge/main/icon.png",
+  "project": "https://github.com/gaming09/amcrest-ptz-bridge",
+  "description": "Expose the local DVRIP pan and tilt controls of an Amcrest SmartHome camera as an ONVIF PTZ service for Frigate. Video and audio remain direct between the camera and Frigate; this bridge handles movement commands only. Frigate configuration (add this block to the existing camera definition): cameras: patio_camera: # Existing ffmpeg, detect, objects, zones, and other settings stay here. # Add this block to this existing camera definition. onvif: host: 192.0.2.10 # Replace with the Unraid server LAN address. port: 18880 # Match this bridge instance's ONVIF host port. user: \"\" password: \"\"",
+  "paths": [
+    {
+      "name": "Camera password secret file",
+      "host": "",
+      "container": "/run/secrets/camera_password",
+      "mode": "rw",
+      "description": "Optional host file containing only the camera password. When used, choose the host file here and set Camera password file to /run/secrets/camera_password. Leave blank to use Camera password.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "ONVIF host port",
+      "host": "18880",
+      "container": "18880",
+      "protocol": "tcp",
+      "description": "Port Frigate uses to reach this camera's ONVIF PTZ facade. Use a unique host port for each installed camera.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Camera name",
+      "key": "CAMERA_NAME",
+      "value": "amcrest-camera",
+      "description": "Friendly name reported by the ONVIF service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Camera IP or hostname",
+      "key": "CAMERA_HOST",
+      "value": "",
+      "description": "LAN address of the Amcrest camera, for example 192.0.2.25 (replace this documentation-only address).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Camera username",
+      "key": "CAMERA_USERNAME",
+      "value": "admin",
+      "description": "Local camera account with PTZ permission.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Camera password",
+      "key": "CAMERA_PASSWORD",
+      "value": "",
+      "description": "Local camera password. Leave blank when using the optional secret-file settings below. This is masked in the form but remains available to Docker as an environment value.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Camera password file",
+      "key": "CAMERA_PASSWORD_FILE",
+      "value": "",
+      "description": "Optional container path for the mounted password file. Set to /run/secrets/camera_password when using Camera password secret file; otherwise leave blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Camera DVRIP port",
+      "key": "CAMERA_PORT",
+      "value": "37777",
+      "description": "Local Dahua DVRIP service port. Most Amcrest SmartHome cameras use 37777.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Camera model",
+      "key": "CAMERA_MODEL",
+      "value": "Amcrest SmartHome PTZ",
+      "description": "Model label reported to ONVIF clients.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Camera channel",
+      "key": "CAMERA_CHANNEL",
+      "value": "0",
+      "description": "DVRIP camera channel. Standalone cameras normally use channel 0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum move time",
+      "key": "MAX_MOVE_SECONDS",
+      "value": "1.25",
+      "description": "Fail-safe maximum movement duration in seconds if an ONVIF Stop request is lost.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed clients",
+      "key": "ALLOWED_CLIENTS",
+      "value": "",
+      "description": "Optional comma-separated IP/CIDR allowlist. Leave empty to accept any client that can reach the published LAN port. Docker NAT may present clients as a 172.16.0.0/12 gateway address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Python log level: DEBUG, INFO, WARNING, or ERROR.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

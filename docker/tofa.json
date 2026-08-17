@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:33333",
   "icon": "https://raw.githubusercontent.com/tofatv/unraid-templates/main/icon.png",
   "project": "https://tofa.tv/",
-  "description": "tofa is a media server for your movies and shows. One container runs everything, including its own database and automatic backups. Point it at your media, claim it with your tofa account, and watch on the web, Apple TV, iPhone, iPad, Android TV, and Windows. First start: open http://[your-server]:33333 from a device on your network and sign in to claim the server. Config note: keep the app data path on a fast pool device (the default below uses /mnt/cache). tofa runs its own database in there; database files on the /mnt/user FUSE layer are slower and not recommended. tofa is in beta and needs a tofa account. Sign up at https://tofa.tv.",
+  "description": "tofa is a media server for your movies and shows. One container runs everything, including its own database and automatic backups. Point it at your media, claim it with your tofa account, and watch on the web, Apple TV, iPhone, iPad, Android TV, and Windows. First start: open http://[your-server]:33333 from a device on your network and sign in to claim the server. Config note: keep the app data path on a fast pool device. tofa runs its own database in there, and database files on the /mnt/user FUSE layer are slower and not recommended. The default path assumes your pool is named cache. If yours has a different name, change the path to match it, for example /mnt/main_cache/appdata/tofa. Unraid creates a missing path on its RAM-backed root rather than failing, so leaving the default on a differently-named pool means everything tofa stores is lost on reboot. tofa is in beta and needs a tofa account. Sign up at https://tofa.tv.",
   "paths": [
     {
       "name": "Config",
       "host": "/mnt/cache/appdata/tofa",
       "container": "/data",
       "mode": "rw",
-      "description": "tofa's own data: database, backups, transcode cache, logs. Keep this on a pool (cache) device, not /mnt/user.",
+      "description": "tofa's own data: database, backups, transcode cache, logs. Keep this on a pool device, not /mnt/user. The default assumes your pool is named cache. If yours has a different name, change the path to match it, for example /mnt/main_cache/appdata/tofa. A path that does not exist is created on Unraid's RAM-backed root instead of failing, and everything written there is lost when the server reboots.",
       "required": true
     },
     {
@@ -33,7 +33,17 @@
       "required": true
     }
   ],
-  "ports": [],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "33333",
+      "container": "33333",
+      "protocol": "tcp",
+      "description": "tofa's web interface port. Under host networking this is informational; on bridge or a custom network it publishes the port.",
+      "required": true,
+      "mask": false
+    }
+  ],
   "variables": [
     {
       "name": "PUID",

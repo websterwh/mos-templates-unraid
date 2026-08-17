@@ -1,10 +1,10 @@
 {
   "name": "netbootxyz",
-  "repo": "netbootxyz/netbootxyz",
+  "repo": "lscr.io/linuxserver/netbootxyz",
   "category": [
     "Network"
   ],
-  "registry": "https://github.com/netbootxyz/docker-netbootxyz",
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/netbootxyz",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
@@ -12,25 +12,25 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:3000]",
-  "icon": "https://raw.githubusercontent.com/tajniak81/unraid-docker-templates/refs/heads/main/netbootxyz/icon/netbootxyz.png",
-  "project": "https://netboot.xyz/",
-  "description": "netboot.xyz lets you PXE boot various operating system installers or utilities from a single tool over the network. This lets you use one media for many types of operating systems or tools. The iPXE project is used to provide a user friendly menu from within the BIOS that lets you easily choose the operating system you want along with any specific types of versions or bootable flags. You can remote attach the ISO to servers, set it up as a rescue option in Grub, or even set up your home network to boot to it by default so that it's always available. https://netboot.xyz/ https://github.com/netbootxyz/docker-netbootxyz",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/netbootxyz-logo.png",
+  "project": "https://netboot.xyz",
+  "description": "Netbootxyz(https://netboot.xyz) is a way to PXE boot various operating system installers or utilities from one place within the BIOS without the need of having to go retrieve the media to run the tool. iPXE is used to provide a user friendly menu from within the BIOS that lets you easily choose the operating system you want along with any specific types of versions or bootable flags.",
   "paths": [
     {
       "name": "Appdata",
-      "host": "/mnt/cache/appdata/netbootxyz/config",
+      "host": "",
       "container": "/config",
       "mode": "rw",
-      "description": "Storage for boot menu files and web application config.",
+      "description": "Storage for boot menu files and web application config",
       "required": true
     },
     {
-      "name": "Assets",
-      "host": "/mnt/cache/appdata/netbootxyz/assets",
+      "name": "Path: /assets",
+      "host": "",
       "container": "/assets",
       "mode": "rw",
-      "description": "Storage for netboot.xyz bootable assets (live CDs and other files).",
-      "required": true
+      "description": "Storage for NETBOOT.XYZ bootable assets (live CDs and other files)",
+      "required": false
     }
   ],
   "ports": [
@@ -44,7 +44,7 @@
       "mask": false
     },
     {
-      "name": "Port 69 UDP",
+      "name": "Port: 69",
       "host": "69",
       "container": "69",
       "protocol": "udp",
@@ -58,7 +58,7 @@
       "container": "80",
       "protocol": "tcp",
       "description": "NGINX server for hosting assets.",
-      "required": true,
+      "required": false,
       "mask": false
     }
   ],
@@ -66,32 +66,48 @@
     {
       "name": "MENU_VERSION",
       "key": "MENU_VERSION",
-      "value": "2.0.88",
-      "description": "Specify a specific version of boot files you want to use from netboot.xyz (unset pulls latest)",
-      "required": true,
+      "value": "1.9.9",
+      "description": "Specify a specific version of boot files you want to use from NETBOOT.XYZ (unset pulls latest)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT_RANGE",
+      "key": "PORT_RANGE",
+      "value": "30000:30010",
+      "description": "Specify the port range tftp will use for data transfers (see Wikipedia)(https://en.wikipedia.org/wiki/Trivial_File_Transfer_Protocol#Details)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SUBFOLDER",
+      "key": "SUBFOLDER",
+      "value": "/",
+      "description": "Specify a subfolder if running this behind a reverse proxy (IE /proxy/)",
+      "required": false,
       "mask": false
     },
     {
       "name": "NGINX_PORT",
       "key": "NGINX_PORT",
       "value": "80",
-      "description": "Specify a different port for NGINX service to listen on.",
-      "required": true,
+      "description": "Specify a different internal port for the asset server",
+      "required": false,
       "mask": false
     },
     {
       "name": "WEB_APP_PORT",
       "key": "WEB_APP_PORT",
       "value": "3000",
-      "description": "Specify a different port for the web configuration interface to listen on.",
-      "required": true,
+      "description": "Specify a different internal port for the configuration UI",
+      "required": false,
       "mask": false
     },
     {
       "name": "PUID",
       "key": "PUID",
       "value": "500",
-      "description": "UserID for volume permissions.",
+      "description": "Container Variable: PUID",
       "required": true,
       "mask": false
     },
@@ -99,8 +115,16 @@
       "name": "PGID",
       "key": "PGID",
       "value": "500",
-      "description": "GroupID for volume permissions.",
+      "description": "Container Variable: PGID",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Container Variable: UMASK",
+      "required": false,
       "mask": false
     }
   ],

@@ -1,0 +1,105 @@
+{
+  "name": "DockRoute",
+  "repo": "ghcr.io/dockroute/dockroute:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/Dockroute/Dockroute/pkgs/container/dockroute",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://github.com/Dockroute.png?raw=1",
+  "project": "https://www.dockroute.dev",
+  "description": "External-DNS for plain Docker hosts: DockRoute watches your running containers, reads dockroute.* labels and reconciles the matching DNS records - and Cloudflare Tunnel routes - in a pluggable provider. Your Docker labels are the source of truth; DockRoute makes the provider match them, and never alters records it cannot prove it manages (ExternalDNS-style TXT ownership). Opt a container in with labels: dockroute.enabled=true and dockroute.hostname=app.example.com. Start with the default 'log' provider for a zero-credential dry run, then switch to 'cloudflare'. Docs: https://www.dockroute.dev",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker Engine socket (read-only). DockRoute only listens to events and lists containers.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Provider",
+      "key": "DOCKROUTE_PROVIDER",
+      "value": "log",
+      "description": "DNS provider: 'log' (dry run, prints desired state, no credentials needed) or 'cloudflare'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Owner ID",
+      "key": "DOCKROUTE_OWNER_ID",
+      "value": "default",
+      "description": "Ownership id written to companion TXT records; lets several DockRoute instances share a zone safely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync policy",
+      "key": "DOCKROUTE_POLICY",
+      "value": "sync",
+      "description": "sync = create/update/delete owned records; upsert-only = never delete; create-only = never update or delete.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default target",
+      "key": "DOCKROUTE_DEFAULT_TARGET",
+      "value": "",
+      "description": "Fallback record value (IP or CNAME target) when a container omits the dockroute.target label. E.g. your server's LAN or WAN IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Domain filter",
+      "key": "DOCKROUTE_DOMAIN_FILTER",
+      "value": "",
+      "description": "Optional comma-separated allowlist of DNS zones DockRoute may touch. Empty = all zones the token can see.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resync interval (seconds)",
+      "key": "DOCKROUTE_RESYNC_SECONDS",
+      "value": "60",
+      "description": "Interval of the periodic full reconcile that backs up the event stream.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare API token",
+      "key": "CLOUDFLARE_API_TOKEN",
+      "value": "",
+      "description": "Required when provider is cloudflare. Needs Zone > DNS > Edit (+ Account > Cloudflare Tunnel > Edit for tunnel publishing).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloudflare account ID",
+      "key": "CLOUDFLARE_ACCOUNT_ID",
+      "value": "",
+      "description": "Only needed for Cloudflare Tunnel publishing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare tunnel ID",
+      "key": "CLOUDFLARE_TUNNEL_ID",
+      "value": "",
+      "description": "Only needed for Cloudflare Tunnel publishing. Uses an existing tunnel - you keep running cloudflared yourself.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

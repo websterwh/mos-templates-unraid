@@ -1,0 +1,123 @@
+{
+  "name": "VynodeArr",
+  "repo": "ghcr.io/minerport/vynodearr-unified:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/minerport/VynodeArr-Unified/pkgs/container/vynodearr-unified",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8686]",
+  "icon": "https://raw.githubusercontent.com/minerport/VynodeArr-Unified/main/assets/branding/VynodeArr.png",
+  "project": "https://github.com/minerport/VynodeArr-Unified",
+  "description": "VynodeArr is a unified, self-hosted movie and television automation platform built for Unraid. It combines installation-managed Radarr and Sonarr engines behind one secure dashboard while keeping their databases, settings, credentials, and operations isolated. Browse and manage movie and television libraries, add and monitor media, handle user requests, discover new titles, run automatic or interactive searches, review releases, and manage wanted items, queues, history, calendars, seasons, episodes, collections, and media files. Configure quality profiles, custom formats, release rules, root folders, indexers\u2014including Prowlarr-compatible Newznab and Torznab sources\u2014download clients, import lists, remote path mappings, notifications, backups, and health monitoring directly from VynodeArr. VynodeArr also includes a complete Poster Overlay Studio with reusable layers, text, shapes, icons, metadata-driven conditions, real-poster previews, reusable components, poster-pack import and export, Plex artwork application, assignment review, rollback protection, and independent movie and television designs. Use the bundled engines, connect external Radarr or Sonarr instances independently, or run a mixed configuration. Multi-instance support allows separate libraries and engine destinations to be managed from the same interface without imposing movie or television library-size limits. Radarr and Sonarr are independent GPLv3 projects maintained by their respective contributors. VynodeArr is licensed under the Apache License 2.0.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/vynodearr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent VynodeArr accounts, settings, backups, and isolated engine databases. Back up this folder before removal.",
+      "required": true
+    },
+    {
+      "name": "Main media folder (optional)",
+      "host": "",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Recommended for multiple libraries beneath one parent share. Example host path: /mnt/user/media. VynodeArr scans only direct child folders such as /media/movies, /media/movies-4k, /media/tv, or /media/anime-tv and lets you assign each one to Movies or Television under Service Settings. Leave blank to use only the legacy /movies and /tv mappings.",
+      "required": false
+    },
+    {
+      "name": "Legacy movie library (optional)",
+      "host": "",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Backward-compatible movie mapping for existing installations or a simple single-library setup. Leave blank when /media exposes this library as a child folder.",
+      "required": false
+    },
+    {
+      "name": "Legacy television library (optional)",
+      "host": "",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Backward-compatible television mapping for existing installations or a simple single-library setup. Leave blank when /media exposes this library as a child folder.",
+      "required": false
+    },
+    {
+      "name": "Completed downloads",
+      "host": "/mnt/cache/downloads/complete",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Completed-download share accessible to VynodeArr and your download client. Keep this container path as /downloads.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8686",
+      "container": "8686",
+      "protocol": "tcp",
+      "description": "Host port used to open the VynodeArr web interface and compatibility APIs.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Download client remote path",
+      "key": "VYNODEARR_DOWNLOAD_CLIENT_REMOTE_PATH",
+      "value": "/data/complete",
+      "description": "Container path reported by the download client for completed files, for example /data/complete. VynodeArr maps it to /downloads.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "IANA timezone used for schedules and displayed dates, for example America/New_York.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TMDB read token (optional)",
+      "key": "TMDB_API_READ_TOKEN",
+      "value": "",
+      "description": "Optional token for Discover during first start. It can be added or replaced later under Service Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTPS-only cookies",
+      "key": "VYNODEARR_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set to true only when every browser connection reaches VynodeArr through HTTPS.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "VYNODEARR_LOG_LEVEL",
+      "value": "info",
+      "description": "Controls VynodeArr container detail: error, warn, info, or debug. Use debug temporarily when troubleshooting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log format",
+      "key": "VYNODEARR_LOG_FORMAT",
+      "value": "pretty",
+      "description": "Use pretty for readable Unraid and Docker logs, or json for structured log collectors.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

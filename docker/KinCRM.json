@@ -1,0 +1,91 @@
+{
+  "name": "Kin-CRM",
+  "repo": "ghcr.io/ock666/kin-crm:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/ock666/kin-crm",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/ock666/Kin-CRM/main/images/kin-logo.png",
+  "project": "https://github.com/ock666/Kin-CRM",
+  "description": "Kin is a self-hosted personal relationship manager built for neurodivergent brains (AuDHD, RSD, social anxiety). It helps you remember your people without the pressure. **What Kin does:** - Track people and relationships with rich profiles, tags, birthdays, and check-in cadences - Journal interactions -- log what happened, how much energy it cost, and attach photos from Immich - Resolve conflicts with an AI-assisted support chat and auto-generated resolution plans - Get gentle, never-punitive reminders to stay in touch - Gamification with achievements (including rest achievements like snoozing or grace mode) **First run:** Kin auto-detects an empty database and walks you through a setup wizard to create your admin account. No environment variables needed beyond what is shown below. **AI features (optional):** Set your OpenAI or Ollama API credentials in the Settings page after setup. Kin works perfectly without AI -- it falls back gracefully. **Immich integration (optional):** Connect your Immich server in Settings to attach face-linked photos to journal entries. **Database:** SQLite by default (stored in /data). Optionally connect to PostgreSQL via the DATABASE_URL variable.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/kin-crm",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent data directory (SQLite database, uploads, session secret).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "HTTP port for the Kin web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the container as. Ensures file ownership matches your Unraid users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the container as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for daily scheduled jobs (birthday reminders, Instagram polling).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Scheduler",
+      "key": "DISABLE_SCHEDULER",
+      "value": "0",
+      "description": "Set to 1 to disable background scheduled jobs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Optional PostgreSQL connection string. Leave empty to use the built-in SQLite database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Optional fixed session secret. Auto-generated and persisted to /data if left empty.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

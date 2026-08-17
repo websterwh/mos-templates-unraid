@@ -1,0 +1,91 @@
+{
+  "name": "commonplace-multi",
+  "repo": "ghcr.io/cansas/commonplace-multi:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8765]/",
+  "icon": "https://raw.githubusercontent.com/cansas/commonplace-multi/main/.unraid/icon.svg",
+  "project": "https://github.com/cansas/commonplace-multi",
+  "description": "Commonplace Multi-User is a self-hosted Readwise alternative with multi-user support \u2014 capture, browse, review, and resurface your book and article highlights. Built on the original Commonplace with per-user scoping, invite-based registration, and independent settings per user. Features: \u2022 All single-user features \u2014 import from KOReader, Kindle, Obsidian, Readwise API \u2022 Multi-user support \u2014 each user gets their own highlights, tags, settings, and review queue \u2022 Admin invite system \u2014 admin creates one-time invite tokens, users register with password \u2022 Per-user BookOrbit sync \u2014 each user can sync their own BookOrbit annotations \u2022 Per-user push notification settings and review reminders \u2022 Full-text search with filter by source, tags, favorites, and book \u2022 Multi-source cover art via Hardcover.app and Open Library \u2022 Achievement system with per-user streak tracking \u2022 Backup & restore database and covers as ZIP \u2022 Responsive mobile UI with PWA push notification support First run: Open the web UI and the setup wizard will guide you through creating your admin account. Then invite additional users via the Admin panel.",
+  "paths": [
+    {
+      "name": "Data path",
+      "host": "/mnt/cache/appdata/commonplace-multi/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for SQLite database, covers, backups, and settings. Maps to /app/data in the container.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8765",
+      "container": "8765",
+      "protocol": "tcp",
+      "description": "Main web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Secret key for signing session cookies and CSRF tokens. If left empty, a random one is generated and persisted in data/.session_secret on first start. Set explicitly for production to avoid invalidating sessions on restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Timezone for the container (used by the email digest scheduler and review timestamps).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COMMONPLACE_USERNAME",
+      "key": "COMMONPLACE_USERNAME",
+      "value": "",
+      "description": "Optional \u2014 admin username for auto-creating the initial account on first start. If not set, the setup wizard prompts for credentials in the browser on first launch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "COMMONPLACE_PASSWORD",
+      "key": "COMMONPLACE_PASSWORD",
+      "value": "",
+      "description": "Optional \u2014 admin password. Must be set together with COMMONPLACE_USERNAME if that is set. Ignored if USERNAME is empty.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SESSION_HTTPS_ONLY",
+      "key": "SESSION_HTTPS_ONLY",
+      "value": "false",
+      "description": "Set to 'true' if you access Commonplace over HTTPS with a valid certificate. Ensures the session cookie is only sent over encrypted connections. Keep 'false' for LAN-only HTTP access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HARDCOVER_API_KEY",
+      "key": "HARDCOVER_API_KEY",
+      "value": "",
+      "description": "Optional \u2014 API key for Hardcover.app for better book cover art. Can also be set later from the Settings page in the web UI. When empty, falls back to Open Library covers (no key needed).",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

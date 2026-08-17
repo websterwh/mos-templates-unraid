@@ -1,0 +1,251 @@
+{
+  "name": "media-vault",
+  "repo": "ghcr.io/halvar20000/media-vault:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/halvar20000/media-vault/pkgs/container/media-vault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4000]",
+  "icon": "https://raw.githubusercontent.com/halvar20000/media-vault/main/icon.png",
+  "project": "https://github.com/halvar20000/media-vault",
+  "description": "\u26a0 SETUP FIRST: media-vault needs a separate PostgreSQL 16 database \u2014 install a \"postgres:16-alpine\" container first, then set this container's DB Host/Port/Name/User/Password to point at it. A self-hosted, open-source catalog for physical media (games, movies, vinyl, CDs) with automatic cover/rating/description enrichment and a signature spine-shelf view. \ud83d\udcd6 Full setup guide (install, get the free artwork keys, add them in the app): https://github.com/halvar20000/media-vault/blob/main/docs/INSTALL.md",
+  "paths": [
+    {
+      "name": "Covers Volume",
+      "host": "/mnt/cache/appdata/media-vault/covers",
+      "container": "/app/data/covers",
+      "mode": "rw",
+      "description": "Where cached cover images are stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "4000",
+      "protocol": "tcp",
+      "description": "Port the app is reached on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DB Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "Postgres container IP or hostname.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Postgres port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB Name",
+      "key": "POSTGRES_DB",
+      "value": "mediavault",
+      "description": "Database name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB User",
+      "key": "POSTGRES_USER",
+      "value": "mediavault",
+      "description": "Database user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Database password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session Secret (optional)",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Leave BLANK \u2014 one is auto-generated and saved on first boot. Only set this if you want to supply your own long random string (e.g. from: openssl rand -base64 32).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "App Origin",
+      "key": "APP_ORIGIN",
+      "value": "http://localhost:8080",
+      "description": "Public URL of the app (e.g. http://TOWER-IP:8080).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Registration",
+      "key": "ALLOW_REGISTRATION",
+      "value": "false",
+      "description": "Let new users self-register. Keep false on an exposed instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Marketplace",
+      "key": "MARKETPLACE",
+      "value": "leboncoin",
+      "description": "Which second-hand marketplace(s) the 'find deals / bundles' buttons search. Comma-separated \u2014 each value adds its own button (e.g. leboncoin,medimops,kleinanzeigen). Values: leboncoin (France), kleinanzeigen (Germany), ebay-de, ebay-com, ebay-uk, ebay-fr, marktplaats (Netherlands), wallapop (Spain), medimops (German used-media shop), easycash (French used-goods shop), or none to hide the buttons.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Easy Cash store",
+      "key": "EASYCASH_STORE",
+      "value": "",
+      "description": "Optional: pin Easy Cash 'find deal' links to one physical store. Use the store's exact facet value (department + name), e.g. '68 - Mulhouse'. Blank = all stores / full online catalogue.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Craigslist city",
+      "key": "CRAIGSLIST_SITE",
+      "value": "",
+      "description": "US only: Craigslist is per-city. Set your site subdomain, e.g. newyork, sfbay, losangeles. Required for Craigslist links (no national search). Blank = Craigslist hidden. (Also settable in the app's Settings panel.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS (production cookies)",
+      "key": "NODE_ENV",
+      "value": "development",
+      "description": "Set to 'production' ONLY behind HTTPS (reverse proxy); otherwise leave 'development'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login email",
+      "key": "SEED_USER_EMAIL",
+      "value": "admin@media-vault.local",
+      "description": "The admin account created on first boot \u2014 this is the email you log in with. Change it or keep the default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Login password",
+      "key": "SEED_USER_PASSWORD",
+      "value": "changeme",
+      "description": "Password for the login above (created on first boot). CHANGE THIS from 'changeme', especially if the instance is reachable outside your LAN.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "IGDB Client ID",
+      "key": "IGDB_CLIENT_ID",
+      "value": "",
+      "description": "Twitch app Client ID (games).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "IGDB Client Secret",
+      "key": "IGDB_CLIENT_SECRET",
+      "value": "",
+      "description": "Twitch app Client Secret (games).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB Access Token",
+      "key": "TMDB_ACCESS_TOKEN",
+      "value": "",
+      "description": "TMDB v4 Read Access Token (movies).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB Language",
+      "key": "TMDB_LANGUAGE",
+      "value": "en-US",
+      "description": "Movie metadata language, e.g. de-DE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discogs Key",
+      "key": "DISCOGS_KEY",
+      "value": "",
+      "description": "Discogs consumer key (vinyl/CD).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discogs Secret",
+      "key": "DISCOGS_SECRET",
+      "value": "",
+      "description": "Discogs consumer secret (vinyl/CD).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PriceCharting Token",
+      "key": "PRICECHARTING_TOKEN",
+      "value": "",
+      "description": "PAID PriceCharting API token for game valuation (optional; eBay below is a free alternative). Music valuation uses Discogs; movies have no price source.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "eBay Client ID (App ID)",
+      "key": "EBAY_CLIENT_ID",
+      "value": "",
+      "description": "FREE game valuation via eBay. Register an app at developer.ebay.com (Production keyset) and paste the App ID here. When set, games are valued from eBay used-listing prices (takes priority over PriceCharting).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "eBay Client Secret (Cert ID)",
+      "key": "EBAY_CLIENT_SECRET",
+      "value": "",
+      "description": "eBay Cert ID (Client Secret) that pairs with the App ID above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "eBay Marketplace",
+      "key": "EBAY_MARKETPLACE_ID",
+      "value": "EBAY_DE",
+      "description": "Which eBay site/currency to price against: EBAY_DE (EUR), EBAY_FR (EUR), EBAY_GB (GBP), EBAY_US (USD), EBAY_IT, EBAY_ES\u2026",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Web API key",
+      "key": "STEAM_API_KEY",
+      "value": "",
+      "description": "Optional: import your owned Steam games via Add \u2192 Steam. Get a free key at https://steamcommunity.com/dev/apikey. Your Steam profile's Game details must be Public. Can also be set in the app's Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Valuation Currency",
+      "key": "VALUATION_CURRENCY",
+      "value": "EUR",
+      "description": "Currency for Discogs marketplace prices (EUR, USD, GBP\u2026).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

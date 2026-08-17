@@ -1,27 +1,27 @@
 {
   "name": "duplicati",
-  "repo": "ghcr.io/imagegenius/duplicati",
+  "repo": "lscr.io/linuxserver/duplicati",
   "category": [
     "Backup"
   ],
-  "registry": "https://github.com/orgs/imagegenius/packages/container/package/duplicati",
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/duplicati",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8200]",
-  "icon": "https://raw.githubusercontent.com/imagegenius/templates/main/unraid/img/duplicati.png",
+  "web_ui_url": "http://[IP]:[PORT:8200]/login.html",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/duplicati-logo.png",
   "project": "https://www.duplicati.com/",
-  "description": "Duplicati is a backup client that securely stores encrypted, incremental, compressed remote backups of local files on cloud storage services and remote file servers.",
+  "description": "Duplicati(https://www.duplicati.com/) is a backup client that securely stores encrypted, incremental, compressed backups on local storage, cloud storage services and remote file servers. It works with standard protocols like FTP, SSH, WebDAV as well as popular services like Microsoft OneDrive, Amazon S3, Google Drive, box.com, Mega, B2, and many others.",
   "paths": [
     {
       "name": "Appdata",
       "host": "",
       "container": "/config",
       "mode": "rw",
-      "description": "Appdata Path",
+      "description": "Contains all relevant configuration files.",
       "required": true
     },
     {
@@ -29,7 +29,7 @@
       "host": "",
       "container": "/backups",
       "mode": "rw",
-      "description": "Backup Destination Path",
+      "description": "Path to store local backups.",
       "required": true
     },
     {
@@ -37,15 +37,7 @@
       "host": "",
       "container": "/source",
       "mode": "rw",
-      "description": "Backup Source Path",
-      "required": true
-    },
-    {
-      "name": "Path: /tmp",
-      "host": "",
-      "container": "/tmp",
-      "mode": "rw",
-      "description": "Temporary Uploads Path",
+      "description": "Path to source for files to backup.",
       "required": true
     }
   ],
@@ -55,12 +47,20 @@
       "host": "8200",
       "container": "8200",
       "protocol": "tcp",
-      "description": "WebUI Port",
+      "description": "http gui",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
+    {
+      "name": "SETTINGS_ENCRYPTION_KEY",
+      "key": "SETTINGS_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Encryption key for settings database. Minimum 8 characters, alphanumeric.",
+      "required": true,
+      "mask": true
+    },
     {
       "name": "CLI_ARGS",
       "key": "CLI_ARGS",
@@ -70,10 +70,18 @@
       "mask": false
     },
     {
+      "name": "DUPLICATI__WEBSERVICE_PASSWORD",
+      "key": "DUPLICATI__WEBSERVICE_PASSWORD",
+      "value": "",
+      "description": "Password for the webui. If left unset will default to `changeme` and can be changed from the webui settings.",
+      "required": false,
+      "mask": true
+    },
+    {
       "name": "PUID",
       "key": "PUID",
       "value": "500",
-      "description": "UID for permissions. Do not change unless you know what you're doing.",
+      "description": "Container Variable: PUID",
       "required": true,
       "mask": false
     },
@@ -81,7 +89,7 @@
       "name": "PGID",
       "key": "PGID",
       "value": "500",
-      "description": "GID for permissions. Do not change unless you know what you're doing.",
+      "description": "Container Variable: PGID",
       "required": true,
       "mask": false
     },
@@ -89,7 +97,7 @@
       "name": "UMASK",
       "key": "UMASK",
       "value": "022",
-      "description": "UMASK for newly created files. Do not change unless you know what you're doing.",
+      "description": "Container Variable: UMASK",
       "required": false,
       "mask": false
     }

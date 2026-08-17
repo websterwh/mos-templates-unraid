@@ -1,10 +1,10 @@
 {
   "name": "Tagaris",
-  "repo": "goodhallsolutions/tagaris:latest",
+  "repo": "goodhallsolutions/tagaris-bundled:latest",
   "category": [
     "Productivity"
   ],
-  "registry": "https://hub.docker.com/r/goodhallsolutions/tagaris",
+  "registry": "https://hub.docker.com/r/goodhallsolutions/tagaris-bundled",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:3000]/",
   "icon": "https://tagaris.co.uk/images/favicons/apple-touch-icon.png",
   "project": "https://tagaris.co.uk",
-  "description": "Tagaris - self-hosted IT asset register for small IT teams, MSPs and anyone who has outgrown the spreadsheet. Track hardware, software licences, domains, warranties and assignments, with a dated history on every asset. Features: check-out and check-in, multi-level locations, accessories, components and consumables with low-stock alerts, photos and attachments, printable QR label sheets, CSV import (Snipe-IT and Halo presets), built-in reports plus a custom report builder, a daily renewals digest, scheduled encrypted backups with restore, two-factor authentication and a documented REST API. Requires a PostgreSQL database (version 16 recommended). Install one from Community Apps first, create a database for Tagaris, and set the Database URL below. After installation, open http://your-Unraid-ip:3000 and the setup wizard creates your organisation and admin account. Database migrations run automatically at start.",
+  "description": "Tagaris - self-hosted IT asset register for small IT teams, MSPs and anyone who has outgrown the spreadsheet. Track hardware, software licences, domains, warranties and assignments, with a dated history on every asset. This is the self-contained build for Unraid: PostgreSQL runs inside the same container, so there is nothing else to install. If you already run a PostgreSQL server and would rather point Tagaris at it, follow the dedicated-database guide at https://docs.tagaris.co.uk/self-host-external instead. Features: check-out and check-in, multi-level locations, accessories, components and consumables with low-stock alerts, photos and attachments, printable QR label sheets, CSV import (Snipe-IT and Halo presets), built-in reports plus a custom report builder, a daily renewals digest, scheduled encrypted backups with restore, two-factor authentication and a documented REST API. The database, photos and backups persist in the appdata folders below. After installation, open http://your-Unraid-ip:3000 and the setup wizard creates your organisation and admin account. Database migrations run automatically at start.",
   "paths": [
     {
-      "name": "Photos",
-      "host": "/mnt/cache/appdata/tagaris/photos",
-      "container": "/app/data/photos",
+      "name": "Data",
+      "host": "/mnt/cache/appdata/tagaris/data",
+      "container": "/app/data",
       "mode": "rw",
-      "description": "Persistent storage for asset photos and attachments.",
+      "description": "Persistent storage for the built-in PostgreSQL database and asset photos. Back this folder up; it holds your register.",
       "required": true
     },
     {
@@ -45,14 +45,6 @@
     }
   ],
   "variables": [
-    {
-      "name": "Database URL",
-      "key": "DATABASE_URL",
-      "value": "postgresql://tagaris:change_me@your-unraid-ip:5432/tagaris?schema=public",
-      "description": "Connection string for your PostgreSQL database (version 16 recommended). Install PostgreSQL from Community Apps, create a database and user for Tagaris, then fill in this URL. Use letters and digits only in the password.",
-      "required": true,
-      "mask": true
-    },
     {
       "name": "Auth Secret",
       "key": "BETTER_AUTH_SECRET",

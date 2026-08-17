@@ -1,0 +1,51 @@
+{
+  "name": "Budgero",
+  "repo": "budgero/budgero",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/budgero/budgero",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3001]",
+  "icon": "https://raw.githubusercontent.com/tombadilo-bombadilo/budgero/master/packages/website/public/logo_512.png",
+  "project": "https://budgero.app/",
+  "description": "Budgero is an open-source, end-to-end encrypted zero-based budgeting app in the YNAB mold \u2014 manual-first entry with rule-based automation, multi-currency support, and YNAB/CSV import. Ships as a single Go binary with SQLite storage and typically runs in under 200MB RAM. IMPORTANT: set \"Allowed sync origins\" to the exact origin you open the app from (e.g. http://192.168.1.50:3001 or https://budget.example.com). The sync WebSocket rejects connections from any other origin and the budget will not load. Exact match on scheme/host/port, no wildcards.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/budgero",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database and application data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Port for the Budgero web UI and sync WebSocket.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Allowed sync origins",
+      "key": "WEBSOCKET_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated browser origins allowed to connect to sync, e.g. http://192.168.1.50:3001. Required for any non-localhost access \u2014 use the exact scheme, host and port you open the app with. No wildcards.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

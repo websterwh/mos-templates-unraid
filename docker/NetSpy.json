@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8090]",
   "icon": "https://raw.githubusercontent.com/thefirstmojo/netspy/main/templates/icon.png",
   "project": "https://github.com/thefirstmojo/netspy",
-  "description": "Web dashboard showing real-time network throughput of Unraid (and other hosts): interface rates, per-process breakdown, per-container traffic. One image, two roles \u2014 this template installs the web role; add agents on other hosts (TrueNAS/Debian) via the repo's docker-compose.yml.",
+  "description": "Web dashboard showing real-time network + disk monitoring of Unraid (and other hosts): interface rates, per-process breakdown (incl. SMB sessions per client), per-container traffic, disk I/O per process, CPU/RAM per process and latency/health. One image, two roles \u2014 this template installs the web role; add agents on other hosts (TrueNAS/Debian) via the repo's docker-compose.yml.",
   "paths": [
     {
       "name": "Docker Socket",
@@ -22,6 +22,14 @@
       "container": "/var/run/docker.sock",
       "mode": "ro",
       "description": "Mount the Docker socket (read-only) so container names appear in the process list (per-container throughput).",
+      "required": false
+    },
+    {
+      "name": "Config Volume",
+      "host": "/mnt/cache/appdata/netspy",
+      "container": "/netspy",
+      "mode": "rw",
+      "description": "Base directory for the settings page \u2014 servers.yaml is stored in the /netspy/config subfolder (created automatically). After install, make it world-writable on the host: chmod 777 /mnt/user/appdata/netspy (container runs as root with cap_drop ALL and needs write access).",
       "required": false
     }
   ],

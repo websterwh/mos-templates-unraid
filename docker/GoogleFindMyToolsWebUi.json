@@ -1,0 +1,163 @@
+{
+  "name": "GoogleFindMyToolsWebUi",
+  "repo": "ghcr.io/p6g9yhk6/googlefindmytools:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/P6g9YHK6/GoogleFindMyToolsWebUi/pkgs/container/googlefindmytools",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --tmpfs /run/gfmt-browser:rw,exec,nosuid,size=1g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4321]",
+  "icon": "https://raw.githubusercontent.com/P6g9YHK6/GoogleFindMyToolsWebUi/main/webui/static/logo-512.png",
+  "project": "https://github.com/P6g9YHK6/GoogleFindMyToolsWebUi",
+  "description": "A self-hosted app that logs into your Google account, polls your Find My Device trackers and Android phones, and forwards each new location to your own Traccar or Nextcloud PhoneTrack server - so you keep your location history on your own infrastructure instead of nowhere. One container, a web UI, nothing else to run. CAUTION: this holds long-lived Google account tokens and live device location data. It defaults to plain HTTP with no auth, meant for a trusted LAN - set HTTP_USER/HTTP_PASSWORD and/or HTTPS_ENABLED below before exposing it any further. First-time Google sign-in installs Chrome/Xvfb/noVNC on demand inside the container (needs outbound internet to Debian's mirrors and storage.googleapis.com the first time only), then walks you through the actual login right in the web UI - no separate VNC client needed. GitHub: https://github.com/P6g9YHK6/GoogleFindMyToolsWebUi",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/googlefindmytools",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Everything persisted lives flat in here: Google auth tokens, per-device forwarding config, location history, and logs. Back this directory up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "4321",
+      "container": "4321",
+      "protocol": "tcp",
+      "description": "Port the web UI (and its API) listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HTTP_USER",
+      "key": "HTTP_USER",
+      "value": "",
+      "description": "Set together with HTTP_PASSWORD to require this username/password pair (HTTP Basic Auth) for the whole web UI, including the embedded Google login view. Leave both blank to run without auth (trusted LAN only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_PASSWORD",
+      "key": "HTTP_PASSWORD",
+      "value": "",
+      "description": "Paired with HTTP_USER above - see its description.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SECRETS_ENCRYPTION_KEY",
+      "key": "SECRETS_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Any string. When set, every credential in auth.yaml (OAuth tokens, FCM credentials, vault keys) is encrypted at rest with AES-256-GCM instead of stored as plain text. Losing or changing this makes existing encrypted values unreadable - your only recovery is signing in again.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTPS_ENABLED",
+      "key": "HTTPS_ENABLED",
+      "value": "",
+      "description": "Set to 1 to serve HTTPS instead of HTTP on the same port, using a self-signed certificate generated automatically on first start and reused after that. See the Security section of the README before turning this on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "",
+      "description": "Timezone for timestamps shown in the UI and logs, e.g. America/Chicago.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GFMT_TLS_SAN",
+      "key": "GFMT_TLS_SAN",
+      "value": "",
+      "description": "Comma-separated extra hostnames/IPs to add to the generated self-signed HTTPS cert (it always covers localhost/127.0.0.1/::1) - set this to your LAN hostname or static IP if you reach this box by either.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GFMT_TLS_CERT_PATH",
+      "key": "GFMT_TLS_CERT_PATH",
+      "value": "",
+      "description": "Bring your own cert instead of the self-signed one - must point at an existing file inside the container (e.g. under /data), or startup fails rather than silently falling back to self-signed. Set alongside GFMT_TLS_KEY_PATH.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GFMT_TLS_KEY_PATH",
+      "key": "GFMT_TLS_KEY_PATH",
+      "value": "",
+      "description": "Paired with GFMT_TLS_CERT_PATH above - see its description.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GFMT_TLS_VALIDITY_DAYS",
+      "key": "GFMT_TLS_VALIDITY_DAYS",
+      "value": "825",
+      "description": "How long a generated self-signed cert is valid for. Defaults to Apple's ATS cap (Safari/iOS/macOS reject longer-lived certs even after you manually trust them) - raise it if you don't care about Safari.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEFAULT_POLL_INTERVAL_S",
+      "key": "DEFAULT_POLL_INTERVAL_S",
+      "value": "300",
+      "description": "Fallback poll interval (seconds) for a newly added device before you set its own cron schedule.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCATE_CONCURRENCY",
+      "key": "LOCATE_CONCURRENCY",
+      "value": "5",
+      "description": "Max number of devices being actively located at once.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCATE_TIMEOUT_S",
+      "key": "LOCATE_TIMEOUT_S",
+      "value": "60",
+      "description": "How long (seconds) to wait for a single locate before giving up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QUERY_THROTTLE_MAX",
+      "key": "QUERY_THROTTLE_MAX",
+      "value": "20",
+      "description": "Account-wide rate limit against Google's backend: max calls per QUERY_THROTTLE_WINDOW_S. Also editable live from the Config page - no restart needed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QUERY_THROTTLE_WINDOW_S",
+      "key": "QUERY_THROTTLE_WINDOW_S",
+      "value": "60",
+      "description": "Window (seconds) the QUERY_THROTTLE_MAX limit applies over.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QUERY_MIN_SPREAD_S",
+      "key": "QUERY_MIN_SPREAD_S",
+      "value": "1",
+      "description": "Minimum spacing (seconds) enforced between individual calls to Google's backend.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

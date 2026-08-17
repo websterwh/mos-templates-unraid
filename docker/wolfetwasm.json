@@ -1,0 +1,116 @@
+{
+  "name": "wolfet-wasm",
+  "repo": "tedcharles/wolfet-wasm:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/tedcharles/wolfet-wasm",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8088]/",
+  "icon": "https://raw.githubusercontent.com/theodorecharles/unraid-templates/master/wolfet-wasm.png",
+  "project": "https://github.com/theodorecharles/wolfet-wasm",
+  "description": "Play Wolfenstein: Enemy Territory in a web browser. Runs a WebAssembly/WebGL 2 client and a shared ET: Legacy Objective server with official maps, optional Omni-Bot population, custom PK3 support, and automatic idle sleep.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/wolfet-wasm",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent official game data, generated configuration, bans, and custom_maps PK3 drop folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8088",
+      "container": "8088",
+      "protocol": "tcp",
+      "description": "Browser game, WebSocket proxy, health, and status HTTP port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enemy Territory UDP",
+      "host": "27960",
+      "container": "27960",
+      "protocol": "udp",
+      "description": "Native Enemy Territory dedicated-server query and connection port. Browser gameplay uses the Web UI port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Game Mode",
+      "key": "ETJS_MODE",
+      "value": "arcade",
+      "description": "arcade enables faster movement, double jump, unlimited stamina, hit sounds, and the optional visibility/targeting layer. vanilla uses stock-style movement and disables those additions.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Match Population",
+      "key": "ETJS_SLOTS",
+      "value": "12",
+      "description": "Human-plus-bot population maintained by the server; enter an integer from 2 through 63.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Keep Server Alive",
+      "key": "KEEP_ALIVE",
+      "value": "false",
+      "description": "Set true to keep the dedicated match running indefinitely. When false, only the lightweight web host remains active while idle.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Idle Timeout",
+      "key": "IDLE_TIMEOUT",
+      "value": "15m",
+      "description": "When Keep Server Alive is false, stop the dedicated process after this long without human players. Accepts seconds or values such as 10m or 2h.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Omni-Bot",
+      "key": "ETJS_OMNIBOT",
+      "value": "1",
+      "description": "Set to 1 for automatic bot fill or 0 to disable bots.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON Password",
+      "key": "ETJS_RCON",
+      "value": "",
+      "description": "Optional dedicated-server RCON password. Leave empty to generate and persist a random password under /data.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Trusted Reverse Proxy",
+      "key": "ETJS_TRUST_PROXY",
+      "value": "0",
+      "description": "Set to 1 only when a same-host reverse proxy replaces X-Forwarded-For and clients cannot bypass it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Administrator IPs",
+      "key": "ETJS_ADMIN_IPS",
+      "value": "",
+      "description": "Optional comma-separated admin IP allowlist for NAT or proxy setups where automatic same-host detection is insufficient.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

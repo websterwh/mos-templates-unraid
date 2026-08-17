@@ -1,0 +1,121 @@
+{
+  "name": "weblinked",
+  "repo": "ghcr.io/stoatworks-labs/weblinked-docker:edge",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/stoatworks-labs/weblinked-docker",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:7654/",
+  "icon": "https://raw.githubusercontent.com/stoatworks-labs/stoatworks-unraid/main/icon.png",
+  "project": "https://github.com/stoatworks-labs/weblinked-docker",
+  "description": "Renders a web page offscreen at a broadcast raster and exact frame rate and sends it out as NDI. Point it at a Grafana dashboard, a scoreboard, a lower third or a countdown clock and it becomes a video source your vision mixer, decoder or recorder can take. Chromium renders on the CPU through SwiftShader, so no GPU passthrough is needed. Measured at 50.1 ticks/sec at 1080p50 with zero dropped frames. IMPORTANT \u2014 the NDI runtime is not included and you must supply it. libndi is loaded at run time and its licence does not permit redistribution under MIT, so it cannot be shipped in the image. Download the NDI SDK for Linux from ndi.video, take libndi.so.6 out of lib/x86_64-linux-gnu/, put it in the \"NDI runtime\" path below, and restart the container. Without it everything still runs and the NDI output simply reports itself unavailable. This container uses host networking because NDI discovery is mDNS, which Docker's bridge network does not forward. In bridge mode the source is never seen by any receiver and nothing reports an error. SDI output is not available in a container: DeckLink and AJA need a card and a kernel driver on the host. Syphon and Spout are macOS and Windows only. The control page is at the WebUI link and is the whole interface \u2014 it also accepts HTTP and OSC from Companion or a show-control system. SECURITY: intended to run purely inside a private network or Tailscale tailnet. The control API has no authentication until you set an API token, and POST /api/script runs arbitrary JavaScript in the rendered page \u2014 so an open port here is remote code execution in a browser on your network, not just a feed a stranger can retune. Its security has not been independently reviewed by a human. Host networking puts the control port on every interface this server has, so set the bind address to your tailnet address, set an API token, and never expose it to the public internet.",
+  "paths": [
+    {
+      "name": "NDI runtime",
+      "host": "/mnt/cache/appdata/weblinked/ndi",
+      "container": "/opt/ndi/lib",
+      "mode": "ro",
+      "description": "A directory on the host containing libndi.so.6 from the NDI SDK for Linux, which you download and licence yourself. Mounted read-only. If this is empty the container still starts and the NDI output reports itself unavailable.",
+      "required": false
+    },
+    {
+      "name": "Browser cache",
+      "host": "/mnt/cache/appdata/weblinked/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "Persists cookies and site storage across restarts. Two containers must never share one directory \u2014 Chromium locks it, and the second to start will fail.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Page URL",
+      "key": "WEBLINKED_URL",
+      "value": "https://example.com",
+      "description": "The page to render. For Grafana, use a public dashboard link and add &amp;kiosk to drop the surrounding UI \u2014 an offscreen browser cannot be typed into, so the page must need no login.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Video format",
+      "key": "WEBLINKED_FORMAT",
+      "value": "1080p50",
+      "description": "Raster and exact frame rate, for example 1080p50, 720p59.94 or 1920x1080i25. Rates are exact rationals: 59.94 is 60000/1001, not 59.94.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NDI source name",
+      "key": "WEBLINKED_NDI_NAME",
+      "value": "WebLinked",
+      "description": "The name this appears as on the network. Leave empty to disable the NDI output entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache path (in container)",
+      "key": "WEBLINKED_CACHE",
+      "value": "/cache",
+      "description": "Tells WebLinked to use the mounted cache directory. Clear this to keep cookies and storage in memory instead, discarded on restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Control port",
+      "key": "WEBLINKED_PORT",
+      "value": "7654",
+      "description": "HTTP port for the control page and API. On host networking this binds the host directly, so it must not collide with anything else on this server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OSC port",
+      "key": "WEBLINKED_OSC_PORT",
+      "value": "7655",
+      "description": "UDP port the OSC receiver listens on, for Companion or a show-control system.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bind address",
+      "key": "WEBLINKED_BIND",
+      "value": "0.0.0.0",
+      "description": "Which address the control API listens on. Host networking means the default, 0.0.0.0, is every interface this server has \u2014 including the one facing your LAN. Set this to your Tailscale address (100.x.y.z) to make it reachable only through the tailnet. Enabling this container's Tailscale toggle gives it its own address to use here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API token",
+      "key": "WEBLINKED_TOKEN",
+      "value": "",
+      "description": "If set, every HTTP request must carry this token. The API is otherwise unauthenticated, and POST /api/script runs arbitrary JavaScript in the page \u2014 set this even on a private network.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Send alpha",
+      "key": "WEBLINKED_ALPHA",
+      "value": "false",
+      "description": "Set to true to send BGRA with the page's alpha channel intact, for a keyed graphic or an overlay. Leave false for a full-frame source such as a dashboard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable audio",
+      "key": "WEBLINKED_NO_AUDIO",
+      "value": "false",
+      "description": "Set to true to ignore the page's audio entirely. A dashboard has none, so this costs nothing either way.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

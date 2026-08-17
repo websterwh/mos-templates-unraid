@@ -1,205 +1,157 @@
 {
   "name": "unpackerr",
-  "repo": "ghcr.io/hotio/unpackerr:latest",
+  "repo": "golift/unpackerr",
   "category": [
-    "Downloader"
+    "System"
   ],
-  "registry": "https://github.com/hotio/unpackerr/pkgs/container/unpackerr",
+  "registry": "https://hub.docker.com/r/golift/unpackerr",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--hostname=unpackerr.internal --cap-add=NET_ADMIN",
+  "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": null,
-  "icon": "https://hotio.dev/webhook-avatars/unpackerr.png",
-  "project": "https://hotio.dev/containers/unpackerr",
-  "description": "WireGuard VPN, Privoxy and Unbound built-in! Infected with rar'ed torrents? Here's your cure!",
+  "icon": "https://raw.githubusercontent.com/wiki/davidnewhall/unpackerr/images/logo.png",
+  "project": "https://github.com/davidnewhall/unpackerr",
+  "description": "RAR download extractor for Sonarr, Radarr and Lidarr! Mount /downloads on all 3 or 4 containers to the same path on your host. This application will automatically poll all of the apps (Lidarr, Sonarr, Radarr) to check for downloads. When a completed download contains a rar file, this application will extract the file and move the extracted contents back into the download location. Files will be extracted recursively in an attempt to get all subtitles. If you don't use one of Lidarr, Sonarr or Radarr, simply empty those two fields for that app and it wont be polled. If you put all your containers on the same custom bridge you may not need to expose any ports, and you can use DNS to reach other containers. It's a very convenient configuration!",
   "paths": [
     {
-      "name": "Host Path for /config",
+      "name": "Downloads Location",
       "host": "",
-      "container": "/config",
+      "container": "/downloads",
       "mode": "rw",
-      "description": "Container Path: /config",
-      "required": true
-    },
-    {
-      "name": "Host Path for /data",
-      "host": "",
-      "container": "/data",
-      "mode": "rw",
-      "description": "Container Path: /data",
+      "description": "Container Path: /downloads - this must be the same path on this app and sonarr/radarr/lidarr!",
       "required": true
     }
   ],
   "ports": [],
   "variables": [
     {
-      "name": "PRIVOXY_ENABLED",
-      "key": "PRIVOXY_ENABLED",
+      "name": "Debug Log Output",
+      "key": "UN_DEBUG",
       "value": "false|true",
-      "description": "Container Variable: PRIVOXY_ENABLED",
+      "description": "UN_DEBUG - Turns on more logs. You should use this at least once so you know what it does.",
       "required": false,
       "mask": false
     },
     {
-      "name": "UNBOUND_ENABLED",
-      "key": "UNBOUND_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: UNBOUND_ENABLED",
+      "name": "Log File Path",
+      "key": "UN_LOG_FILE",
+      "value": "/downloads/unpackerr.log",
+      "description": "UN_LOG_FILE - Logs will be written to this path if provided. Recommended, but required.",
       "required": false,
       "mask": false
     },
     {
-      "name": "UNBOUND_NAMESERVERS",
-      "key": "UNBOUND_NAMESERVERS",
+      "name": "Sonarr URL",
+      "key": "UN_SONARR_0_URL",
+      "value": "http://sonarr:8989",
+      "description": "UN_SONARR_0_URL - Sonarr URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr API Key",
+      "key": "UN_SONARR_0_API_KEY",
       "value": "",
-      "description": "Container Variable: UNBOUND_NAMESERVERS",
+      "description": "UN_SONARR_0_API_KEY - API Key - leave blank if not using Sonarr",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_ENABLED",
-      "key": "VPN_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_ENABLED",
+      "name": "Sonarr Download Path",
+      "key": "UN_SONARR_0_PATH",
+      "value": "/downloads",
+      "description": "UN_SONARR_0_PATH - Path to find Sonarr downloads. Must be within /downloads location (above)",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_CONF",
-      "key": "VPN_CONF",
-      "value": "wg0",
-      "description": "Container Variable: VPN_CONF",
+      "name": "Radarr URL",
+      "key": "UN_RADARR_0_URL",
+      "value": "http://radarr:7878",
+      "description": "UN_RADARR_0_URL - Radarr URL",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_PROVIDER",
-      "key": "VPN_PROVIDER",
-      "value": "generic|proton|pia",
-      "description": "Container Variable: VPN_PROVIDER",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_LAN_NETWORK",
-      "key": "VPN_LAN_NETWORK",
+      "name": "Radarr API Key",
+      "key": "UN_RADARR_0_API_KEY",
       "value": "",
-      "description": "Container Variable: VPN_LAN_NETWORK",
+      "description": "UN_RADARR_0_API_KEY - API Key - leave blank if not using Radarr",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_LAN_LEAK_ENABLED",
-      "key": "VPN_LAN_LEAK_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_LAN_LEAK_ENABLED",
+      "name": "Radarr Download Path",
+      "key": "UN_RADARR_0_PATH",
+      "value": "/downloads",
+      "description": "UN_RADARR_0_PATH - Path to find Radarr downloads. Must be within /downloads location (above)",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_EXPOSE_PORTS_ON_LAN",
-      "key": "VPN_EXPOSE_PORTS_ON_LAN",
+      "name": "Lidarr URL",
+      "key": "UN_LIDARR_0_URL",
+      "value": "http://lidarr:8686",
+      "description": "UN_LIDARR_0_URL - Lidarr URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Lidarr API Key",
+      "key": "UN_LIDARR_0_API_KEY",
       "value": "",
-      "description": "Container Variable: VPN_EXPOSE_PORTS_ON_LAN",
+      "description": "UN_LIDARR_0_API_KEY - API Key - leave blank if not using Lidarr",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_AUTO_PORT_FORWARD",
-      "key": "VPN_AUTO_PORT_FORWARD",
-      "value": "false",
-      "description": "Container Variable: VPN_AUTO_PORT_FORWARD",
+      "name": "Global Timeout",
+      "key": "UN_TIMEOUT",
+      "value": "15s",
+      "description": "UN_TIMEOUT - How long to wait for the apps to respond to API requests. Recommend 10-15s",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_PORT_REDIRECTS",
-      "key": "VPN_PORT_REDIRECTS",
-      "value": "",
-      "description": "Container Variable: VPN_PORT_REDIRECTS",
+      "name": "Parallel Extractions",
+      "key": "UN_PARALLEL",
+      "value": "1",
+      "description": "UN_PARALLEL - Most setups will not benefit from more than 1. Recommend 1",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_HEALTHCHECK_ENABLED",
-      "key": "VPN_HEALTHCHECK_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_HEALTHCHECK_ENABLED",
+      "name": "Polling Interval",
+      "key": "UN_INTERVAL",
+      "value": "2m",
+      "description": "UN_INTERVAL - How often to talk to Sonarr, Radarr and Lidarr. Recommend 1-4m",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_NAMESERVERS",
-      "key": "VPN_NAMESERVERS",
-      "value": "",
-      "description": "Container Variable: VPN_NAMESERVERS",
+      "name": "Delete Delay",
+      "key": "UN_DELETE_DELAY",
+      "value": "5m",
+      "description": "UN_DELETE_DELAY - How long to wait before deleting extracted files. Recommend 5-30m",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_PIA_USER",
-      "key": "VPN_PIA_USER",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_USER",
+      "name": "Start Delay",
+      "key": "UN_START_DELAY",
+      "value": "1m",
+      "description": "UN_START_DELAY - How long to wait before extracting completed downloads. Recommend 1m for local and 5m+ for remote",
       "required": false,
       "mask": false
     },
     {
-      "name": "VPN_PIA_PASS",
-      "key": "VPN_PIA_PASS",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_PASS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_PREFERRED_REGION",
-      "key": "VPN_PIA_PREFERRED_REGION",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_PREFERRED_REGION",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_DIP_TOKEN",
-      "key": "VPN_PIA_DIP_TOKEN",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_DIP_TOKEN",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_PORT_FORWARD_PERSIST",
-      "key": "VPN_PIA_PORT_FORWARD_PERSIST",
-      "value": "false|true",
-      "description": "Container Variable: VPN_PIA_PORT_FORWARD_PERSIST",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "Container Variable: PUID",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Container Variable: PGID",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "002",
-      "description": "Container Variable: UMASK",
+      "name": "Retry Delay",
+      "key": "UN_RETRY_DELAY",
+      "value": "5m",
+      "description": "UN_RETRY_DELAY - How long to wait before retrying failed extractions. Recommend 5m",
       "required": false,
       "mask": false
     }

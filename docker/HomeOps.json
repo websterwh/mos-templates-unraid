@@ -1,0 +1,155 @@
+{
+  "name": "Home-Ops",
+  "repo": "ghcr.io/g0browns/home-ops:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io/g0browns/home-ops",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/g0browns/home-ops-unraid/main/icon.svg",
+  "project": "https://github.com/g0browns/Home-ops",
+  "description": "Home Ops is a self-hosted household management system: chores, a shared calendar, recipes and meal planning, groceries, contacts, notes and health records \u2014 one private application on hardware you own. No cloud account, no API key, no telemetry. It is built for a household rather than a company, which shows up in one place above all: members have different levels of trust. Every record carries its own visibility \u2014 private, shared with named people, or the whole household \u2014 and there is no administrator override on any of it. Every member also owns a colour that follows them into every list. Modules: Tasks (assignments, categories, priorities, subtasks, recurring chores) \u00b7 Notes (a shared noticeboard with tags and pinning) \u00b7 Calendar (month and agenda views, RFC 5545 recurrence, drag to move) \u00b7 Kitchen (recipes with structured ingredients, import from a web page or a Mealie backup, meal planning) \u00b7 Shopping (many lists, per-list visibility, generated from the meal plan) \u00b7 Contacts (vCard import and export) \u00b7 Health (vitals, medications, lab results, activity). Everything runs in this single container \u2014 FastAPI, nginx and PostgreSQL 16 together under s6-overlay \u2014 with one appdata path and one port. The first page you open is a setup wizard; whoever completes it becomes the administrator, and that page stops existing once a user exists. Before you start: set POSTGRES_PASSWORD, and leave RUN_MIGRATIONS set to true so the database schema is created on first boot. Add your server's LAN address to APP_HOSTS and set WEB_PORT to the host port you mapped, or the browser will be refused when it tries to log in. Appdata: the container path /data holds the PostgreSQL cluster and the uploaded recipe images together. Point it at a share that lives on the cache pool (not a fuse/shfs path that can move to the array) \u2014 PostgreSQL is not happy on /mnt/user. Back up that one directory and you have backed up everything.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/home-ops",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Everything persistent: the PostgreSQL cluster (/data/postgres) and uploaded recipe images (/data/uploads). Put this on a cache pool \u2014 e.g. /mnt/cache/appdata/home-ops \u2014 rather than a /mnt/user fuse path, which PostgreSQL does not tolerate well. A database dump alone is NOT a complete backup; back up this whole directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the web interface. The container always listens on 8080. If you change the host port, set WEB_PORT below to the same number.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Password for the bundled database. SET THIS BEFORE THE FIRST START: PostgreSQL bakes it into the data directory on first boot, and changing it later does not re-create the user. Any characters are fine; it is escaped wherever it is used.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "RUN_MIGRATIONS",
+      "key": "RUN_MIGRATIONS",
+      "value": "true",
+      "description": "Apply database migrations on start. Leave this true. With it off the app starts but has no tables, and the first page fails. Turn it off only if you prefer to run 'home-ops-migrate' by hand from the container console before each upgrade.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_HOSTS",
+      "key": "APP_HOSTS",
+      "value": "localhost",
+      "description": "Every hostname and IP you will open the app on over plain HTTP \u2014 your Unraid server's LAN address, a Tailscale name, and so on. NAMES ONLY: no scheme, no port, comma separated. Each becomes an allowed origin on WEB_PORT, which is what lets a browser at that address log in. Example: localhost,192.168.1.10,tower.local",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEB_PORT",
+      "key": "WEB_PORT",
+      "value": "8080",
+      "description": "The HOST port you mapped above. It is not used to bind anything \u2014 it is used to build the allowed browser origins from APP_HOSTS. If this does not match the port in your address bar, sign-in fails on that address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "IANA timezone name, e.g. Europe/London or America/New_York. Used for log timestamps and scheduling. Never an offset like +01:00 \u2014 offsets cannot survive daylight saving.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUBLIC_BASE_URL",
+      "key": "PUBLIC_BASE_URL",
+      "value": "",
+      "description": "Your HTTPS address, if you put the app behind a reverse proxy or a Cloudflare Tunnel, e.g. https://home.example.com. It becomes an allowed origin and is used for links that leave the app. Leave blank if you have no proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_COOKIE_SECURE",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "Mark the session cookie Secure. Keep this false unless EVERY path to the app is HTTPS \u2014 a Secure cookie is silently dropped over plain HTTP, which would lock out your LAN address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SETUP_ALLOW_TUNNEL_PATH",
+      "key": "SETUP_ALLOW_TUNNEL_PATH",
+      "value": "false",
+      "description": "Whether the first-run setup wizard may be completed over the public HTTPS path. While no user exists that page is unauthenticated by nature \u2014 whoever reaches it first becomes the administrator \u2014 so it is restricted to the LAN by default. It has no effect once any user exists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "CRITICAL, ERROR, WARNING, INFO or DEBUG.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPLOAD_MAX_BYTES",
+      "key": "UPLOAD_MAX_BYTES",
+      "value": "10485760",
+      "description": "Largest single image upload accepted, in bytes, before decoding. Default is 10 MB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_ENV",
+      "key": "APP_ENV",
+      "value": "production",
+      "description": "Leave as production. 'development' enables the /api/docs page and verbose error responses.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXY_IPS",
+      "key": "TRUSTED_PROXY_IPS",
+      "value": "127.0.0.1/32",
+      "description": "Peers whose X-Forwarded-For / X-Real-IP headers are honoured. nginx and the API talk over loopback inside this container, so 127.0.0.1/32 is the whole list. Empty means client IPs are all logged as 127.0.0.1.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Leave blank to use the PostgreSQL bundled in this container. Set it only to point at a PostgreSQL 16 server you run elsewhere (postgresql+psycopg://user:pass@host:5432/home_ops); the bundled one then simply goes unused. Percent-encode any @ in the password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HEALTHCHECK_TOKEN",
+      "key": "HEALTHCHECK_TOKEN",
+      "value": "",
+      "description": "When set, GET /api/health/ready requires a matching X-Healthcheck-Token header. Leave blank on a private network. The plain /api/health liveness endpoint stays public either way and discloses nothing.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

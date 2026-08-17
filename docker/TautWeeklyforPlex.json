@@ -9,29 +9,29 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m,mode=1777 --stop-timeout 1800 --security-opt no-new-privileges:true --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER --cap-add SETGID --cap-add SETUID",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8080]/",
-  "icon": "https://raw.githubusercontent.com/sparkmoxie/TautWeekly/main/platforms/nas-docker/app/assets-default/popcorn.gif",
+  "icon": "https://raw.githubusercontent.com/sparkmoxie/TautWeekly/main/assets/branding/tautweekly-app-icon-512.png",
   "project": "https://github.com/sparkmoxie/TautWeekly",
-  "description": "Generate preview-first weekly Plex activity newsletters using Tautulli. The WebUI link opens a read-only preview viewer, not an admin panel. After installation, open the container Console and run: pwsh -NoLogo -NoProfile -File /opt/tautweekly/Setup-First.ps1. Unraid checks the configured stable latest image and applies updates from its Docker/Apps controls.",
+  "description": "Generate preview-first weekly Plex activity newsletters using Tautulli. The WebUI opens the authenticated TautWeekly Manager for setup, verification, previews, test delivery, and embedded scheduling. After installation, retrieve the one-time pairing token from the container Console with: /opt/tautweekly/bin/run-as-user.sh /opt/tautweekly/bin/tautweekly-manager access-bootstrap --data-dir /data/manager. The pairing token is never written to logs. Unraid owns container lifecycle and stable image updates.",
   "paths": [
     {
       "name": "Appdata",
       "host": "/mnt/cache/appdata/tautweekly",
       "container": "/data",
       "mode": "rw",
-      "description": "Private configuration, state, logs, assets, and generated previews.",
+      "description": "Private configuration, Manager credentials, state, backups, logs, assets, and generated previews. Preserve this path across updates and reinstalls.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Preview Viewer",
+      "name": "Manager Web UI",
       "host": "8787",
       "container": "8080",
       "protocol": "tcp",
-      "description": "Trusted-LAN HTTP port for the read-only landing page and generated previews. This is not an admin UI. Do not expose it publicly.",
+      "description": "Authenticated Manager for a trusted LAN. Do not expose plain HTTP publicly; use an explicitly configured TLS reverse proxy when remote access is required.",
       "required": true,
       "mask": false
     }
@@ -75,6 +75,22 @@
       "value": "",
       "description": "Optional LAN URL embedded in preview links, for example http://tower:8787. Never use a public URL.",
       "required": false,
+      "mask": false
+    },
+    {
+      "name": "Manager Allowed Hosts",
+      "key": "TAUTWEEKLY_MANAGER_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional comma-separated DNS hostnames accepted by the Manager, for example tower,tautweekly.example.test. IP-literal access needs no entry. Do not include schemes, paths, ports, or wildcards.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Manager Cookies",
+      "key": "TAUTWEEKLY_MANAGER_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set true only when every browser connection uses HTTPS through a correctly configured TLS reverse proxy. Plain HTTP login cannot work while enabled.",
+      "required": true,
       "mask": false
     }
   ],

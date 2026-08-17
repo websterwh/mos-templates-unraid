@@ -1,0 +1,307 @@
+{
+  "name": "buffarr",
+  "repo": "ghcr.io/poag/buffarr:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/Poag/buffarr/pkgs/container/buffarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5099]",
+  "icon": "https://raw.githubusercontent.com/Poag/buffarr/main/assets/icon.png",
+  "project": "https://github.com/Poag/buffarr",
+  "description": "buffarr has two features that share a single Sonarr connection and run in one container: prefetch watches what's playing on Jellyfin, Emby, Plex, or Tautulli and asks Sonarr to grab the next episodes of the show before you catch up to them; unmonitor keeps Sonarr/Radarr from grabbing fake pre-release files by unmonitoring content until its air/release date (plus a configurable delay) has actually passed, then re-monitoring it automatically. Configure via the variables below, or mount the /config path and drop a config.toml into conf/ instead (see config.example.toml in the repo) -- rotating log files are written to /config/logs/ either way.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/buffarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "conf/config.toml (optional, see config.example.toml) and logs/ (rotating buffarr.log) live here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Webhook / health",
+      "host": "5099",
+      "container": "5099",
+      "protocol": "tcp",
+      "description": "Webhook trigger (/trigger/sonarr, /trigger/radarr) and health-check (/health) HTTP server.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for date calculations, e.g. Europe/London.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DRY_RUN",
+      "key": "DRY_RUN",
+      "value": "1",
+      "description": "unmonitor: 1 = log actions only, 0 = apply them. Start at 1 to check the logs before going live.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ENABLE_SONARR",
+      "key": "ENABLE_SONARR",
+      "value": "1",
+      "description": "unmonitor: manage Sonarr episode monitoring (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SONARR_URL",
+      "key": "SONARR_URL",
+      "value": "",
+      "description": "Sonarr base URL, e.g. http://10.0.0.2:8989 -- shared by unmonitor and prefetch.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SONARR_API_KEY",
+      "key": "SONARR_API_KEY",
+      "value": "",
+      "description": "Sonarr API key (Settings -&gt; General -&gt; Security).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ENABLE_RADARR",
+      "key": "ENABLE_RADARR",
+      "value": "1",
+      "description": "unmonitor: manage Radarr movie monitoring (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RADARR_URL",
+      "key": "RADARR_URL",
+      "value": "",
+      "description": "Radarr base URL, e.g. http://10.0.0.2:7878.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RADARR_API_KEY",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Radarr API key (Settings -&gt; General -&gt; Security).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ENABLE_PREFETCH",
+      "key": "ENABLE_PREFETCH",
+      "value": "0",
+      "description": "Enable the prefetch feature (predictive episode fetching from a media server). Requires SONARR_URL/SONARR_API_KEY and the MEDIA_SERVER_* fields below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_SERVER_TYPE",
+      "key": "MEDIA_SERVER_TYPE",
+      "value": "jellyfin",
+      "description": "jellyfin, emby, plex, or tautulli.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_SERVER_URL",
+      "key": "MEDIA_SERVER_URL",
+      "value": "",
+      "description": "Media server base URL, e.g. http://10.0.0.2:8096.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_SERVER_API_KEY",
+      "key": "MEDIA_SERVER_API_KEY",
+      "value": "",
+      "description": "Jellyfin/Emby/Tautulli API key, or Plex server token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SLEEP_MINUTES",
+      "key": "SLEEP_MINUTES",
+      "value": "30",
+      "description": "unmonitor: minutes between scheduled passes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DELAY_MINUTES",
+      "key": "DELAY_MINUTES",
+      "value": "120",
+      "description": "unmonitor: minutes after air/release before re-monitoring (can be negative).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SKIP_IF_FILE",
+      "key": "SKIP_IF_FILE",
+      "value": "1",
+      "description": "unmonitor: skip items that already have a file (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_TAG_NAME",
+      "key": "AUTO_TAG_NAME",
+      "value": "auto-unmonitored",
+      "description": "unmonitor: tag applied to items buffarr unmonitored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGNORE_TAG_NAME",
+      "key": "IGNORE_TAG_NAME",
+      "value": "ignore",
+      "description": "unmonitor: tag that excludes an item from management entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFERRED_RELEASE",
+      "key": "PREFERRED_RELEASE",
+      "value": "either",
+      "description": "unmonitor/Radarr: either, digital, or physical.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGNORE_INCINEMAS",
+      "key": "IGNORE_INCINEMAS",
+      "value": "0",
+      "description": "unmonitor/Radarr: ignore cinema release dates (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RADARR_REMONITOR_WINDOW_DAYS",
+      "key": "RADARR_REMONITOR_WINDOW_DAYS",
+      "value": "30",
+      "description": "unmonitor/Radarr: only re-monitor movies released within N days (0=unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SONARR_REMONITOR_WINDOW_DAYS",
+      "key": "SONARR_REMONITOR_WINDOW_DAYS",
+      "value": "14",
+      "description": "unmonitor/Sonarr: only re-monitor episodes aired within N days (0=unlimited).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SEASON_PACK_MODE",
+      "key": "SEASON_PACK_MODE",
+      "value": "0",
+      "description": "unmonitor/Sonarr: re-monitor whole seasons at once instead of episode-by-episode (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SEASON_PACK_MODE_TAG",
+      "key": "SEASON_PACK_MODE_TAG",
+      "value": "season-pack",
+      "description": "unmonitor/Sonarr: tag marking series that use season-pack mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_SERVER_USERS",
+      "key": "MEDIA_SERVER_USERS",
+      "value": "",
+      "description": "prefetch: comma-separated user IDs/names to watch (default: all).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEDIA_SERVER_LIBRARIES",
+      "key": "MEDIA_SERVER_LIBRARIES",
+      "value": "",
+      "description": "prefetch: comma-separated library names to watch (default: all), e.g. TV Shows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_INTERVAL",
+      "key": "PREFETCH_INTERVAL",
+      "value": "900",
+      "description": "prefetch: polling interval in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_NUM",
+      "key": "PREFETCH_NUM",
+      "value": "2",
+      "description": "prefetch: episodes to keep available in advance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_REQUEST_SEASONS",
+      "key": "PREFETCH_REQUEST_SEASONS",
+      "value": "1",
+      "description": "prefetch: prefer season-pack searches over per-episode (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_APPEND_TO_QUEUE",
+      "key": "PREFETCH_APPEND_TO_QUEUE",
+      "value": "0",
+      "description": "prefetch: append newly-available episodes to the player's queue -- Jellyfin/Emby/Plex only, experimental (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_CHECK_AIRED",
+      "key": "PREFETCH_CHECK_AIRED",
+      "value": "0",
+      "description": "prefetch: skip episodes that haven't aired yet (1=yes, 0=no).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_CONNECTION_RETRIES",
+      "key": "PREFETCH_CONNECTION_RETRIES",
+      "value": "6",
+      "description": "prefetch: retries when initially connecting to Sonarr/media server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREFETCH_EXCLUDE_TAG",
+      "key": "PREFETCH_EXCLUDE_TAG",
+      "value": "",
+      "description": "prefetch: Sonarr tag that excludes a series from prefetching.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING, or ERROR.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

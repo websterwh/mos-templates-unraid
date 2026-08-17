@@ -1,0 +1,99 @@
+{
+  "name": "Synctally-Beta",
+  "repo": "registry.synctally.eu/synctally/unraid:v0.2.0-beta.5",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.synctally.eu/synctally/unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m --cap-drop ALL --security-opt no-new-privileges:true --pids-limit 256 --stop-timeout 30 --user 99:100 --env SYNCTALLY_BETA_EXPIRY_OVERRIDE=on --log-opt max-size=10m --log-opt max-file=3",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8095]/",
+  "icon": "https://raw.githubusercontent.com/Synctally/synctally-unraid/main/icon.png",
+  "project": "https://synctally.eu",
+  "description": "See what happened after a request. Synctally connects Seerr requests with Plex availability, watching and device downloads, while showing live sessions, stream quality, transcodes and server health. Switch between one, selected or combined views across up to eight Plex profiles and eight Seerr connections. Communications Studio builds newsletters, focused updates and per-recipient messages from current local data.",
+  "paths": [
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/synctally/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Synctally data on a direct cache or pool path. Keep this path across updates.",
+      "required": true
+    },
+    {
+      "name": "Plex database (read-only)",
+      "host": "/mnt/cache/appdata/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases",
+      "container": "/plexdb",
+      "mode": "ro",
+      "description": "Folder containing com.plexapp.plugins.library.db. Mounted read-only.",
+      "required": true
+    },
+    {
+      "name": "Plex logs (read-only)",
+      "host": "/mnt/cache/appdata/plex/Library/Application Support/Plex Media Server/Logs",
+      "container": "/plexlogs",
+      "mode": "ro",
+      "description": "Plex Logs folder. Mounted read-only.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8095",
+      "container": "8095",
+      "protocol": "tcp",
+      "description": "Synctally web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "IANA timezone used for local dates and times. Change this to your local timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Require login",
+      "key": "APP_AUTH_ENABLED",
+      "value": "1",
+      "description": "Keep sign-in enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex database path",
+      "key": "PLEX_DB_PATH",
+      "value": "/plexdb/com.plexapp.plugins.library.db",
+      "description": "Container path to the read-only Plex database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex log path",
+      "key": "PLEX_LOG_DIR",
+      "value": "/plexlogs",
+      "description": "Container path to the read-only Plex logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable optional beta check",
+      "key": "SYNCTALLY_NO_TELEMETRY",
+      "value": "1",
+      "description": "Do not send the optional beta running and update check.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

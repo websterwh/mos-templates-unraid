@@ -1,35 +1,35 @@
 {
   "name": "stable-diffusion",
-  "repo": "nicklucche/stable-diffusion",
+  "repo": "holaflenain/stable-diffusion:latest",
   "category": [
-    "Misc"
+    "System"
   ],
-  "registry": "https://hub.docker.com/r/nicklucche/stable-diffusion",
+  "registry": "https://hub.docker.com/r/holaflenain/stable-diffusion",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
   "extra_parameters": "--runtime=nvidia",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:7860]/",
-  "icon": "https://stablediffusion.fr/sd.png",
-  "project": null,
-  "description": "GPU-ready Dockerfile to run the Stability.AI stable-diffusion model with a simple web interface",
+  "web_ui_url": "http://[IP]:[PORT:9000]",
+  "icon": "https://github.com/superboki/ressources/blob/6e39a0d104bf2c2de286743bf60b46134c3f043d/stable-diffusion-advanced/stable-diffusion-advanced.png?raw=true",
+  "project": "https://hub.docker.com/r/holaflenain/stable-diffusion",
+  "description": "A big thank you to Holaf for this compiled version of Stable Diffusion which allows you to easily benefit from the interface of your choice and fully enjoy the power of this artificial intelligence. Please note that to work properly, it is recommended to have an Nvidia GPU with at least 6GB of VRAM. /! During the first installation or when changing the Web-UI, the first startup may take some time to download/install the necessary packages /! ----------------------------------------------------------------------------------------------------------------- Un grand Merci \u00e0 Holaf pour cette version compil\u00e9e de Stable Diffusion qui permet de b\u00e9n\u00e9ficier de l'interface de votre choix facilement pour profiter pleinement de la puissance de cette intelligence artifielle. Attention, pour bien fonctionner il est recommand\u00e9 d'avoir un GPU Nvidia d'au moins 6GB de VRAM. /! lors de la premiere installation ou lors d'un changement de Web-ui le premier d\u00e9marrage peut prendre du temps le temps de t\u00e9l\u00e9charger/installer les paquets n\u00e9cessaires /!",
   "paths": [
     {
-      "name": "Models",
-      "host": "/mnt/cache/appdata/stablediffusion",
-      "container": "/root/.cache/huggingface/diffusers",
+      "name": "Stable-Diffusion UI Path",
+      "host": "/mnt/cache/appdata/stable-diffusion/",
+      "container": "/config",
       "mode": "rw",
-      "description": null,
+      "description": "The path where you want to deploy Stable Diffusion | Le chemin o\u00f9 vous souhaitez deployer stable diffusion",
       "required": false
     }
   ],
   "ports": [
     {
-      "name": "Port",
-      "host": "7860",
-      "container": "7860",
+      "name": "Web UI PORT",
+      "host": "9000",
+      "container": "9000",
       "protocol": "tcp",
       "description": null,
       "required": false,
@@ -38,17 +38,33 @@
   ],
   "variables": [
     {
+      "name": "WEBUI_VERSION",
+      "key": "WEBUI_VERSION",
+      "value": "01",
+      "description": "You can choose between the following: 01 - Easy Diffusion : The easiest way to install and use Stable Diffusion on your computer. 02 - Automatic1111 : A browser interface based on Gradio library for Stable Diffusion 03 - InvokeAI : InvokeAI is a leading creative engine for Stable Diffusion models, empowering professionals, artists, and enthusiasts to generate and create visual media using the latest AI-driven technologies. The solution offers an industry leading WebUI, supports terminal use through a CLI, and serves as the foundation for multiple commercial products 04 - SD.Next : This project started as a fork from Automatic1111 WebUI and it grew significantly since then, but although it diverged considerably, any substantial features to original work is ported as well 05 - ComfyUI : A powerful and modular stable diffusion GUI and backend 06 - Fooocus : Fooocus is a rethinking of Stable Diffusion and Midjourney\u2019s designs 07 - StableSwarm : A Modular Stable Diffusion Web-User-Interface, with an emphasis on making powertools easily accessible, high performance, and extensibility. 08 - VoltaML : Stable Diffusion WebUI and API accelerated by AITemplate 20 - kubin : Kubin is a Web-GUI for Kandinsky 2.x \ud83d\udea7 WIP \ud83d\udea7 NOT PRODUCTION-READY \ud83d\udea7 50 - Lama Cleaner : A free and open-source inpainting tool powered by SOTA AI model. 51 - FaceFusion : Next generation face swapper and enhancer 70 - Kohya : Kohya's GUI provides a Windows-focused Gradio GUI for Kohya's Stable Diffusion trainers",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "NVIDIA_VISIBLE_DEVICES",
       "key": "NVIDIA_VISIBLE_DEVICES",
-      "value": "all",
+      "value": "GPU-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "description": "c'est la valeur de GUID de votre GPU. vous pouvez la trouver simplement en ouvrant le plugin NVIDIA-DRIVER qui aura \u00e9t\u00e9 pr\u00e9c\u00e9dement install\u00e9. / his is the GUID value of your GPU. You can find it simply by opening the NVIDIA-DRIVER plugin that has been previously installed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
       "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "NVIDIA_DRIVER_CAPABILITIES",
-      "key": "NVIDIA_DRIVER_CAPABILITIES",
-      "value": "all",
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
       "description": null,
       "required": false,
       "mask": false

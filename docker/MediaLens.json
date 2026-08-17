@@ -1,0 +1,83 @@
+{
+  "name": "MediaLens",
+  "repo": "ghcr.io/ecoblaster/medialens:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io/ecoblaster/medialens",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/ecoblaster/MediaLens/main/frontend/public/favicon.svg",
+  "project": "https://github.com/ecoblaster/MediaLens",
+  "description": "Read-only media library analyzer for movies and TV shows, with detailed HDR, Dolby Vision, audio, codec, subtitle, and hardware compatibility analysis.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/medialens",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent MediaLens application data and SQLite database. Keep this path when upgrading or recreating the container.",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/Media/Movies",
+      "container": "/media/movies",
+      "mode": "ro",
+      "description": "Read-only path to your Movies library. The container path /media/movies is used by the MediaLens setup wizard.",
+      "required": false
+    },
+    {
+      "name": "TV Shows",
+      "host": "/mnt/cache/Media/TV Shows",
+      "container": "/media/tv",
+      "mode": "ro",
+      "description": "Read-only path to your TV Shows library. The container path /media/tv is used by the MediaLens setup wizard.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8090",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "MediaLens web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Automatic Scanning",
+      "key": "MEDIALENS_AUTO_SCAN_ENABLED",
+      "value": "true",
+      "description": "Automatically detect newly added or changed media files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Stability Seconds",
+      "key": "MEDIALENS_FILE_STABILITY_SECONDS",
+      "value": "60",
+      "description": "Number of seconds a new or changed file must remain stable before MediaLens analyzes it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reconcile Interval Minutes",
+      "key": "MEDIALENS_RECONCILE_MINUTES",
+      "value": "15",
+      "description": "How often MediaLens reconciles the library for missed changes.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

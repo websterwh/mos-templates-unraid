@@ -49,15 +49,15 @@
       "name": "Musixmatch Token",
       "key": "MUSIXMATCH_TOKEN",
       "value": "",
-      "description": "Musixmatch API token for fetching lyrics. Optional here: leave it blank and add it later in the web UI (Settings), where it is stored encrypted instead of in an env var. Without a token the dashboard shows a notice and lyric fetching stays off until you add one or switch to a tokenless provider (PetitLyrics). See the docs for how to obtain a token.",
+      "description": "Leave this blank, and ideally delete this variable entirely. Canticle obtains its own Musixmatch token on first start and stores it encrypted, so no token is needed here for a normal install. Setting a value overrides that and also turns off automatic token renewal, so a token entered here will eventually go stale and stop fetching lyrics until you replace it by hand. Only fill this in if you have a specific reason to pin your own token. If you would rather manage it in the UI, add it under Settings in the web dashboard instead, where it is stored encrypted rather than as a plain env var.",
       "required": false,
       "mask": true
     },
     {
       "name": "Trusted Networks (CIDRs)",
       "key": "MXLRC_TRUSTED_CIDRS",
-      "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
-      "description": "Comma-separated CIDRs allowed to reach the web UI without signing in and to open the first-run setup page. The default trusts all private (RFC1918) networks, which covers both your LAN and the Docker bridge so the UI works out of the box. Narrow it to just your LAN (for example 192.168.1.0/24) to tighten access. Public IPs are never trusted.",
+      "value": "",
+      "description": "LEAVE THIS BLANK unless you know you need it. Any device in a listed CIDR reaches the web dashboard and Settings WITHOUT SIGNING IN, permanently, which includes reading your API token and minting webhook keys. Blank means only the container itself is trusted, so everyone signs in normally. First-run setup no longer needs an entry here: the setup page is open until you create your admin account, then closes for good. Add your LAN (for example 192.168.1.0/24) only for something that genuinely cannot sign in, such as a Prometheus scraper reading /metrics. Public IPs are never trusted.",
       "required": false,
       "mask": false
     },

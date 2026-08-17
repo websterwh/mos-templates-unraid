@@ -1,0 +1,59 @@
+{
+  "name": "MMC-Media-Meta-Cleaner",
+  "repo": "galvatrondeva/mmc-media-meta-cleaner:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/galvatrondeva/mmc-media-meta-cleaner/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Phive-5/mmc-media-meta-cleaner/main/icon.png",
+  "project": "https://github.com/Phive-5/mmc-media-meta-cleaner",
+  "description": "MMC (Media Meta Cleaner) is a web application that removes embedded metadata from video files so media servers like Plex and Jellyfin rely solely on filenames. It scans directories for .mkv, .mp4, .avi, .mov, .wmv and .flv files, probes them for metadata tags (title, subtitle, tags, keywords, comment, description, synopsis), and lets you selectively strip those tags from any combination of files. It does NOT rename files, convert formats, or change encoding/quality. Features: - Modern web UI (React + Tailwind, dark/light themes, responsive) - Fast (In-Place) and Safe (Copy) processing modes - Post-processing verification - every file is re-probed and reported Verified Clean or FAILED - Real-time progress via WebSocket (scan %, batch %, per-file %) - Pause / Resume / Cancel - In-app log drawer with a final FAILED FILES summary - Mac turd handling - scan, log, or delete AppleDouble (._) files left behind by macOS, so Plex/Jellyfin don't get confused After installation, open the WebUI from the Unraid Docker page or at the address shown on the container page. Map your media directory to /media and the app data folder to /config.",
+  "paths": [
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Media files to process",
+      "required": true
+    },
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/mmc",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Application configuration storage (settings.json)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web Port",
+      "host": "14500",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web UI (host port maps to container port 3000)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

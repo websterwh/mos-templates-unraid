@@ -1,0 +1,91 @@
+{
+  "name": "SubSyncarr",
+  "repo": "hernandito/subsyncarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/hernandito/subsyncarr/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5889]/",
+  "icon": "https://raw.githubusercontent.com/hernandito/SubSyncarr/main/screenshots/icon.png",
+  "project": "https://github.com/hernandito/SubSyncarr",
+  "description": "SubSyncarr fixes out-of-sync external subtitles AND downloads new subtitles for your movie and TV library. It connects to your Kodi, Plex, Emby, or Jellyfin library, lets you search by title with poster art, scans folders for subtitle files, downloads subtitles from 6 providers (OpenSubtitles.com, SubDL, Gestdown, YIFY, Podnapisi, Addic7ed), and uses ffsubsync to automatically align subtitle timing against the audio track. Download and sync in one click. Works with any language combination. Every sync creates a backup first. Supports batch TV season sync with a live progress queue. Designed to be used from your couch on a phone or tablet.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/subsyncarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent config, database, and settings. Do not share with other containers.",
+      "required": true
+    },
+    {
+      "name": "Movies Folder",
+      "host": "/mnt/cache/Media/Movies",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Your unRAID movies folder. Must match your media server movie source folder.",
+      "required": true
+    },
+    {
+      "name": "TV Shows Folder",
+      "host": "/mnt/cache/Media/TV Shows",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Your unRAID TV shows folder. Must match your media server TV source folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5889",
+      "container": "5889",
+      "protocol": "tcp",
+      "description": "Web interface port for SubSyncarr",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Scrape Interval",
+      "key": "SCRAPE_INTERVAL",
+      "value": "12",
+      "description": "How often to auto-scrape your media library for new content (in hours). Options: 6, 12, or 24.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Your timezone for correct timestamps. Examples: America/New_York, America/Chicago, America/Los_Angeles, Europe/London",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions. Default 99 (nobody) works for most unRAID setups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions. Default 100 (users) works for most unRAID setups.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

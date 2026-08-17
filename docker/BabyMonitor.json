@@ -1,0 +1,128 @@
+{
+  "name": "BabyMonitor",
+  "repo": "ghcr.io/aldendana/ha-baby-monitor:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/AldenDana/ha-baby-monitor/pkgs/container/ha-baby-monitor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/AldenDana/ha-baby-monitor/main/icon.png",
+  "project": "https://github.com/AldenDana/ha-baby-monitor",
+  "description": "Monitors audio from an RTSP camera stream and sends alerts to Home Assistant when noise exceeds a configurable threshold. Designed for baby monitoring but works with any RTSP camera. Uses FFmpeg ebur128 filter for accurate volume measurement. Publishes live volume to MQTT and fires a Home Assistant webhook when noise is detected. Features dual camera fallback on connection loss, auto-reconnect, and configurable threshold + trigger count to avoid false positives. No code changes needed \u2014 fully configured via environment variables.",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Primary Camera URL",
+      "key": "CAMERA_URL",
+      "value": "",
+      "description": "Primary RTSP stream URL \u2014 e.g. rtsp://user:pass@192.168.1.x:554/stream",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Fallback Camera URL",
+      "key": "CAMERA_FALLBACK_URL",
+      "value": "",
+      "description": "Secondary RTSP URL \u2014 used automatically when the primary fails (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Noise Threshold (dBFS)",
+      "key": "THRESHOLD",
+      "value": "-30",
+      "description": "Volume threshold in dBFS. Higher = more sensitive. Silent room: -60 to -45. Baby crying: -20 to -10. Start at -30 and adjust.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trigger Count",
+      "key": "TRIGGER_COUNT",
+      "value": "2",
+      "description": "Consecutive loud readings required before alert fires \u2014 avoids false positives from brief sounds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sample Interval (s)",
+      "key": "SAMPLE_INTERVAL",
+      "value": "2",
+      "description": "Seconds between volume samples",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Host",
+      "key": "MQTT_HOST",
+      "value": "",
+      "description": "MQTT broker IP address (e.g. 192.168.1.x)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT Port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "MQTT broker port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Username",
+      "key": "MQTT_USER",
+      "value": "homeassistant",
+      "description": "MQTT username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Password",
+      "key": "MQTT_PASS",
+      "value": "",
+      "description": "MQTT password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MQTT Topic",
+      "key": "MQTT_TOPIC",
+      "value": "home/baby_monitor/volume",
+      "description": "Topic for live volume readings (used for MQTT sensor in HA)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HA Webhook URL",
+      "key": "WEBHOOK_URL",
+      "value": "http://homeassistant:8123/api/webhook/baby_noise_alert",
+      "description": "Home Assistant webhook URL to call when noise is detected",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Retry Delay (s)",
+      "key": "RETRY_DELAY",
+      "value": "5",
+      "description": "Seconds to wait before reconnecting after camera connection loss",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FFmpeg Log Level",
+      "key": "FFMPEG_LOGLEVEL",
+      "value": "warning",
+      "description": "FFmpeg verbosity: warning, verbose, debug",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,88 +1,129 @@
 {
   "name": "Krusader",
-  "repo": "ghcr.io/ich777/krusader",
+  "repo": "junkerderprovinz/krusader:latest",
   "category": [
     "Productivity"
   ],
-  "registry": "https://hub.docker.com/r/ich777/krusader",
+  "registry": "https://hub.docker.com/r/junkerderprovinz/krusader",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped",
+  "extra_parameters": "--restart=unless-stopped --shm-size=1gb",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8080]/vnc.html?autoconnect=true",
-  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/krusader.png",
-  "project": "https://krusader.org/",
-  "description": "Krusader is an advanced orthodox file manager for KDE and other desktops in the Unix world. It is similar to the console-based GNU Midnight Commander, GNOME Commander for the GNOME desktop environment, or Total Commander for Windows, all of which can trace their paradigmatic features to the original Norton Commander for DOS. It supports extensive archive handling, mounted filesystem support, FTP, advanced search, viewer/editor, directory synchronisation, file content comparisons, batch renaming, etc. Language Notice: Enter your prefered locales, you can find a full list of supported languages in: '/usr/share/i18n/SUPPORTED' simply open up a console from the Container and type in 'cat /usr/share/i18n/SUPPORTED' (eg: 'en_US.UTF-8 UTF8' or 'de_DE.UTF-8 UTF-8', 'fr_FR.UTF-8 UTF-8'...) Unassigned Devices mount: If you want to mount a share that is mounted via Unassigned Devices please change the Access Mode to Read/Write - Slave or Read Only - Slave! ATTENTION: Wronge usage of this tool can lead to data loss, be carefull when using Krusader with Unraid. You can delete your whole Array with a single button press if you don't be carefull!!!",
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/krusader/icon.png",
+  "project": "https://krusader.org",
+  "description": "Krusader file manager with native Dark Mode \u2013 built on Selkies for a smooth, hardware-accelerated web desktop. Far snappier than the noVNC-based Krusader containers (binhex / jlesage / ich777). What's pre-configured: \u2022 Dark Mode theme for Krusader, Kate and KDE \u2022 Kate as Krusader's external editor \u2022 RAR support: right-click \u2192 \"Extract RAR here\" / \"to subfolder\" \u2022 7z, ZIP, TAR, GZ, BZ2, XZ, LHA, ARJ, ACE, RPM, CPIO \u2022 Selectable UI language: 33 languages incl. German, English, French, Spanish, Italian, Portuguese (PT/BR), Dutch, Catalan, Basque, Irish, Danish, Swedish, Norwegian, Finnish, Icelandic, Polish, Czech, Slovak, Hungarian, Romanian, Slovenian, Croatian, Serbian, Bulgarian, Ukrainian, Russian, Greek, Turkish, Hebrew, Arabic, Japanese, Korean, Chinese (CN/TW) \u2022 Spell-checking in Kate for ~25 languages via Hunspell Notes: \u2022 The /storage volume defaults to /mnt \u2013 this gives Krusader access to all shares (/mnt/user) and individual disks (/mnt/disk*). \u2022 WebUI opens via HTTPS on port 3001 (self-signed cert \u2014 accept it once). The Selkies web client requires a secure connection, so open the WebUI directly ONLY over HTTPS (3001). Port 3000 (HTTP) is for a reverse proxy that terminates TLS in front of the container \u2014 opening it directly in a browser shows a \"requires a secure connection (HTTPS)\" error and will not load. \u2022 PUID/PGID default to 99/100 (nobody/users on Unraid). \u2022 Auth: leave \"WebUI Username\" and \"Password\" EMPTY to run without login. Set both to enable HTTP-basic auth on the WebUI. Recommended whenever the container is reachable from anything beyond your LAN. Source on GitHub: https://github.com/junkerderprovinz/krusader",
   "paths": [
     {
-      "name": "Container Path",
+      "name": "AppData (/config)",
       "host": "/mnt/cache/appdata/krusader",
-      "container": "/krusader",
+      "container": "/config",
       "mode": "rw",
-      "description": "Container Path: /krusader",
+      "description": "Persistent Krusader configs, history, bookmarks, default-files lock.",
       "required": true
     },
     {
-      "name": "Data Path",
-      "host": "/mnt/user",
-      "container": "/mnt/user",
-      "mode": "rw",
-      "description": "Main data path to your unRAID shares (if you want to get access to a disk mounted through UnassignedDevices change the Host and Container Path to '/mnt' and change the Access Mode to Read/Write Slave, if you want to get system level access change the Host Path to '/' and the Container Path to '/mnt', you will then find the mounted path in Kruser in '/mnt').",
+      "name": "Storage (/storage)",
+      "host": "/mnt",
+      "container": "/storage",
+      "mode": "rw,slave",
+      "description": "Main path for file operations. Default /mnt gives access to all shares (/mnt/user) and individual disks (/mnt/disk*). Adjust if you only need specific shares.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "TCP - VNC Port",
-      "host": "8080",
-      "container": "8080",
+      "name": "WebUI Port (HTTPS / Selkies)",
+      "host": "3001",
+      "container": "3001",
       "protocol": "tcp",
-      "description": "noVNC Port",
+      "description": "HTTPS port of the Selkies WebUI (self-signed cert). This is the default WebUI \u2014 HTTPS is required for clipboard support in the browser. Accept the self-signed certificate once.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port (HTTP / Selkies)",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port of the Selkies WebUI. For a reverse proxy that terminates TLS in front of the container \u2014 NOT for direct browser access. The Selkies web client requires a secure context, so opening http://IP:3000 directly shows a 'requires a secure connection (HTTPS)' error. For direct access use the HTTPS port 3001.",
+      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Locales - Language",
-      "key": "USER_LOCALES",
-      "value": "en_US.UTF-8 UTF-8",
-      "description": "Enter your prefered locales, you can find a full list of supported languages in: '/usr/share/i18n/SUPPORTED' simply open up a console from the Container and type in 'cat /usr/share/i18n/SUPPORTED' (eg: 'en_US.UTF-8 UTF8' or 'de_DE.UTF-8 UTF-8', 'fr_FR.UTF-8 UTF-8'...)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Run as root",
-      "key": "RUNASROOT",
-      "value": "false",
-      "description": "Set this variable to 'true' if you want to run Krusader as root to edit system files (please remember you have to also change the Data Path to edit system level files)",
+      "name": "UI Language (KRUSADER_LANG)",
+      "key": "KRUSADER_LANG",
+      "value": "de = Deutsch",
+      "description": "Language for the Krusader / Kate UI (33 languages). The container reads the leading code, so the full label is fine as a value. Pick 'system' for the container default. Re-applied on every container start.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Local Scaling",
-      "key": "NOVNC_RESIZE",
-      "value": "remote",
-      "description": "Delete this value if you don't want local scaling.",
+      "name": "Theme (KRUSADER_THEME)",
+      "key": "KRUSADER_THEME",
+      "value": "dark",
+      "description": "Color scheme. 'dark' = Dark Mode, 'light' = Breeze.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keyboard Layout (KEYBOARD_LAYOUT)",
+      "key": "KEYBOARD_LAYOUT",
+      "value": "us",
+      "description": "X keyboard layout loaded at session start (setxkbmap). Binds Shift so pasted UPPERCASE text keeps its case in the web desktop, and gives the correct symbols for your layout. Default 'us' suits most users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Optional. Username for HTTP-basic-auth on the WebUI. Leave EMPTY together with the password for no login. Set both fields to enable login (recommended outside trusted LANs).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Optional. Password for HTTP-basic-auth on the WebUI. Leave EMPTY together with the username for no login. STRONGLY recommended whenever the container is reachable from outside your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone (affects log timestamps and file mtimes). Use this instead of a /etc/localtime bind-mount \u2014 the LSIO base image manages /etc/localtime internally via TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "PUID",
+      "value": "500",
+      "description": "User-ID Krusader runs as. Default 99 (nobody on Unraid).",
       "required": true,
       "mask": false
     },
     {
-      "name": "Custom Resolution Width",
-      "key": "CUSTOM_RES_W",
-      "value": "1280",
-      "description": "Enter the preferred resolution width",
+      "name": "Group ID (PGID)",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group-ID. Default 100 (users on Unraid).",
       "required": true,
       "mask": false
     },
     {
-      "name": "Custom Resolution Height",
-      "key": "CUSTOM_RES_H",
-      "value": "768",
-      "description": "Enter the preferred resolution height",
-      "required": true,
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permission mask for newly created files. Use 000 if you want every container user to read/write everything.",
+      "required": false,
       "mask": false
     }
   ],

@@ -1,0 +1,171 @@
+{
+  "name": "Verbatim",
+  "repo": "ghcr.io/wastedpadre/verbatim:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/wastedpadre/verbatim/main/frontend/public/icon-192.png",
+  "project": "https://github.com/wastedpadre/verbatim",
+  "description": "Generates English closed captions from the English dub audio track of your own media. Dubtitles are hard to find because almost every \"English\" subtitle file is a translation of the Japanese audio - the dub script is a different adaptation and rarely matches what is actually spoken. Verbatim transcribes the dub itself using faster-whisper on your GPU. Requires the Nvidia Driver plugin from Community Applications and a CUDA capable card with at least 6 GB of VRAM. The transcription model holds roughly 4.7 GB while a job runs, so watch for contention if the same card also does Plex or Jellyfin hardware transcoding. Everything runs locally. An optional pass can send cue text to the Gemini API to repair misheard words; it is disabled by default and needs your own API key.",
+  "paths": [
+    {
+      "name": "Media Library",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your video library. Needs write access because the .srt is written next to each file.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/verbatim",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Job database, saved settings, and the speech model (about 3 GB on first run). Keep this on a cache pool.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Verbatim web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Use 'all', or paste a specific GPU UUID from Settings -&gt; Nvidia Driver to pin one card.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "Must include 'compute'. Without it the container runs on CPU with no error.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Model Size",
+      "key": "MODEL_SIZE",
+      "value": "large-v3",
+      "description": "large-v3 for best accuracy (~4.7 GB VRAM). distil-large-v3 is about twice as fast. medium.en is lighter still.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Compute Type",
+      "key": "COMPUTE_TYPE",
+      "value": "float16",
+      "description": "float16 is standard and works everywhere. int8_float16 roughly halves VRAM (~2.6 GB) on an 8 GB card shared with GPU transcoding, but NOT on RTX 50-series: Blackwell has no int8 cuBLAS path and jobs fail with CUBLAS_STATUS_NOT_SUPPORTED. Stay on float16 there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Device",
+      "key": "DEVICE",
+      "value": "cuda",
+      "description": "cuda or cpu. CPU works but takes roughly ten times as long.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Concurrent Jobs",
+      "key": "CONCURRENCY",
+      "value": "1",
+      "description": "Leave at 1 for a single GPU. Two jobs on one card contend for VRAM and will run out of memory on 8 GB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Roots",
+      "key": "MEDIA_ROOTS",
+      "value": "/media",
+      "description": "Container-side paths to browse. Comma-separated if you add more volumes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output Suffix",
+      "key": "OUTPUT_SUFFIX",
+      "value": ".en.dubtitles.srt",
+      "description": "Filename suffix for generated subtitles. Jellyfin selects the sidecar automatically; in Plex you must pick 'English (SRT External)' from the subtitle menu.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Word Repair Provider",
+      "key": "POLISH_PROVIDER",
+      "value": "gemini",
+      "description": "gemini, openai or anthropic. Only the matching API key below is used. Everything here is also editable live on the app's Settings page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Only needed when the provider above is openai.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Only needed when the provider above is anthropic.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr Path Translation",
+      "key": "SONARR_PATH_MAP",
+      "value": "",
+      "description": "Only needed when Sonarr and Verbatim mount the library at different paths. Format: /sonarr/path:/verbatim/path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr Series Types",
+      "key": "SONARR_SERIES_TYPES",
+      "value": "",
+      "description": "Restrict the webhook to certain Sonarr series types: standard, daily, anime. Set 'anime' to caption only anime. Blank accepts everything. Tagging the webhook connection in Sonarr is better still.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Speech Sensitivity",
+      "key": "VAD_THRESHOLD",
+      "value": "0.15",
+      "description": "Lower recovers quiet dialogue under music. 0.15 measured best on dub audio; 0.30 lost real lines.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Optional. Enables the pass that repairs misheard words. Can also be set from the app's own Settings page.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

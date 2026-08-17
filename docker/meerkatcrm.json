@@ -1,0 +1,275 @@
+{
+  "name": "meerkat-crm",
+  "repo": "ghcr.io/fbuchner/meerkat-crm:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/fbuchner/meerkat-crm/pkgs/container/meerkat-crm",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/fbuchner/meerkat-unraid/main/icon.png",
+  "project": "https://github.com/fbuchner/meerkat-crm",
+  "description": "Meerkat CRM is a self-hosted personal CRM, i.e. a digital rolodex for the people in your life. Keep track of contacts, group them into circles (friends, family, work), record how they are related to each other, and keep a social-network style timeline of notes and shared activities. Reminders (with optional e-mail notifications) nudge you about birthdays and about staying in touch. Features: - Contact management with circles, relationships, photos and custom fields - CardDAV server for two-way contact sync with your phone - Notes, activities and journaling - Recurring reminders with e-mail notification via SMTP or Resend - Calendar sync (CalDAV/ICS) to import activities - Optional single sign-on via OIDC - Multi-user with per-user data isolation All data lives in a single SQLite database inside your appdata share. No cloud, no telemetry. SETUP: set a JWT_SECRET_KEY of at least 32 characters before first start (the container will not run without it). Then browse to the WebUI and register the first account. You can customize the setup with a variety of environment variables.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/meerkat-crm/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "SQLite database and application data. Back this up.",
+      "required": true
+    },
+    {
+      "name": "Photos",
+      "host": "/mnt/cache/appdata/meerkat-crm/photos",
+      "container": "/app/static/photos",
+      "mode": "rw",
+      "description": "Uploaded contact profile photos. Back this up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7300",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the Meerkat CRM web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Secret Key",
+      "key": "JWT_SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED. Secret used to sign login tokens. Minimum 32 characters, random. Changing it logs everyone out and invalidates stored calendar passwords.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Frontend URL",
+      "key": "FRONTEND_URL",
+      "value": "*",
+      "description": "Origin allowed by CORS. Leave as * for LAN-only use, or set the exact public URL (e.g. https://crm.example.com) when exposing via reverse proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "IANA timezone for the container, e.g. Europe/Berlin or America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CardDAV Server",
+      "key": "CARDDAV_ENABLED",
+      "value": "true",
+      "description": "Enable the built-in CardDAV server so phones can sync contacts two-way. true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Registration",
+      "key": "DISABLE_REGISTRATION",
+      "value": "false",
+      "description": "Set to true after creating your accounts to block new sign-ups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Secure",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set to true when serving over HTTPS through a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reminder Time",
+      "key": "REMINDER_TIME",
+      "value": "06:00",
+      "description": "Time of day reminder e-mails are sent, HH:MM in 24-hour format.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reminder Timezone",
+      "key": "REMINDER_TIMEZONE",
+      "value": "UTC",
+      "description": "IANA timezone used to schedule reminders, e.g. Europe/Berlin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "SMTP server hostname. Leave empty to disable SMTP e-mail.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "587",
+      "description": "587 for STARTTLS, 465 with SMTP Use TLS enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "SMTP_USERNAME",
+      "value": "",
+      "description": "Leave empty for an unauthenticated relay.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "SMTP_PASSWORD",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP From Address",
+      "key": "SMTP_FROM_EMAIL",
+      "value": "",
+      "description": "Sender address for reminder e-mails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Use TLS",
+      "key": "SMTP_USE_TLS",
+      "value": "false",
+      "description": "true = implicit TLS (port 465). false = plaintext or STARTTLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resend API Key",
+      "key": "RESEND_API_KEY",
+      "value": "",
+      "description": "Optional alternative to SMTP, see https://resend.com. If both are configured, mail is sent through both.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Resend From Address",
+      "key": "RESEND_FROM_EMAIL",
+      "value": "",
+      "description": "Verified sender address for Resend.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Provider URL",
+      "key": "OIDC_PROVIDER_URL",
+      "value": "",
+      "description": "Issuer URL of your OIDC provider. Register your-url/api/v1/auth/oidc/callback as the redirect URI. All three OIDC fields must be set to enable SSO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Auto Provision",
+      "key": "OIDC_AUTO_PROVISION",
+      "value": "false",
+      "description": "Create an account automatically on first SSO login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Trust Email",
+      "key": "OIDC_TRUST_EMAIL",
+      "value": "false",
+      "description": "Accept e-mail claims without email_verified=true. Only enable for a provider you control.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Sync Interval",
+      "key": "CALDAV_SYNC_INTERVAL_HOURS",
+      "value": "6",
+      "description": "Hours between calendar sync runs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Block Private URLs",
+      "key": "CALDAV_BLOCK_PRIVATE_URLS",
+      "value": "false",
+      "description": "Block calendar URLs pointing at private or loopback addresses. Keep false to sync calendars on your LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook Block Private URLs",
+      "key": "WEBHOOK_BLOCK_PRIVATE_URLS",
+      "value": "false",
+      "description": "Block outgoing webhooks to private IP ranges. Keep false to reach services on your LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Expiry Hours",
+      "key": "JWT_EXPIRY_HOURS",
+      "value": "96",
+      "description": "How long a login stays valid, in hours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warn or error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID owning files in the mounted volumes. 99 = nobody on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID owning files in the mounted volumes. 100 = users on Unraid.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

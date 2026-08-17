@@ -1,0 +1,91 @@
+{
+  "name": "Claper",
+  "repo": "ghcr.io/claperco/claper:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/ClaperCo/Claper/pkgs/container/claper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4000]",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/claper/icon.png",
+  "project": "https://claper.co",
+  "description": "Claper is an open-source, self-hosted alternative to Mentimeter/Slido: run live polls, Q&A and quizzes alongside your slides, audience joins from their own phone/laptop, no app install. This is a plug-and-play Unraid Community Applications template that wraps the official ghcr.io/claperco/claper image. Variables with fixed options are dropdowns. IMPORTANT - two one-time setup steps (see the README): 1. DATABASE: Claper needs a reachable PostgreSQL server and takes a single combined connection string, not separate host/port/user/password fields. Create a database and user first, then fill in the Database URL field below in the form postgres://USER:PASSWORD@HOST:PORT/DBNAME. 2. SECRET KEY: generate one with `openssl rand -base64 48` on the Unraid console and paste it into Secret Key Base below. It signs sessions/cookies - keep it stable across restarts, or every logged-in user gets signed out. First login: the image auto-seeds a default admin account, admin@claper.co / claper. Change that password immediately after first login. Detailed README (full setup & options): https://github.com/junkerderprovinz/Unraid-apps/blob/main/claper/README.md",
+  "paths": [
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/claper/uploads",
+      "container": "/app/uploads",
+      "mode": "rw",
+      "description": "Uploaded presentation files (slides, images). Must be mapped or everything is lost on recreate.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "4000",
+      "container": "4000",
+      "protocol": "tcp",
+      "description": "Claper web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Full PostgreSQL connection string: postgres://USER:PASSWORD@HOST:PORT/DBNAME. Claper takes one combined URL, not separate host/user/password fields - create the database and user first (see the README for the SQL).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Secret Key Base",
+      "key": "SECRET_KEY_BASE",
+      "value": "",
+      "description": "Signs sessions/cookies. Generate with: openssl rand -base64 48 - paste the output here and keep it stable across restarts, or every logged-in user gets signed out. Must be at least 32 bytes; the container refuses to start without one.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "http://192.168.1.10:4000",
+      "description": "Public URL Claper is reached at (must start with http:// or https://) - used to build links shared with your audience (join links, QR codes). Replace the placeholder IP with your server's real address or reverse-proxy domain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Account Creation",
+      "key": "ENABLE_ACCOUNT_CREATION",
+      "value": "true",
+      "description": "Pick from the dropdown. Whether visitors can self-register a presenter account. Set to false once you and your team have accounts, to keep it private.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max File Size (MB)",
+      "key": "MAX_FILE_SIZE_MB",
+      "value": "15",
+      "description": "Maximum upload size per presentation file, in megabytes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Languages",
+      "key": "LANGUAGES",
+      "value": "en,fr,es,it,de",
+      "description": "Comma-separated list of UI languages to offer, from Claper's supported set.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
