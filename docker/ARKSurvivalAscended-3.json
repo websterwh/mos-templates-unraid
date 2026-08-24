@@ -1,0 +1,185 @@
+{
+  "name": "ARK-SurvivalAscended",
+  "repo": "reckleschamp/asa-server:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/reckleschamp/asa-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Reckleschamp/unraid-templates/main/images/asa.png",
+  "project": "https://hub.docker.com/r/reckleschamp/asa-server",
+  "description": "ARK: Survival Ascended dedicated server. IMPORTANT PORT SETUP: Before applying this template, click: \"Add another Path, Port, Variable, Label or Device\" Add two port mappings, one for the game port and one for the RCON port. Game port is UDP and RCON port is TCP. Every map container must use unique game and RCON ports. The host, container and configured port must all match. Multiple map containers can share one cluster directory.",
+  "paths": [
+    {
+      "name": "Server Data",
+      "host": "/mnt/cache/appdata/asa-server",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Private data for this map, the ASA installation, configuration, saves, logs, and Proton prefix. Every map container must use a different host directory.",
+      "required": true
+    },
+    {
+      "name": "Shared Cluster Directory",
+      "host": "/mnt/cache/appdata/asa-cluster",
+      "container": "/cluster",
+      "mode": "rw",
+      "description": "Shared player, item, and creature transfer data. Every map in the same cluster must use this exact same host directory.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Session Name",
+      "key": "SESSION_NAME",
+      "value": "My ASA Server",
+      "description": "Public server name displayed in the ARK server browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Map Name",
+      "key": "MAP_NAME",
+      "value": "TheIsland_WP",
+      "description": "ASA map launch name. Example: TheIsland_WP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Players",
+      "key": "MAX_PLAYERS",
+      "value": "50",
+      "description": "Maximum number of simultaneous players allowed on this server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mod IDs",
+      "key": "MOD_IDS",
+      "value": "",
+      "description": "Optional comma-separated ASA CurseForge mod project IDs in load order must end with a trailing comma. Leave blank to run without mods. Example: 928708,929110,935408,",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Port",
+      "key": "ASA_PORT",
+      "value": "7777",
+      "description": "UDP port used directly by ASA. Manually add a UDP port mapping where the host port and container port both match this value. Every map must use a unique game port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON Port",
+      "key": "RCON_PORT",
+      "value": "27020",
+      "description": "TCP port used by ASA RCON and graceful shutdown. Manually add a TCP port mapping where the host port and container port both match this value. Every map must use a unique RCON port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cluster ID",
+      "key": "CLUSTER_ID",
+      "value": "cluster1",
+      "description": "Shared cluster identifier. Every map that should allow character, creature, and item transfers must use exactly the same value.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Administrator password passed to ASA and used for RCON authentication.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Player Server Password",
+      "key": "SERVER_PASSWORD",
+      "value": "",
+      "description": "Optional password players must enter to join. Leave blank for no player password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Extra Server Arguments",
+      "key": "EXTRA_SERVER_ARGS",
+      "value": "",
+      "description": "Optional advanced command-line arguments passed directly to ArkAscendedServer.exe. Separate arguments with spaces. Do not place Game.ini or GameUserSettings.ini settings here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Container time zone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Update Server at Startup",
+      "key": "UPDATE_SERVER",
+      "value": "true",
+      "description": "When true, SteamCMD checks for and installs ASA server updates before starting the map. When false, the currently installed server files are used.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Validate Server Files",
+      "key": "VALIDATE_SERVER",
+      "value": "false",
+      "description": "When true, SteamCMD verifies the complete ASA server installation before startup. Use for troubleshooting or repairing damaged server files because validation substantially increases startup time.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable BattlEye",
+      "key": "BATTLEYE",
+      "value": "false",
+      "description": "Set to true to launch ASA with BattlEye. When false, the container adds the -NoBattlEye launch argument.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug Logging",
+      "key": "DEBUG_LOGGING",
+      "value": "false",
+      "description": "Creates persistent container, Proton, system-information, launch-information, and ASA diagnostic files under /data/logs/debug. Enable only while troubleshooting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug Log Maximum Size",
+      "key": "DEBUG_LOG_MAX_MB",
+      "value": "10",
+      "description": "Maximum size in MB for each generated container or Proton debug log. Older content is removed while retaining the newest diagnostic information.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Post-Save Delay",
+      "key": "SAVE_WAIT_SECONDS",
+      "value": "10",
+      "description": "Seconds to wait after sending the RCON SaveWorld command before requesting server shutdown. This gives ASA time to finish writing the save.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ASA Shutdown Timeout",
+      "key": "STOP_TIMEOUT",
+      "value": "30",
+      "description": "Maximum seconds the shutdown script waits for ASA to exit normally.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

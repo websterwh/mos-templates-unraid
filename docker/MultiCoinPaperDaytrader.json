@@ -1,0 +1,331 @@
+{
+  "name": "Multi-Coin-Paper-Daytrader",
+  "repo": "ghcr.io/2crazytv/multi-coin-paper-daytrader:latest",
+  "category": [
+    "Crypto"
+  ],
+  "registry": "https://ghcr.io/2crazytv/multi-coin-paper-daytrader",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --read-only --init --tmpfs=/tmp:size=64m,mode=1777 --security-opt=no-new-privileges:true --cap-drop=ALL --pids-limit=2048 --restart=unless-stopped --stop-timeout=20",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]/",
+  "icon": "https://raw.githubusercontent.com/2CrAzYTV/multi-coin-paper-daytrader/main/unraid/multi-coin-paper-daytrader.png",
+  "project": "https://github.com/2CrAzYTV/multi-coin-paper-daytrader",
+  "description": "Public beta of a paper-only multi-coin crypto day-trading simulator. It starts with deterministic demo data and can optionally use read-only Bitpanda Fusion market data. It cannot place real-money orders. The default shared-risk portfolio scans BTC-EUR, ETH-EUR, SOL-EUR, XRP-EUR and ADA-EUR with 15-minute signals and a 1-hour trend filter.",
+  "paths": [
+    {
+      "name": "Persistent Data",
+      "host": "/mnt/cache/appdata/paper-trading-bot/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database and cached market data. The directory must be writable by UID/GID 99:100.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Local dashboard port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "UI Language",
+      "key": "APP_LANGUAGE",
+      "value": "de",
+      "description": "Default dashboard language: de or en. The UI also has a language selector.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Market Data Source",
+      "key": "DATA_SOURCE",
+      "value": "demo",
+      "description": "demo for safe simulated data or fusion for read-only Bitpanda Fusion market data.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bitpanda Key",
+      "key": "FUSION_READ_API_KEY",
+      "value": "",
+      "description": "Required only when DATA_SOURCE=fusion. Use a Bitpanda Fusion key with Read permission only; disable Trade and Transfer. Masking hides the value in the form, but Unraid still stores it in the local container configuration.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Starting Paper Capital",
+      "key": "STARTING_CAPITAL",
+      "value": "1000",
+      "description": "Starting balance for the paper account in EUR.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Risk per Trade",
+      "key": "RISK_PER_TRADE",
+      "value": "0.005",
+      "description": "Fraction of equity risked per trade. 0.005 = 0.5%. Maximum allowed by the bot is 1%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Aggregate Risk",
+      "key": "MAX_AGGREGATE_RISK",
+      "value": "0.01",
+      "description": "Maximum combined open-position risk. 0.01 = 1%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Daily Loss",
+      "key": "MAX_DAILY_LOSS",
+      "value": "0.02",
+      "description": "Daily loss limit. 0.02 = 2%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Open Positions",
+      "key": "MAX_OPEN_POSITIONS",
+      "value": "2",
+      "description": "Maximum simultaneous paper positions (1-3).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Trades per Day",
+      "key": "MAX_TRADES_PER_DAY",
+      "value": "3",
+      "description": "Maximum number of new paper trades per day (1-6).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trading Pairs",
+      "key": "PAIRS",
+      "value": "BTC-EUR,ETH-EUR,SOL-EUR,XRP-EUR,ADA-EUR",
+      "description": "Comma-separated EUR pairs, up to 10.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Candle Interval",
+      "key": "CANDLE_INTERVAL",
+      "value": "15m",
+      "description": "Primary strategy candle interval.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trend Interval",
+      "key": "TREND_INTERVAL",
+      "value": "1h",
+      "description": "Higher-timeframe trend filter interval.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Paper Only Safety Lock",
+      "key": "PAPER_ONLY",
+      "value": "true",
+      "description": "Must remain true. This release cannot place real-money orders.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hard Drawdown Limit",
+      "key": "HARD_DRAWDOWN",
+      "value": "0.10",
+      "description": "Hard account drawdown limit. 0.10 = 10%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Fee Rate",
+      "key": "FEE_RATE",
+      "value": "0.001",
+      "description": "Simulated trading fee rate. 0.001 = 0.1%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Slippage Rate",
+      "key": "SLIPPAGE_RATE",
+      "value": "0.0005",
+      "description": "Simulated slippage rate. 0.0005 = 0.05%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Fast EMA Window",
+      "key": "FAST_WINDOW",
+      "value": "9",
+      "description": "Fast strategy window.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Slow EMA Window",
+      "key": "SLOW_WINDOW",
+      "value": "21",
+      "description": "Slow strategy window.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trend Fast Window",
+      "key": "TREND_FAST_WINDOW",
+      "value": "20",
+      "description": "Fast higher-timeframe trend window.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trend Slow Window",
+      "key": "TREND_SLOW_WINDOW",
+      "value": "50",
+      "description": "Slow higher-timeframe trend window.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ATR Window",
+      "key": "ATR_WINDOW",
+      "value": "14",
+      "description": "ATR calculation period.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RSI Window",
+      "key": "RSI_WINDOW",
+      "value": "14",
+      "description": "RSI calculation period.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Stop ATR Multiple",
+      "key": "STOP_ATR_MULTIPLE",
+      "value": "1.5",
+      "description": "ATR multiplier used for protective stops.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minimum Stop Percent",
+      "key": "MINIMUM_STOP_PCT",
+      "value": "0.006",
+      "description": "Minimum stop distance. 0.006 = 0.6%.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Take Profit R",
+      "key": "TAKE_PROFIT_R",
+      "value": "2.0",
+      "description": "Take-profit target in R multiples.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trailing Trigger R",
+      "key": "TRAILING_TRIGGER_R",
+      "value": "1.0",
+      "description": "R multiple that activates the trailing logic.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "History Bars",
+      "key": "HISTORY_BARS",
+      "value": "500",
+      "description": "Bars loaded for live strategy calculations.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backtest Bars",
+      "key": "BACKTEST_BARS",
+      "value": "1000",
+      "description": "Bars used by the backtest.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Poll Interval Seconds",
+      "key": "POLL_SECONDS",
+      "value": "60",
+      "description": "Automatic scanner interval in seconds (30-900).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Close Hour",
+      "key": "SESSION_CLOSE_HOUR",
+      "value": "23",
+      "description": "Daily session close hour in APP_TIMEZONE.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Close Minute",
+      "key": "SESSION_CLOSE_MINUTE",
+      "value": "45",
+      "description": "Daily session close minute.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cooldown Minutes",
+      "key": "COOLDOWN_MINUTES",
+      "value": "45",
+      "description": "Cooldown after a completed trade before another entry.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Application Timezone",
+      "key": "APP_TIMEZONE",
+      "value": "Europe/Berlin",
+      "description": "Timezone used by the trading session logic.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone used by the container and logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Directory",
+      "key": "DATA_DIR",
+      "value": "/data",
+      "description": "Container path for persistent SQLite data. Keep /data with the path mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Fusion Base URL",
+      "key": "FUSION_BASE_URL",
+      "value": "https://api.fusion.bitpanda.com",
+      "description": "Bitpanda Fusion API base URL.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

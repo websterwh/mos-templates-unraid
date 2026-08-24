@@ -1,0 +1,66 @@
+{
+  "name": "questly",
+  "repo": "hansford909/questly:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/hansford909/questly",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/mahansford/questly/main/app/static/icons/icon-512.png",
+  "project": "https://github.com/mahansford/questly",
+  "description": "A family points-and-rewards app. Grown-ups award points for quests and good behaviour; kids spend them in a shop of rewards you stock yourself. Kids sign in by tapping their face and typing a 4-6 digit PIN, or no PIN at all for the youngest. They get a quest list with big Done buttons, a progress bar counting down to the next reward they cannot quite afford, and a shop showing what they can buy now. Grown-ups get quick award buttons, a quest board, a shop editor, and one approvals page for everything waiting on them. Every point movement is written to a ledger with a running balance. The interface is mobile-first and installs to a phone or tablet home screen. IMPORTANT - this container needs a MongoDB 5 or newer server, which is not included. Install one from Community Apps first, then point MONGO_URI at it. Questly keeps no local state, so there is no appdata path to configure and nothing to back up except the database. If your MongoDB container is on Unraid's default bridge network, container names will not resolve - use the server's LAN IP with MongoDB's port published, for example mongodb://192.168.1.50:27017/. Container names only work if both containers share a user-defined custom network.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "37000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the Questly web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MongoDB URI",
+      "key": "MONGO_URI",
+      "value": "mongodb://192.168.1.50:27017/",
+      "description": "Where your MongoDB server is. Use the LAN IP unless both containers share a custom network. Add credentials if authentication is on: mongodb://user:pass@host:27017/?authSource=admin",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Signs login cookies. Set a long random value - generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Drives dates and the daily and weekly quest resets, e.g. Europe/London or America/New_York.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Name",
+      "key": "MONGO_DB",
+      "value": "questly",
+      "description": "Name of the database inside MongoDB. Only change this if you run more than one Questly.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

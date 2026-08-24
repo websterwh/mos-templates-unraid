@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8477]/dashboard",
   "icon": "https://raw.githubusercontent.com/CasaVargas/beltr-unraid/main/icon.png",
   "project": "https://beltr.app",
-  "description": "Beltr turns any song in your music library into a karaoke track. It separates the vocals out with a local AI model, finds or transcribes synced lyrics, and displays them on a TV while everyone's phone acts as a remote \u2014 scan the QR code on screen, no app to install. Everything runs on your server. Nothing about your library is uploaded. FIRST RUN: Beltr downloads about 2 GB of model weights into /cache the first time it needs them. That happens once and survives container updates as long as /cache stays mapped. Watch the container log if a first song seems to sit still \u2014 the download is what it's doing. SPEED: this is the CPU image. On a modern multi-core server, separating a 3-4 minute song takes a few minutes; most songs then get their lyrics instantly from an online lyrics database. The slow case is a song no lyrics provider knows, which falls back to local transcription and can take considerably longer \u2014 set WHISPER_MODEL_SIZE to large-v3-turbo if you hit that often. If your server has an NVIDIA GPU, install \"Beltr-NVIDIA\" instead; it is dramatically faster. LICENSE: Beltr is a one-time purchase (no subscription). Run it free for five songs, then enter your key from beltr.app in the License key field below \u2014 or drop it in a file at /config/license.key. It activates once and then works offline. Container updates and restarts do not re-activate, as long as you keep the Config path mapped; a key covers two installs. AFTER INSTALL: open the WebUI, go to Settings, and add /media as a music folder. Then open http://your-server:8477/tv on whatever screen you're singing at, and scan the QR with a phone. MICROPHONES NEED HTTPS: browsers only allow microphone access on a secure page, so singing scores and the phone-as-mic feature need Beltr behind a reverse proxy with a certificate. Everything else \u2014 queueing, playback, lyrics, stem mixing \u2014 works normally over plain http. NOTE: Beltr assumes everyone who can reach it is trusted. Set AUTH_PASSWORD to put a password on the TV and dashboard screens, but do not expose this container to the internet without a reverse proxy doing real authentication in front of it.",
+  "description": "Beltr turns any song in your music library into a karaoke track. It separates the vocals out with a local AI model, finds or transcribes synced lyrics, and displays them on a TV while everyone's phone acts as a remote \u2014 scan the QR code on screen, no app to install. Everything runs on your server. Nothing about your library is uploaded. FIRST RUN: Beltr downloads about 2 GB of model weights into /cache the first time it needs them. That happens once and survives container updates as long as /cache stays mapped. Watch the container log if a first song seems to sit still \u2014 the download is what it's doing. SPEED: this is the CPU image. On a modern multi-core server, separating a 3-4 minute song takes a few minutes; most songs then get their lyrics instantly from an online lyrics database. The slow case is a song no lyrics provider knows, which falls back to local transcription and can take a couple of minutes. If your server has an NVIDIA GPU, install \"Beltr-NVIDIA\" instead; it is dramatically faster. LICENSE: Beltr is a one-time purchase (no subscription). Run it free for five songs, then enter your key from beltr.app in the License key field below \u2014 or drop it in a file at /config/license.key. It activates once and then works offline. Container updates and restarts do not re-activate, as long as you keep the Config path mapped; a key covers two installs. AFTER INSTALL: open the WebUI, go to Settings, and add /media as a music folder. Then open http://your-server:8477/tv on whatever screen you're singing at, and scan the QR with a phone. MICROPHONES NEED HTTPS: browsers only allow microphone access on a secure page, so singing scores and the phone-as-mic feature need Beltr behind a reverse proxy with a certificate. Everything else \u2014 queueing, playback, lyrics, stem mixing \u2014 works normally over plain http. NOTE: Beltr assumes everyone who can reach it is trusted. Set AUTH_PASSWORD to put a password on the TV and dashboard screens, but do not expose this container to the internet without a reverse proxy doing real authentication in front of it.",
   "paths": [
     {
       "name": "Config",
@@ -108,22 +108,6 @@
       "description": "Optional password on the TV and dashboard screens and the settings endpoints. Phones joining a room are NOT affected. This keeps the household out of your settings; it is not internet-grade authentication.",
       "required": false,
       "mask": true
-    },
-    {
-      "name": "Transcription model",
-      "key": "WHISPER_MODEL_SIZE",
-      "value": "large-v3",
-      "description": "Only used for songs no online lyrics provider knows. large-v3 is the most accurate; large-v3-turbo is much faster on CPU-only servers.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Separation model",
-      "key": "DEMUCS_MODEL",
-      "value": "htdemucs",
-      "description": "htdemucs is the default and the only one bundled; anything else downloads on first use. htdemucs_ft is about 4x slower for a small quality gain.",
-      "required": false,
-      "mask": false
     },
     {
       "name": "Fix permissions",

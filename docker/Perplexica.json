@@ -1,0 +1,50 @@
+{
+  "name": "Perplexica",
+  "repo": "itzcrazykns1337/vane:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/itzcrazykns1337/vane",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/chrizzo84/unraid-templates/main/icons/perplexica.png",
+  "project": "https://github.com/ItzCrazyKns/Vane",
+  "description": "Perplexica is an open-source, privacy-focused AI answering engine that runs entirely on your own hardware - an open alternative to Perplexity AI. The project has since been rebranded to \"Vane\" by its maintainer, but the Docker image and functionality remain the same. It combines web search results with local LLMs (via Ollama) or cloud AI providers (OpenAI, Anthropic Claude, Google Gemini, Groq, and more) to deliver accurate, cited answers while keeping your searches completely private. This template uses the all-in-one image which bundles SearxNG directly inside the container, so no separate SearxNG container or additional setup is required. Simply start the container, open the Web UI, and configure your AI provider (API keys, models, etc.) in the setup screen. If you already run a separate SearxNG instance, use the \"itzcrazykns1337/vane:slim-latest\" image instead and set a SEARXNG_API_URL environment variable pointing to it. Bundled SearxNG's own config (settings.yml, limiter.toml, uwsgi.ini) lives at /etc/searxng inside the container and is NOT persisted by default. To edit it permanently (e.g. disable a flaky search engine): start the container once, then on the Unraid host run \"docker cp Perplexica:/etc/searxng /mnt/user/appdata/Perplexica/searxng\" to seed the folder with the current files, then enable the \"SearXNG Config\" path below (Advanced view) and restart the container. Skipping the seeding step and mounting an empty folder will make SearxNG fail to start, since it hides the files baked into the image.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/Perplexica/data",
+      "container": "/home/vane/data",
+      "mode": "rw",
+      "description": "Storage location for settings, search history and uploaded files.",
+      "required": true
+    },
+    {
+      "name": "SearXNG Config",
+      "host": "/mnt/cache/appdata/Perplexica/searxng",
+      "container": "/etc/searxng",
+      "mode": "rw",
+      "description": "Optional: persist SearxNG's settings.yml/limiter.toml/uwsgi.ini across updates. Before enabling, seed this folder with 'docker cp Perplexica:/etc/searxng /mnt/user/appdata/Perplexica/searxng' - an empty folder here will prevent SearxNG from starting.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the Perplexica Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

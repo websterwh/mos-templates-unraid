@@ -1,0 +1,83 @@
+{
+  "name": "Alarm-HUB",
+  "repo": "ghcr.io/2crazytv/alarm-hub:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io/2crazytv/alarm-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://github.com/2CrAzYTV/Alarm-HUB/raw/refs/heads/main/icon.png",
+  "project": "https://github.com/2CrAzYTV/Alarm-HUB",
+  "description": "Alarm-HUB is a standalone multi-user alarm service with manual alarms, mobile API access, optional WebComm Calendar Sync integration, and optional direct WebComm import. PostgreSQL is embedded by default, so a normal Unraid installation requires only one container. Persistent application and database data are stored below /config.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/alarm-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent Alarm-HUB data, including the embedded PostgreSQL database and generated application secret.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port for the Alarm-HUB WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Mode",
+      "key": "DATABASE_MODE",
+      "value": "embedded",
+      "description": "embedded = integrated PostgreSQL database (recommended); external = use your own PostgreSQL server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Only required for DATABASE_MODE=external. Example: postgresql+psycopg://user:password@host:5432/database",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Optional in embedded mode: when left empty Alarm-HUB creates and persists a strong secret under /config. Set and keep a fixed value for external/managed deployments if desired.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Default Timezone",
+      "key": "DEFAULT_TIMEZONE",
+      "value": "Europe/Berlin",
+      "description": "Default timezone for new users.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure Session Cookies",
+      "key": "SESSION_HTTPS_ONLY",
+      "value": "false",
+      "description": "Default false for direct local HTTP access in Unraid. Set true when Alarm-HUB is published through an HTTPS reverse proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

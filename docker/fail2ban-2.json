@@ -1,40 +1,209 @@
 {
   "name": "fail2ban",
-  "repo": "crazymax/fail2ban:latest",
+  "repo": "lscr.io/linuxserver/fail2ban",
   "category": [
-    "Security"
+    "Network"
   ],
-  "registry": "https://hub.docker.com/r/crazymax/fail2ban",
-  "network": "bridge",
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/fail2ban",
+  "network": "host",
   "custom_ip": null,
-  "default_shell": "sh",
-  "privileged": true,
+  "default_shell": "bash",
+  "privileged": false,
   "extra_parameters": "--cap-add=NET_ADMIN --cap-add=NET_RAW",
   "post_parameters": null,
   "web_ui_url": null,
-  "icon": "https://raw.githubusercontent.com/FrankM77/docker-fail2ban/master/Fail2ban_logo.png",
-  "project": "http://www.fail2ban.org/wiki/index.php/Main_Page",
-  "description": "Fail2ban container Icon URL : https://raw.githubusercontent.com/FrankM77/docker-fail2ban/master/Fail2ban_logo.png You must add a path to your container log file that you want fail2ban to monitor. Important: If you are using Nginx Proxy Manger with Cloudflare tunnels then you need to pass the client IP to your container that you want fail2ban to protect. For instance I have fail2ban protecting my Jellyfin container but inititally in the Jellyfin logfiles it would log the IP address as 172.18.0.1, so in order to log the real connecting client IP you need to go into Nginx Proxy manager--->proxy host---->Advanced------>Under custom configuration add \"real ip header CF-Connecting-IP\" without the quotes. You will then notice that your container log (in my case jellyfin) will have the real ip of the connecting user/client.",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/fail2ban-logo.png",
+  "project": "http://www.fail2ban.org/",
+  "description": "Fail2ban(http://www.fail2ban.org/) is a daemon to ban hosts that cause multiple authentication errors.",
   "paths": [
     {
-      "name": "LOG_FILE",
-      "host": "/var/log",
-      "container": "/var/log",
+      "name": "Appdata",
+      "host": "",
+      "container": "/config",
       "mode": "rw",
-      "description": "Container Path: /var/log",
+      "description": "Persistent config files",
+      "required": true
+    },
+    {
+      "name": "Path: /var/log",
+      "host": "",
+      "container": "/var/log",
+      "mode": "ro",
+      "description": "Host logs. Mounted as Read Only.",
+      "required": true
+    },
+    {
+      "name": "Path: /remotelogs/airsonic",
+      "host": "",
+      "container": "/remotelogs/airsonic",
+      "mode": "ro",
+      "description": "Optional path to airsonic log folder. Mounted as Read Only.",
       "required": false
     },
     {
-      "name": "data",
-      "host": "/mnt/cache/appdata/fail2ban",
-      "container": "/data",
-      "mode": "rw",
-      "description": "Container Path: /data",
+      "name": "Path: /remotelogs/apache2",
+      "host": "",
+      "container": "/remotelogs/apache2",
+      "mode": "ro",
+      "description": "Optional path to apache2 log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/authelia",
+      "host": "",
+      "container": "/remotelogs/authelia",
+      "mode": "ro",
+      "description": "Optional path to authelia log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/emby",
+      "host": "",
+      "container": "/remotelogs/emby",
+      "mode": "ro",
+      "description": "Optional path to emby log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/filebrowser",
+      "host": "",
+      "container": "/remotelogs/filebrowser",
+      "mode": "ro",
+      "description": "Optional path to filebrowser log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/homeassistant",
+      "host": "",
+      "container": "/remotelogs/homeassistant",
+      "mode": "ro",
+      "description": "Optional path to homeassistant log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/lighttpd",
+      "host": "",
+      "container": "/remotelogs/lighttpd",
+      "mode": "ro",
+      "description": "Optional path to lighttpd log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/nextcloud",
+      "host": "",
+      "container": "/remotelogs/nextcloud",
+      "mode": "ro",
+      "description": "Optional path to nextcloud log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/nginx",
+      "host": "",
+      "container": "/remotelogs/nginx",
+      "mode": "ro",
+      "description": "Optional path to nginx log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/nzbget",
+      "host": "",
+      "container": "/remotelogs/nzbget",
+      "mode": "ro",
+      "description": "Optional path to nzbget log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/overseerr",
+      "host": "",
+      "container": "/remotelogs/overseerr",
+      "mode": "ro",
+      "description": "Optional path to overseerr log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/prowlarr",
+      "host": "",
+      "container": "/remotelogs/prowlarr",
+      "mode": "ro",
+      "description": "Optional path to prowlarr log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/radarr",
+      "host": "",
+      "container": "/remotelogs/radarr",
+      "mode": "ro",
+      "description": "Optional path to radarr log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/sabnzbd",
+      "host": "",
+      "container": "/remotelogs/sabnzbd",
+      "mode": "ro",
+      "description": "Optional path to sabnzbd log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/sonarr",
+      "host": "",
+      "container": "/remotelogs/sonarr",
+      "mode": "ro",
+      "description": "Optional path to sonarr log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/unificontroller",
+      "host": "",
+      "container": "/remotelogs/unificontroller",
+      "mode": "ro",
+      "description": "Optional path to unificontroller log folder. Mounted as Read Only.",
+      "required": false
+    },
+    {
+      "name": "Path: /remotelogs/vaultwarden",
+      "host": "",
+      "container": "/remotelogs/vaultwarden",
+      "mode": "ro",
+      "description": "Optional path to vaultwarden log folder. Mounted as Read Only.",
       "required": false
     }
   ],
   "ports": [],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Verbosity",
+      "key": "VERBOSITY",
+      "value": "-vv",
+      "description": "Set the container log verbosity. Valid options are -v, -vv, -vvv, -vvvv, or leaving the value blank or not setting the variable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container Variable: PUID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container Variable: PGID",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Container Variable: UMASK",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

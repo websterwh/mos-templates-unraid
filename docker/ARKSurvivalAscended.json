@@ -1,182 +1,273 @@
 {
-  "name": "ARK-SurvivalAscended",
-  "repo": "reckleschamp/asa-server:latest",
+  "name": "ARKSurvivalAscended",
+  "repo": "acekorneya/asa_server:latest",
   "category": [
     "Game Server"
   ],
-  "registry": "https://hub.docker.com/r/reckleschamp/asa-server",
+  "registry": "https://hub.docker.com/r/acekorneya/asa_server",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
-  "web_ui_url": null,
-  "icon": "https://raw.githubusercontent.com/Reckleschamp/unraid-templates/main/images/asa.png",
-  "project": "https://hub.docker.com/r/reckleschamp/asa-server",
-  "description": "ARK: Survival Ascended dedicated server. IMPORTANT PORT SETUP: Before applying this template, click: \"Add another Path, Port, Variable, Label or Device\" Add two port mappings, one for the game port and one for the RCON port. Game port is UDP and RCON port is TCP. Every map container must use unique game and RCON ports. The host, container and configured port must all match. Multiple map containers can share one cluster directory.",
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/mavrag/unraid-templates/master/logos/asa.png",
+  "project": "https://survivetheark.com/",
+  "description": "`ich777` no longer supports ARK: Survival Ascended, so this is an alternative Unraid template that uses the `acekorneya/asa_server` image. This Docker will download and install ARK: Survival Ascended Dedicated Server and run it (Normal server startup of ARK can take a long time!). ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available.",
   "paths": [
     {
-      "name": "Server Data",
-      "host": "/mnt/cache/appdata/asa-server",
-      "container": "/data",
+      "name": "ShooterGame",
+      "host": "/mnt/cache/appdata/ark-sa/ASA",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/common/ARK Survival Ascended Dedicated Server/ShooterGame",
       "mode": "rw",
-      "description": "Private data for this map, the ASA installation, configuration, saves, logs, and Proton prefix. Every map container must use a different host directory.",
+      "description": "ShooterGame directory (config/saves/mods)",
       "required": true
     },
     {
-      "name": "Shared Cluster Directory",
-      "host": "/mnt/cache/appdata/asa-cluster",
-      "container": "/cluster",
+      "name": "DedicatedServer",
+      "host": "/mnt/cache/appdata/ark-sa/Server",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/common/ARK Survival Ascended Dedicated Server",
       "mode": "rw",
-      "description": "Shared player, item, and creature transfer data. Every map in the same cluster must use this exact same host directory.",
+      "description": "Dedicated server installation directory",
+      "required": true
+    },
+    {
+      "name": "downloading",
+      "host": "/mnt/cache/appdata/ark-sa/downloading",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/downloading",
+      "mode": "rw",
+      "description": "downloading directory",
       "required": true
     }
   ],
-  "ports": [],
+  "ports": [
+    {
+      "name": "UDP 7777",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": "Game port (UDP)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON TCP",
+      "host": "27020",
+      "container": "27020",
+      "protocol": "tcp",
+      "description": "RCON port (TCP)",
+      "required": false,
+      "mask": false
+    }
+  ],
   "variables": [
     {
-      "name": "Session Name",
-      "key": "SESSION_NAME",
-      "value": "My ASA Server",
-      "description": "Public server name displayed in the ARK server browser.",
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "Unraid compatibility (not used by this image)",
       "required": true,
       "mask": false
     },
     {
-      "name": "Map Name",
-      "key": "MAP_NAME",
-      "value": "TheIsland_WP",
-      "description": "ASA map launch name. Example: TheIsland_WP",
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Unraid compatibility (not used by this image)",
       "required": true,
       "mask": false
     },
     {
-      "name": "Maximum Players",
-      "key": "MAX_PLAYERS",
-      "value": "50",
-      "description": "Maximum number of simultaneous players allowed on this server.",
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The UID to run server as",
       "required": true,
       "mask": false
     },
     {
-      "name": "Mod IDs",
-      "key": "MOD_IDS",
-      "value": "",
-      "description": "Optional comma-separated ASA CurseForge mod project IDs in load order must end with a trailing comma. Leave blank to run without mods. Example: 928708,929110,935408,",
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The GID to run server as",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "Game Port",
+      "name": "BattleEye",
+      "key": "BATTLEEYE",
+      "value": "TRUE",
+      "description": "Set to TRUE to use BattleEye, FALSE to not use BattleEye",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable RCON",
+      "key": "RCON_ENABLED",
+      "value": "TRUE",
+      "description": "Needed for Graceful Shutdown",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Monitor Messages",
+      "key": "DISPLAY_POK_MONITOR_MESSAGE",
+      "value": "FALSE",
+      "description": "TRUE to show the Server Monitor Messages / Update Monitor",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Server",
+      "key": "UPDATE_SERVER",
+      "value": "TRUE",
+      "description": "Enable or disable update checks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Check Interval",
+      "key": "CHECK_FOR_UPDATE_INTERVAL",
+      "value": "24",
+      "description": "Check for Updates interval in hours",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Window Minimum",
+      "key": "UPDATE_WINDOW_MINIMUM_TIME",
+      "value": "12:00 AM",
+      "description": "Defines the minimum time, relative to server time, when an update check should run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Window Maximum",
+      "key": "UPDATE_WINDOW_MAXIMUM_TIME",
+      "value": "11:59 PM",
+      "description": "Defines the maximum time, relative to server time, when an update check should run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restart Notice Minutes",
+      "key": "RESTART_NOTICE_MINUTES",
+      "value": "30",
+      "description": "Duration in minutes for notifying players before a server restart due to updates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable MOTD",
+      "key": "ENABLE_MOTD",
+      "value": "FALSE",
+      "description": "Enable or disable Message of the Day",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MOTD",
+      "key": "MOTD",
+      "value": "",
+      "description": "Message of the Day",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MOTD Duration",
+      "key": "MOTD_DURATION",
+      "value": "30",
+      "description": "Duration for the Message of the Day",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Map",
+      "key": "MAP_NAME",
+      "value": "TheIsland",
+      "description": "The map name (`TheIsland`) or a custom map name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Name",
+      "key": "SESSION_NAME",
+      "value": "Server_name",
+      "description": "The session name for the server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "SERVER_ADMIN_PASSWORD",
+      "value": "MyPassword",
+      "description": "The admin password for the server",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Server Password",
+      "key": "SERVER_PASSWORD",
+      "value": "",
+      "description": "Set a server password or leave it blank (ONLY NUMBERS AND CHARACTERS ARE ALLOWED BY DEVS)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ASA Port",
       "key": "ASA_PORT",
       "value": "7777",
-      "description": "UDP port used directly by ASA. Manually add a UDP port mapping where the host port and container port both match this value. Every map must use a unique game port.",
-      "required": true,
+      "description": "The game port for the server",
+      "required": false,
       "mask": false
     },
     {
       "name": "RCON Port",
       "key": "RCON_PORT",
       "value": "27020",
-      "description": "TCP port used by ASA RCON and graceful shutdown. Manually add a TCP port mapping where the host port and container port both match this value. Every map must use a unique RCON port.",
-      "required": true,
+      "description": "Rcon Port Use for Most Server Operations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "127",
+      "description": "Max allowed players",
+      "required": false,
       "mask": false
     },
     {
       "name": "Cluster ID",
       "key": "CLUSTER_ID",
-      "value": "cluster1",
-      "description": "Shared cluster identifier. Every map that should allow character, creature, and item transfers must use exactly the same value.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Server Admin Password",
-      "key": "ADMIN_PASSWORD",
-      "value": "",
-      "description": "Administrator password passed to ASA and used for RCON authentication.",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "Player Server Password",
-      "key": "SERVER_PASSWORD",
-      "value": "",
-      "description": "Optional password players must enter to join. Leave blank for no player password.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Extra Server Arguments",
-      "key": "EXTRA_SERVER_ARGS",
-      "value": "",
-      "description": "Optional advanced command-line arguments passed directly to ArkAscendedServer.exe. Separate arguments with spaces. Do not place Game.ini or GameUserSettings.ini settings here.",
+      "value": "cluster",
+      "description": "The Cluster ID for the server",
       "required": false,
       "mask": false
     },
     {
-      "name": "Time Zone",
-      "key": "TZ",
-      "value": "America/Chicago",
-      "description": "Container time zone.",
-      "required": true,
+      "name": "Mod IDs",
+      "key": "MOD_IDS",
+      "value": "",
+      "description": "Add your mod IDs here, separated by commas, e.g., 123456789,987654321",
+      "required": false,
       "mask": false
     },
     {
-      "name": "Update Server at Startup",
-      "key": "UPDATE_SERVER",
-      "value": "true",
-      "description": "When true, SteamCMD checks for and installs ASA server updates before starting the map. When false, the currently installed server files are used.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Validate Server Files",
-      "key": "VALIDATE_SERVER",
-      "value": "false",
-      "description": "When true, SteamCMD verifies the complete ASA server installation before startup. Use for troubleshooting or repairing damaged server files because validation substantially increases startup time.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Enable BattlEye",
-      "key": "BATTLEYE",
-      "value": "false",
-      "description": "Set to true to launch ASA with BattlEye. When false, the container adds the -NoBattlEye launch argument.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Debug Logging",
-      "key": "DEBUG_LOGGING",
-      "value": "false",
-      "description": "Creates persistent container, Proton, system-information, launch-information, and ASA diagnostic files under /data/logs/debug. Enable only while troubleshooting.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Debug Log Maximum Size",
-      "key": "DEBUG_LOG_MAX_MB",
-      "value": "10",
-      "description": "Maximum size in MB for each generated container or Proton debug log. Older content is removed while retaining the newest diagnostic information.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Post-Save Delay",
-      "key": "SAVE_WAIT_SECONDS",
-      "value": "10",
-      "description": "Seconds to wait after sending the RCON SaveWorld command before requesting server shutdown. This gives ASA time to finish writing the save.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "ASA Shutdown Timeout",
-      "key": "STOP_TIMEOUT",
-      "value": "30",
-      "description": "Maximum seconds the shutdown script waits for ASA to exit normally.",
-      "required": true,
+      "name": "Custom Server Args",
+      "key": "CUSTOM_SERVER_ARGS",
+      "value": "",
+      "description": "If You need to add more Custom Args -ForceRespawnDinos -ForceAllowCaveFlyers",
+      "required": false,
       "mask": false
     }
   ],

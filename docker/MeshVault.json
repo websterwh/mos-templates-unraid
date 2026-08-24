@@ -1,0 +1,83 @@
+{
+  "name": "MeshVault",
+  "repo": "ghcr.io/007darkmatter5/meshvault:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/007darkmatter5/meshvault/pkgs/container/meshvault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/007darkmatter5/meshvault/main/templates/meshvault.png",
+  "project": "https://github.com/007darkmatter5/meshvault",
+  "description": "A self-hosted catalog for a 3D printing model collection. Indexes your model folders in place - files are never moved or renamed unless you allow it - and adds search, tags, collections, designers, source links, per-model notes, rendered thumbnails and an in-browser 3D preview you can rotate and snapshot. Supports STL and 3MF. Multi-user, with private collections and favorites per account. The first account you create becomes the administrator. Keep the /data volume on cache or an unassigned SSD: it holds a SQLite database, and SQLite over a network share is unreliable.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/meshvault",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, thumbnails, 3D preview cache and sign-in keys. Put this on cache or an SSD - SQLite over a network share is unreliable. Back it up: it holds your tags, collections and notes.",
+      "required": true
+    },
+    {
+      "name": "Model Library",
+      "host": "/mnt/cache/models",
+      "container": "/models",
+      "mode": "ro",
+      "description": "Your 3D model folder. Mounted read-only by default so MeshVault can never touch your files. Change to rw only if you want it to organise them for you.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the MeshVault web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Library Name",
+      "key": "MeshVault__Libraries__0__Name",
+      "value": "Models",
+      "description": "Name shown for the library above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library Path",
+      "key": "MeshVault__Libraries__0__Path",
+      "value": "/models",
+      "description": "Path inside the container for the library. Leave as /models unless you changed the mount above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rescan Interval (hours)",
+      "key": "MeshVault__RescanIntervalHours",
+      "value": "12",
+      "description": "Skip the startup scan if the library was scanned this recently. A full walk of a large library takes minutes. Set to 0 to always rescan on start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone for dates shown in the UI.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

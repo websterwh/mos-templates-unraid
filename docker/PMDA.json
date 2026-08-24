@@ -5,13 +5,13 @@
     "Media"
   ],
   "registry": "https://hub.docker.com/r/meaning/pmda",
-  "network": "bridge",
+  "network": "host",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5005]/",
+  "web_ui_url": "http://[IP]:5005/",
   "icon": "https://raw.githubusercontent.com/silkyclouds/PMDA_unraid_xml/main/pmda_p_icon.png",
   "project": "https://pmda.muteq.eu/",
   "description": "PMDA (pronounced \"pimda\") is one music lover's take on building the music library of his dreams \u2014 self-hosted, private, and genuinely a joy to use. \u2022 Understands your collection \u2014 scans huge folders and identifies every album against MusicBrainz, with a smart soft / release-group pass that recovers the covers and metadata other tools give up on. \u2022 Keeps it clean \u2014 preserves the tags and artwork you trust, quarantines duplicates and incomplete rips, and publishes a fast, PostgreSQL-backed library. \u2022 Made for listening \u2014 gapless playback with history, cross-user recommendations, clickable artist pages, synced lyrics and waveforms. \u2022 Yours everywhere \u2014 native iOS and Android apps stream and download your library, lossless FLAC included. \u2022 100% self-hosted \u2014 no cloud lock-in, no phoning home, no AI tokens. Your music, your server, your rules. Made for people who are in love with music. \ud83c\udfb5",
@@ -21,7 +21,7 @@
       "host": "/mnt/cache/appdata/pmda",
       "container": "/config",
       "mode": "rw",
-      "description": "Persistent PMDA data: PostgreSQL, Redis state, settings, auth state, logs, and generated cache.",
+      "description": "Persistent PMDA data: PostgreSQL, Redis state, settings, auth state, logs, and generated cache. If you install the optional local MusicBrainz mirror, its data (~170 GB) also lives here - put this on a fast pool with room to spare.",
       "required": true
     },
     {
@@ -33,6 +33,14 @@
       "required": true
     },
     {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Lets PMDA install and manage the optional local MusicBrainz mirror for you (one click, ~170 GB, answers in a millisecond instead of the public 1 request/second). PMDA only creates and controls its own mirror containers through it. Remove this mapping if you never want the one-click mirror.",
+      "required": false
+    },
+    {
       "name": "Review Root",
       "host": "/mnt/cache/PMDA/review",
       "container": "/dupes",
@@ -41,18 +49,16 @@
       "required": true
     }
   ],
-  "ports": [
-    {
-      "name": "WebUI Port",
-      "host": "5005",
-      "container": "5005",
-      "protocol": "tcp",
-      "description": "Host port for the PMDA web UI.",
-      "required": true,
-      "mask": false
-    }
-  ],
+  "ports": [],
   "variables": [
+    {
+      "name": "WebUI Port (host network)",
+      "key": "PMDA_PORT",
+      "value": "5005",
+      "description": "PMDA listens on this port directly on the host (host networking). Change it only if 5005 is already taken on your server, and adjust the WebUI address accordingly.",
+      "required": false,
+      "mask": false
+    },
     {
       "name": "Enable PMDA Auth",
       "key": "PMDA_AUTH_ENABLED",

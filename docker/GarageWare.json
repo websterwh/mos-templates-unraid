@@ -1,0 +1,163 @@
+{
+  "name": "GarageWare",
+  "repo": "dastron/garage-ware:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/dastron/garage-ware",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/make-ware/unraid-templates/main/garage-ware/icon.png",
+  "project": "https://github.com/make-ware/garage-ware",
+  "description": "Management console for a self-hosted Garage S3 cluster - buckets, access keys, node health, and a storage ledger for everyone sharing it. Garage gives you the storage; GarageWare gives you the front door: accounts, an object browser, S3 connection details, cluster status and per-node metrics, background repairs, and an append-only record of who is entitled to how much space. Runs as one container with one data path against a Garage cluster you already have.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/garage-ware",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage: PocketBase database, uploads, the generated superuser credentials, and first-run state.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8890",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the web app, PocketBase API and admin (proxied by nginx on container port 80).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Garage Admin URL",
+      "key": "GARAGE_ADMIN_URL",
+      "value": "",
+      "description": "Base URL of your Garage cluster's ADMIN API - port 3903 by default, NOT the S3 port 3900. Example: http://YOUR-GARAGE-IP:3903. Without it there is no cluster status, no buckets, no keys and no metrics.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Garage Admin Token",
+      "key": "GARAGE_ADMIN_TOKEN",
+      "value": "",
+      "description": "Admin API token for the cluster. Mint one on a Garage node with: garage admin-token create --name garage-ware",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Garage S3 Endpoint",
+      "key": "GARAGE_S3_ENDPOINT",
+      "value": "",
+      "description": "Your Garage S3 gateway URL - example: https://s3.example.com or http://YOUR-GARAGE-IP:3900. Required for the in-app file browser and the bucket connect page. The browser signs S3 requests against this endpoint directly, so each bucket must allow CORS from this app's origin (see the project README).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Public URL",
+      "key": "APP_PUBLIC_URL",
+      "value": "",
+      "description": "How users actually reach this container, including the WebUI Port - example: http://YOUR-UNRAID-IP:8890 or https://garage.example.com. Used to build links in storage invites, usage alerts and the setup banner. If unset, those emails are skipped entirely - the invite row is still written, but nobody is told.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sign-up Mode",
+      "key": "SIGNUP_MODE",
+      "value": "closed",
+      "description": "Who may create an account: 'closed' (admins create every account), 'invite' (only addresses holding a pending storage or admin invite), or 'open' (anyone who can reach the sign-up page). While no administrator exists yet sign-up stays open regardless, so you can create the account you will claim with - claim promptly.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Garage S3 Region",
+      "key": "GARAGE_S3_REGION",
+      "value": "us-east-1",
+      "description": "S3 region name your Garage cluster is configured with.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public S3 Endpoint",
+      "key": "GARAGE_PUBLIC_S3_ENDPOINT",
+      "value": "",
+      "description": "Optional. The S3 URL advertised to users, when it differs from the CORS-enabled gateway the in-app browser must talk to. Falls back to Garage S3 Endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Node Claims",
+      "key": "FEATURE_NODE_CLAIMS",
+      "value": "",
+      "description": "Optional. Set to 'true' to let users claim cluster nodes (by proving the full node id) and grant storage sourced from them. Off by default - admins assign owners and grant all storage. Ownership decides who may grant, never how much.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Asset Claims",
+      "key": "FEATURE_ASSET_CLAIMS",
+      "value": "",
+      "description": "Optional. Set to 'true' to let users self-claim pre-existing Garage keys (by proving the secret) and the buckets those keys own. Off by default - admins onboard assets via import instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Claim Token",
+      "key": "SETUP_CLAIM_TOKEN",
+      "value": "",
+      "description": "Optional. Supply the one-time first-run claim token yourself instead of letting the container mint one and print it to the log. Never written to disk.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Setup Owner Email",
+      "key": "SETUP_OWNER_EMAIL",
+      "value": "",
+      "description": "Optional and WEAKER than the claim token: auto-promotes whoever signs up with this address, but only while no administrator exists yet. An address is rarely secret and sign-up is open until the instance is claimed, so anyone who reaches the app first and guesses it becomes the administrator. Prefer the token unless this container is unreachable from the internet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "POCKETBASE_ADMIN_EMAIL",
+      "value": "",
+      "description": "Optional. Email for the PocketBase superuser. Leave BOTH this and Admin Password blank and the container generates a password on first boot, storing it at /data/pb_superuser.env (mode 0600) - back that file up. Setting only one of the two is a hard error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "POCKETBASE_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional. Password for the PocketBase superuser. Set this only together with Admin Email - setting one without the other is a hard error and the container will not start.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Avg Object Size (MB)",
+      "key": "GARAGE_AVG_OBJECT_SIZE_MB",
+      "value": "",
+      "description": "Optional. Average object size in MB. When set, each bucket also gets an object-count cap derived from its byte quota. Leave blank to apply no object cap.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Metrics Retention (days)",
+      "key": "NODE_METRICS_RETENTION_DAYS",
+      "value": "90",
+      "description": "How many days of per-node metrics history to keep. 0 keeps everything forever.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,155 @@
+{
+  "name": "MoviePilot-V3",
+  "repo": "jxxghp/moviepilot-v3",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/jxxghp/moviepilot-v3",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/ltdstudio/MoviePilot_unraid_CA/main/moviepilot.png",
+  "project": "https://github.com/jxxghp/MoviePilot",
+  "description": "MoviePilot V3 is an automation hub for a home media library. It watches your subscriptions, searches your indexers, hands the release to your existing BitTorrent client, then renames, hardlinks and scrapes the finished files into a clean library and refreshes your media server. Highlights: - Subscribe to movies and TV shows and let MoviePilot find and download them automatically. - Works with your existing downloaders, media servers, metadata sources and notification channels. - Automatic organising: renaming, hardlinking, NFO/artwork scraping and media server refresh. - Plugin and workflow system for extending behaviour without touching the core. Setup notes: - The web UI runs on port 3000. On first start open it and complete the setup wizard. - Map /media and /downloads under the same Unraid share (for example /mnt/user/) so hardlinks work instead of copies. - Settings live in /config/app.env and can also be edited from the web UI. Documentation: https://wiki.movie-pilot.org Project home: https://movie-pilot.org This template is community maintained and is not produced by the MoviePilot authors. Support requests for the template belong in the Unraid support thread; bugs in MoviePilot itself belong upstream. ===== \u7b80\u4f53\u4e2d\u6587 ===== MoviePilot V3 \u662f\u4e00\u6b3e\u9762\u5411\u5bb6\u5ead\u5f71\u97f3\u5e93\u7684\u81ea\u52a8\u5316\u7ba1\u7406\u5de5\u5177\uff1a\u81ea\u52a8\u8ba2\u9605\u3001\u641c\u7d22\u8d44\u6e90\u3001\u8c03\u7528\u5df2\u6709\u7684 BT \u4e0b\u8f7d\u5668\u4e0b\u8f7d\uff0c\u4e0b\u8f7d\u5b8c\u6210\u540e\u81ea\u52a8\u91cd\u547d\u540d\u3001\u786c\u94fe\u63a5\u3001\u522e\u524a\u5143\u6570\u636e\u5e76\u901a\u77e5\u5a92\u4f53\u670d\u52a1\u5668\u5237\u65b0\u3002 \u4f7f\u7528\u63d0\u793a\uff1a - Web \u754c\u9762\u7aef\u53e3\u4e3a 3000\uff0c\u9996\u6b21\u542f\u52a8\u540e\u6253\u5f00\u9875\u9762\u5b8c\u6210\u521d\u59cb\u5316\u5411\u5bfc\u3002 - /media \u4e0e /downloads \u8bf7\u6620\u5c04\u5230\u540c\u4e00\u4e2a Unraid \u5171\u4eab\uff08\u4f8b\u5982 /mnt/user/\uff09\u4e0b\uff0c\u5426\u5219\u65e0\u6cd5\u786c\u94fe\u63a5\uff0c\u53ea\u80fd\u590d\u5236\u3002 - \u914d\u7f6e\u4fdd\u5b58\u5728 /config/app.env\uff0c\u4e5f\u53ef\u4ee5\u5728 Web \u754c\u9762\u4e2d\u4fee\u6539\u3002 \u672c\u6a21\u677f\u7531\u793e\u533a\u7ef4\u62a4\uff0c\u975e MoviePilot \u5b98\u65b9\u51fa\u54c1\u3002\u6a21\u677f\u76f8\u5173\u95ee\u9898\u8bf7\u5728 Unraid \u652f\u6301\u8d34\u53cd\u9988\uff0c\u7a0b\u5e8f\u672c\u8eab\u7684\u95ee\u9898\u8bf7\u5230\u4e0a\u6e38\u4ed3\u5e93\u53cd\u9988\u3002",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/moviepilot-v3",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Configuration, database and cache. Keep this on the cache/appdata share.",
+      "required": true
+    },
+    {
+      "name": "Media Library",
+      "host": "",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media library, e.g. /mnt/user/media/. Must be on the same share as the download folder if you want hardlinks.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "The download folder used by your BitTorrent client, e.g. /mnt/user/downloads/. Must be on the same share as the media library if you want hardlinks.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Optional. Only needed by plugins that restart containers. Leave empty unless you use one of them.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the MoviePilot web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the application runs as. 99 is the standard Unraid nobody user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the application runs as. 100 is the standard Unraid users group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "File mode creation mask used for files written by the application.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Asia/Shanghai",
+      "description": "Container timezone, e.g. Asia/Shanghai, Europe/Berlin, America/New_York.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NGINX_PORT",
+      "key": "NGINX_PORT",
+      "value": "3000",
+      "description": "Port the built-in web server listens on inside the container. Change this only together with the WebUI Port mapping above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3001",
+      "description": "Internal API port. Only change this if it clashes with something else inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MOVIEPILOT_AUTO_UPDATE",
+      "key": "MOVIEPILOT_AUTO_UPDATE",
+      "value": "release",
+      "description": "Update the application on container start: release, dev, or false to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PROXY_HOST",
+      "key": "PROXY_HOST",
+      "value": "",
+      "description": "Optional HTTP proxy used for outbound requests, e.g. http://user:password@192.168.1.2:7890",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GITHUB_PROXY",
+      "key": "GITHUB_PROXY",
+      "value": "",
+      "description": "Optional GitHub mirror prefix used when downloading updates and plugins, e.g. https://ghproxy.net/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GITHUB_TOKEN",
+      "key": "GITHUB_TOKEN",
+      "value": "",
+      "description": "Optional GitHub personal access token used to raise the API rate limit for updates and plugin downloads.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MOVIEPILOT_FORCE_CHOWN",
+      "key": "MOVIEPILOT_FORCE_CHOWN",
+      "value": "false",
+      "description": "Set to true for one start if the application reports permission errors on its cache directories. Slows down startup.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

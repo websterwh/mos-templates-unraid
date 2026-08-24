@@ -34,24 +34,15 @@
       "description": "Web dashboard and MCP server HTTP port",
       "required": true,
       "mask": false
-    },
-    {
-      "name": "Qdrant Port",
-      "host": "6333",
-      "container": "6333",
-      "protocol": "tcp",
-      "description": "Qdrant API port (optional, for direct access)",
-      "required": false,
-      "mask": false
     }
   ],
   "variables": [
     {
       "name": "LLM Backend",
       "key": "LLM_BACKEND",
-      "value": "bundled",
-      "description": "LLM backend: bundled (self-contained), ollama, or openai. Auto-detected if not set.",
-      "required": true,
+      "value": "",
+      "description": "Leave blank to auto-detect: openai if OpenAI API Key is set, else ollama if Ollama URL is set, else bundled. Set explicitly only to override. NOTE: an explicit 'bundled' ignores your Ollama/OpenAI settings.",
+      "required": false,
       "mask": false
     },
     {
@@ -81,8 +72,8 @@
     {
       "name": "Embedder Dimensions",
       "key": "EMBEDDER_DIMENSIONS",
-      "value": "768",
-      "description": "Embedding vector dimensions",
+      "value": "",
+      "description": "Optional. Leave blank for the per-backend default (768 for Ollama/bundled, the model's native size for OpenAI). Set only to override.",
       "required": false,
       "mask": false
     },
@@ -98,7 +89,7 @@
       "name": "OpenAI Base URL",
       "key": "OPENAI_BASE_URL",
       "value": "https://api.openai.com/v1",
-      "description": "Base URL for OpenAI-compatible API (works with Groq, Anthropic, etc.)",
+      "description": "Base URL for any OpenAI-compatible API serving BOTH /chat/completions and /embeddings (OpenAI, Groq, OpenRouter, LM Studio, vLLM, LiteLLM)",
       "required": false,
       "mask": false
     },
@@ -155,6 +146,38 @@
       "key": "DIAGNOSTICS_ENABLED",
       "value": "false",
       "description": "Enable performance and accuracy metrics on the dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rerank Enabled",
+      "key": "RERANK_ENABLED",
+      "value": "false",
+      "description": "Re-score search results with a local cross-encoder for sharper relevance separation (CPU; downloads a small model on first use)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the Qdrant and mem-zero processes run as. Files in the Storage path are chowned to this id once on first start (99 = nobody, the Unraid default). Set 0 to run as root like older releases.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the service processes (100 = users, the Unraid default).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rerank Model",
+      "key": "RERANK_MODEL",
+      "value": "Xenova/ms-marco-MiniLM-L-6-v2",
+      "description": "Cross-encoder model used when Rerank Enabled is true",
       "required": false,
       "mask": false
     }

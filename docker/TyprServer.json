@@ -11,10 +11,10 @@
   "privileged": false,
   "extra_parameters": "--restart=unless-stopped --user=1000:1000 --read-only --tmpfs=/tmp:rw,nosuid,nodev,noexec,size=536870912 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=256 --memory=2g --memory-swap=2g --cpus=2",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8484]/api/v1/status",
+  "web_ui_url": "http://[IP]:[PORT:8485]/",
   "icon": "https://raw.githubusercontent.com/max-prime-math/typr/main/public/icons/icon-512.png",
   "project": "https://typr.ca",
-  "description": "Optional native LaTeX, TeXpresso, and scoped workspace service for Typr. Stateless by default; one dedicated workspace can be mapped explicitly. Trusted LAN/VPN use only; never expose it publicly.",
+  "description": "Optional native LaTeX, TeXpresso, scoped workspace, and authenticated management service for Typr. Stateless by default; one dedicated workspace can be mapped explicitly. Trusted LAN/VPN use only; never expose it publicly.",
   "paths": [
     {
       "name": "Workspace directory",
@@ -34,9 +34,34 @@
       "description": "Host port used by the reverse proxy and local status checks. Container port must remain 8484.",
       "required": true,
       "mask": false
+    },
+    {
+      "name": "Management GUI port",
+      "host": "8485",
+      "container": "8485",
+      "protocol": "tcp",
+      "description": "Host port for the management GUI. Container port must remain 8485. Keep it restricted to a trusted LAN/VPN and never expose it publicly.",
+      "required": true,
+      "mask": false
     }
   ],
   "variables": [
+    {
+      "name": "Management listen address",
+      "key": "TYPR_COMPANION_MANAGEMENT_HOST",
+      "value": "0.0.0.0",
+      "description": "Required container listen address for the mapped GUI port. Keep 0.0.0.0 in bridge mode; remote mode refuses startup without a strong management password.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Management password",
+      "key": "TYPR_COMPANION_MANAGEMENT_PASSWORD",
+      "value": "",
+      "description": "Required administrator password for the GUI; at least 24 characters. The browser username is typr. This is separate from service API keys.",
+      "required": true,
+      "mask": true
+    },
     {
       "name": "Allowed Typr origins",
       "key": "TYPR_COMPANION_ALLOWED_ORIGINS",

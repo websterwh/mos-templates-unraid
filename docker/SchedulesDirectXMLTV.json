@@ -1,0 +1,83 @@
+{
+  "name": "Schedules-Direct-XMLTV",
+  "repo": "heroeswearkapes/schedules-direct-xmltv:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/heroeswearkapes/schedules-direct-xmltv",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:51969]",
+  "icon": "https://raw.githubusercontent.com/heroeswearkapes/unraid-community-apps/main/icons/schedules-direct-xmltv.png",
+  "project": "https://github.com/heroeswearkapes/schedules-direct-xmltv",
+  "description": "Schedules Direct XMLTV automatically downloads TV guide data from Schedules Direct, converts it to XMLTV format, refreshes the guide on a schedule, and serves the resulting tvxml.xml file over HTTP. Designed for use with Threadfin, Jellyfin, Plex, Emby, TVHeadend, and other applications that accept an XMLTV guide URL. Supports both amd64 and arm64 Docker hosts.",
+  "paths": [
+    {
+      "name": "XMLTV Data",
+      "host": "/mnt/cache/appdata/schedules-direct-xmltv",
+      "container": "/var/www/html",
+      "mode": "rw",
+      "description": "Persistent storage for generated XMLTV data and Schedules Direct configuration.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "XMLTV HTTP Port",
+      "host": "51969",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port used to serve the generated tvxml.xml file.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Schedules Direct Username",
+      "key": "SD_USERNAME",
+      "value": "",
+      "description": "Your Schedules Direct account username.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Schedules Direct Password",
+      "key": "SD_PASSWORD",
+      "value": "",
+      "description": "Your Schedules Direct account password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Schedules Direct Lineups",
+      "key": "SD_LINEUPS",
+      "value": "",
+      "description": "Comma-separated Schedules Direct lineup IDs. Example: USA-OTA-(example ZIP: 00000)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Guide Days",
+      "key": "SD_FETCH_DAYS",
+      "value": "2",
+      "description": "Number of days of guide data to download during each synchronization.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone used by the container and the scheduled midnight guide refresh.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

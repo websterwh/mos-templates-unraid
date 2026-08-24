@@ -1,0 +1,83 @@
+{
+  "name": "MomentBackup-Hub",
+  "repo": "ghcr.io/momentbackup/momentbackup-hub:1.0",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/MomentBackup/momentbackup-hub/pkgs/container/momentbackup-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8675]/",
+  "icon": "https://raw.githubusercontent.com/MomentBackup/unraid-templates/main/icons/momentbackup-hub-256.png",
+  "project": "https://momentbackup.com/hub/",
+  "description": "A private overview of MomentBackup protection. The Hub stores no backup data and starts in heartbeat-reporting mode.",
+  "paths": [
+    {
+      "name": "Hub data",
+      "host": "/mnt/cache/appdata/momentbackup-hub",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The Hub identity, accounts, machine trust, notification queue, and audit history. Back this folder up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Hub HTTPS port",
+      "host": "8675",
+      "container": "8675",
+      "protocol": "tcp",
+      "description": "The private HTTPS dashboard and machine-reporting port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Hub HTTPS address",
+      "key": "MBHUB_PUBLIC_URL",
+      "value": "https://REPLACE-WITH-UNRAID-IP:8675",
+      "description": "The exact HTTPS origin every computer uses. Replace this placeholder with this server's IP address before first start. An IP is the safest choice: it needs no name resolution, so it works from every computer and from inside the Hub container, which has no mDNS resolver and cannot resolve a .local name at all \u2014 the container health check asks this address for the Hub's readiness, so a name the container cannot resolve makes a working Hub report as unhealthy. Changing this later requires enrolling every computer again.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Machine reporting",
+      "key": "MBHUB_HEARTBEAT",
+      "value": "on",
+      "description": "Allow enrolled MomentBackup apps to report their status.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup scan folders",
+      "key": "MBHUB_SCAN_PATHS",
+      "value": "",
+      "description": "Empty means heartbeat mode. Add only container paths to read-only backup mounts if you deliberately configure disk scanning.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Private TLS",
+      "key": "MBHUB_TLS",
+      "value": "self-signed",
+      "description": "The Hub creates a private certificate that each enrolled MomentBackup app pins.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "The time zone used for dates shown to the owner.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Beltr-Intel",
+  "repo": "ghcr.io/casavargas/beltr:latest-openvino",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/orgs/CasaVargas/packages/container/package/beltr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--device=/dev/dri",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8477]/dashboard",
+  "icon": "https://raw.githubusercontent.com/CasaVargas/beltr-unraid/main/icon.png",
+  "project": "https://beltr.app",
+  "description": "Beltr turns any song in your music library into a karaoke track. It separates the vocals out with a local AI model, finds or transcribes synced lyrics, and displays them on a TV while everyone's phone acts as a remote \u2014 scan the QR code on screen, no app to install. Everything runs on your server. Nothing about your library is uploaded. THIS IS THE INTEL GPU BUILD. It runs the vocal separation on an Intel integrated GPU (the one inside most Intel desktop and NAS processors from 6th gen Core onward, including the N100 family) or an Intel Arc A-series card. It needs the Unraid \"Intel GPU TOP\" plugin installed, which loads the graphics driver, and the GPU passed through: \"Extra Parameters\" must contain --device=/dev/dri, which this template already sets. Nothing else to install \u2014 the Intel compute runtime ships inside the image. If you have an NVIDIA card, install \"Beltr-NVIDIA\" instead; with no GPU at all, plain \"Beltr\". This image will still run without a usable GPU \u2014 it falls back to the CPU \u2014 so a broken passthrough shows up as \"slow\", not \"broken\". Check the GPU panel in Settings after install to confirm the GPU was actually found. Intel Arc B-series and Panther Lake are newer than the driver this image carries and are not supported yet. FIRST RUN: Beltr downloads about 2 GB of model weights into /cache the first time it needs them. That happens once and survives container updates as long as /cache stays mapped. Watch the container log if a first song seems to sit still \u2014 the download is what it's doing. SPEED: depends heavily on the GPU. An Iris Xe or Arc-class GPU separates a 3-4 minute song in about a minute; an older UHD 630-class iGPU is not much faster than a modern CPU. Most songs then get their lyrics instantly from an online lyrics database; the ones no provider knows fall back to local transcription, which runs on the CPU. LICENSE: Beltr is a one-time purchase (no subscription). Run it free for five songs, then enter your key from beltr.app in the License key field below \u2014 or drop it in a file at /config/license.key. It activates once and then works offline. Container updates and restarts do not re-activate, as long as you keep the Config path mapped; a key covers two installs. AFTER INSTALL: open the WebUI, go to Settings, and add /media as a music folder. Then open http://your-server:8477/tv on whatever screen you're singing at, and scan the QR with a phone. MICROPHONES NEED HTTPS: browsers only allow microphone access on a secure page, so singing scores and the phone-as-mic feature need Beltr behind a reverse proxy with a certificate. Everything else \u2014 queueing, playback, lyrics, stem mixing \u2014 works normally over plain http. NOTE: Beltr assumes everyone who can reach it is trusted. Set AUTH_PASSWORD to put a password on the TV and dashboard screens, but do not expose this container to the internet without a reverse proxy doing real authentication in front of it.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/beltr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "App state: database, settings, logs, lyrics. Small and written often \u2014 keep it on appdata (SSD/cache pool).",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/cache/beltr",
+      "container": "/library",
+      "mode": "rw",
+      "description": "Processed karaoke library: separated stems and imported audio. Roughly 60-120 MB per song, so point this at the array, NOT at appdata.",
+      "required": true
+    },
+    {
+      "name": "Music (read-only)",
+      "host": "/mnt/cache/Music",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Your existing music. Mounted read-only \u2014 Beltr copies what it imports and never writes here. Add it as a music folder in Settings after the first start.",
+      "required": true
+    },
+    {
+      "name": "Model cache",
+      "host": "/mnt/cache/appdata/beltr-cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "Downloaded AI model weights, about 2 GB. Keep this mapped or every container update re-downloads them. Faster storage makes model loading quicker.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8477",
+      "container": "8477",
+      "protocol": "tcp",
+      "description": "Port for the web interface, the TV screen and the phone remotes. Change the host side only if 8477 is already taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GPU device",
+      "key": "BELTR_MDX_OPENVINO_DEVICE",
+      "value": "GPU",
+      "description": "Which OpenVINO device runs the separation. GPU is the first Intel GPU found and is right for nearly everyone. GPU.1 picks a second Intel GPU (say, an Arc card in a box that also has an iGPU). Getting this wrong is not an error \u2014 Beltr just quietly runs on the CPU.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GPU precision",
+      "key": "BELTR_MDX_OPENVINO_PRECISION",
+      "value": "FP32",
+      "description": "FP32 is the default and matches the CPU output. FP16 is usually faster on Intel GPUs but its separation quality has not been measured here; try it if separation feels slow and listen to the result.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the files Beltr writes. 99 (nobody) is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the files Beltr writes. 100 (users) is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone, e.g. America/New_York. Affects log timestamps.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "License key",
+      "key": "BELTR_LICENSE_KEY",
+      "value": "",
+      "description": "Your key from beltr.app. Activates once against this install and then works offline \u2014 updating or recreating the container does not re-activate, as long as you keep the Config path. Leave blank to try Beltr free: five songs, then it asks you to buy. You can also put the key in a file at /config/license.key instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Host PIN",
+      "key": "KARAOKE_HOST_PIN",
+      "value": "",
+      "description": "Six digits that unlock host controls on a phone (skip, reorder, delete). Leave blank and Beltr picks a random one on every start, which changes if the container restarts mid-party.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Host password",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Optional password on the TV and dashboard screens and the settings endpoints. Phones joining a room are NOT affected. This keeps the household out of your settings; it is not internet-grade authentication.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Fix permissions",
+      "key": "BELTR_FIX_PERMS",
+      "value": "first-run",
+      "description": "first-run: fix ownership once, then only the top-level folders. always: fix everything on every start (slow on a big library). never: leave ownership alone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

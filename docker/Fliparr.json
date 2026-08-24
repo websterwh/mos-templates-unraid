@@ -1,0 +1,75 @@
+{
+  "name": "Fliparr",
+  "repo": "jamisonfitz/fliparr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/jamisonfitz/fliparr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --add-host host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/Jamisonfitz/fliparr/main/assets/fliparr-icon.png",
+  "project": "https://github.com/Jamisonfitz/fliparr",
+  "description": "Fliparr is Tinder-style swiping for your Radarr and Seerr queue \u2014 movies and TV. Instead of a wall of checkboxes, each title fills your phone screen (poster, IMDb/Rotten Tomatoes/Metacritic/TMDb ratings, genres, synopsis, trailer) and you decide with a swipe. Movies come from Radarr's recommendations, Seerr's endless discover feed, or both blended together; TV comes from Seerr (Overseerr/Jellyseerr), since Sonarr has no recommendation feed to swipe. A Movies/TV/Both toggle picks what's showing, and coloured per-type badges tell movie and TV cards apart at a glance. Swipe right to add (Radarr) or request (Seerr), left to exclude or skip \u2014 every card carries its own origin, so a blended deck routes each swipe to the right backend on its own. Undo reverses the last one, up to 50 deep. Filter by genre and minimum rating. Connect Radarr and/or Seerr in the app's Settings screen, each with a Test button; API keys stay server-side and are never sent to the browser. LAN-only, no login, no cloud. Needs at least one of Radarr (v3) or Seerr \u2014 movies work with either or both, TV requires Seerr. Point service URLs at host.docker.internal if they run on this Unraid server (this template adds the host-gateway mapping) rather than the host LAN IP, which can break on a container recreate.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/fliparr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores the Radarr/Seerr connections, settings, skip list, and undo history. Mount it or these reset on recreate.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7979",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the Fliparr web UI. Clear of Radarr (7878), Sonarr (8989), Prowlarr (9696).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Radarr URL",
+      "key": "RADARR_URL",
+      "value": "http://host.docker.internal:7878",
+      "description": "Radarr's address (optional). Keep host.docker.internal if Radarr runs on this Unraid server; otherwise use its LAN IP. Seeds a fresh install \u2014 once you save a connection in the app, that one wins.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr API Key",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Radarr \u2192 Settings \u2192 General \u2192 API Key. Treat it like a password. Seeds a fresh install; can also be set in the app's Settings screen.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Seerr URL",
+      "key": "SEERR_URL",
+      "value": "http://host.docker.internal:5055",
+      "description": "Overseerr/Jellyseerr address (optional). Required for TV and optional for movies; leave blank for a Radarr-only setup. Seeds a fresh install \u2014 the app's saved connection wins once set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Seerr API Key",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Seerr \u2192 Settings \u2192 General \u2192 API Key. Treat it like a password. Seeds a fresh install; can also be set in the app's Settings screen.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

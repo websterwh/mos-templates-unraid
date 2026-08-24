@@ -1,97 +1,72 @@
 {
   "name": "tor-relay",
-  "repo": "mitchellthompkins/tor-relay:latest",
+  "repo": "doudou34/tor-server",
   "category": [
     "Network"
   ],
-  "registry": "https://hub.docker.com/repository/docker/mitchellthompkins/tor-relay/general",
+  "registry": "https://registry.hub.docker.com/r/doudou34/tor-server",
   "network": "br0",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--init",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:9001]",
-  "icon": "https://github.com/MitchellThompkins/unraid-templates/blob/main/assets/tor_icon.png?raw=true",
-  "project": "https://github.com/MitchellThompkins/tor-relay/tree/master",
-  "description": "This allows a tor to act as a relay on your Unraid system. It does NOT allow it to act as an exit node. It automatically enables account bandwidth tracking to prevent from using too much network bandwidth. These are the container variables which can be modified: IPV4_ONLY OR_PORT DIR_PORT RELAY_BANDWIDTH_RATE RELAY_BANDWIDTH_BURST ACCOUNTING_MAX ACCOUNTING_START NICKNAME CONTACT_INFO ENABLE_METRICS METRICS_PORT METRICS_PORT_POLICY A few defaults are pre-set, otherwise they are set by the container itself. Metrics are disabled unless ENABLE_METRICS is set to 1. Two manual steps are required, in addition to one highly recommended configuration: 1. (Step1) Users must create a data/ folder somewhere on their Unraid system, by default it is expected that this is at /mnt/user/appdata/tor-relay/data/ 2. (Step2) The root user must change the folder permissions to that of the unprivileged tor user. This is required for tor container to create a .tor folder to track bandwidth stats between reboots. 3. (Configuration) Assign this container a static ip on the network, and forward the ports for OR_PORT and DIR_PORT to that static ip. These two manual steps from above are: mkdir -p /mnt/user/appdata/tor-relay/data/ sudo chown 100:100 /mnt/user/appdata/tor-relay/data/ The port forwarding configuration must be configured at the router.",
+  "web_ui_url": "http://[IP]:[PORT:9030]",
+  "icon": "https://clipartart.com/images/tor-browser-icon-clipart-9.png",
+  "project": "https://github.com/maschhoff/docker/tree/master/tor-relay",
+  "description": "This docker image will install the latest current stable version of Tor server. It will run Tor as an unprivileged regular user, as recommended by torproject.org. It includes the latest Tor Debian package from torproject.org which is installed and configured according the Tor project recommendations. Additionally it can be run as a hidden bridge using obfs4proy as well as meek. The Tor network relies on volunteers to donate bandwidth. The more people who run relays, the faster the Tor network will be. If you have at least 2 megabits/s for both upload and download, please help out Tor by configuring your server to be a Tor relay too. INSTALLATION: Create a folder appdata/tor-data/config Download sample Config: https://github.com/maschhoff/docker/tree/master/tor-relay Edit the config at least NICKNAME and CONTACTINFO in the config file Put this into the config folder. Edit the docker parameters and run it. https://github.com/chriswayg/tor-server",
   "paths": [
     {
-      "name": "Server data directory",
-      "host": "/mnt/cache/appdata/tor-relay/data/",
-      "container": "/var/lib/tor/",
-      "mode": "rw",
-      "description": null,
+      "name": "/etc/localtime",
+      "host": "/etc/localtime",
+      "container": "/etc/localtime",
+      "mode": "ro",
+      "description": "Container Path: /etc/localtime",
+      "required": false
+    },
+    {
+      "name": "/etc/tor/",
+      "host": "/mnt/cache/appdata/tor-data/config/",
+      "container": "/etc/tor/",
+      "mode": "ro",
+      "description": "Container Path: /etc/tor/",
       "required": false
     }
   ],
   "ports": [
     {
-      "name": "OR Port",
-      "host": "9001",
-      "container": "9001",
-      "protocol": "tcp",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DIR Port",
+      "name": "9030",
       "host": "9030",
       "container": "9030",
       "protocol": "tcp",
-      "description": null,
+      "description": "Container Port:",
       "required": false,
       "mask": false
     },
     {
-      "name": "Metrics Port",
-      "host": "9035",
-      "container": "9035",
+      "name": "9001",
+      "host": "9001",
+      "container": "9001",
       "protocol": "tcp",
-      "description": "Only used when ENABLE_METRICS is enabled.",
+      "description": "Container Port:",
       "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "NICKNAME",
-      "key": "NICKNAME",
-      "value": "HelloWorldItsMe",
-      "description": null,
+      "name": "TOR_NICKNAME",
+      "key": "TOR_NICKNAME",
+      "value": "myRelay",
+      "description": "Container Variable: NICKNAME",
       "required": false,
       "mask": false
     },
     {
-      "name": "ACCOUNTING_MAX",
-      "key": "ACCOUNTING_MAX",
-      "value": "320 GBytes",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "RELAY_BANDWIDTH_RATE",
-      "key": "RELAY_BANDWIDTH_RATE",
-      "value": "512 KBytes",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "RELAY_BANDWIDTH_BURST",
-      "key": "RELAY_BANDWIDTH_BURST",
-      "value": "1024 KBytes",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "ENABLE_METRICS",
-      "key": "ENABLE_METRICS",
-      "value": "0",
-      "description": "Enables the tor metrics port for monitoring. Off by default.",
+      "name": "CONTACT_EMAIL",
+      "key": "CONTACT_EMAIL",
+      "value": "mail@domain.com",
+      "description": "Container Variable: CONTACTINFO",
       "required": false,
       "mask": false
     }

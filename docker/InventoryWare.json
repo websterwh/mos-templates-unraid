@@ -1,0 +1,107 @@
+{
+  "name": "InventoryWare",
+  "repo": "dastron/inventory-ware:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/dastron/inventory-ware",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/make-ware/unraid-templates/main/inventory-ware/icon.png",
+  "project": "https://github.com/make-ware/inventory-ware",
+  "description": "Self-hosted inventory manager that catalogs your belongings from photos. Snap a picture and InventoryWare identifies the item with AI vision - or label it yourself - then organizes everything into containers you can search. Includes an `iw` CLI for scripted bulk imports. Runs as one container with one data path; AI labeling is optional and works with OpenAI or Google Gemini.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/inventory-ware",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage: PocketBase database and uploaded images.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8889",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the web app, PocketBase API and admin (proxied by nginx on container port 80).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Email",
+      "key": "POCKETBASE_ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Email for the auto-created PocketBase superuser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "POCKETBASE_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the auto-created PocketBase superuser. MUST be set to a strong value - leaving it blank skips superuser creation.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Set this to use OpenAI for AI labeling (default model gpt-5.4-2026-03-05). Get a key at https://platform.openai.com/api-keys. Leave blank if you are using Gemini instead, or to label items manually only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Set this to use Google Gemini for AI labeling instead of OpenAI (default model gemini-3.5-flash). Get a key at https://aistudio.google.com/apikey. Leave blank if you are using OpenAI, or to label items manually only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Provider",
+      "key": "AI_PROVIDER",
+      "value": "",
+      "description": "Optional. Which provider to use: openai or google (gemini is accepted for google). Only needed when BOTH API keys are set - with one key the provider is detected automatically, and with both OpenAI wins unless you set this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Model",
+      "key": "AI_MODEL",
+      "value": "",
+      "description": "Optional. Override the model used for image analysis on the active provider. Must be vision-capable (multimodal) - text-only models cannot analyze photos. An unusable value falls back to the provider default with a warning in the log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Base URL",
+      "key": "AI_BASE_URL",
+      "value": "",
+      "description": "Optional. Any compatible endpoint ending in /v1 - e.g. Together AI (https://api.together.xyz/v1), Groq, OpenRouter, Azure, a proxy, or a local server such as Ollama (http://YOUR-SERVER-IP:11434/v1). Leave blank to use the provider's own API. Also set AI Model to a vision-capable model that endpoint offers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity: error, warn, info, debug, verbose. Applies to every service in the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

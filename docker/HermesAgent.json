@@ -1,96 +1,47 @@
 {
   "name": "Hermes-Agent",
-  "repo": "nousresearch/hermes-agent:latest",
+  "repo": "nousresearch/hermes-agent",
   "category": [
     "Misc"
   ],
-  "registry": "https://hub.docker.com/r/nousresearch/hermes-agent/",
-  "network": "docker",
+  "registry": "https://hub.docker.com/r/nousresearch/hermes-agent",
+  "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": "gateway run",
   "web_ui_url": "http://[IP]:[PORT:9119]",
-  "icon": "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/assets/banner.png",
-  "project": "https://hermes-agent.nousresearch.com/",
-  "description": "Hermes Agent is a local, self-improving AI agent built by Nous Research, with a built-in learning loop \u2014 it creates skills from experience, improves them during use, nudges itself to persist knowledge, and builds a deepening model of who you are across sessions. This template uses the official Hermes Agent docker image, and it is configured to run the agent's Gateway and Dashboard using the HERMES_UID and HERMES_GID environment variables. It will expose the Dashboard WebUI on port 9119 and API acess on port 8642. This template uses a custom network for the additional services to see one another and a shared volume to store Hermes sources, which allows the other Hermes templates to access them. Please see https://github.com/mmartial/Unraid-templates/ for deployment notes. This template was built following the documentation from https://hermes-agent.nousresearch.com/docs/user-guide/docker. Please refer to the official documentation for available configuration options and instructions to use the agent, the dashboard, and the API. It is encouraged to spend time reading https://hermes-agent.nousresearch.com/docs/ to understand the project and its capabilities, and to configure it properly for your use case. Familiarity with docker exec might be required to configure the agent itself. The container should start with the name HermesAgent (use \"docker container ls\" to find the name of the running container), use the following command to get access to the hermes command (to configure/test it): docker exec --user 99:100 -it HermesAgent bash source .venv/bin/activate hermes Please see https://github.com/mmartial/Unraid-templates/issues/2#issuecomment-4327179027 for a note about the need to use a Docker shared volume, and https://github.com/mmartial/Unraid-templates/issues/8#issuecomment-4570170067 for details on steps required to update the shared docker volume when the underlying image is updated. It is also possible to disable autoamtic container update and instead use \"hermes update\" is another command line that can be run inside the container to update the shared volume with the latest sources from GirHub. Other Hermes templates are also available from the same maintainer. If a new variable is added to the official image and you want it added to the template, please let me know. If you encounter issues with this template (not the underlying application), please open an issue in the template repository.",
+  "icon": "https://raw.githubusercontent.com/medzin/docker-templates/main/images/hermes-agent-icon.png",
+  "project": "https://github.com/NousResearch/hermes-agent",
+  "description": "The self-improving AI agent built by Nous Research. The only agent with a built-in learning loop.",
   "paths": [
     {
-      "name": "HERMES_HOME Unraid location",
-      "host": "/mnt/cache/appdata/hermes-agent/hermes-home",
-      "container": "/home/hermes/.hermes",
-      "mode": "rw",
-      "description": "Location where the container stores all user data (config, API keys, sessions, skills, memories)",
-      "required": true
-    },
-    {
-      "name": "/opt/data",
-      "host": "/mnt/cache/appdata/hermes-agent/opt-data",
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/hermes-agent",
       "container": "/opt/data",
       "mode": "rw",
-      "description": "Persistent location for /opt/data",
+      "description": "The /opt/data volume is the single source of truth for all Hermes state. Must be owned by HERMES_UID:HERMES_GID (default 10000:10000). If you see permission errors after first run or after an upgrade, run on the host: chown -R 10000:10000 /mnt/cache/appdata/hermes-agent (the 'pairing' subfolder is the one that commonly breaks). Use a real disk path like /mnt/cache/... - on the /mnt/user FUSE share the container's ownership fix can fail to stick.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Gateway Port",
-      "host": "8642",
-      "container": "8642",
-      "protocol": "tcp",
-      "description": "Internal port for the Hermes Gateway and API server",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Dashboard Port",
+      "name": "Dashboard",
       "host": "9119",
       "container": "9119",
       "protocol": "tcp",
-      "description": "Internal port for the Hermes Dashboard",
+      "description": "Port for the dashboard HTTP server",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "API_SERVER_ENABLED",
-      "key": "API_SERVER_ENABLED",
-      "value": "true",
-      "description": "Enable the API server",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "API_SERVER_HOST",
-      "key": "API_SERVER_HOST",
-      "value": "0.0.0.0",
-      "description": "Bind Host for the API server",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "API_SERVER_KEY",
-      "key": "API_SERVER_KEY",
-      "value": "bd3db74dd31a13c4f23c137eca542a1ae76d403d5dc6453926820e9e7b9e28a4",
-      "description": "API key for the API server. Generate one with: openssl rand -hex 32",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "API_SERVER_CORS_ORIGINS",
-      "key": "API_SERVER_CORS_ORIGINS",
-      "value": "*",
-      "description": "CORS origins for the API server",
-      "required": true,
-      "mask": false
-    },
-    {
       "name": "HERMES_DASHBOARD",
       "key": "HERMES_DASHBOARD",
-      "value": "true",
-      "description": "Enable the Hermes Dashboard",
+      "value": "1",
+      "description": "Set to 1 (or true / yes) to launch the dashboard alongside the main command",
       "required": true,
       "mask": false
     },
@@ -98,15 +49,15 @@
       "name": "HERMES_DASHBOARD_HOST",
       "key": "HERMES_DASHBOARD_HOST",
       "value": "0.0.0.0",
-      "description": "Bind Host for the Hermes Dashboard",
+      "description": "Bind address for the dashboard HTTP server",
       "required": true,
       "mask": false
     },
     {
-      "name": "HERMES_DASHBOARD_TUI",
-      "key": "HERMES_DASHBOARD_TUI",
-      "value": "1",
-      "description": "Set to 1 to expose the in-browser Chat tab",
+      "name": "HERMES_DASHBOARD_PORT",
+      "key": "HERMES_DASHBOARD_PORT",
+      "value": "9119",
+      "description": "Port for the dashboard HTTP server",
       "required": true,
       "mask": false
     },
@@ -114,48 +65,88 @@
       "name": "HERMES_DASHBOARD_BASIC_AUTH_USERNAME",
       "key": "HERMES_DASHBOARD_BASIC_AUTH_USERNAME",
       "value": "admin",
-      "description": "Username for basic authentication on the Hermes Dashboard",
+      "description": "Username for the dashboard login.",
       "required": true,
       "mask": false
     },
     {
       "name": "HERMES_DASHBOARD_BASIC_AUTH_PASSWORD",
       "key": "HERMES_DASHBOARD_BASIC_AUTH_PASSWORD",
-      "value": "pa33_w0rd",
-      "description": "Password for basic authentication on the Hermes Dashboard (unless changed: pa33_w0rd)",
+      "value": "",
+      "description": "Required password for the dashboard login. Use a strong password and keep the dashboard on a trusted LAN or VPN; do not expose it directly to the internet.",
       "required": true,
-      "mask": false
+      "mask": true
     },
     {
       "name": "HERMES_DASHBOARD_BASIC_AUTH_SECRET",
       "key": "HERMES_DASHBOARD_BASIC_AUTH_SECRET",
-      "value": "73AvrCUlil3ORKTfeeghTXV8BOT8lvIjB3cIHg+OtIo=",
-      "description": "Secret for basic authentication on the Hermes Dashboard (generate one with: openssl rand -hex 32)",
-      "required": true,
+      "value": "",
+      "description": "Optional but recommended signing secret so dashboard login sessions survive container restarts. Use at least 32 random bytes, for example the output of: openssl rand -hex 32. If left blank, Hermes generates a new secret at each start and existing sessions are signed out.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "API_SERVER_ENABLED",
+      "key": "API_SERVER_ENABLED",
+      "value": "false",
+      "description": "Enable the API server",
+      "required": false,
       "mask": false
     },
     {
-      "name": "HERMES_UID",
-      "key": "HERMES_UID",
-      "value": "99",
-      "description": "UID to use for content",
-      "required": true,
+      "name": "API_SERVER_KEY",
+      "key": "API_SERVER_KEY",
+      "value": "",
+      "description": "Bearer token for auth",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Telegram bot token (from @BotFather)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TELEGRAM_ALLOWED_USERS",
+      "key": "TELEGRAM_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated user IDs allowed to use the bot (applies to DMs, groups, and forums)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TELEGRAM_GROUP_ALLOWED_USERS",
+      "key": "TELEGRAM_GROUP_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated sender user IDs authorized in groups/forums only (does NOT grant DM access). Chat-ID-shaped values (starting with -) are still honored as chat IDs for backward compat with pre-#17686 configs, with a deprecation warning.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TELEGRAM_GROUP_ALLOWED_CHATS",
+      "key": "TELEGRAM_GROUP_ALLOWED_CHATS",
+      "value": "",
+      "description": "Comma-separated group/forum chat IDs; any member is authorized",
+      "required": false,
       "mask": false
     },
     {
       "name": "HERMES_GID",
       "key": "HERMES_GID",
-      "value": "100",
-      "description": "GID to use for content",
-      "required": true,
+      "value": "10000",
+      "description": "Runtime group ID. Must be 1000-65534 - the image silently rejects lower values, so Unraid's default 100 (users) will NOT work and the container falls back to GID 10000. Leave at 10000 unless you need to match a host group >=1000. The appdata directory must be owned by this GID.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "HERMES_HOME",
-      "key": "HERMES_HOME",
-      "value": "/home/hermes/.hermes",
-      "description": "Home directory for Hermes data",
-      "required": true,
+      "name": "HERMES_UID",
+      "key": "HERMES_UID",
+      "value": "10000",
+      "description": "Runtime user ID. Must be 1000-65534 - the image silently rejects lower values, so Unraid's default 99 (nobody) will NOT work and the container falls back to UID 10000. Leave at 10000 unless you need to match a host user >=1000. The appdata directory must be owned by this UID. If you hit permission errors (e.g. 'Permission denied: /opt/data/pairing/telegram-approved.json'), fix ownership on the host: chown -R 10000:10000 /mnt/cache/appdata/hermes-agent",
+      "required": false,
       "mask": false
     }
   ],

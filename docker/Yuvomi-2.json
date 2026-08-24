@@ -81,7 +81,7 @@
       "name": "Timezone",
       "key": "TZ",
       "value": "Europe/Berlin",
-      "description": "Container timezone, e.g. Europe/Berlin. Affects scheduled backups, reminders, and is the fallback zone for events pushed to Google Calendar.",
+      "description": "Container timezone, e.g. Europe/Berlin. Affects scheduled backups, reminders, the times in the exported calendar feed, and is the fallback zone for events pushed to Google Calendar.",
       "required": false,
       "mask": false
     },
@@ -230,6 +230,30 @@
       "mask": false
     },
     {
+      "name": "MS_CLIENT_ID",
+      "key": "MS_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Entra ID application (client) ID for the one-way Outlook calendar push via Microsoft Graph.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MS_CLIENT_SECRET",
+      "key": "MS_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Entra ID client secret for the Outlook calendar push.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MS_REDIRECT_URI",
+      "key": "MS_REDIRECT_URI",
+      "value": "",
+      "description": "Optional. OAuth callback URL, e.g. https://your-domain.com/api/v1/calendar/outlook/callback",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "OIDC_ISSUER",
       "key": "OIDC_ISSUER",
       "value": "",
@@ -298,6 +322,14 @@
       "key": "SYNC_INTERVAL_MINUTES",
       "value": "15",
       "description": "Interval in minutes for calendar and contact sync (Google, Apple, CalDAV, CardDAV). Default: 15.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAX_UPLOAD_MB",
+      "key": "MAX_UPLOAD_MB",
+      "value": "5",
+      "description": "Maximum size of a single upload in megabytes (documents, calendar attachments, receipts). Default: 5, supported range 1-100. The request body is buffered in memory, so a very large value can take the container down on a small machine.",
       "required": false,
       "mask": false
     },
@@ -450,6 +482,14 @@
       "key": "RECIPE_PROVIDER_ALLOW_PRIVATE_NETWORK",
       "value": "false",
       "description": "Optional. Set to true to allow recipe provider (Mealie/Tandoor) mirrors on http:// and local/private network addresses (e.g. self-hosted in the same Docker network). Lifts SSRF protection for recipe provider sync. Only enable in controlled environments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DMS_ALLOW_PRIVATE_NETWORK",
+      "key": "DMS_ALLOW_PRIVATE_NETWORK",
+      "value": "true",
+      "description": "Optional. Controls whether the document management connection (Paperless-ngx, Papra) may reach local/private network addresses. Defaults to TRUE, unlike the other private-network switches, because a DMS is normally self-hosted on the same LAN or Docker network. Set to false to enforce the same SSRF protection the other integrations have.",
       "required": false,
       "mask": false
     },

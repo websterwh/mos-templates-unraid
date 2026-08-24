@@ -1,0 +1,107 @@
+{
+  "name": "aonarr",
+  "repo": "allornothing/aonarr:combined",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/aonarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9876]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoNarr/main/web/public/icon.svg",
+  "project": "https://github.com/aon082910/AoNarr",
+  "description": "AoNarr is a self-hosted media manager that unifies Sonarr/Radarr/Lidarr/Readarr/Prowlarr/Bazarr/Whisparr-style functionality across 10 library types (Movies, TV Shows, Anime, Music, Books, Comics, ROMs, Online Videos, Courses, Adult) in one app. This is the single all-in-one container \u2014 API and browser UI run together in one image, avoiding the cross-container networking that \"aonarr-server\" + \"aonarr-web\" require. Prefer this unless you specifically want the two containers to scale/update independently. On first boot, open the web UI and create an admin account (username/password) \u2014 no API key needed. To skip that screen entirely, set the Admin Username/Password variables below before first start. Point the Downloads and Media paths at the same shares your download client and media library actually use \u2014 AoNarr resolves completed downloads and organizes files under Media itself, it doesn't just track them.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/aonarr/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database and settings storage.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Root of your media library \u2014 the same share your root folders (configured inside the app) live under.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Shared downloads folder \u2014 must be the same path your download client (qBittorrent/SABnzbd) writes completed downloads to.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9876",
+      "container": "9876",
+      "protocol": "tcp",
+      "description": "Port the browser UI is served on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID files are created as \u2014 99 is Unraid's default 'nobody' user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID files are created as \u2014 100 is Unraid's default 'users' group.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search Interval (minutes)",
+      "key": "AONARR_SEARCH_INTERVAL_MINUTES",
+      "value": "30",
+      "description": "How often the scheduler auto-searches monitored, fileless items.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Queue Poll Interval (seconds)",
+      "key": "AONARR_QUEUE_POLL_SECONDS",
+      "value": "20",
+      "description": "How often the scheduler polls download clients for progress.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "AONARR_ADMIN_USERNAME",
+      "value": "",
+      "description": "Optional: auto-creates the admin account on first boot instead of using the web UI's setup screen. Leave blank to set it up in the browser instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "AONARR_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required if Admin Username is set (min 8 characters). For a Docker secret file instead, use AONARR_ADMIN_PASSWORD_FILE.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

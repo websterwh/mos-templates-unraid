@@ -1,0 +1,105 @@
+{
+  "name": "DeployCat",
+  "repo": "meowsers/deploycat:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/meowsers/deploycat/",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout=40 --device=/dev/net/tun --cap-add=NET_ADMIN",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8732]/",
+  "icon": "https://raw.githubusercontent.com/hightexpertsllc/Deploycat-docker-xml/main/icon.png",
+  "project": "https://deploycat.app",
+  "description": "DeployCat is the world's easiest game server manager \u2014 1 paw installs, no claws required. Create, configure, and manage multiple game servers from a single web interface without knocking anything off the table. Supports Minecraft (Java + Bedrock + Modded), plus Steam games like ARK, Rust, Palworld, Satisfactory, CS2, Valheim, V Rising, and 25+ more. Free 3-day trial to sniff around. Then a paid subscription is required. Meow!",
+  "paths": [
+    {
+      "name": "Data Location",
+      "host": "/mnt/cache/appdata/DeployCat",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where DeployCat stores ALL data (servers, config, backups, SteamCMD, Java runtimes, logs). This is the only required mount.",
+      "required": true
+    },
+    {
+      "name": "Second Drive (Optional)",
+      "host": "",
+      "container": "/mnt/drive2",
+      "mode": "rw",
+      "description": "Second drive for installing game servers. Useful if your primary drive is small or you want servers on an SSD.",
+      "required": false
+    },
+    {
+      "name": "Backup Drive (Optional)",
+      "host": "",
+      "container": "/mnt/backupdrive",
+      "mode": "rw",
+      "description": "Another location for backups. DeployCat can write backups here so they survive a drive failure.",
+      "required": false
+    },
+    {
+      "name": "Host Tailscale Socket",
+      "host": "/var/run/tailscale",
+      "container": "/var/run/tailscale",
+      "mode": "rw",
+      "description": "If your Unraid host runs Tailscale, map its socket directory here so DeployCat uses the host's daemon instead of spawning a conflicting one. Leave default if unsure. Only needed when host networking is enabled AND the host runs Tailscale.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "WebUI Port",
+      "key": "PORT",
+      "value": "8732",
+      "description": "Port for the DeployCat web interface. Access the UI at http://your-ip:PORT.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership. Default 99 (nobody) matches Unraid convention. Run 'id -u' on your host to find yours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership. Default 100 (users) matches Unraid convention. Run 'id -g' on your host to find yours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for scheduling (backup schedules, start/stop schedules). Use IANA format e.g. America/New_York, Europe/London. Without this, all schedules run in UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host IP",
+      "key": "HOST_IP",
+      "value": "",
+      "description": "Optional: Your Unraid server's LAN IP. Shown in DeployCat so you know what IP players use to connect. Auto-detected if not set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TS_SOCKET",
+      "key": "TS_SOCKET",
+      "value": "/var/run/tailscale/tailscaled.sock",
+      "description": "Path to the host's Tailscale daemon socket. Only used when Host Tailscale Socket is mapped. This lets DeployCat control the host's Tailscale (auth, status, connect) without running a duplicate daemon.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

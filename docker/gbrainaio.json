@@ -1,0 +1,267 @@
+{
+  "name": "gbrain-aio",
+  "repo": "dub19/gbrain-aio",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/dub19/gbrain-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3132]",
+  "icon": "https://raw.githubusercontent.com/wgross19/awesome-unraid/main/icons/gbrain.png",
+  "project": "https://github.com/wgross19/gbrain-aio",
+  "description": "Vanilla GBrain all-in-one for Unraid. One s6 container runs PostgreSQL 17 + pgvector, the official GBrain HTTP server, a Caddy TLS reverse proxy, the GBrain job supervisor, and in-container maintain (autopilot every 30 minutes, nightly dream, weekly doctor). Postgres listens on loopback only and is never published. Agents connect only through the MCP endpoint, never to Postgres. First run: 1. Set POSTGRES_PASSWORD (alphanumeric) and GBRAIN_ADMIN_BOOTSTRAP_TOKEN (32+ chars, alphanumeric + _-). Generate a token with: head -c 32 /dev/urandom | base64 | tr -d '+/=' | head -c 48 2. Set GBRAIN_LAN_BIND to your Unraid host LAN IP and GBRAIN_PUBLIC_URL to https://that IP:3132. Both are local-network only. 3. Create an empty brain folder (e.g. /mnt/user/my-brain) and set Brain Path to it. Set Source Name to the folder's name (e.g. my-brain). 4. Start the container, then open https://lan:3132/admin/ and paste the bootstrap token. The container inits the brain, git-inits if needed, registers the source, and queues a sync. No docker exec required. 5. Trust the generated CA once (caddy/certs/ca.pem) on any phone or WebView. Advanced users can point OLLAMA_BASE_URL at a local Ollama for embeddings and openai-compat chat, or add a provider API key (Anthropic, OpenAI, Gemini, DeepSeek, Groq, Voyage) in the advanced fields. Leave optional URL, budget, and toggle fields empty to keep them off.",
+  "paths": [
+    {
+      "name": "Postgres Data",
+      "host": "/mnt/cache/appdata/gbrain-aio/data/postgres",
+      "container": "/data/postgres",
+      "mode": "rw",
+      "description": "Persistent PostgreSQL data.",
+      "required": true
+    },
+    {
+      "name": "GBrain Home",
+      "host": "/mnt/cache/appdata/gbrain-aio/gbrain-home",
+      "container": "/var/lib/gbrain",
+      "mode": "rw",
+      "description": "GBrain config, OAuth secrets, runtime.env.",
+      "required": true
+    },
+    {
+      "name": "Caddy Certs",
+      "host": "/mnt/cache/appdata/gbrain-aio/caddy",
+      "container": "/config/caddy",
+      "mode": "rw",
+      "description": "Persistent TLS certs and CA.",
+      "required": true
+    },
+    {
+      "name": "Brain Path",
+      "host": "/mnt/cache/my-brain",
+      "container": "/my-brain",
+      "mode": "rw",
+      "description": "Host path to the brain markdown repo. This is the folder GBrain reads/writes as its knowledge base. It should be an empty folder (or a git repo) that GBrain will initialize. The folder name must match the Source Name below.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3132",
+      "container": "3132",
+      "protocol": "tcp",
+      "description": "Published HTTPS port (Caddy).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "gbrain",
+      "description": "Postgres superuser. Keep gbrain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "REQUIRED. Alphanumeric only (A-Za-z0-9). Secret. Example: mypass123. Generate: head -c 16 /dev/urandom | base64 | tr -d '+/=' | head -c 16",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Postgres DB",
+      "key": "POSTGRES_DB",
+      "value": "gbrain",
+      "description": "Postgres database name. Keep gbrain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LAN Bind",
+      "key": "GBRAIN_LAN_BIND",
+      "value": "",
+      "description": "Your Unraid host LAN IP (e.g. 192.168.1.50). The container binds HTTPS to this IP. This is local-network only, not a public address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "GBRAIN_PUBLIC_URL",
+      "value": "",
+      "description": "Local HTTPS origin clients use. Must be https://your LAN IP:3132 (same IP as LAN Bind). Local-only. Example: https://192.168.1.50:3132",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Bootstrap Token",
+      "key": "GBRAIN_ADMIN_BOOTSTRAP_TOKEN",
+      "value": "",
+      "description": "First /admin login token. Must be 32+ chars, alphanumeric + _-. Secret. Generate: head -c 32 /dev/urandom | base64 | tr -d '+/=' | head -c 48",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Source Name",
+      "key": "SOURCE_NAME",
+      "value": "my-brain",
+      "description": "Name of the mounted brain source. MUST equal the basename of the Brain Path folder. Example: if Brain Path is /mnt/user/my-brain, Source Name is my-brain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brain UID",
+      "key": "BRAIN_UID",
+      "value": "99",
+      "description": "UID for the brain bind mount. Unraid default is 99 (nobody). Keep 99 unless you know otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brain GID",
+      "key": "BRAIN_GID",
+      "value": "100",
+      "description": "GID for the brain bind mount. Unraid default is 100 (users). Keep 100 unless you know otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Base URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "",
+      "description": "OpenAI-compatible endpoint for embeddings + chat. Point at your local Ollama. Example: http://192.168.1.50:11434/v1 (replace with your Ollama host IP). Leave empty to skip local Ollama.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama API Key",
+      "key": "OLLAMA_API_KEY",
+      "value": "ollama",
+      "description": "Ollama API key. 'ollama' is the default for a local Ollama. Only needed if your Ollama requires a key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Together API Key",
+      "key": "TOGETHER_API_KEY",
+      "value": "ollama",
+      "description": "Together-compatible key. GBrain routes chat/dream/think through the Ollama /v1 endpoint using this key. For a local Ollama, 'ollama' works. Set a real Together key only if you route through Together.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Chat Model",
+      "key": "CHAT_MODEL",
+      "value": "deepseek-v4-flash:cloud",
+      "description": "Chat model name used when OLLAMA_BASE_URL is set. Written as together:this name. Leave the default unless you know another model. Empty Ollama URL means no chat model (keyword/embed-or-skip).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brain Git Push URL",
+      "key": "BRAIN_GIT_PUSH_URL",
+      "value": "",
+      "description": "Optional. After a successful autopilot-cycle, push the mounted brain to this remote. Empty = off. Do not point a test copy at a live canonical remote. The token is not stored in the remote URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brain Git Push Token",
+      "key": "BRAIN_GIT_PUSH_TOKEN",
+      "value": "",
+      "description": "Optional. Masked token for Brain Git Push URL. Empty = unauthenticated push. Never pasted into git remote -v.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Doctor Remediate Max USD",
+      "key": "DOCTOR_REMEDIATE_MAX_USD",
+      "value": "",
+      "description": "Optional. Weekly doctor exam always runs. Set a number to also run gbrain doctor --remediate --max-usd N for that run's estimate. Empty = exam only. Not a weekly wallet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skillopt Enabled",
+      "key": "SKILLOPT_ENABLED",
+      "value": "",
+      "description": "Optional. Empty = off. Set 1/true/yes/on to enable cycle.skillopt.enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nightly Quality Probe",
+      "key": "NIGHTLY_QUALITY_PROBE",
+      "value": "",
+      "description": "Optional. Empty = off. Set 1/true/yes/on to enable autopilot.nightly_quality_probe.enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Parser Probe Enabled",
+      "key": "PARSER_PROBE_ENABLED",
+      "value": "",
+      "description": "Optional. Empty = off. Set 1/true/yes/on to enable autopilot.conversation_parser_probe.enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional. Enables Claude models for chat/think. Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional. Enables OpenAI models for chat/embeddings. Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Optional. Enables Google Gemini models. Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DeepSeek API Key",
+      "key": "DEEPSEEK_API_KEY",
+      "value": "",
+      "description": "Optional. Enables DeepSeek models. Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Groq API Key",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "Optional. Enables Groq models. Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Voyage API Key",
+      "key": "VOYAGE_API_KEY",
+      "value": "",
+      "description": "Optional. Enables Voyage embeddings/rerank. Secret.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
