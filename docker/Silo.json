@@ -1,0 +1,149 @@
+{
+  "name": "Silo",
+  "repo": "ghcr.io/silo-server/silo-server:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Silo-Server/silo-server/pkgs/container/silo-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Silo-Server/unraid-templates/main/icons/silo.png",
+  "project": "https://github.com/Silo-Server/silo-server",
+  "description": "Silo is a self-hosted media server for your films and series. Point it at your media folders and stream to your devices - at home or away - with direct play, remuxing and hardware-accelerated transcoding handled automatically. A full-featured web client and admin interface ship with the server. An optional Jellyfin/Emby-compatible API lets you keep using clients you already own, such as Infuse, VidHub and Findroid. Household profiles give each member their own watch state and parental controls, and metadata is matched through installable plugins including TMDB and TVDB. IMPORTANT: Silo needs a PostgreSQL 18 database with the pgvector extension and Redis 6.2 or newer. Install the Silo-PostgreSQL template from this repository, then install any generic Redis container from Community Applications or use an existing Redis service. Set DATABASE_URL and REDIS_URL below to point at them. If you enable Unraid autostart, place Redis and Silo-PostgreSQL before Silo in Docker startup order and give PostgreSQL time to become ready; Silo stops when either dependency is unavailable. Hardware transcoding is optional. For Intel or AMD, add --device=/dev/dri:/dev/dri in Advanced View's Extra Parameters only when /dev/dri exists on the host. For NVIDIA, install the Unraid Nvidia-Driver plugin, add --runtime=nvidia in Advanced View's Extra Parameters, and enter your GPU UUID in the NVIDIA GPU UUID field. Silo's automatic hardware detection will select NVENC.",
+  "paths": [
+    {
+      "name": "Media Data",
+      "host": "/mnt/cache/data",
+      "container": "/mnt/user/data",
+      "mode": "ro",
+      "description": "Root share containing your film and series libraries. The host and container paths are identical so paths remain consistent across your media stack. Mounted read-only - Silo never writes to your media.",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/silo",
+      "container": "/var/lib/silo",
+      "mode": "rw",
+      "description": "All persistent Silo application data, including installed plugins and compatibility assets. Back this directory up together with PostgreSQL and SECRET_KEY.",
+      "required": true
+    },
+    {
+      "name": "Transcode Scratch",
+      "host": "/tmp/silo-transcode",
+      "container": "/tmp/silo-transcode",
+      "mode": "rw",
+      "description": "Temporary transcode files. Defaults to /tmp, which is RAM on Unraid - this avoids unnecessary SSD wear. Point it at a cache-backed path instead if you have limited RAM.",
+      "required": false
+    },
+    {
+      "name": "Host meminfo",
+      "host": "/proc/meminfo",
+      "container": "/host/proc/meminfo",
+      "mode": "ro",
+      "description": "Read-only view of host memory, used to auto-tune database settings. Leave as-is.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8090",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Silo web interface and API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin-Compatible API Port",
+      "host": "8096",
+      "container": "8096",
+      "protocol": "tcp",
+      "description": "Port for the optional Jellyfin/Emby-compatible API, used by clients such as Infuse, VidHub and Findroid. Disabled until an administrator enables it in admin settings. Change this if you already run Jellyfin on 8096.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Audiobookshelf-Compatible API Port",
+      "host": "13378",
+      "container": "13378",
+      "protocol": "tcp",
+      "description": "Port for the optional Audiobookshelf-compatible API. Change this if you already run Audiobookshelf on 13378.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "MODE",
+      "key": "MODE",
+      "value": "integrated",
+      "description": "Deployment mode. Leave as 'integrated' for a normal single-server install.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED. Master key for at-rest credential encryption - the server will not start without it. Generate one by opening an Unraid terminal and running: openssl rand -base64 48 -- Back this up separately from your database. If you lose it, encrypted secrets cannot be recovered.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DATABASE_URL",
+      "key": "DATABASE_URL",
+      "value": "postgres://silo:YOUR-PASSWORD@YOUR-UNRAID-IP:5432/silo?sslmode=disable",
+      "description": "REQUIRED. Connection string for Silo-PostgreSQL, for example: postgres://silo:YOUR-PASSWORD@YOUR-UNRAID-IP:5432/silo?sslmode=disable. The password must match POSTGRES_PASSWORD. Replace YOUR-UNRAID-IP with your Unraid server's LAN IP address and percent-encode reserved characters in the password.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_URL",
+      "key": "REDIS_URL",
+      "value": "redis://YOUR-UNRAID-IP:6379",
+      "description": "REQUIRED. Connection string for Redis 6.2 or newer. Install any generic Redis container from Community Applications or use an existing Redis service, then replace YOUR-UNRAID-IP with its reachable address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SILO_PLUGIN_CACHE_DIR",
+      "key": "SILO_PLUGIN_CACHE_DIR",
+      "value": "/var/lib/silo/plugins",
+      "description": "Where plugins are cached inside the container. Leave as-is.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_TUNE",
+      "key": "POSTGRES_TUNE",
+      "value": "auto",
+      "description": "Automatically tune database connection settings based on available host memory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA GPU UUID",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Optional NVIDIA hardware transcoding. Install the Unraid Nvidia-Driver plugin, copy a GPU UUID from its settings into this field (or use 'all'), and add --runtime=nvidia in Advanced View's Extra Parameters. Leave blank when NVIDIA is not used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,video,utility",
+      "description": "NVIDIA runtime capabilities required for CUDA, NVENC/NVDEC and GPU diagnostics. Leave as-is when using NVIDIA; harmless when the NVIDIA GPU UUID is blank.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

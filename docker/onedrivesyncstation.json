@@ -1,0 +1,99 @@
+{
+  "name": "onedrive-sync-station",
+  "repo": "ghcr.io/benjaminmue/onedrive-sync-station:beta",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/benjaminmue/OneDrive-Sync-Station/pkgs/container/onedrive-sync-station",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/benjaminmue/OneDrive-Sync-Station/main/unraid/onedrive-sync-station.png",
+  "project": "https://github.com/benjaminmue/OneDrive-Sync-Station",
+  "description": "BETA. All three account types have been synced end to end on real hardware, but this is young software with one pair of eyes on it, and it is published from the beta channel. Do not point it at data you have no other copy of. Syncs several Microsoft OneDrive accounts at once: OneDrive Personal, OneDrive Business and SharePoint document libraries, each with its own folder, its own settings and its own sign-in. Everything is managed from a web UI, including the Microsoft sign-in itself, so no terminal or docker exec is needed. Built on the OneDrive Client for Linux by abraunegg (GPL-3.0), compiled into the image from a pinned release tag. Each account runs its own client process inside this single container, so there is no need for one container per account and no access to the Docker socket. Sign-in needs no client secret and normally no app registration of your own. Business and SharePoint accounts can use a device code: the UI shows a short code, you enter it on one Microsoft page, and nothing has to be copied back. Personal accounts cannot, because Microsoft blocks that flow for them, so they use a link and paste the address of the resulting blank page back into the UI. If your tenant requires administrator approval, the UI produces the admin consent URL for you. Nothing downloads behind your back: a new account does not start syncing on its own. It reads its folder list first, in a run that downloads nothing, so the choice comes before the traffic. Folders are picked from a list, backed by an editor for the client's sync_list rules and a dry-run preview. Config and data are kept apart: the Config path holds settings and sign-ins, the Data path holds nothing but synced files, one subfolder per account. LAN-only by design: the web UI can sign in to Microsoft accounts and reaches every synced file, so do NOT expose it to the internet without a reverse proxy that adds its own authentication.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/onedrive-sync-station",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent state: web UI password, the account registry, per-account client config and the Microsoft refresh tokens. Back this up: losing it means signing every account in again.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/OneDrive",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where synced files land. One subfolder per account is created below this path automatically. Use a dedicated share; nothing but synced data belongs here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8485",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the web UI (the container listens on 8080). LAN-only, do not expose to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Zurich",
+      "description": "Container timezone. Drives the timestamps shown in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the container runs as. Default 99 (nobody) so synced files stay usable by other containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the container runs as. Default 100 (users), the Unraid share convention.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "0002",
+      "description": "File mode mask for everything the container writes. 0002 gives 0664 files and 0775 folders, so the group keeps write access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin password reset",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Recovery only: set this to overwrite the web UI password on the next start, sign in, then clear this field again. Leave empty during normal operation.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Repair permissions",
+      "key": "FIX_PERMISSIONS",
+      "value": "true",
+      "description": "Repairs ownership of the config and data paths on start. Set to false only if you manage permissions on the host yourself.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

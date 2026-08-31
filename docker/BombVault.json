@@ -14,7 +14,7 @@
   "web_ui_url": "https://[IP]:[PORT:3443]/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/bombvault/main/.github/assets/icon.png?v=5",
   "project": "https://github.com/junkerderprovinz/bombvault",
-  "description": "The best and only backup tool you'll ever need for Unraid. One-click backup and full disaster recovery for your Docker containers, VMs, the flash USB and any folders you point it at, powered by restic. The restore is the star: a backed-up container or VM reappears in the Docker or VM tab exactly as before, with no reinstall and no reconfiguration. Incremental, deduplicated and always encrypted, with off-site repos (including immutable, ransomware-resistant append-only copies with tamper verification), retention, file-level restore, restore from another BombVault server, live restore progress and cancel, integrity checks and off-site DR drills, scheduling and pre/post-backup hooks, all configured in the WebUI. Full documentation: https://junkerderprovinz.github.io/bombvault/",
+  "description": "The best and only backup tool you'll ever need for Unraid. One-click backup and full disaster recovery for your Docker containers, VMs, the flash USB and any folders you point it at, powered by restic. The restore is the star: a backed-up container or VM reappears in the Docker or VM tab exactly as before, with no reinstall and no reconfiguration. Incremental, deduplicated and always encrypted, with off-site repos (including immutable, ransomware-resistant append-only copies with tamper verification), retention, file-level restore, restore from another BombVault server, live restore progress and cancel, integrity checks and off-site DR drills, scheduling and pre/post-backup hooks, all configured in the WebUI. A single \"Backup Everything\" pass covers containers, VMs, flash, folders and BombVault's own config in one run, so one ping afterwards tells you the whole server is protected. Full documentation: https://junkerderprovinz.github.io/bombvault/",
   "paths": [
     {
       "name": "Config",
@@ -99,6 +99,14 @@
       "key": "BOMBVAULT_SELF_CONTAINER",
       "value": "BombVault",
       "description": "The name of THIS container, so BombVault never backs up (and thus stops) itself. Defaults to BombVault and normally needs no change \u2014 this value is used directly. The container hostname is pinned to 'bombvault' (for stable restic repo locks), so if you CLEAR this variable or run with host networking, set it to the exact container name (hostname-based auto-detection no longer applies).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_MAX_HOURS",
+      "key": "BACKUP_MAX_HOURS",
+      "value": "",
+      "description": "Maximum wall-clock hours a single backup run may hold its domain lock before it is force-cancelled (a guard so a wedged run cannot block the domain forever). Leave empty for the 48h default. Raise it for very large or slow cloud backups (a run cancelled at the cap fails with 'context deadline exceeded'). Set 0 to disable the cap entirely.",
       "required": false,
       "mask": false
     },

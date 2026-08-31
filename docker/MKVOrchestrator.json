@@ -1,0 +1,163 @@
+{
+  "name": "MKV-Orchestrator",
+  "repo": "ghcr.io/bamcel/mkv-orchestrator:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/bamcel/mkv-orchestrator/pkgs/container/mkv-orchestrator",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/bamcel/mkv-orchestrator/main/web/src/assets/mkvo-icon-purple.png",
+  "project": "https://github.com/bamcel/mkv-orchestrator",
+  "description": "MKV Orchestrator is a media operations console for scanning MKV/MP4 files, reviewing media and track metadata, renaming files from TVDB/TMDB metadata, mux/remux planning, track property edits, and library overview workflows. The container includes MKVToolNix and FFmpeg/FFprobe. Mount your Unraid shares into /media and optionally /downloads; configure provider API keys in the web Settings page or through the optional masked environment variables below.",
+  "paths": [
+    {
+      "name": "Media Path",
+      "host": "/mnt/cache/",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Primary media library path mounted into the container.",
+      "required": true
+    },
+    {
+      "name": "Downloads Path",
+      "host": "/mnt/cache/",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Optional downloads or staging path mounted into the container.",
+      "required": false
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/mkv-orchestrator",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent MKV Orchestrator settings, logs, and cache data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8886",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Authentication Mode",
+      "key": "MKVO_AUTH_MODE",
+      "value": "disabled",
+      "description": "Accepted inputs: auto, basic, or disabled. Use disabled only on a trusted LAN. Use basic with both Web UI credentials below. Use auto to require credentials whenever the server accepts remote connections.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media Root",
+      "key": "MKVO_MEDIA_ROOT",
+      "value": "/media",
+      "description": "Default root used by the Dashboard browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Source Roots",
+      "key": "MKVO_SOURCE_ROOTS",
+      "value": "downloads=/downloads",
+      "description": "Additional named source roots. /media is added automatically; use name=/container/path entries separated by commas.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns files created by MKVO. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns files created by MKVO. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "File creation mask for new files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Username",
+      "key": "MKVO_AUTH_USERNAME",
+      "value": "",
+      "description": "Required with Web UI Password when Authentication Mode is basic. Leave blank when authentication is disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Password",
+      "key": "MKVO_AUTH_PASSWORD",
+      "value": "",
+      "description": "Required with Web UI Username when Authentication Mode is basic. Leave blank when authentication is disabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Scan Workers",
+      "key": "MKVO_SCAN_WORKERS",
+      "value": "6",
+      "description": "Maximum concurrent file metadata scans.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Edit Workers",
+      "key": "MKVO_EDIT_WORKERS",
+      "value": "2",
+      "description": "Maximum concurrent mkvpropedit track property edits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TVDB API Key",
+      "key": "MKVO_TVDB_API_KEY",
+      "value": "",
+      "description": "Optional container-managed TVDB API key. It appears as configured in MKVO Settings after the container restarts, but its value remains masked.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TVDB PIN",
+      "key": "MKVO_TVDB_PIN",
+      "value": "",
+      "description": "Optional container-managed TVDB subscriber PIN. It appears as configured in MKVO Settings after the container restarts, but its value remains masked.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB API Key",
+      "key": "MKVO_TMDB_API_KEY",
+      "value": "",
+      "description": "Optional container-managed TMDB API key. It appears as configured in MKVO Settings after the container restarts, but its value remains masked.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

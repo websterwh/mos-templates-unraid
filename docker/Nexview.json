@@ -1,0 +1,123 @@
+{
+  "name": "Nexview",
+  "repo": "ghcr.io/derkezorm/nexview",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/DerKezorm/nexview/pkgs/container/nexview",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexview.png",
+  "project": "https://nexview.nexapps.dev",
+  "description": "Nexview is a self-hosted media discovery dashboard for a household - family, flatmates, a circle of friends. It shows new releases from TMDB, marks what is already in your library, and hands requests to Radarr (movies) and Sonarr (shows). Everyone gets their own account with roles, approvals, quotas, per-user blocklists and an age restriction, so children can browse a view of their own. The interface is available in English and German. Nexview downloads nothing itself and stores no media. It is the front door to a setup you already run - it does not replace any part of it. Without a TMDB key Nexview starts with sample data, so you can look around before deciding anything.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexview",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database, the encryption key for your stored API credentials, and profile pictures. Back up this folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5173",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach Nexview at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Time zone used for the log and for dates in the interface, for example Europe/Berlin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXVIEW_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking there is no mapping - the port inside the container is the port on your server - so use this to move Nexview off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXVIEW_SECRET_KEY",
+      "value": "",
+      "description": "Signs login tokens and encrypts your stored Radarr, Sonarr and TMDB credentials. Leave blank: Nexview generates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Caller Address",
+      "key": "NEXVIEW_CLIENT_IP",
+      "value": "",
+      "description": "Only needed if you want failed sign-ins counted per address as well as per account. Nexview cannot tell on its own whether a reverse proxy sits in front of it, and behind one every request looks like it comes from the same address - so leaving this blank is always safe, and accounts are still counted. Set direct if Nexview is reachable without a proxy, proxy if exactly one sits in front, or proxy:2 for two (for example Cloudflare and then your own). Your proxy must pass X-Forwarded-For; most do by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "NEXVIEW_LOG_LEVEL",
+      "value": "",
+      "description": "Emergency override: quiet, normal, detailed or trace. Leave blank - the level is set inside the app and turns itself back down after troubleshooting. Only set this if Nexview will not start at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "URL Base",
+      "key": "NEXVIEW_URL_BASE",
+      "value": "",
+      "description": "Only needed to serve Nexview under a sub-path of a shared domain behind a reverse proxy, for example /nexview for https://example.com/nexview/. Leave blank to serve at the root, exactly as before. Both common proxy setups work - passing the path through unchanged and stripping the prefix. Remember to include the prefix in the public address inside Nexview's settings, or links in outgoing mail lead nowhere. Proxy examples: README, section 'Behind a reverse proxy'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access Token Minutes",
+      "key": "NEXVIEW_ACCESS_TOKEN_MINUTES",
+      "value": "30",
+      "description": "How long a sign-in stays valid before it is refreshed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Refresh Token Days",
+      "key": "NEXVIEW_REFRESH_TOKEN_DAYS",
+      "value": "30",
+      "description": "How long someone stays signed in without entering their password again.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

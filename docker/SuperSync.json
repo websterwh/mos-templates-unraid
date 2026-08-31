@@ -1,0 +1,171 @@
+{
+  "name": "SuperSync",
+  "repo": "webstas/supersync:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/webstas/supersync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1900]/",
+  "icon": "https://raw.githubusercontent.com/super-productivity/super-productivity/master/src/assets/icons/apple-touch-icon.png",
+  "project": "https://github.com/BigWebstas/SuperSync",
+  "description": "SuperSync is the self-hostable sync backend for Super Productivity (https://super-productivity.com), letting you sync your tasks/notes across devices without relying on Dropbox/WebDAV or the hosted service. Upstream (super-productivity/super-productivity) only publishes this image to a **private** GHCR registry (see https://github.com/super-productivity/super-productivity/issues/6225), so this is an unofficial public rebuild of the same, unmodified source (packages/super-sync-server), pushed daily to Docker Hub. REQUIRES A SEPARATE POSTGRESQL 16 DATABASE \u2014 this template does not bundle one. Install a Postgres container first (e.g. from Community Applications), create a database/user for SuperSync, then point the \"Database URL\" variable below at it. There are no upstream release tags \u2014 this image tracks the `master` branch and has no stability guarantee. Pin to a specific `latest`-alternative sha tag (see the Docker Hub tags list) rather than `latest` for anything you care about staying stable. No Terms of Service / privacy policy is baked in; see the PRIVACY_* variables in upstream's env.example if you need one generated for your deployment.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/supersync",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent app data directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "1900",
+      "container": "1900",
+      "protocol": "tcp",
+      "description": "Port the server listens on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "Postgres 16 connection string for a database you create/manage separately, e.g. postgresql://supersync:PASSWORD@POSTGRES_IP:5432/supersync?connection_limit=60&amp;pool_timeout=10 (the connection_limit param is important, see Overview).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret used to sign auth tokens, minimum 32 characters. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "http://[IP]:[PORT:1900]",
+      "description": "URL your users/devices use to reach this server, with protocol. Used in verification/magic-link emails. MUST start with https:// unless you also set Node Env below to something other than production.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "CORS_ORIGINS",
+      "value": "https://app.super-productivity.com",
+      "description": "Comma-separated list of origins allowed to call this server (add your self-hosted frontend URL if applicable).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebAuthn RP ID",
+      "key": "WEBAUTHN_RP_ID",
+      "value": "localhost",
+      "description": "Relying-party ID for passkey login: your domain, without protocol or port. Changing later invalidates existing passkeys.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebAuthn Origin",
+      "key": "WEBAUTHN_ORIGIN",
+      "value": "http://[IP]:[PORT:1900]",
+      "description": "Where users reach the auth UI, with protocol. Normally the same as Public URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Node Env",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Set to something other than 'production' to allow http:// Public URLs (e.g. for LAN-only/testing use).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Run Migrations On Startup",
+      "key": "RUN_MIGRATIONS_ON_STARTUP",
+      "value": "true",
+      "description": "Run Prisma database migrations automatically each time the container starts. Disable once your schema is stable if you'd rather run migrations manually.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Emails",
+      "key": "ALLOWED_EMAILS",
+      "value": "",
+      "description": "Optional comma-separated allowlist of exact addresses and/or *@domain rules restricting who may register. Leave blank to allow anyone who can reach the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Storage Quota (Bytes)",
+      "key": "SUPERSYNC_DEFAULT_STORAGE_QUOTA_BYTES",
+      "value": "104857600",
+      "description": "Per-user storage quota in bytes applied to accounts created from now on (default 104857600 = 100MB). Existing accounts keep the quota they were created with; raising this does NOT widen anyone's existing quota. To change an existing user's quota, run: UPDATE users SET storage_quota_bytes = bytes WHERE email = 'email'; against your Postgres database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "SMTP server hostname, required for email verification.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "SMTP_PORT",
+      "value": "587",
+      "description": "SMTP port (587 for TLS/STARTTLS, 465 for SSL).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Secure",
+      "key": "SMTP_SECURE",
+      "value": "false",
+      "description": "true for SSL on port 465, false for STARTTLS on 587.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP User",
+      "key": "SMTP_USER",
+      "value": "",
+      "description": "SMTP authentication username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "SMTP_PASS",
+      "value": "",
+      "description": "SMTP authentication password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP From",
+      "key": "SMTP_FROM",
+      "value": "",
+      "description": "From address for outgoing emails, e.g. \"Super Productivity Sync\" noreply@your-domain.com",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Lucia-Redis",
+  "repo": "redis:8.2-alpine",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/_/redis",
+  "network": "lucia",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --health-cmd=redis-cli ping --health-interval=10s --health-timeout=5s --health-retries=5",
+  "post_parameters": "redis-server --appendonly [REDIS_APPENDONLY] --maxmemory [REDIS_MAXMEMORY] --maxmemory-policy [REDIS_MAXMEMORY_POLICY] --loglevel [REDIS_LOGLEVEL]",
+  "web_ui_url": "http://[IP]:[PORT:6379]",
+  "icon": "https://raw.githubusercontent.com/docker-library/docs/master/redis/logo.png",
+  "project": "https://github.com/seiggy/lucia-dotnet",
+  "description": "Redis cache and task persistence for Lucia. Before installing, run `docker network create lucia` in the Unraid terminal. Install this template before Lucia.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/lucia/redis",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Redis data on the cache pool.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "6379",
+      "container": "6379",
+      "protocol": "tcp",
+      "description": "Optional host port for external Redis tools. Lucia does not need it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Append-only persistence",
+      "key": "REDIS_APPENDONLY",
+      "value": "yes",
+      "description": "Write each change to the append-only persistence file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum memory",
+      "key": "REDIS_MAXMEMORY",
+      "value": "256mb",
+      "description": "Redis memory limit. Increase this for larger installations.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Eviction policy",
+      "key": "REDIS_MAXMEMORY_POLICY",
+      "value": "allkeys-lru",
+      "description": "Policy used when Redis reaches its memory limit.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "REDIS_LOGLEVEL",
+      "value": "notice",
+      "description": "Redis log verbosity.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,273 @@
+{
+  "name": "MediaOps",
+  "repo": "ghcr.io/miakkia/mediaops:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/miakkia/mediaops",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/miakkia/MediaOps/main/assets/mediaops-icon.png",
+  "project": "https://github.com/miakkia/MediaOps",
+  "description": "MediaOps is a self-hosted, single-tenant Discord automation platform for media-server communities. Each operator creates their own Discord application/bot and connects this container to their own Emby, Ombi and Watch Party services.",
+  "paths": [
+    {
+      "name": "MediaOps Data",
+      "host": "/mnt/cache/appdata/mediaops",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent MediaOps runtime data and scheduled Watch Party state.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Bot Display Name",
+      "key": "MEDIAOPS_BOT_NAME",
+      "value": "MediaOps Bot",
+      "description": "Public-facing bot name used by MediaOps panels and messages. This does not rename your Discord application itself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Server Display Name",
+      "key": "MEDIAOPS_SERVER_NAME",
+      "value": "My Media Server",
+      "description": "Friendly media-server/community name used in public MediaOps panels.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Demo Mode",
+      "key": "MEDIAOPS_DEMO_MODE",
+      "value": "false",
+      "description": "Set true for public/demo deployments. MediaOps keeps Watch Party controls visible but disables join links so configured Watch Party URLs are never emitted into Discord.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Provider",
+      "key": "MEDIA_PROVIDER",
+      "value": "emby",
+      "description": "Media provider backend. Emby is currently supported.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Discord Token",
+      "key": "DISCORD_TOKEN",
+      "value": "",
+      "description": "Secret token for the Discord bot/application you created for this MediaOps deployment.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Discord Client ID",
+      "key": "DISCORD_CLIENT_ID",
+      "value": "",
+      "description": "Application/client ID for your Discord application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Discord Guild ID",
+      "key": "DISCORD_GUILD_ID",
+      "value": "",
+      "description": "Discord server/guild ID for this self-hosted deployment and guild-scoped command registration.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Emby base URL reachable from this container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emby API Key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Emby API key used by MediaOps.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Request Provider",
+      "key": "REQUEST_PROVIDER",
+      "value": "none",
+      "description": "Optional request backend. Use ombi to enable /request after configuring Ombi URL and API key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ombi URL",
+      "key": "OMBI_URL",
+      "value": "",
+      "description": "Ombi base URL reachable from MediaOps. Required when REQUEST_PROVIDER=ombi.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ombi API Key",
+      "key": "OMBI_API_KEY",
+      "value": "",
+      "description": "Ombi API key used to search and create requests. Required when REQUEST_PROVIDER=ombi.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ombi Auto Approve",
+      "key": "OMBI_AUTO_APPROVE",
+      "value": "false",
+      "description": "true automatically approves newly created requests; false leaves them pending for an Ombi administrator.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Requests Forum ID",
+      "key": "MEDIA_REQUESTS_FORUM_ID",
+      "value": "",
+      "description": "Optional Discord Forum channel used for Ombi request lifecycle synchronization.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Requests Webhook ID",
+      "key": "MEDIA_REQUESTS_WEBHOOK_ID",
+      "value": "",
+      "description": "Exact Discord webhook ID allowed to drive Forum status changes. This is an ID, not the secret webhook URL/token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Requested Status Tag ID",
+      "key": "MEDIA_TAG_REQUESTED",
+      "value": "",
+      "description": "Discord Forum tag ID for newly submitted requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Processing Status Tag ID",
+      "key": "MEDIA_TAG_PROCESSING",
+      "value": "",
+      "description": "Discord Forum tag ID for approved/in-process requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Available Status Tag ID",
+      "key": "MEDIA_TAG_AVAILABLE",
+      "value": "",
+      "description": "Discord Forum terminal tag ID for available media.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Failed Status Tag ID",
+      "key": "MEDIA_TAG_FAILED",
+      "value": "",
+      "description": "Discord Forum terminal tag ID for failed processing/acquisition.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Denied Status Tag ID",
+      "key": "MEDIA_TAG_DENIED",
+      "value": "",
+      "description": "Discord Forum terminal tag ID for denied/rejected requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Movie Media Tag ID",
+      "key": "MEDIA_TAG_MOVIE",
+      "value": "",
+      "description": "Discord Forum tag ID identifying movie requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Series Media Tag ID",
+      "key": "MEDIA_TAG_SERIES",
+      "value": "",
+      "description": "Discord Forum tag ID identifying TV-series requests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watch Party URL",
+      "key": "WATCHPARTY_URL",
+      "value": "",
+      "description": "Public URL of the Watch Party service. Demo Mode prevents this URL from being emitted into Discord.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Watch Party Internal URL",
+      "key": "WATCHPARTY_INTERNAL_URL",
+      "value": "",
+      "description": "Optional LAN/internal Watch Party URL used by MediaOps API calls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watch Party Emby User",
+      "key": "WATCHPARTY_EMBY_USER",
+      "value": "",
+      "description": "Dedicated non-admin Emby account used to create and host Watch Parties.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watch Party Emby Password",
+      "key": "WATCHPARTY_EMBY_PASSWORD",
+      "value": "",
+      "description": "Password for the dedicated Watch Party Emby account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Watch Party Retention Days",
+      "key": "WATCHPARTY_RETENTION_DAYS",
+      "value": "30",
+      "description": "Days to keep completed/cancelled Watch Party history.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MediaOps Locale",
+      "key": "MEDIAOPS_LOCALE",
+      "value": "en",
+      "description": "Default language for automated messages. Supported: en or fr.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MediaOps Timezone",
+      "key": "MEDIAOPS_TIMEZONE",
+      "value": "America/Toronto",
+      "description": "IANA timezone used for Watch Party scheduling input without an explicit offset.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MediaOps Data Directory",
+      "key": "MEDIAOPS_DATA_DIR",
+      "value": "/data",
+      "description": "Container path for persistent runtime data.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,355 @@
+{
+  "name": "WebComm-Calendar-Sync",
+  "repo": "ghcr.io/2crazytv/webcomm-calendar-sync:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/2crazytv/webcomm-calendar-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8788]/",
+  "icon": "https://raw.githubusercontent.com/2CrAzYTV/unraid-community-apps/main/icons/webcomm-calendar-sync.png",
+  "project": "https://github.com/2CrAzYTV/webcomm-calendar-sync",
+  "description": "WebComm Calendar Sync automatically reads WebComm duty schedules, detects changes, synchronizes work shifts to ICS, CalDAV or Google Calendar, can send optional Telegram notifications, and can optionally integrate with Alarm-HUB. Chromium and persistent configuration are included in the container.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/webcomm-calendar-sync",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent application settings, certificates, cached service cards and generated calendar data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8788",
+      "container": "8788",
+      "protocol": "tcp",
+      "description": "HTTPS port for the WebComm Calendar Sync WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Enabled",
+      "key": "HTTPS_ENABLED",
+      "value": "true",
+      "description": "Enable the built-in HTTPS WebUI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS SAN IPs",
+      "key": "TLS_SAN_IPS",
+      "value": "",
+      "description": "Optional IP addresses for the local HTTPS certificate, separated by commas.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TLS SAN Hostnames",
+      "key": "TLS_SAN_HOSTNAMES",
+      "value": "",
+      "description": "Optional DNS hostnames for the local HTTPS certificate, separated by commas.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TLS Certificate Days",
+      "key": "TLS_CERT_DAYS",
+      "value": "365",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS Renew Before Days",
+      "key": "TLS_RENEW_BEFORE_DAYS",
+      "value": "30",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS Check Hours",
+      "key": "TLS_CHECK_HOURS",
+      "value": "12",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS CA Days",
+      "key": "TLS_CA_DAYS",
+      "value": "3650",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebComm URL",
+      "key": "WEBCOMM_URL",
+      "value": "https://webcomm.goevb.de/WebComm/default.aspx?TestingCookie=1",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebComm Username",
+      "key": "WEBCOMM_USERNAME",
+      "value": "",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebComm Password",
+      "key": "WEBCOMM_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Chromium Headless",
+      "key": "CHROMIUM_HEADLESS",
+      "value": "true",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Chromium Args",
+      "key": "CHROMIUM_ARGS",
+      "value": "--no-sandbox --disable-dev-shm-usage",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sync Interval Minutes",
+      "key": "SYNC_INTERVAL_MINUTES",
+      "value": "15",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sync Window Start",
+      "key": "SYNC_WINDOW_START",
+      "value": "07:00",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sync Window End",
+      "key": "SYNC_WINDOW_END",
+      "value": "18:00",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Alarm-HUB Enabled",
+      "key": "ALARM_HUB_ENABLED",
+      "value": "false",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Alarm-HUB URL",
+      "key": "ALARM_HUB_URL",
+      "value": "",
+      "description": "Optional internal API address of Alarm-HUB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alarm-HUB Calendar/File URL",
+      "key": "ALARM_HUB_CALENDAR_URL",
+      "value": "",
+      "description": "Optional base URL used for clickable calendar and service-card links. Use an address reachable from the target device, such as a local IP, internal domain, reverse proxy, VPN or Tailscale address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alarm-HUB Sync Token",
+      "key": "ALARM_HUB_SYNC_TOKEN",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Rule Source Check Hours",
+      "key": "RULE_SOURCE_CHECK_HOURS",
+      "value": "6",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TVN Source URL",
+      "key": "TVN_SOURCE_URL",
+      "value": "https://www.kav-nds.de/Aktuelles/Mitteilungen/",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TVN Update Hours",
+      "key": "TVN_UPDATE_HOURS",
+      "value": "24",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BOKraft Source URL",
+      "key": "BOKRAFT_SOURCE_URL",
+      "value": "https://www.gesetze-im-internet.de/bokraft_1975/",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BOKraft Update Hours",
+      "key": "BOKRAFT_UPDATE_HOURS",
+      "value": "168",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BV Source URL",
+      "key": "BV_SOURCE_URL",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BV Local Path",
+      "key": "BV_LOCAL_PATH",
+      "value": "/config/rules/bv.pdf",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BV Update Hours",
+      "key": "BV_UPDATE_HOURS",
+      "value": "24",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram Chat ID",
+      "key": "TELEGRAM_CHAT_ID",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram Send Screenshot",
+      "key": "TELEGRAM_SEND_SCREENSHOT",
+      "value": "true",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Telegram Notify Initial",
+      "key": "TELEGRAM_NOTIFY_INITIAL",
+      "value": "false",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Calendar Mode",
+      "key": "CALENDAR_MODE",
+      "value": "ics",
+      "description": "Choose ics, caldav or google.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Google Calendar ID",
+      "key": "GOOGLE_CALENDAR_ID",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google Service Account File",
+      "key": "GOOGLE_SERVICE_ACCOUNT_FILE",
+      "value": "",
+      "description": "Optional path to the Google service-account JSON file when Google Calendar mode is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CalDAV URL",
+      "key": "CALDAV_URL",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Username",
+      "key": "CALDAV_USERNAME",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CalDAV Password",
+      "key": "CALDAV_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CalDAV Calendar Name",
+      "key": "CALDAV_CALENDAR_NAME",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

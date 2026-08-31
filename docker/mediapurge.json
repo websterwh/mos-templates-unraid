@@ -1,0 +1,91 @@
+{
+  "name": "media-purge",
+  "repo": "ghcr.io/ktordoff13/media-purge:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/ktordoff13/media-purge/pkgs/container/media-purge",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8484]/",
+  "icon": "https://raw.githubusercontent.com/ktordoff13/media-purge/main/docs/icon.png",
+  "project": "https://github.com/ktordoff13/media-purge",
+  "description": "Rule-based media cleanup for Plex and Jellyfin. Scans your libraries, recommends what to delete (never watched, watched years ago, duplicates, low quality, dead series...) with a transparent explanation for every suggestion, and reclaims space through a staged pipeline: approve -> recycle bin -> purge after retention. Ships dry-run enabled so nothing is deleted until you decide you trust it. Also includes ImageMaid-style server maintenance (Plex PhotoTranscoder cache purge, Clean Bundles / Optimize DB, Jellyfin cache tasks). Every action is written to a permanent activity log.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/media-purge",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database and settings",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media share. Must be read-write for cleanup to work. Add a path mapping in Settings if your media server mounts this share at a different path.",
+      "required": true
+    },
+    {
+      "name": "Recycle Bin",
+      "host": "/mnt/cache/media/.media-purge-bin",
+      "container": "/recycle-bin",
+      "mode": "rw",
+      "description": "Where approved deletions wait out the retention window. Keep it on the SAME share as your media so moves are instant instead of copies.",
+      "required": true
+    },
+    {
+      "name": "Plex Appdata (optional)",
+      "host": "",
+      "container": "/plex-appdata",
+      "mode": "rw",
+      "description": "Optional: mount your Plex appdata to enable the PhotoTranscoder cache purge (often frees 50-100+ GB). Point Settings -&gt; Appdata paths at /plex-appdata/Library/Application Support/Plex Media Server.",
+      "required": false
+    },
+    {
+      "name": "Jellyfin Appdata (optional)",
+      "host": "",
+      "container": "/jellyfin-appdata",
+      "mode": "rw",
+      "description": "Optional: mount your Jellyfin config dir (the one containing cache/) to enable the on-disk cache purge with dry-run size estimates. Point Settings -&gt; Appdata paths at /jellyfin-appdata.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8484",
+      "container": "8484",
+      "protocol": "tcp",
+      "description": "Web UI and API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID (optional)",
+      "key": "PUID",
+      "value": "500",
+      "description": "Not needed on unraid \u2014 leave blank to run as root (the default). Only set this if you have a specific reason to run as another user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID (optional)",
+      "key": "PGID",
+      "value": "500",
+      "description": "Not needed on unraid \u2014 leave blank to run as root (the default). Only set this if you have a specific reason to run as another group.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

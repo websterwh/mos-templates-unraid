@@ -1,0 +1,51 @@
+{
+  "name": "Rumpus",
+  "repo": "ghcr.io/codyburker/rumpus:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/codyburker/rumpus",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/host",
+  "icon": "https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/rumpus-icon.png",
+  "project": "https://github.com/rodwilco/rumpus",
+  "description": "Self-hosted Jackbox-style party game platform: one shared TV screen and everyone else plays from their phone. Runs entirely on your LAN \u2014 no accounts, no cloud, no per-player app install. Open http://[server-ip]:[port]/host on the TV to get a room code, then everyone joins from their phones at http://[server-ip]:[port]/play. Ships four games: Quiplash, Trivia Blast, Cards Against Humanity (sample deck; bring your own full deck via the optional path mapping), and Fibbage. Rooms are in-memory and ephemeral \u2014 no persistent data, so no appdata volume is required. Do not expose this container off your LAN; it has no authentication by design.",
+  "paths": [
+    {
+      "name": "Custom CAH deck (optional)",
+      "host": "",
+      "container": "/app/games/data/cah-cards.js",
+      "mode": "ro",
+      "description": "Optional: host path to a cah-cards.js file exporting { WHITE: [...], BLACK: [...] } to replace the built-in sample Cards Against Humanity deck (e.g. /mnt/user/appdata/rumpus/cah-cards.js). Leave EMPTY to use the built-in sample deck \u2014 if you set a path, the file must already exist on the host or Docker will create an empty directory there and break the game.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8012",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the Rumpus web UI. TV opens /host, phones open /play.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Indiana/Indianapolis",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

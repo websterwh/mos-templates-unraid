@@ -1,0 +1,115 @@
+{
+  "name": "Pullbox",
+  "repo": "ghcr.io/pullboxapp/pullbox:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/pullboxapp/pullbox/pkgs/container/pullbox",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "none",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8585]/",
+  "icon": "https://raw.githubusercontent.com/pullboxapp/unraid-templates/main/icon.png",
+  "project": "https://pullbox.app",
+  "description": "Pullbox is a self-hosted comic library manager and acquisition application. Monitor series, search configured indexers and direct sources, send selected releases to supported download clients, import an existing folder or Mylar3 library, read comics in the browser, and browse current and upcoming releases. IMPORTANT: Pullbox's hardened image runs as the fixed non-root UID/GID 65532:65532 and does not use PUID or PGID. Before first start, make every mounted path readable by UID 65532 and make the paths Pullbox manages writable by it. Follow the permissions guide at https://pullbox.app/docs/getting-started/nas-and-Unraid-permissions before starting the container. Unraid's New Permissions and Docker Safe New Perms tools can remove this access, so reapply it afterward if those tools touch a Pullbox path. Keep /data on durable appdata storage backed by a cache pool; it contains config.xml, the SQLite database, logs, backups, and temporary state. First start opens Pullbox's account-setup flow. If you plan to install the optional direct-download providers, create a user-defined Docker network named pullbox and select it as Network Type for all Pullbox containers. Bridge networking remains supported when each provider publishes a distinct fallback port.",
+  "paths": [
+    {
+      "name": "Data (appdata)",
+      "host": "/mnt/cache/appdata/pullbox",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Durable Pullbox state: config.xml, database, logs, backups, and temporary files. Configure the appdata share to use a cache pool. The path must be writable by UID 65532.",
+      "required": true
+    },
+    {
+      "name": "Comics Library",
+      "host": "",
+      "container": "/comics",
+      "mode": "rw",
+      "description": "Comic library root managed by Pullbox. The selected host path must be readable and writable by UID 65532.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Completed downloads shared with download clients. Use the same container-visible path reported by the client, or configure a remote path mapping in Pullbox. UID 65532 needs read/write access.",
+      "required": true
+    },
+    {
+      "name": "Imports",
+      "host": "",
+      "container": "/imports",
+      "mode": "rw",
+      "description": "Optional folder and Mylar3 database sources for the import wizard. Read access is required; write access is needed only when Pullbox should move or clean up source files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8585",
+      "container": "8585",
+      "protocol": "tcp",
+      "description": "Host port for the Pullbox web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "IANA time zone used for schedules and logs, for example America/Los_Angeles.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "PULLBOX_DB_URL",
+      "value": "sqlite+aiosqlite:////data/pullbox.db",
+      "description": "SQLAlchemy database URL. Keep the default SQLite database under /data unless intentionally using PostgreSQL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SQLite Journal Mode",
+      "key": "PULLBOX_SQLITE_JOURNAL_MODE",
+      "value": "WAL",
+      "description": "SQLite journal mode. WAL is the supported Docker default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Library Root",
+      "key": "PULLBOX_LIBRARY_ROOT",
+      "value": "/comics",
+      "description": "Library path inside the container. Keep this aligned with the Comics Library mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Covers Directory",
+      "key": "PULLBOX_COVERS_DIR",
+      "value": "/comics/.covers",
+      "description": "Cover cache path inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedded Reader",
+      "key": "PULLBOX_READER_ENABLED",
+      "value": "true",
+      "description": "Set to false to disable the embedded reader without deleting comics or saved reading progress.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

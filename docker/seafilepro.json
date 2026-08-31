@@ -5,19 +5,96 @@
     "Backup"
   ],
   "registry": "https://hub.docker.com/r/seafileltd/seafile-pro-mc",
-  "network": "bridge",
+  "network": "seafile-net",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
   "icon": "https://raw.githubusercontent.com/chirmstream/unraid-templates/main/seafile-pro/seafile-icon-512x512.png",
   "project": "https://www.seafile.com/",
   "description": "This is an unofficial template that uses the official seafile-pro docker image. Seafile is an open source file sync&share solution designed for high reliability, performance and productivity. Sync, share and collaborate across devices and teams. Build your team's knowledge base with Seafile's built-in Wiki feature. # STOP! Before continuing you must create your own custom docker network for Seafile to work. ### Step 1 In the webui naviate to Settings>Docker Enable \"Preserve user defined networks\" ### Step 2 Open Unraid terminal and type: docker network create seafile-net Verify it was created by running \"docker network list\" ### Step 3 Make sure \"Network Type:\" under the ADVANCED VIEW is set to seafile-net. We will set our Database and memcached (if used) to also use seafile-net ### Step 4 - Database setup (assuming MariaDB) Create a new database container that has nothing on it. (This is very important and it will not work if you skip this step!) ### Step 5 Set the container name to: \"seafile-pro-mariadb\" (this is important!) Set the \"Network Type: seafile-net\" Note the root password you used. ### Step 6 (Pro setup) You can use seafile-pro for free with up to 3 users. Create an account at https://customer.seafile.com You will be given docker login credentials Open a new Unraid terminal and type: docker login docker.seadrive.org Enter your given username and password ### Step 7 Create container from template",
-  "paths": [],
-  "ports": [],
-  "variables": [],
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/seafile-pro/",
+      "container": "/shared/",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "9090",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Web UI http port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSL/TLS Port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Recommended to leave blank. Specify a port only if you intend to use SSL/TLS without a reverse proxy. Reverse proxy is recommended.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Seafile Hostname",
+      "key": "SEAFILE_SERVER_HOSTNAME",
+      "value": "seafile.example.com",
+      "description": "IP or hostname",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SQL Host",
+      "key": "DB_HOST",
+      "value": "seafile-pro-mariadb",
+      "description": "Name of your database container. Due to an existing bug in seafile, we cannot set our own database IP. But we can still communicate to it over our custom docker network using the container name instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SQL Root Password",
+      "key": "DB_ROOT_PASSWD",
+      "value": "changeme",
+      "description": "Root password of SQL database you took note of earlier.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "SEAFILE_ADMIN_EMAIL",
+      "value": "admin@example.com",
+      "description": "Seafile admin user. Recommend you change this.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "SEAFILE_ADMIN_PASSWORD",
+      "value": "changeme",
+      "description": "seafile admin password",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Create a Let's Encrypt Certificate",
+      "key": "SEAFILE_SERVER_LETSENCRYPT",
+      "value": "false",
+      "description": "Seafile will request and install a SSL-Certificate by itself based on the Seafile hostanme. Only viable with SSL/TLS Port. Domain needed. Do not use when using a reverse proxy (recommended).",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

@@ -1,0 +1,59 @@
+{
+  "name": "FFmpeg-SSH-Worker",
+  "repo": "heroeswearkapes/ffmpeg-ssh-worker:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/heroeswearkapes/ffmpeg-ssh-worker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2222]",
+  "icon": "https://raw.githubusercontent.com/heroeswearkapes/unraid-community-apps/main/icons/ffmpeg-ssh-worker.png",
+  "project": "https://github.com/heroeswearkapes/ffmpeg-ssh-worker",
+  "description": "FFmpeg SSH Worker is a lightweight, CPU-based FFmpeg rendering worker with SSH public-key authentication, designed for automation workflows. Originally created as the rendering node for an n8n workflow that automatically assembled YouTube Shorts, the worker can be used by n8n or any other automation platform, script, or application capable of executing commands over SSH. Provides FFmpeg, OpenSSH, persistent SSH host keys, a shared /work directory, and common media-processing utilities. CPU rendering only. No GPU passthrough is required. Supports both amd64 and arm64 Docker hosts.",
+  "paths": [
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/ffmpeg-ssh-worker",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent SSH configuration. Place your public SSH key in authorized_keys within this directory. Persistent SSH host keys are also stored here.",
+      "required": true
+    },
+    {
+      "name": "Work Directory",
+      "host": "/mnt/cache/ffmpeg-work",
+      "container": "/work",
+      "mode": "rw",
+      "description": "Shared workspace for source media, intermediate files, and completed FFmpeg renders. The worker account must have write access to this location.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "SSH Port",
+      "host": "2222",
+      "container": "22",
+      "protocol": "tcp",
+      "description": "Host port used to connect to the FFmpeg worker over SSH. Example: ssh -p 2222 worker@YOUR-UNRAID-IP",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone used inside the container. Use a valid IANA timezone such as America/New_York.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

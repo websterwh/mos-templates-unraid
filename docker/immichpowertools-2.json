@@ -1,55 +1,38 @@
 {
   "name": "immich-power-tools",
-  "repo": "ghcr.io/immich-power-tools/immich-power-tools:latest",
+  "repo": "ghcr.io/varun-raj/immich-power-tools",
   "category": [
     "Media"
   ],
-  "registry": "https://github.com/immich-power-tools/immich-power-tools/pkgs/container/immich-power-tools",
-  "network": "immich_internal",
+  "registry": "https://github.com/varun-raj/immich-power-tools/pkgs/container/immich-power-tools",
+  "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--user 99:100",
+  "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:3000]",
-  "icon": "https://raw.githubusercontent.com/rorar/unraid-templates/main/templates/docker_icons/immich-power-tools-logo.png",
-  "project": "https://github.com/immich-power-tools/immich-power-tools",
-  "description": "Unofficial Immich client for advanced library management. Features include bulk people management, smart face merge, location enrichment, album discovery, library analytics, natural language search, and bulk date adjustment. Connects to your Immich server via API and directly to the PostgreSQL database for advanced operations. Must be on the same Docker network as immich-server and immich-vectorchord-db.",
-  "paths": [
-    {
-      "name": "Path: Data",
-      "host": "/mnt/cache/appdata/immich-power-tools/",
-      "container": "/app/data",
-      "mode": "rw",
-      "description": "Persistent data directory for Power Tools.",
-      "required": true
-    }
-  ],
+  "icon": "https://raw.githubusercontent.com/TheMapledCog/unraid-templates/refs/heads/main/immich-power-tools/favicon.png",
+  "project": "https://github.com/varun-raj/immich-power-tools",
+  "description": "A unofficial immich client to provide better tools to organize and manage your immich account. Built to speed up your workflows in Immich to organize your people and albums.",
+  "paths": [],
   "ports": [
     {
-      "name": "Port: Web UI",
-      "host": "3000",
+      "name": "WebUI",
+      "host": "8001",
       "container": "3000",
       "protocol": "tcp",
-      "description": "Power Tools web interface port.",
+      "description": "WebUI Port",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "--- Immich Connection ---",
-      "key": "--- Immich Connection ---",
-      "value": "",
-      "description": "Connection to your Immich server.",
-      "required": false,
-      "mask": false
-    },
-    {
       "name": "IMMICH_URL",
       "key": "IMMICH_URL",
-      "value": "http://immich-server:2283",
-      "description": "Internal Immich server URL. Uses container name on immich_internal network.",
+      "value": "",
+      "description": "Immich URL If using local ip do not include trailing /",
       "required": true,
       "mask": false
     },
@@ -57,113 +40,65 @@
       "name": "IMMICH_API_KEY",
       "key": "IMMICH_API_KEY",
       "value": "",
-      "description": "Immich API key with ALL permissions. Create in Immich: Account Icon \u2192 Account Settings \u2192 API Keys.",
+      "description": "Immich API Key https://immich.app/docs/features/command-line-interface/#obtain-the-api-key",
       "required": true,
       "mask": true
     },
     {
-      "name": "--- Database ---",
-      "key": "--- Database ---",
-      "value": "",
-      "description": "PostgreSQL connection. Must match your immich-vectorchord-db configuration.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DB_HOST",
-      "key": "DB_HOST",
-      "value": "immich-vectorchord-db",
-      "description": "Database container name (must match your DB container on immich_internal).",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "DB_PORT",
-      "key": "DB_PORT",
-      "value": "5432",
-      "description": "Database port.",
-      "required": true,
-      "mask": false
-    },
-    {
       "name": "DB_USERNAME",
       "key": "DB_USERNAME",
-      "value": "postgres",
-      "description": "Database username (must match DB container).",
+      "value": "",
+      "description": "Postgress Database Username",
       "required": true,
       "mask": false
     },
     {
       "name": "DB_PASSWORD",
       "key": "DB_PASSWORD",
-      "value": "postgres",
-      "description": "Database password (must match DB container).",
+      "value": "",
+      "description": "Postgres Database Password",
       "required": true,
       "mask": true
+    },
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Postgres Host (IP address or hostname of the database)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "",
+      "description": "Postgres Port number (Default: 5432)",
+      "required": true,
+      "mask": false
     },
     {
       "name": "DB_DATABASE_NAME",
       "key": "DB_DATABASE_NAME",
-      "value": "immich",
-      "description": "Database name (must match DB container).",
+      "value": "",
+      "description": "Name of the database",
       "required": true,
       "mask": false
     },
     {
-      "name": "--- System ---",
-      "key": "--- System ---",
+      "name": "GEMINI_API_KEY",
+      "key": "GEMINI_API_KEY",
       "value": "",
-      "description": "General settings.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Variable: TZ",
-      "key": "TZ",
-      "value": "Europe/Berlin",
-      "description": "Timezone. See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "--- Advanced (AI Search) ---",
-      "key": "--- Advanced (AI Search) ---",
-      "value": "",
-      "description": "Optional: Enable natural language search via AI provider (OpenAI, Ollama, etc.). No personal data is sent - only search query text.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "EXTERNAL_IMMICH_URL",
-      "key": "EXTERNAL_IMMICH_URL",
-      "value": "",
-      "description": "External Immich URL for links in the Power Tools UI (e.g. https://photos.example.com). Leave empty to use IMMICH_URL.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "AI_API_KEY",
-      "key": "AI_API_KEY",
-      "value": "",
-      "description": "AI provider API key for natural language search (e.g. OpenAI key).",
+      "description": "Optional: For rewind video generation",
       "required": false,
       "mask": true
     },
     {
-      "name": "AI_BASE_URL",
-      "key": "AI_BASE_URL",
+      "name": "GOOGLE_MAPS_API_KEY",
+      "key": "GOOGLE_MAPS_API_KEY",
       "value": "",
-      "description": "AI provider base URL. OpenAI: https://api.openai.com/v1, Ollama: http://host.docker.internal:11434/v1",
+      "description": "Optional: Google Maps Javascript API Key is used for heatmap",
       "required": false,
-      "mask": false
-    },
-    {
-      "name": "AI_MODEL",
-      "key": "AI_MODEL",
-      "value": "",
-      "description": "AI model name. Examples: gpt-4o-mini, llama-3.1-8b-instant",
-      "required": false,
-      "mask": false
+      "mask": true
     }
   ],
   "devices": [],

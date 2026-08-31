@@ -1,0 +1,235 @@
+{
+  "name": "honcho-aio",
+  "repo": "dub19/honcho-aio",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/dub19/honcho-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/wgross19/awesome-unraid/main/icons/honcho.png",
+  "project": "https://github.com/wgross19/honcho-aio",
+  "description": "Honcho is memory infrastructure for agents that track people, sessions, and ideas over time. The default setup runs Honcho with its internal Postgres and Redis services. Store messages. Let it derive. Query context or search. honcho-aio packages that for Unraid. One container. Honcho on port 8000. Postgres and Redis inside, not on the LAN. Set a password and provider/model strings. Then hermes memory setup \u2192 http://lan:8000. First run: 1. Set PostgreSQL Password (required). The container exits 64 if it is empty. 2. Set EMBEDDING_MODEL and CHAT_MODEL as provider/model. Split is on the first /. Nested model slashes stay (openrouter/openai/gpt-5.4-mini). 3. If you use local/, set LOCAL_BASE_URL (example http://192.168.1.79:11434/v1). Local chat has no cloud fallback. 4. Fill only the API key for the provider you picked. 5. Start, then point Hermes with: hermes memory setup \u2192 http://lan:8000 The chat model must support tool/function calling. Advanced configuration can select a local or cloud provider and custom model settings. At boot the image probes embedding width. A mismatch with EMBEDDING_VECTOR_DIMENSIONS fails boot.",
+  "paths": [
+    {
+      "name": "Postgres Data",
+      "host": "/mnt/cache/appdata/honcho-aio/postgres",
+      "container": "/data/postgres",
+      "mode": "rw",
+      "description": "Internal PostgreSQL 17 data. Not published to the LAN.",
+      "required": true
+    },
+    {
+      "name": "Redis Data",
+      "host": "/mnt/cache/appdata/honcho-aio/redis",
+      "container": "/data/redis",
+      "mode": "rw",
+      "description": "Internal Redis data. Not published to the LAN.",
+      "required": true
+    },
+    {
+      "name": "Honcho State",
+      "host": "/mnt/cache/appdata/honcho-aio/honcho",
+      "container": "/var/lib/honcho",
+      "mode": "rw",
+      "description": "Honcho runtime.env and generated state.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Honcho API port. Postgres and Redis stay inside the container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PostgreSQL Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "REQUIRED. Container exits 64 if empty. Masked.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PostgreSQL User",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Internal Postgres user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Database",
+      "key": "POSTGRES_DB",
+      "value": "honcho",
+      "description": "Internal Postgres database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedding Model",
+      "key": "EMBEDDING_MODEL",
+      "value": "local/embeddinggemma",
+      "description": "Format provider/model. Split on first /. Examples: local/embeddinggemma, openai/text-embedding-3-small.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Chat Model",
+      "key": "CHAT_MODEL",
+      "value": "openai/gpt-5.4-mini",
+      "description": "Format provider/model. Nested slashes stay (openrouter/openai/gpt-5.4-mini). Must support tool calling.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local Provider Base URL",
+      "key": "LOCAL_BASE_URL",
+      "value": "",
+      "description": "Required for local/ models. Example: http://192.168.1.79:11434/v1. Local chat has no cloud fallback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedding Vector Dimensions",
+      "key": "EMBEDDING_VECTOR_DIMENSIONS",
+      "value": "768",
+      "description": "Must match the model output width. Boot fails on mismatch. 768 for embeddinggemma.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "LLM_OPENAI_API_KEY",
+      "value": "",
+      "description": "Used for openai, openrouter, and together.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "LLM_ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Used when CHAT_MODEL uses anthropic/. Chat only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "LLM_GEMINI_API_KEY",
+      "value": "",
+      "description": "Used when EMBEDDING_MODEL or CHAT_MODEL uses gemini/.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama API Key",
+      "key": "OLLAMA_API_KEY",
+      "value": "ollama",
+      "description": "Default ollama. Used when provider is ollama/.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Local Provider API Key",
+      "key": "LOCAL_API_KEY",
+      "value": "",
+      "description": "Optional. Needed only if the local OpenAI-compat endpoint requires a key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable Authentication",
+      "key": "AUTH_USE_AUTH",
+      "value": "false",
+      "description": "Set true to enable JWT auth on the Honcho API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "AUTH_JWT_SECRET",
+      "value": "",
+      "description": "Optional static JWT secret. Empty means generate on first boot.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable Metrics",
+      "key": "METRICS_ENABLED",
+      "value": "false",
+      "description": "Set true to expose /metrics.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Telemetry",
+      "key": "TELEMETRY_ENABLED",
+      "value": "false",
+      "description": "Set true to send anonymous Honcho usage telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Sentry",
+      "key": "SENTRY_ENABLED",
+      "value": "false",
+      "description": "Set true to send errors to Sentry. Needs SENTRY_DSN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sentry DSN",
+      "key": "SENTRY_DSN",
+      "value": "",
+      "description": "Sentry DSN. Required only when SENTRY_ENABLED is true.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Webhook Secret",
+      "key": "WEBHOOK_SECRET",
+      "value": "",
+      "description": "Shared secret for signed Honcho webhooks.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Deriver Workers",
+      "key": "DERIVER_WORKERS",
+      "value": "4",
+      "description": "Concurrent deriver workers. Default 4.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Log Level",
+      "key": "LLM_LOG_LEVEL",
+      "value": "WARNING",
+      "description": "DEBUG, INFO, WARNING, ERROR, or CRITICAL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Namespace",
+      "key": "NAMESPACE",
+      "value": "default",
+      "description": "Honcho namespace. Isolates agent memory.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

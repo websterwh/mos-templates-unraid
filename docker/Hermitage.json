@@ -1,0 +1,115 @@
+{
+  "name": "Hermitage",
+  "repo": "ghcr.io/fenrisskoll/hermitage:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/FenrisSkoll/hermitage/pkgs/container/hermitage",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3001]",
+  "icon": "https://raw.githubusercontent.com/FenrisSkoll/hermitage/main/public/icons/icon-512.png",
+  "project": "https://github.com/FenrisSkoll/hermitage",
+  "description": "Hermitage is a modern Navidrome/OpenSubsonic web client with immersive Now Playing, synced lyrics, live spectrum visualisation, artwork-driven themes, queue and playlist management, responsive ultrawide layouts, PWA support and a desktop-first library interface.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/hermitage",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent encrypted sessions and Hermitage server data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Hermitage web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Navidrome URL",
+      "key": "HERMITAGE_DEFAULT_SERVER_URL",
+      "value": "",
+      "description": "Navidrome/OpenSubsonic base URL as reachable from this container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Lock Navidrome URL",
+      "key": "HERMITAGE_LOCK_SERVER_URL",
+      "value": "true",
+      "description": "Hide server selection from the login screen and force the configured Navidrome URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed Navidrome Hosts",
+      "key": "HERMITAGE_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional comma-separated hostname/IP allow-list. Do not include ports.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "HERMITAGE_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set true only when Hermitage is accessed exclusively over HTTPS.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Lifetime (days)",
+      "key": "HERMITAGE_SESSION_TTL_DAYS",
+      "value": "30",
+      "description": "Sliding login lifetime in days.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Artwork Cache Items",
+      "key": "HERMITAGE_COVER_CACHE_ITEMS",
+      "value": "160",
+      "description": "Maximum in-process artwork cache entries.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Persistent Artwork Cache Items",
+      "key": "HERMITAGE_COVER_DISK_CACHE_ITEMS",
+      "value": "1200",
+      "description": "Maximum persistent artwork renditions retained under /data/cover-cache.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Login Rate Limit",
+      "key": "HERMITAGE_LOGIN_RATE_LIMIT",
+      "value": "10",
+      "description": "Failed login attempts allowed per client IP in five minutes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "HERMITAGE_TRUST_PROXY",
+      "value": "false",
+      "description": "Express trust-proxy value. 1 is suitable when one reverse proxy sits in front of Hermitage.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

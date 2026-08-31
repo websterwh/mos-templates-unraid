@@ -1,72 +1,42 @@
 {
   "name": "TitleCardMaker",
-  "repo": "collinheist/titlecardmaker:latest",
+  "repo": "ghcr.io/titlecardmaker/titlecardmaker:latest",
   "category": [
     "System"
   ],
-  "registry": "https://hub.docker.com/r/collinheist/titlecardmaker",
+  "registry": "https://ghcr.io/titlecardmaker/titlecardmaker",
   "network": "host",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": null,
+  "web_ui_url": "http://[IP]:[PORT:4242]/",
   "icon": "https://raw.githubusercontent.com/CollinHeist/TitleCardMaker/refs/heads/web-ui/.github/logo.png",
-  "project": "https://github.com/CollinHeist/TitleCardMaker/wiki",
-  "description": "TitleCardMaker Automated title card maker for Plex, Emby, and Jellyfin. Setup instructions are hosted on GitHub: https://github.com/CollinHeist/TitleCardMaker/wiki/Docker-Tutorial",
+  "project": "https://titlecardmaker.com",
+  "description": "Automated title card maker for Plex, Emby, and Jellyfin. Setup instructions: https://titlecardmaker.com/getting_started",
   "paths": [
     {
-      "name": "Configuration Path",
+      "name": "Data Path",
       "host": "/mnt/cache/appdata/TitleCardMaker/config",
       "container": "/config",
       "mode": "rw",
-      "description": "Directory to contain all configuration files",
+      "description": "Directory to contain all TCM files",
       "required": true
-    },
-    {
-      "name": "Archive Directory",
-      "host": "/mnt/cache/appdata/TitleCardMaker/archive",
-      "container": "/archive",
-      "mode": "rw",
-      "description": "Directory to contain archives of title cards",
-      "required": false
-    },
-    {
-      "name": "Log Directory",
-      "host": "/mnt/cache/appdata/TitleCardMaker/logs",
-      "container": "/maker/logs",
-      "mode": "rw",
-      "description": "Directory to contain all log files",
-      "required": false
-    },
-    {
-      "name": "Tautulli Directory",
-      "host": "/mnt/cache/appdata/tautulli",
-      "container": "/tautulli",
-      "mode": "rw",
-      "description": "Directory containing the Tautulli update file",
-      "required": false
     }
   ],
-  "ports": [],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "4242",
+      "container": "4242",
+      "protocol": "tcp",
+      "description": "Port to the web interface",
+      "required": false,
+      "mask": false
+    }
+  ],
   "variables": [
-    {
-      "name": "Runtime",
-      "key": "TCM_RUNTIME",
-      "value": "22:00",
-      "description": "Start time for TitleCardMaker's scheduled operation. Container Variable: TCM_RUNTIME / --runtime",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Run Frequency",
-      "key": "TCM_FREQUENCY",
-      "value": "12h",
-      "description": "How often to run TitleCardMaker. Container Variable: TCM_FREQUENCY / --frequency",
-      "required": true,
-      "mask": false
-    },
     {
       "name": "Group ID",
       "key": "PGID",
@@ -89,38 +59,6 @@
       "value": "002",
       "description": "File creation mode mask",
       "required": true,
-      "mask": false
-    },
-    {
-      "name": "Missing File",
-      "key": "TCM_MISSING",
-      "value": "/config/missing.yml",
-      "description": "Container filepath to write all missing assets to. Container Variable: TCM_MISSING / --missing",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Tautulli Update List",
-      "key": "TCM_TAUTULLI_UPDATE_LIST",
-      "value": "/tautulli/update.txt",
-      "description": "Container filepath to monitor for Tautulli integration. Container Variable: TCM_TAUTULLI_UPDATE_LIST / --tautulli-update-list",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Tautulli Update Frequency",
-      "key": "TCM_TAUTULLI_UPDATE_FREQUENCY",
-      "value": "4m",
-      "description": "How often to check for the Tautulli update file. Container Variable: TCM_TAUTULLI_UPDATE_FREQUENCY / --tautulli-update-frequency",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Output Log Level",
-      "key": "TCM_LOG",
-      "value": "INFO",
-      "description": "Log level for all messages. Container Variable: TCM_LOG / --log",
-      "required": false,
       "mask": false
     }
   ],

@@ -1,0 +1,67 @@
+{
+  "name": "Silo-PostgreSQL",
+  "repo": "pgvector/pgvector:pg18",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/pgvector/pgvector",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=8g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5432]",
+  "icon": "https://raw.githubusercontent.com/Silo-Server/unraid-templates/main/icons/silo-postgres.png",
+  "project": "https://github.com/Silo-Server/silo-server",
+  "description": "PostgreSQL 18 with the pgvector extension, pre-configured for the Silo media server. Silo requires PostgreSQL 18 or newer with both the pgvector and citext extensions available. A stock PostgreSQL container will NOT work - pgvector is not included by default. This template uses the official pgvector image, which bundles the extension and is built on the upstream PostgreSQL image (so citext is present too). Install and start this container BEFORE installing Silo. The default user and database name ('silo') match the example in the Silo template. You must choose a unique password, then use the same password in DATABASE_URL. Percent-encode any reserved URL characters when adding the password to DATABASE_URL.",
+  "paths": [
+    {
+      "name": "Database Storage",
+      "host": "/mnt/cache/appdata/silo-postgres",
+      "container": "/var/lib/postgresql",
+      "mode": "rw",
+      "description": "Database files. PostgreSQL 18 stores versioned data below this directory. Keep it on a cache pool or SSD - never on a spinning array disk.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "PostgreSQL Port",
+      "host": "5432",
+      "container": "5432",
+      "protocol": "tcp",
+      "description": "PostgreSQL port. Silo connects here via DATABASE_URL.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "silo",
+      "description": "Database user. Must match the user in Silo's DATABASE_URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "REQUIRED. Choose a unique database password; no default is provided. Use the same password in Silo's DATABASE_URL and percent-encode reserved URL characters there.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "silo",
+      "description": "Database name. Must match the database in Silo's DATABASE_URL.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

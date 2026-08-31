@@ -4,7 +4,7 @@
   "category": [
     "Media"
   ],
-  "registry": "https://ghcr.io",
+  "registry": "https://github.com/BMJ812/Batcharr/pkgs/container/batcharr",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:3000]",
   "icon": "https://raw.githubusercontent.com/BMJ812/Batcharr-Unraid-Templates/main/images/batcharr.png",
   "project": "https://github.com/BMJ812/Batcharr",
-  "description": "Batcharr is a bulk request interface for Radarr and Sonarr. Paste lists of movies and television shows, review matches, detect duplicates, and submit approved titles to your Arr applications.",
+  "description": "Batcharr is a self-hosted bulk media request and review interface for Radarr and Sonarr. Import copied external lists, pasted movie and TV titles, TXT/CSV/JSON files, or optional TMDb lists; review metadata and alternate matches; detect titles already in your Arr libraries; and submit only the requests you approve. Batcharr also includes persistent request history, encrypted credential storage, optional WebUI password protection, configurable Arr request defaults, and optional Discord slash-command requests.",
   "paths": [
     {
       "name": "Appdata",
       "host": "/mnt/cache/appdata/batcharr",
       "container": "/config",
       "mode": "rw",
-      "description": "Persistent Batcharr database, settings, and encrypted credentials.",
+      "description": "Persistent Batcharr SQLite database, settings, request history, and encrypted credentials. Keep this mapping when updating or recreating the container.",
       "required": true
     }
   ],
@@ -31,7 +31,7 @@
       "host": "5058",
       "container": "3000",
       "protocol": "tcp",
-      "description": "Port used to access the Batcharr WebUI.",
+      "description": "Host port used to access the Batcharr WebUI. Container port 3000 is fixed.",
       "required": true,
       "mask": false
     }
@@ -41,7 +41,7 @@
       "name": "PUID",
       "key": "PUID",
       "value": "500",
-      "description": "Unraid user ID.",
+      "description": "Unraid user ID used to run Batcharr inside the container. The standard Unraid nobody user is 99.",
       "required": true,
       "mask": false
     },
@@ -49,7 +49,7 @@
       "name": "PGID",
       "key": "PGID",
       "value": "500",
-      "description": "Unraid users group ID.",
+      "description": "Unraid group ID used to run Batcharr inside the container. The standard Unraid users group is 100.",
       "required": true,
       "mask": false
     },
@@ -57,7 +57,7 @@
       "name": "Timezone",
       "key": "TZ",
       "value": "America/Los_Angeles",
-      "description": "IANA timezone used by Batcharr.",
+      "description": "IANA timezone used by Batcharr for timestamps and runtime behavior. Change this to your local timezone if needed.",
       "required": true,
       "mask": false
     },
@@ -65,7 +65,7 @@
       "name": "Batcharr Password",
       "key": "BATCHARR_PASSWORD",
       "value": "",
-      "description": "Optional WebUI password. Leaving this blank disables Batcharr login protection.",
+      "description": "Optional shared WebUI password. Leaving this blank disables Batcharr login protection; do that only on a trusted LAN, VPN, or otherwise access-controlled network.",
       "required": false,
       "mask": true
     },
@@ -73,7 +73,7 @@
       "name": "Batcharr Secret",
       "key": "BATCHARR_SECRET",
       "value": "",
-      "description": "Stable random secret used to encrypt stored Radarr and Sonarr API keys. Generate with: openssl rand -hex 32",
+      "description": "Required stable secret used to encrypt stored Radarr, Sonarr, TMDb, and Discord credentials. Generate a strong value such as: openssl rand -hex 32. Do not change or lose it after setup; changing it makes previously stored encrypted credentials unreadable.",
       "required": true,
       "mask": true
     },
@@ -81,7 +81,7 @@
       "name": "Secure Cookie",
       "key": "BATCHARR_COOKIE_SECURE",
       "value": "false",
-      "description": "Set to true only when accessing Batcharr exclusively through HTTPS.",
+      "description": "Set to true only when browsers access Batcharr exclusively through HTTPS. Leave false for normal direct HTTP access on your LAN.",
       "required": true,
       "mask": false
     }

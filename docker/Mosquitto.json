@@ -9,20 +9,29 @@
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--restart=unless-stopped",
   "post_parameters": "/usr/sbin/mosquitto -c /config/mosquitto.conf",
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/47Hunter47/mosquitto-unraid-ca/main/icon.png",
   "project": "https://mosquitto.org/",
-  "description": "Official Eclipse Mosquitto 2.x image (continuously updated, last push 2026-06) with a minimal Unraid template: host networking and a single /config folder. Unlike cmccambridge/mosquitto-Unraid (custom image frozen at 2.0.20 since 2024-11) or spants/mqtt (Mosquitto 1.x, unmaintained since 2020), this template always tracks the official upstream image. MQTT protocol 5, standard /config layout.",
-  "paths": [],
+  "description": "Official Eclipse Mosquitto 2.x MQTT broker (continuously updated) with a minimal Unraid template: host networking and a single /config folder. Supports MQTT protocol 5 (required by modern Home Assistant). HOW TO MANAGE USERS (no coding knowledge needed \u2014 just copy, replace, paste): 1. Open the Unraid main menu and click TERMINAL. 2. Copy the command below and paste it into the terminal (press Ctrl+Shift+V or right-click in most browsers). Replace YOURNAME and YOURPASSWORD with your own values. If your container has a different name than \"Mosquitto\", replace it there too. ADD A NEW USER: docker exec Mosquitto sh -c \"mosquitto_passwd -b /config/passwords.mqtt YOURNAME 'YOURPASSWORD'\" (If the terminal says the file does not exist, use this version instead: docker exec Mosquitto sh -c \"mosquitto_passwd -c -b /config/passwords.mqtt YOURNAME 'YOURPASSWORD'\") CHANGE A USER'S PASSWORD: Run the ADD command again with the same name and the new password. REMOVE A USER: sed -i '/^YOURNAME:/d' /mnt/user/appdata/Mosquitto/passwords.mqtt SEE ALL USERS: cut -d: -f1 /mnt/user/appdata/Mosquitto/passwords.mqtt 3. After ANY change above, restart the container so it takes effect: docker restart Mosquitto (Or simply press the Restart button in the Docker tab of the Unraid web UI.) WARNING: never run the ADD command with the -c flag when users already exist \u2014 it deletes all other users. Use -c only the very first time, when no password file exists yet. After a restart, clients (e.g. Home Assistant) reconnect automatically; if one does not, restart that app.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/Mosquitto",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Host directory: mosquitto.conf, passwords.mqtt, data/",
+      "required": false
+    }
+  ],
   "ports": [],
   "variables": [
     {
-      "name": "Config Directory",
-      "key": "/config",
-      "value": "/mnt/user/appdata/Mosquitto",
-      "description": "Host Directory: mosquitto.conf, passwords.mqtt, data/",
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (TZ environment variable)",
       "required": false,
       "mask": false
     }

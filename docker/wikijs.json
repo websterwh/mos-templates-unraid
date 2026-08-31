@@ -1,10 +1,10 @@
 {
   "name": "wikijs",
-  "repo": "lscr.io/linuxserver/wikijs",
+  "repo": "requarks/wiki",
   "category": [
-    "Network"
+    "Productivity"
   ],
-  "registry": "https://github.com/orgs/linuxserver/packages/container/package/wikijs",
+  "registry": "https://hub.docker.com/r/requarks/wiki/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
@@ -12,25 +12,17 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:3000]",
-  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/wikijs-logo.png",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/wikijs.png",
   "project": "https://github.com/Requarks/wiki",
-  "description": "Wikijs(https://github.com/Requarks/wiki) A modern, lightweight and powerful wiki app built on NodeJS.",
+  "description": "A modern, lightweight and powerful wiki app built on NodeJS, Git and Markdown",
   "paths": [
     {
-      "name": "Appdata",
-      "host": "",
-      "container": "/config",
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/wikijs/logs",
+      "container": "/logs",
       "mode": "rw",
-      "description": "Persistent config files",
-      "required": true
-    },
-    {
-      "name": "Path: /data",
-      "host": "",
-      "container": "/data",
-      "mode": "rw",
-      "description": "Where Wiki.js data is stored.",
-      "required": true
+      "description": "Container Path: /logs",
+      "required": false
     }
   ],
   "ports": [
@@ -39,81 +31,73 @@
       "host": "3000",
       "container": "3000",
       "protocol": "tcp",
-      "description": "Port for Wiki.js's web interface.",
-      "required": true,
+      "description": "Container Port: 3000",
+      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "DB_TYPE",
+      "name": "Database Type",
       "key": "DB_TYPE",
-      "value": "sqlite",
-      "description": "Set to sqlite (default) or postgres depending on the database engine you wish to use",
+      "value": "mariadb",
+      "description": "DB_TYPE : Type of database (mysql, postgres, mariadb, mssql or sqlite)",
       "required": false,
       "mask": false
     },
     {
-      "name": "DB_HOST",
+      "name": "Database Host",
       "key": "DB_HOST",
-      "value": "",
-      "description": "DB hostname (postgres only)",
+      "value": "192.168.1.2",
+      "description": "DB_HOST : Hostname or IP of the database",
       "required": false,
       "mask": false
     },
     {
-      "name": "DB_PORT",
+      "name": "Database Port",
       "key": "DB_PORT",
-      "value": "",
-      "description": "DB port (postgres only)",
+      "value": "3306",
+      "description": "DB_PORT : Port of the database",
       "required": false,
       "mask": false
     },
     {
-      "name": "DB_NAME",
-      "key": "DB_NAME",
-      "value": "",
-      "description": "DB name (postgres only)",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DB_USER",
+      "name": "Database User",
       "key": "DB_USER",
-      "value": "",
-      "description": "DB username (postgres only)",
+      "value": "wikijs",
+      "description": "DB_USER : Username to connect to the database",
       "required": false,
       "mask": false
     },
     {
-      "name": "DB_PASS",
+      "name": "Database Password",
       "key": "DB_PASS",
-      "value": "",
-      "description": "DB password (postgres only)",
+      "value": "secretpassword",
+      "description": "DB_PASS : Password to connect to the database",
       "required": false,
-      "mask": true
-    },
-    {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "Container Variable: PUID",
-      "required": true,
       "mask": false
     },
     {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Container Variable: PGID",
-      "required": true,
+      "name": "Database Name",
+      "key": "DB_NAME",
+      "value": "wikijs",
+      "description": "DB_NAME : Database name",
+      "required": false,
       "mask": false
     },
     {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "022",
-      "description": "Container Variable: UMASK",
+      "name": "Optional: Database SSL",
+      "key": "DB_SSL",
+      "value": "false",
+      "description": "DB_SSL : Set to either 1 or true to enable. (optional, off if omitted)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB_FILEPATH",
+      "key": "DB_FILEPATH",
+      "value": "/mnt/user/appdata/wikijs/db",
+      "description": "For SQLite only: DB_FILEPATH : Path to the SQLite file",
       "required": false,
       "mask": false
     }

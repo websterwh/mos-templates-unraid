@@ -1,0 +1,75 @@
+{
+  "name": "QuireInk",
+  "repo": "quireink/quireink:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/quireink/quireink",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/joiha-steven/quireink/main/src/assets/static/app-icon.png",
+  "project": "https://quireink.com",
+  "description": "A self-hosted blog in one small container: a real editor over Markdown (tables, footnotes, mathematics, video), scheduled publishing, newsletters over your own SMTP, comments with a spam gate that needs no account anywhere, cookie-free analytics, full-text search, and a book mode that sets a post in two columns on paper. Readers download 3.8-8.7 KB of JavaScript and nothing from any third party. Eleven interface languages. Importers for WordPress, Ghost, Substack and Medium bring posts, images and redirects across. An AI agent can write and steward the blog over MCP. Everything lives in two SQLite files and one uploads folder - no database container. FIRST RUN: the blog has no owner until you claim it. Open this container's log right after it starts - it prints a one-time claim link. Open that link, create your account, and the rest happens in the browser.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/quireink/data",
+      "container": "/var/lib/quire/data",
+      "mode": "rw",
+      "description": "The two SQLite databases - the whole blog except its images.",
+      "required": true
+    },
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/quireink/uploads",
+      "container": "/var/lib/quire/uploads",
+      "mode": "rw",
+      "description": "Uploaded images and files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "3477",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The port the blog answers on. Readers browse to http://SERVER-IP:this-port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Site address (SITE_URL)",
+      "key": "SITE_URL",
+      "value": "",
+      "description": "The address readers use, e.g. http://192.168.1.10:3477 - or your real domain once a reverse proxy is in front. Feeds, share cards and every link in a newsletter are built from it, so set it to what people actually type. You can change it later in Settings, Site.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The unix user the app runs as. 99 is Unraid's 'nobody', which is what appdata expects.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The unix group. 100 is Unraid's 'users'.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

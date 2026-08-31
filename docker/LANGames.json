@@ -1,0 +1,75 @@
+{
+  "name": "LAN-Games",
+  "repo": "ghcr.io/codyburker/lan-games:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/codyburker/lan-games",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/CodyBurker/unraid-rumpus/main/lan-games-icon.png",
+  "project": "https://github.com/kbennett2000/lan-games",
+  "description": "Self-hosted LAN board game platform: eight turn-based classics \u2014 Monopoly, Risk, Battleship, Yahtzee, Life, Checkers, Connect Four, and Tic-Tac-Toe \u2014 playable in any browser on your network. Real-time multiplayer via Socket.IO, with lobbies, hidden-information support (Battleship/Risk), and spectator mode. Unlike most party game servers it has real user accounts: JWT-based auth with bcrypt-hashed passwords, and game state persists in a SQLite database (mount the data path so it survives updates). Designed for trusted local networks \u2014 don't expose it to the internet. Turnkey setup: the login-token secret (JWT) is auto-generated on first boot and persisted in the data directory; optionally override it under advanced settings.",
+  "paths": [
+    {
+      "name": "Game Data",
+      "host": "/mnt/cache/appdata/lan-games",
+      "container": "/app/server/data",
+      "mode": "rw",
+      "description": "SQLite database directory \u2014 user accounts and game state live here. Ownership is fixed automatically on startup (set to PUID:PGID), then the app runs unprivileged.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8014",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the LAN Games web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as after startup (Unraid default: 99 = nobody). Data files are owned by this user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as after startup (Unraid default: 100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret (optional)",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret used to sign login tokens. Leave EMPTY for turnkey setup: the container generates one on first boot and persists it in the Game Data directory (.jwt_secret), so logins survive restarts and updates. Set a value only to override with your own secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/Indiana/Indianapolis",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

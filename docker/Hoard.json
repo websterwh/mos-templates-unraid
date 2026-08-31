@@ -1,0 +1,107 @@
+{
+  "name": "Hoard",
+  "repo": "ghcr.io/rleeon/hoard:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hoard.services",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:12421]/panel",
+  "icon": "https://raw.githubusercontent.com/rleeon/hoard/main/web/static/icon-512.png",
+  "project": "https://github.com/rleeon/hoard",
+  "description": "Hoard backs up and syncs your game saves. It watches the save folders on your gaming PCs, keeps every version so you can go back to yesterday's run, and puts the newest one on whichever PC you sit down at next. With this container the saves stay on your NAS. This is the server half. The machines you play on need the Hoard desktop app (Windows, Linux, macOS, Steam Deck) or the CLI: hoard.services/download Setup: 1. Type an admin username and password below, then press Apply. 2. Open the container log. The device token for your first PC is printed there, once. 3. In the desktop app choose \"Self-Host\", enter http://TOWER-IP:12421 and paste the token. 4. WebUI opens the web panel. Log in with the same username and password to see your saves, devices and users. To add another PC later, or an account for someone else, open the WebUI and go to Users: \"New token\" issues one for a machine, \"New user\" creates an account. A token is shown once, so copy it before you close the dialog. Everything is stored in the two appdata folders below. Back up data/ and you have your saves. Free and open source (AGPL-3.0), with no account and no telemetry when self-hosted.",
+  "paths": [
+    {
+      "name": "Saves and database",
+      "host": "/mnt/cache/appdata/hoard/data",
+      "container": "/var/lib/hoard",
+      "mode": "rw",
+      "description": "Everything the server stores: the database and every version of every save. This is the folder to back up.",
+      "required": true
+    },
+    {
+      "name": "Config folder",
+      "host": "/mnt/cache/appdata/hoard/config",
+      "container": "/etc/hoard",
+      "mode": "rw",
+      "description": "Holds config.toml. Leave it empty and the container writes a working one on first start. Edit it afterwards to change limits or use S3-compatible storage.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / API Port",
+      "host": "12421",
+      "container": "12421",
+      "protocol": "tcp",
+      "description": "The port the server listens on. Both the desktop app and the web panel use it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin username",
+      "key": "HOARD_ADMIN_USERNAME",
+      "value": "",
+      "description": "Creates this admin account the first time the container starts on an empty database. Ignored after that, so it is safe to leave filled in.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "HOARD_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the account above, at least 8 characters. It is what you type into the web panel, and you can change it there later.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "First device name",
+      "key": "HOARD_ADMIN_DEVICE",
+      "value": "unraid",
+      "description": "Label for the device token printed in the log on first start. Name it after the PC you are going to use it on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The user the server runs as. 99 (nobody) matches the rest of appdata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The group the server runs as. 100 (users) matches the rest of appdata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "HOARD__LOGGING__LEVEL",
+      "value": "info",
+      "description": "error, warn, info, debug or trace.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log format",
+      "key": "HOARD__LOGGING__FORMAT",
+      "value": "pretty",
+      "description": "pretty reads well in this log window. Use json if you ship the logs somewhere that parses them.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

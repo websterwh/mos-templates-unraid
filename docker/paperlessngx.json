@@ -1,10 +1,10 @@
 {
   "name": "paperless-ngx",
-  "repo": "lscr.io/linuxserver/paperless-ngx",
+  "repo": "ghcr.io/paperless-ngx/paperless-ngx",
   "category": [
     "Productivity"
   ],
-  "registry": "https://github.com/orgs/linuxserver/packages/container/package/paperless-ngx",
+  "registry": "https://github.com/paperless-ngx/paperless-ngx/pkgs/container/paperless-ngx",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
@@ -12,68 +12,132 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8000]",
-  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/paperless-ngx-logo.png",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/paperless.png",
   "project": "https://github.com/paperless-ngx/paperless-ngx",
-  "description": "Paperless-ngx(https://github.com/paperless-ngx/paperless-ngx) is an application by Daniel Quinn and contributors that indexes your scanned documents and allows you to easily search for documents and store metadata alongside your documents.\"",
+  "description": "Paperless-ngx is a document management system that transforms your physical documents into a searchable online archive so you can keep, well, less paper. Paperless-ngx forked from paperless-ng to continue the great work and distribute responsibility of supporting and advancing the project among a team of people. Requirements: Paperless-ngx requires Redis as external service. You can install it from the CA store. Make sure to adjust the configuration in the template accordingly. Setup: Create a user account after this container is created i.e. from Unraids Docker UI, click the paperless-ngx icon and choose Console. Then enter \"python manage.py createsuperuser\" in the prompt and follow the instructions. Paperless-ngx Documentation: https://paperless-ngx.readthedocs.io/en/latest/ Additional Template Variables: https://paperless-ngx.readthedocs.io/en/latest/configuration.html Demo: https://demo.paperless-ngx.com/",
   "paths": [
     {
-      "name": "Appdata",
-      "host": "",
-      "container": "/config",
+      "name": "Data",
+      "host": "/mnt/cache/appdata/paperless-ngx/data",
+      "container": "/usr/src/paperless/data",
       "mode": "rw",
-      "description": "Contains all relevant configuration files.",
+      "description": "Container Path: /usr/src/paperless/data . This contains the paperless database. Should be in appdata.",
       "required": true
     },
     {
-      "name": "Path: /data",
+      "name": "Media",
       "host": "",
-      "container": "/data",
+      "container": "/usr/src/paperless/media",
       "mode": "rw",
-      "description": "Storage location for all paperless-ngx data files.",
+      "description": "Container Path: /usr/src/paperless/media . This is where your consumed documents and thumbnails are stored.",
       "required": true
+    },
+    {
+      "name": "Consumption",
+      "host": "",
+      "container": "/usr/src/paperless/consume",
+      "mode": "rw",
+      "description": "Container Path: /usr/src/paperless/consume . Files placed here will be consumed by paperless.",
+      "required": true
+    },
+    {
+      "name": "Export",
+      "host": "",
+      "container": "/usr/src/paperless/export",
+      "mode": "rw",
+      "description": "Container Path: /usr/src/paperless/export . Location for files used by the exporter utility. See https://paperless-ngx.readthedocs.io/en/latest/administration.html#document-exporter",
+      "required": false
     }
   ],
   "ports": [
     {
-      "name": "WebUI",
+      "name": "Port",
       "host": "8000",
       "container": "8000",
       "protocol": "tcp",
-      "description": "http gui",
-      "required": true,
+      "description": "Container Port: 8000",
+      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "REDIS_URL",
-      "key": "REDIS_URL",
+      "name": "PAPERLESS_REDIS",
+      "key": "PAPERLESS_REDIS",
+      "value": "redis://[REPLACE-WITH-IP]:6379",
+      "description": "Container Variable: PAPERLESS_REDIS . This is required for processing scheduled tasks such as email fetching, index optimization and for training the automatic document matcher.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_OCR_LANGUAGE",
+      "key": "PAPERLESS_OCR_LANGUAGE",
+      "value": "eng",
+      "description": "Container Variable: PAPERLESS_OCR_LANGUAGE . The default language to use for OCR. Set this to the language most of your documents are written in. Use a 3-letter language code consistent with ISO 639: https://www.loc.gov/standards/iso639-2/php/code_list.php. This can be a combination of multiple languages such as deu+eng, in which case tesseract will use whatever language matches best.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_OCR_LANGUAGES",
+      "key": "PAPERLESS_OCR_LANGUAGES",
       "value": "",
-      "description": "Specify an external redis instance to use. Can optionally include a port (`redis:6379`) and/or db (`redis/foo`). If left blank or not included, will use a built-in redis instance. If changed after initial setup will also require manual modification of /config/settings.py",
+      "description": "Container Variable: PAPERLESS_OCR_LANGUAGES . Additional languages to install for text recognition. The container installs English, German, Italian, Spanish and French by default. Use a space separated list of 3-letter language codes consistent with ISO 639: https://www.loc.gov/standards/iso639-2/php/code_list.php",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_FILENAME_FORMAT",
+      "key": "PAPERLESS_FILENAME_FORMAT",
+      "value": "{{ created }}-{{ correspondent }}-{{ title }}",
+      "description": "Container Variable: PAPERLESS_FILENAME_FORMAT . Changes the filenames paperless uses to store documents in the media directory. Setting none disables this feature. Uniqueness of filenames is ensured, as an incrementing counter is attached. See https://paperless-ngx.readthedocs.io/en/latest/advanced_usage.html#file-name-handling for placeholders.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_TIME_ZONE",
+      "key": "PAPERLESS_TIME_ZONE",
+      "value": "America/Los_Angeles",
+      "description": "Container Variable: PAPERLESS_TIME_ZONE . Use this variable to set a timezone for the Paperless Docker containers. If not specified, defaults to UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_IGNORE_DATES",
+      "key": "PAPERLESS_IGNORE_DATES",
+      "value": "",
+      "description": "Container Variable: PAPERLESS_IGNORE_DATES . Comma separated list of dates supported by dateparser that should be ignored when extracting the creation date. Example: 2020-12-02,22.04.1999",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_CONSUMER_POLLING",
+      "key": "PAPERLESS_CONSUMER_POLLING",
+      "value": "0",
+      "description": "Container Variable: PAPERLESS_CONSUMER_POLLING . If set to a value n greater than 0, inotify is disabled and the directory is polled every n seconds. This option is useful when inotify doesn't fire events like when the consume folder is a NFS share",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_SECRET_KEY",
+      "key": "PAPERLESS_SECRET_KEY",
+      "value": "e11fl1oa-*ytql8p)(06fbj4ukrlo+n7k&amp;q5+$1md7i+mge=ee",
+      "description": "Container Variable: PAPERLESS_SECRET_KEY . Paperless uses this to make session tokens. If you expose paperless on the internet, you need to change this, since the default secret is well known",
       "required": false,
       "mask": false
     },
     {
       "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "Container Variable: PUID",
-      "required": true,
+      "key": "USERMAP_UID",
+      "value": "99",
+      "description": "Container Variable: USERMAP_UID",
+      "required": false,
       "mask": false
     },
     {
       "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Container Variable: PGID",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "022",
-      "description": "Container Variable: UMASK",
+      "key": "USERMAP_GID",
+      "value": "100",
+      "description": "Container Variable: USERMAP_GID",
       "required": false,
       "mask": false
     }

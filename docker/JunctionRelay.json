@@ -31,6 +31,14 @@
       "mode": "rw",
       "description": null,
       "required": false
+    },
+    {
+      "name": "Invoice source (host)",
+      "host": "",
+      "container": "/invoices",
+      "mode": "ro",
+      "description": "Optional. A folder of invoice files the server may read when filing a purchase. Read-only on purpose - the server only ever reads from it.",
+      "required": false
     }
   ],
   "ports": [
@@ -44,7 +52,24 @@
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Invoice read roots",
+      "key": "LAB_ATTACHMENT_ROOTS",
+      "value": "/invoices",
+      "description": "Directories INSIDE the container the lab may read invoice files from, colon or comma separated. Unset means it reads no local paths at all and callers are told to upload instead. Reading arbitrary paths on request would turn a filing tool into a file-disclosure tool, so this is off unless you set it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "LAB_PUBLIC_URL",
+      "value": "",
+      "description": "Optional. How this server is reached on your network, e.g. http://10.0.0.5:7180. Used to print a working upload command when an invoice file is not readable from the server.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

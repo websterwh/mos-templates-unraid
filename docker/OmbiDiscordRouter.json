@@ -1,0 +1,129 @@
+{
+  "name": "Ombi-Discord-Router",
+  "repo": "ghcr.io/miakkia/mediaops-ombi-discord-router:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/miakkia/mediaops-ombi-discord-router",
+  "network": "mediaops-backend",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 1000:1000 --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true --memory 256m --pids-limit 64",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/miakkia/docker-icons/main/icons/ombi-discord-router.png",
+  "project": "https://github.com/miakkia/MediaOps/tree/main/addons/ombi-discord-router",
+  "description": "Companion service for MediaOps that receives Ombi webhook notifications and routes media request lifecycle updates into managed Discord Forum threads.",
+  "paths": [
+    {
+      "name": "Router Data",
+      "host": "/mnt/cache/appdata/ombi-discord-router/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Ombi Discord Router request/thread index.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/Toronto",
+      "description": "IANA timezone used by the router for log timestamps.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media Requests Webhook",
+      "key": "MEDIA_REQUESTS_WEBHOOK",
+      "value": "",
+      "description": "Full Discord Forum webhook URL. Secret: the URL contains a Discord credential and must not be published.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Webhook Display Name",
+      "key": "MEDIA_REQUESTS_WEBHOOK_NAME",
+      "value": "Media Request Herald",
+      "description": "Display name used by the Discord webhook when posting request lifecycle updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Requested Status Tag ID",
+      "key": "MEDIA_TAG_REQUESTED",
+      "value": "",
+      "description": "Discord Forum tag ID applied to newly submitted media requests that are waiting to be processed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Processing Status Tag ID",
+      "key": "MEDIA_TAG_PROCESSING",
+      "value": "",
+      "description": "Discord Forum tag ID used when a media request has been approved or is currently being processed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Available Status Tag ID",
+      "key": "MEDIA_TAG_AVAILABLE",
+      "value": "",
+      "description": "Discord Forum tag ID used when the requested media is available on the configured media server. This is a terminal request state.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Failed Status Tag ID",
+      "key": "MEDIA_TAG_FAILED",
+      "value": "",
+      "description": "Discord Forum tag ID used when processing or acquiring the requested media has failed. This is a terminal request state.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Denied Status Tag ID",
+      "key": "MEDIA_TAG_DENIED",
+      "value": "",
+      "description": "Discord Forum tag ID used when a media request has been denied or rejected. This is a terminal request state.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Movie Media Tag ID",
+      "key": "MEDIA_TAG_MOVIE",
+      "value": "",
+      "description": "Discord Forum tag ID identifying a request as a movie. This media-type tag is preserved throughout the request lifecycle.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Series Media Tag ID",
+      "key": "MEDIA_TAG_SERIES",
+      "value": "",
+      "description": "Discord Forum tag ID identifying a request as a TV series. This media-type tag is preserved throughout the request lifecycle.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Test Tag ID",
+      "key": "MEDIA_TAG_TEST",
+      "value": "",
+      "description": "Optional Discord Forum tag ID used only by Ombi's built-in Webhook Send test action. Test posts carry only this tag, are not indexed as media requests, and are ignored by the MediaOps request lifecycle.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Router Data Directory",
+      "key": "ROUTER_DATA_DIR",
+      "value": "/data",
+      "description": "Container path for the persistent request/thread index. Leave at /data for the packaged deployment.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

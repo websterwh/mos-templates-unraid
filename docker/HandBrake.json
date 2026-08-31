@@ -1,23 +1,364 @@
 {
   "name": "HandBrake",
-  "repo": "coppit/handbrake",
+  "repo": "junkerderprovinz/handbrake:latest",
   "category": [
     "Media"
   ],
-  "registry": "https://hub.docker.com/r/coppit/handbrake/",
+  "registry": "https://hub.docker.com/r/junkerderprovinz/handbrake",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--cap-add=SYS_NICE",
+  "extra_parameters": "--restart=unless-stopped --shm-size=1gb",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8080]/#/client/c/HandBrake",
-  "icon": "https://raw.githubusercontent.com/coppit/docker-handbrake/master/handbrake_logo.png",
-  "project": "https://handbrake.fr/",
-  "description": "HandBrake is a video encoder. Connect using an RDP client or web browser, or use the fully automated watch folder.",
-  "paths": [],
-  "ports": [],
-  "variables": [],
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/handbrake/icon.png",
+  "project": "https://handbrake.fr",
+  "description": "The full HandBrake video transcoder GUI in your browser \u2013 built on Selkies for a smooth, hardware-accelerated web desktop. Dark by default, using HandBrake's own native GTK dark mode (not a repaint). GPU-accelerated transcoding on NVIDIA, Intel and AMD \u2013 the most complete HandBrake container available for Unraid. What's included: \u2022 HandBrake's complete GTK4 interface (ghb) plus HandBrakeCLI \u2022 GPU hardware encoding on NVIDIA (NVENC), Intel (Quick Sync) and AMD (VCE) via GPU_VENDOR \u2013 NVIDIA and Intel verified end to end on real hardware \u2022 Automated watch-folder conversion \u2013 drop a video into /watch, get a transcode in /output, no GUI needed \u2022 Up to 5 watch folders, directory exclusion, a daily active-hours window, configurable preset/format/extensions, keep-or-delete source \u2022 Web file manager (on by default), web terminal and desktop notifications \u2013 all reachable from the same browser tab \u2022 5 conversion hooks for custom scripting, including one that fires for conversions started manually in the GUI, not just the watch folder \u2022 A configurable staging directory, so in-progress transcodes never touch the array until they are finished \u2022 Safe multi-instance operation \u2013 two containers can share one watch folder to convert twice as many files at once, without ever converting the same file twice \u2022 Atomic output: conversions are staged and moved onto the output disk only after HandBrake reports success, so a media scanner never picks up a half-written file Notes: \u2022 WebUI opens via HTTPS on port 3001 (self-signed cert \u2014 accept it once). The Selkies web client requires a secure connection, so open the WebUI directly ONLY over HTTPS (3001). Port 3000 (HTTP) is for a reverse proxy that terminates TLS in front of the container. \u2022 GPU acceleration needs the matching passthrough: the NVIDIA Container Runtime for GPU_VENDOR=nvidia, or --device /dev/dri under Extra Parameters for intel/amd. Full per-vendor recipes are in the README's Hardware Encoding section. Leave GPU_VENDOR=none for software encoding. \u2022 PUID/PGID default to 99/100 (nobody/users on Unraid). \u2022 Auth: leave \"WebUI Username\" and \"Password\" EMPTY to run without login. Set both to enable HTTP-basic auth on the WebUI. Recommended whenever the container is reachable from anything beyond your LAN. Source on GitHub: https://github.com/junkerderprovinz/handbrake",
+  "paths": [
+    {
+      "name": "AppData (/config)",
+      "host": "/mnt/cache/appdata/handbrake",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent HandBrake presets, queue, logs, container state, watch-folder bookkeeping and conversion hooks (/config/hooks).",
+      "required": true
+    },
+    {
+      "name": "Storage (/storage)",
+      "host": "/mnt/user",
+      "container": "/storage",
+      "mode": "ro",
+      "description": "Media you want to browse from inside the GUI (read-only).",
+      "required": false
+    },
+    {
+      "name": "Watch Folder (/watch)",
+      "host": "/mnt/cache/media/watch",
+      "container": "/watch",
+      "mode": "rw",
+      "description": "Anything dropped here is converted automatically.",
+      "required": true
+    },
+    {
+      "name": "Output Folder (/output)",
+      "host": "/mnt/cache/media/converted",
+      "container": "/output",
+      "mode": "rw",
+      "description": "Where converted files are written.",
+      "required": true
+    },
+    {
+      "name": "Watch Folder 2 (/watch2)",
+      "host": "",
+      "container": "/watch2",
+      "mode": "rw",
+      "description": "Optional additional watch folder.",
+      "required": false
+    },
+    {
+      "name": "Watch Folder 3 (/watch3)",
+      "host": "",
+      "container": "/watch3",
+      "mode": "rw",
+      "description": "Optional additional watch folder.",
+      "required": false
+    },
+    {
+      "name": "Watch Folder 4 (/watch4)",
+      "host": "",
+      "container": "/watch4",
+      "mode": "rw",
+      "description": "Optional additional watch folder.",
+      "required": false
+    },
+    {
+      "name": "Watch Folder 5 (/watch5)",
+      "host": "",
+      "container": "/watch5",
+      "mode": "rw",
+      "description": "Optional additional watch folder.",
+      "required": false
+    },
+    {
+      "name": "Staging Folder (/staging)",
+      "host": "",
+      "container": "/staging",
+      "mode": "rw",
+      "description": "Optional. Map this to a fast disk (e.g. a cache pool) and set 'Staging Directory' below to /staging to keep in-progress conversions off the array while they run.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port (HTTPS / Selkies)",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "HTTPS port of the Selkies WebUI (self-signed cert). This is the default WebUI \u2014 HTTPS is required for clipboard support in the browser. Accept the self-signed certificate once.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port (HTTP / Selkies)",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port of the Selkies WebUI. For a reverse proxy that terminates TLS in front of the container \u2014 NOT for direct browser access. The Selkies web client requires a secure context, so opening http://IP:3000 directly shows a 'requires a secure connection (HTTPS)' error. For direct access use the HTTPS port 3001.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Theme (HANDBRAKE_THEME)",
+      "key": "HANDBRAKE_THEME",
+      "value": "dark",
+      "description": "HandBrake's own native GTK dark mode. 'dark' (default) or 'light'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keyboard Layout (KEYBOARD_LAYOUT)",
+      "key": "KEYBOARD_LAYOUT",
+      "value": "us",
+      "description": "X keyboard layout loaded at session start (setxkbmap). Binds Shift so pasted UPPERCASE text keeps its case in the web desktop, and gives the correct symbols for your layout. Default 'us' suits most users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GPU Vendor (GPU_VENDOR)",
+      "key": "GPU_VENDOR",
+      "value": "none",
+      "description": "Hardware encoding vendor for every automated watch-folder conversion. 'nvidia' needs the NVIDIA Container Runtime (Extra Parameters: --runtime=nvidia) plus NVIDIA_DRIVER_CAPABILITIES=compute,video,utility. 'intel' and 'amd' need the GPU device passed through (Extra Parameters: --device /dev/dri). NVIDIA and Intel are verified on real hardware; AMD is wired but unverified (no AMD GPU to test on). A vendor that cannot be honoured logs exactly why and falls back to software encoding \u2014 check with: docker exec handbrake cat /config/handbrake-gpu.log",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App Niceness (APP_NICENESS)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "nice level (0-19) applied to the GUI and every transcode. Higher = lower priority, leaves more CPU for other containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automated Conversion (AUTOMATED_CONVERSION)",
+      "key": "AUTOMATED_CONVERSION",
+      "value": "1",
+      "description": "1 = watch-folder conversion enabled (default), 0 = disable the daemon entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Conversion Preset (AUTOMATED_CONVERSION_PRESET)",
+      "key": "AUTOMATED_CONVERSION_PRESET",
+      "value": "General/Very Fast 1080p30",
+      "description": "HandBrake preset used for every automated conversion, as 'category/name'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output Format (AUTOMATED_CONVERSION_FORMAT)",
+      "key": "AUTOMATED_CONVERSION_FORMAT",
+      "value": "mp4",
+      "description": "Output container for automated conversions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Output Subdirectory (AUTOMATED_CONVERSION_OUTPUT_SUBDIR)",
+      "key": "AUTOMATED_CONVERSION_OUTPUT_SUBDIR",
+      "value": "",
+      "description": "Optional. A fixed subfolder under the output folder, or SAME_AS_SRC to mirror the source's own subfolder structure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep Source (AUTOMATED_CONVERSION_KEEP_SOURCE)",
+      "key": "AUTOMATED_CONVERSION_KEEP_SOURCE",
+      "value": "1",
+      "description": "1 = keep the original file after conversion (default), 0 = delete it after a successful conversion.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Overwrite Output (AUTOMATED_CONVERSION_OVERWRITE_OUTPUT)",
+      "key": "AUTOMATED_CONVERSION_OVERWRITE_OUTPUT",
+      "value": "0",
+      "description": "0 = skip a file if the output already exists (default), 1 = overwrite it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Video Extensions (AUTOMATED_CONVERSION_VIDEO_FILE_EXTENSIONS)",
+      "key": "AUTOMATED_CONVERSION_VIDEO_FILE_EXTENSIONS",
+      "value": "",
+      "description": "Optional. Comma-separated list of file extensions to treat as video. Empty uses the built-in default list (mkv, mp4, avi, mov, wmv, and more).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore Directories (AUTOMATED_CONVERSION_IGNORE_DIRECTORIES)",
+      "key": "AUTOMATED_CONVERSION_IGNORE_DIRECTORIES",
+      "value": "",
+      "description": "Optional. Space-separated directory names (e.g. sync-client metadata folders) pruned from every watch-folder scan, matched anywhere in the tree.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Active Hours (AUTOMATED_CONVERSION_ACTIVE_HOURS)",
+      "key": "AUTOMATED_CONVERSION_ACTIVE_HOURS",
+      "value": "",
+      "description": "Optional. Restrict automated conversion to a daily window, HH-HH in 24h clock (e.g. 22-06 for overnight only). Empty means always active. Uses the container's TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Staging Directory (AUTOMATED_CONVERSION_STAGING_DIR)",
+      "key": "AUTOMATED_CONVERSION_STAGING_DIR",
+      "value": "",
+      "description": "Optional. Where in-progress conversions are written. Empty means a hidden folder under the output root. Set to /staging (map that path above to a cache pool) to keep the array out of the write path during a transcode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Source Stable Time (AUTOMATED_CONVERSION_SOURCE_STABLE_TIME)",
+      "key": "AUTOMATED_CONVERSION_SOURCE_STABLE_TIME",
+      "value": "5",
+      "description": "Seconds a source file must stop changing (size + mtime) before it is picked up, so a file still being copied in is never touched.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check Interval (AUTOMATED_CONVERSION_CHECK_INTERVAL)",
+      "key": "AUTOMATED_CONVERSION_CHECK_INTERVAL",
+      "value": "5",
+      "description": "Seconds between watch-folder scans.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Watch Folders (AUTOMATED_CONVERSION_MAX_WATCH_FOLDERS)",
+      "key": "AUTOMATED_CONVERSION_MAX_WATCH_FOLDERS",
+      "value": "5",
+      "description": "How many numbered watch folders (/watch..N) to scan when the watch directory is left at AUTO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom HandBrakeCLI Args (AUTOMATED_CONVERSION_HANDBRAKE_CUSTOM_ARGS)",
+      "key": "AUTOMATED_CONVERSION_HANDBRAKE_CUSTOM_ARGS",
+      "value": "",
+      "description": "Optional. Extra HandBrakeCLI arguments appended to every automated job, e.g. --encoder nvenc_h265 for HEVC instead of H.264.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web File Manager (WEB_FILE_MANAGER)",
+      "key": "WEB_FILE_MANAGER",
+      "value": "1",
+      "description": "1 = browse, upload and download the watch/output/storage folders at https://host:3001/files/ (default). 0 disables the endpoint entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Manager Allowed Paths (WEB_FILE_MANAGER_ALLOWED_PATHS)",
+      "key": "WEB_FILE_MANAGER_ALLOWED_PATHS",
+      "value": "AUTO",
+      "description": "AUTO publishes the watch folders, the output folder and /storage, whichever exist. Otherwise a comma-separated list of absolute paths. /config is always refused, since it holds the WebUI's TLS private key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File Manager Denied Paths (WEB_FILE_MANAGER_DENIED_PATHS)",
+      "key": "WEB_FILE_MANAGER_DENIED_PATHS",
+      "value": "",
+      "description": "Optional. Comma-separated paths inside the allowed ones that must answer 403 instead of being browsable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Terminal (WEB_TERMINAL)",
+      "key": "WEB_TERMINAL",
+      "value": "0",
+      "description": "1 enables a terminal on the web desktop with Ctrl+Alt+T. 0 (default) disables every terminal program in the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Terminal Shell (WEB_TERMINAL_SHELL_PATH)",
+      "key": "WEB_TERMINAL_SHELL_PATH",
+      "value": "/bin/bash",
+      "description": "The shell the web terminal opens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Desktop Notifications (WEB_NOTIFICATION)",
+      "key": "WEB_NOTIFICATION",
+      "value": "0",
+      "description": "1 shows a popup on the web desktop when a conversion finishes or fails. 0 (default) is off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Optical Drive Permissions (ATTACHED_DEVICES_PERMS)",
+      "key": "ATTACHED_DEVICES_PERMS",
+      "value": "/dev/sr*",
+      "description": "Device glob the container is granted group access to for optical-drive ripping, e.g. /dev/sr*. Also pass the device itself under Extra Parameters, e.g. --device /dev/sr0. Unverified: no optical drive was available to test a rip end to end.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Optional. Username for HTTP-basic-auth on the WebUI. Leave EMPTY together with the password for no login. Set both fields to enable login (recommended outside trusted LANs).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Optional. Password for HTTP-basic-auth on the WebUI. Leave EMPTY together with the username for no login. STRONGLY recommended whenever the container is reachable from outside your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone (affects log timestamps and file mtimes). Use this instead of a /etc/localtime bind-mount \u2014 the LSIO base image manages /etc/localtime internally via TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "PUID",
+      "value": "500",
+      "description": "User-ID HandBrake runs as. Default 99 (nobody on Unraid).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID (PGID)",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group-ID. Default 100 (users on Unraid).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permission mask for newly created files. Use 000 if you want every container user to read/write everything.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }
