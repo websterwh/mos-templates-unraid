@@ -1,0 +1,177 @@
+{
+  "name": "electrolux2mqtt",
+  "repo": "ghcr.io/ripleyxlr8/electrolux2mqtt:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/ripleyXLR8/electrolux2mqtt/pkgs/container/electrolux2mqtt",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/ripleyXLR8/electrolux2mqtt/main/electrolux2mqtt-icon.png",
+  "project": "https://github.com/ripleyXLR8/electrolux2mqtt",
+  "description": "Bridges connected Electrolux, AEG, Frigidaire and +home appliances to your MQTT broker, using Home Assistant style discovery. Your appliances then show up on their own in Jeedom, Home Assistant, or any other MQTT Discovery consumer. EVERY APPLIANCE, NOT JUST ONE FAMILY: Entities are derived from the capabilities the appliance itself declares, so ovens, hobs, hoods, fridges, dishwashers, washers, dryers, air conditioners, purifiers, dehumidifiers and robot vacuums all work - programs, states, temperatures, food probe, door, remaining time, alerts, and the settings your own appliance exposes. Verified against the capability sets of 14 appliance families shipped with the official Electrolux SDK. REAL TIME, NO POLLING: State changes arrive as a push over the API's Server-Sent Events livestream, so the cloud is never polled in a loop. A full re-read every 15 minutes acts as a safety net. The bridge is built on electrolux-group-developer-sdk, the SDK published by Electrolux itself. ROBUST: Discovery, states and command subscriptions are replayed on every reconnection to the broker, so a broker restart cannot leave the bridge publishing states while silently ignoring commands. An MQTT Last Will reports the bridge going down. Electrolux rotates the refresh token on every renewal, so the current pair is persisted in the config folder - a restart never leaves you locked out with a spent token. REQUIREMENTS: An MQTT broker, and credentials from https://developer.electrolux.one/dashboard : create an API key, then generate an access token / refresh token pair. The appliance must first be paired and named in the Electrolux or AEG mobile app. A note on control: monitoring always works, but commands are gated by the appliance. On ovens and hobs, remote operation must be enabled on the appliance's own display and switches itself off after a while, which is a safety requirement, not a limitation of this bridge. A read-only mode is available. Not affiliated with, endorsed by, or supported by Electrolux Group.",
+  "paths": [
+    {
+      "name": "Config folder",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Strongly recommended: this is where the rotating token pair is stored. Without it, a container restart may leave the bridge with a spent refresh token.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "API key",
+      "key": "ELECTROLUX_API_KEY",
+      "value": "",
+      "description": "Created at https://developer.electrolux.one/dashboard, signed in with the same account as the mobile app.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Refresh token",
+      "key": "ELECTROLUX_REFRESH_TOKEN",
+      "value": "",
+      "description": "Generated on the same portal page as the API key. Only used to bootstrap: the bridge stores the rotating token pair in the config folder.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Access token",
+      "key": "ELECTROLUX_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional. Left empty, the bridge obtains one from the refresh token at startup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MQTT broker host",
+      "key": "MQTT_HOST",
+      "value": "",
+      "description": "IP address or hostname of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT broker port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "Port of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT username",
+      "key": "MQTT_USER",
+      "value": "",
+      "description": "Leave empty if your broker allows anonymous connections.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "Leave empty if your broker allows anonymous connections.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Read-only mode",
+      "key": "ELECTROLUX_READ_ONLY",
+      "value": "false",
+      "description": "true publishes states only and exposes no command at all. Worth considering on an oven or a hob.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Temperature unit",
+      "key": "ELECTROLUX_TEMPERATURE_UNIT",
+      "value": "auto",
+      "description": "auto, C or F. Appliances report the same temperature in both units; only one is published.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discovery topic prefix",
+      "key": "MQTT_DISCOVERY_PREFIX",
+      "value": "homeassistant",
+      "description": "Where discovery messages are published. Must match what your consumer listens on: homeassistant for Home Assistant, or the configuration topic of the Jeedom MQTT Discovery plugin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "State topic prefix",
+      "key": "MQTT_TOPIC_PREFIX",
+      "value": "electrolux",
+      "description": "Root of the state and command topics. Jeedom users: this prefix must also be listed in the data topics setting of the MQTT Discovery plugin - the plugin only creates equipment for roots listed there. You do not have to type it: once its daemon has run, the plugin offers the roots it has discovered with a + button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Safety re-read interval",
+      "key": "ELECTROLUX_REFRESH_INTERVAL",
+      "value": "900",
+      "description": "Seconds between two full re-reads of the appliance state, 0 disables it. Changes normally arrive as a push, so this is only a safety net.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Excluded properties",
+      "key": "ELECTROLUX_EXCLUDE",
+      "value": "",
+      "description": "Comma separated shell-style patterns matched against property paths, added to the built-in list. Example: networkInterface/*, userSelections/*",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Included properties",
+      "key": "ELECTROLUX_INCLUDE",
+      "value": "",
+      "description": "Comma separated patterns that win over the exclusions, to bring back a property filtered out by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Token file",
+      "key": "ELECTROLUX_TOKEN_FILE",
+      "value": "/config/electrolux_token.json",
+      "description": "Where the rotating token pair is persisted. Keep it inside the mounted config folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT client id",
+      "key": "MQTT_CLIENT_ID",
+      "value": "electrolux2mqtt",
+      "description": "Only change this if another client already uses that id on your broker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR. DEBUG also logs every raw event received from the cloud.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone used for the log timestamps and for the derived end-of-cycle time.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

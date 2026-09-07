@@ -14,33 +14,25 @@
   "web_ui_url": "http://[IP]:[PORT:3000]",
   "icon": "https://raw.githubusercontent.com/wgross19/awesome-unraid/main/icons/fastcrw-aio.png",
   "project": "https://github.com/wgross19/fastcrw-aio",
-  "description": "fastcrw-aio bundles crw-server v0.31.0 (the crw web-content research and crawl engine) with the LightPanda JS renderer under s6 supervision. It exposes a REST API (default port 3000) for scraping, crawling, mapping, extracting, parsing, and search/research over URLs. First run: - The API listens on port 3000 (Web UI Port on the LAN). Keep the API Port env var aligned with the host port you publish if you change it. - Set the SearXNG URL (CRW_SEARCH__SEARXNG_URL) to an external SearXNG instance with its JSON API enabled to activate the /v1/search and research endpoints. Scrape, Crawl, Map, Extract, and Parse work without it. - LightPanda (bundled, in-container) is the default renderer. To use the heavy Chrome tier, set the Renderer Mode to chrome and supply an external CDP endpoint; Chrome is not bundled. - Persistent configuration lives under /config (runtime crw config), and application data under /data. Hidden advanced settings let you add optional OpenAlex and Semantic Scholar API keys, tune the search engines, gate the API with API keys, and cap memory limits.",
+  "description": "fastCRW is a Firecrawl-compatible web scraping, crawling, and search API for AI agents on Unraid. Search, scrape, crawl, map, and extract in one container. Bundled JS renderer, native /mcp, zero credits, AGPL-3.0. The REST API listens on port 3000 (default) with the Firecrawl-compatible /v1 surface: scrape, crawl, map, extract, search, and batch scrape. Point MCP-compatible agents (Claude Code, Cursor, and more) at http:// :3000/mcp for 9 native tools (crw_search, crw_scrape, and friends). Full API docs are served at http:// :3000/openapi.json. Teach your agent when and why to use CRW with the official fastCRW agent skill (https://fastcrw.com/skills): a ~100-token SKILL.md that auto-triggers on web-data tasks, installed with one command (npx crw-mcp@latest install, supports Claude Code, Cursor, Gemini CLI, Codex, OpenCode, and Windsurf). Point the skill at this container by setting CRW_API_URL to http:// :3000, then MCP handles execution. First run: - Scrape, Crawl, Map, and Extract work out of the box. Full JavaScript rendering is built in via the bundled LightPanda renderer. - Set the SearXNG URL (CRW_SEARCH__SEARXNG_URL) to an external SearXNG instance with its JSON API enabled to activate /v1/search and research queries, e.g. http://192.168.1.100:8080 (your Unraid IP and SearXNG port). - To use the heavy Chrome renderer tier, set Renderer Mode to chrome and supply an external CDP endpoint; Chrome is not bundled. - Persistent configuration lives under /config (runtime crw config), and application data under /data. Advanced settings (hidden by default): optional OpenAlex and Semantic Scholar API keys, API key gating for the REST API, and renderer memory limits.",
   "paths": [],
   "ports": [
     {
-      "name": "Web UI Port",
+      "name": "API Port",
       "host": "3000",
       "container": "3000",
       "protocol": "tcp",
-      "description": "Host (LAN) port that exposes the crw-server API (port 3000).",
+      "description": "Host (LAN) port that exposes the fastCRW REST API, /mcp, and /openapi.json. The API always serves on container port 3000 (pinned in the image); change only this host-side port.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "API Port",
-      "key": "CRW_SERVER__PORT",
-      "value": "3000",
-      "description": "Port crw-server listens on inside the container. Keep this aligned with the published Web UI Port.",
-      "required": true,
-      "mask": false
-    },
-    {
       "name": "SearXNG URL",
       "key": "CRW_SEARCH__SEARXNG_URL",
       "value": "",
-      "description": "Required for Search and Research; Scrape, Crawl, Map, Extract, and Parse work without it. Point this at an external SearXNG instance with its JSON API enabled.",
+      "description": "Required for Search and Research; Scrape, Crawl, Map, and Extract work without it. Point this at an external SearXNG instance with its JSON API enabled, e.g. http://192.168.1.100:8080 (your Unraid IP and SearXNG port).",
       "required": false,
       "mask": false
     },
@@ -83,22 +75,6 @@
       "description": "Optional Semantic Scholar API key that boosts research result quality. Works without it.",
       "required": false,
       "mask": true
-    },
-    {
-      "name": "Research Engines",
-      "key": "CRW_SEARCH__RESEARCH_ENGINES",
-      "value": "arxiv,crossref,google scholar,semantic scholar",
-      "description": "Comma-separated SearXNG engines used for research queries.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "GitHub Engines",
-      "key": "CRW_SEARCH__GITHUB_ENGINES",
-      "value": "github",
-      "description": "Comma-separated SearXNG engines used for GitHub/code queries.",
-      "required": false,
-      "mask": false
     },
     {
       "name": "API Keys",

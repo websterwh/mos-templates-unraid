@@ -1,0 +1,179 @@
+{
+  "name": "sop-hub",
+  "repo": "allornothing/sop-hub:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/sop-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/SOP-Hub/icon.png",
+  "project": "https://github.com/aon082910/sop-hub",
+  "description": "Self-hosted clone of Scribe: turn a workflow into a step-by-step visual guide, with AI help from either a local model or a cloud provider. Capture a process two ways -- upload screenshots manually in the editor, or install the included Chrome extension and just click through the workflow; it auto-captures a screenshot and click position for every click and uploads the whole walkthrough as a new guide in one step. From there, AI can describe each screenshot, write the guide's title and summary, rewrite step text for clarity, and answer questions about a guide in a chat panel -- all routed through one provider abstraction so local (Ollama) and cloud (Anthropic Claude, OpenAI, or any OpenAI-compatible endpoint) are interchangeable per request. Finished guides publish to a public read-only share link, or export straight to PDF, HTML, or Markdown with embedded step images. Everything -- Postgres, the API, and the built frontend -- runs in this one container. SET JWT_SECRET before starting (any long random string). AI is optional and defaults to a local Ollama instance you point it at (does not run inside this container); set the Anthropic/OpenAI/custom variables instead if you'd rather use a cloud provider, or skip AI entirely and use SOP-Hub as a plain guide editor. Everything lives under the single /config mount: the embedded Postgres database and all uploaded step screenshots. Back that one directory up and you've backed up the whole app.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/sop-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Embedded Postgres database and all uploaded step screenshots -- the only folder you need to back up",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI / API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid's nobody user -- keeps appdata editable from the host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid's users group",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone for dates shown in the app",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required. Any long random string -- used to sign auth tokens. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "AI Provider",
+      "key": "AI_DEFAULT_PROVIDER",
+      "value": "ollama",
+      "description": "ollama (local) | anthropic | openai | custom -- which AI backend features use by default",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ollama Base URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "http://ollama:11434",
+      "description": "Only used when AI Provider = ollama. Point at your own Ollama instance -- it does not run inside this container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Model",
+      "key": "OLLAMA_MODEL",
+      "value": "llava",
+      "description": "Use a vision-capable model (e.g. llava) so screenshot-description AI works",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Only used when AI Provider = anthropic",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic Model",
+      "key": "ANTHROPIC_MODEL",
+      "value": "claude-sonnet-5",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Only used when AI Provider = openai",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI Model",
+      "key": "OPENAI_MODEL",
+      "value": "gpt-4o-mini",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom OpenAI-compatible Base URL",
+      "key": "CUSTOM_OPENAI_BASE_URL",
+      "value": "",
+      "description": "Only used when AI Provider = custom -- any OpenAI-compatible API (LM Studio, vLLM, OpenRouter, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom OpenAI-compatible API Key",
+      "key": "CUSTOM_OPENAI_API_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Custom OpenAI-compatible Model",
+      "key": "CUSTOM_OPENAI_MODEL",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres User",
+      "key": "POSTGRES_USER",
+      "value": "sophub",
+      "description": "Embedded database user -- not exposed outside the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Postgres Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "sophub",
+      "description": "Embedded database password -- not exposed outside the container",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Postgres Database",
+      "key": "POSTGRES_DB",
+      "value": "sophub",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

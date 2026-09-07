@@ -1,0 +1,67 @@
+{
+  "name": "Videola",
+  "repo": "ghcr.io/fgilde/videola:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/fgilde/videola/pkgs/container/videola",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7331]/",
+  "icon": "https://raw.githubusercontent.com/fgilde/videola/main/brand/videola-icon.png",
+  "project": "https://videola.app/",
+  "description": "A video editor that runs in the browser: import, cut, keyframe, grade, mix and export, with the project model and the command bus in a Rust core compiled to WebAssembly. This container serves the editor, an HTTP API and an MCP server for agents from one Node process. Set a token. Every /api call needs it as an Authorization: Bearer header, and the server refuses to bind anything but loopback without one. Projects and media live in the /data volume. That is the directory to include in a backup.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/videola",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Projects and imported media. The one path worth backing up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7331",
+      "container": "7331",
+      "protocol": "tcp",
+      "description": "The port the editor and the API answer on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "API token",
+      "key": "VIDEOLA_TOKEN",
+      "value": "",
+      "description": "Required. Every /api call carries it as `Authorization: Bearer token`, and the server will not listen on a reachable address without one. Generate one with: openssl rand -hex 24",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Interface language",
+      "key": "VIDEOLA_LOCALE",
+      "value": "en",
+      "description": "`en` or `de`. What the server writes into generated names and messages; the editor itself follows the browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Open projects at once",
+      "key": "VIDEOLA_MAX_PROJECTS",
+      "value": "8",
+      "description": "How many projects the server keeps open in memory. Each one holds its own core instance.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

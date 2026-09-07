@@ -1,272 +1,128 @@
 {
   "name": "Krusader",
-  "repo": "jlesage/krusader",
+  "repo": "junkerderprovinz/krusader:latest",
   "category": [
     "Productivity"
   ],
-  "registry": "https://registry.hub.docker.com/r/jlesage/krusader",
+  "registry": "https://hub.docker.com/r/junkerderprovinz/krusader",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--restart=unless-stopped --shm-size=1gb",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5800]",
-  "icon": "https://raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/krusader-icon.png",
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/krusader/icon.png",
   "project": "https://krusader.org",
-  "description": "Krusader is an advanced, twin-panel (commander-style) file manager for Unix-like systems. It offers powerful file management features including archive handling, access to local and remote filesystems, advanced search, directory synchronization, file comparison, and batch renaming. The graphical user interface (GUI) of the application can be accessed through a modern web browser, requiring no installation or configuration on the client side, or via any VNC client. The container is built against Alpine Linux to provide an efficient image in terms of size and resource usage. For a complete documentation of this container, see https://github.com/jlesage/docker-krusader#readme",
+  "description": "Krusader file manager with native Dark Mode \u2013 built on Selkies for a smooth, hardware-accelerated web desktop. Far snappier than the noVNC-based Krusader containers (binhex / jlesage / ich777). What's pre-configured: \u2022 Dark Mode theme for Krusader, Kate and KDE \u2022 Kate as Krusader's external editor \u2022 RAR support: right-click \u2192 \"Extract RAR here\" / \"to subfolder\" \u2022 7z, ZIP, TAR, GZ, BZ2, XZ, LHA, ARJ, ACE, RPM, CPIO \u2022 Selectable UI language: 33 languages incl. German, English, French, Spanish, Italian, Portuguese (PT/BR), Dutch, Catalan, Basque, Irish, Danish, Swedish, Norwegian, Finnish, Icelandic, Polish, Czech, Slovak, Hungarian, Romanian, Slovenian, Croatian, Serbian, Bulgarian, Ukrainian, Russian, Greek, Turkish, Hebrew, Arabic, Japanese, Korean, Chinese (CN/TW) \u2022 Spell-checking in Kate for ~25 languages via Hunspell Notes: \u2022 The /storage volume defaults to /mnt \u2013 this gives Krusader access to all shares (/mnt/user) and individual disks (/mnt/disk*). \u2022 WebUI opens via HTTPS on port 3001 (self-signed cert \u2014 accept it once). The Selkies web client requires a secure connection, so open the WebUI directly ONLY over HTTPS (3001). Port 3000 (HTTP) is for a reverse proxy that terminates TLS in front of the container \u2014 opening it directly in a browser shows a \"requires a secure connection (HTTPS)\" error and will not load. \u2022 PUID/PGID default to 99/100 (nobody/users on Unraid). \u2022 Auth: leave \"WebUI Username\" and \"Password\" EMPTY to run without login. Set both to enable HTTP-basic auth on the WebUI. Recommended whenever the container is reachable from anything beyond your LAN. Source on GitHub: https://github.com/junkerderprovinz/krusader",
   "paths": [
     {
-      "name": "Config Directory",
+      "name": "AppData (/config)",
       "host": "/mnt/cache/appdata/krusader",
       "container": "/config",
       "mode": "rw",
-      "description": "Stores the application's configuration, state, logs, and any files requiring persistency.",
+      "description": "Persistent Krusader configs, history, bookmarks, default-files lock.",
       "required": true
     },
     {
-      "name": "Storage",
-      "host": "/mnt/user",
+      "name": "Storage (/storage)",
+      "host": "/mnt",
       "container": "/storage",
-      "mode": "rw",
-      "description": "Contains files from the host that need to be accessible to the application.",
+      "mode": "rw,slave",
+      "description": "Main path for file operations. Default /mnt gives access to all shares (/mnt/user) and individual disks (/mnt/disk*). Adjust if you only need specific shares.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "WEB Port for GUI (Bridge Network Type)",
-      "host": "7836",
-      "container": "5800",
+      "name": "WebUI Port (HTTPS / Selkies)",
+      "host": "3001",
+      "container": "3001",
       "protocol": "tcp",
-      "description": "Port to access the application's GUI via the web interface. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "description": "HTTPS port of the Selkies WebUI (self-signed cert). This is the default WebUI \u2014 HTTPS is required for clipboard support in the browser. Accept the self-signed certificate once.",
       "required": true,
       "mask": false
     },
     {
-      "name": "VNC Port for GUI (Bridge Network Type)",
-      "host": "7936",
-      "container": "5900",
+      "name": "WebUI Port (HTTP / Selkies)",
+      "host": "3000",
+      "container": "3000",
       "protocol": "tcp",
-      "description": "Port to access the application's GUI via VNC protocol. Optional if no VNC client is used. NOTE: This setting is relevant only when the Network Type is set to `Bridge`.",
+      "description": "HTTP port of the Selkies WebUI. For a reverse proxy that terminates TLS in front of the container \u2014 NOT for direct browser access. The Selkies web client requires a secure context, so opening http://IP:3000 directly shows a 'requires a secure connection (HTTPS)' error. For direct access use the HTTPS port 3001.",
       "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "User ID",
-      "key": "USER_ID",
+      "name": "UI Language (KRUSADER_LANG)",
+      "key": "KRUSADER_LANG",
+      "value": "de = Deutsch",
+      "description": "Language for the Krusader / Kate UI (33 languages). The container reads the leading code, so the full label is fine as a value. Pick 'system' for the container default. Re-applied on every container start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Theme (KRUSADER_THEME)",
+      "key": "KRUSADER_THEME",
+      "value": "dark",
+      "description": "Color scheme. 'dark' = Dark Mode, 'light' = Breeze.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keyboard Layout (KEYBOARD_LAYOUT)",
+      "key": "KEYBOARD_LAYOUT",
+      "value": "us",
+      "description": "X keyboard layout loaded at session start (setxkbmap). Binds Shift so pasted UPPERCASE text keeps its case in the web desktop, and gives the correct symbols for your layout. Default 'us' suits most users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Optional. Username for HTTP-basic-auth on the WebUI. Leave EMPTY together with the password for no login. Set both fields to enable login (recommended outside trusted LANs).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Optional. Password for HTTP-basic-auth on the WebUI. Leave EMPTY together with the username for no login. STRONGLY recommended whenever the container is reachable from outside your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone (affects log timestamps and file mtimes). Use this instead of a /etc/localtime bind-mount \u2014 the LSIO base image manages /etc/localtime internally via TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "PUID",
       "value": "500",
-      "description": "ID of the user the application runs as.",
+      "description": "User-ID Krusader runs as. Default 99 (nobody on Unraid).",
       "required": true,
       "mask": false
     },
     {
-      "name": "Group ID",
-      "key": "GROUP_ID",
+      "name": "Group ID (PGID)",
+      "key": "PGID",
       "value": "500",
-      "description": "ID of the group the application runs as.",
+      "description": "Group-ID. Default 100 (users on Unraid).",
       "required": true,
       "mask": false
     },
     {
-      "name": "Umask",
+      "name": "UMASK",
       "key": "UMASK",
-      "value": "0000",
-      "description": "Mask controlling permissions for newly created files and folders, specified in octal notation.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Locale",
-      "key": "LANG",
-      "value": "en_US.UTF-8",
-      "description": "Sets the locale, defining the application's language, if supported. Format is `language[_territory][.codeset]`. For example, Australian English using UTF-8 is `en_AU.UTF-8`.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Niceness (priority)",
-      "key": "APP_NICENESS",
-      "value": "0",
-      "description": "Priority at which the application should run. A niceness value of `-20` is the highest, `19` is the lowest and `0` the default. NOTE: Setting a negative value requires additional permissions. Thus, `--cap-add=SYS_NICE` must be added to Extra Parameters (shown when Advanced View is enabled).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Display Width",
-      "key": "DISPLAY_WIDTH",
-      "value": "1920",
-      "description": "Width (in pixels) of the application's window.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Display Height",
-      "key": "DISPLAY_HEIGHT",
-      "value": "1080",
-      "description": "Height (in pixels) of the application's window.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Dark Mode",
-      "key": "DARK_MODE",
-      "value": "0",
-      "description": "When set to `1`, enables dark mode for the application.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Audio",
-      "key": "WEB_AUDIO",
-      "value": "0",
-      "description": "When set to `1`, enables audio support, allowing audio produced by the application to play through the browser.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Host Clipboard Sync",
-      "key": "WEB_HOST_CLIPBOARD_SYNC",
-      "value": "1",
-      "description": "When set to `1`, enables support for synchronizing the host system clipboard with the application inside the container. Actual availability still depends on the browser.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web File Manager",
-      "key": "WEB_FILE_MANAGER",
-      "value": "0",
-      "description": "When set to `1`, enables the web file manager, allowing interaction with files inside the container through a web browser, supporting operations like renaming, deleting, uploading, and downloading.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web File Manager Allowed Paths",
-      "key": "WEB_FILE_MANAGER_ALLOWED_PATHS",
-      "value": "AUTO",
-      "description": "Comma-separated list of paths within the container that the file manager can access. By default, the container's entire filesystem is not accessible, and this variable specifies allowed paths. If set to `AUTO`, commonly used folders and those mapped to the container are automatically allowed. The value `ALL` allows access to all paths (no restrictions).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web File Manager Denied Paths",
-      "key": "WEB_FILE_MANAGER_DENIED_PATHS",
-      "value": "None",
-      "description": "Comma-separated list of paths within the container that the file manager cannot access. A denied path takes precedence over an allowed path.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Desktop Notifications",
-      "key": "WEB_NOTIFICATION",
-      "value": "0",
-      "description": "When set to `1`, enables the web notification service, allowing the browser to display desktop notifications from the application.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Terminal",
-      "key": "WEB_TERMINAL",
-      "value": "0",
-      "description": "When set to `1`, enables access to a terminal from the web interface. It is strongly recommended to configure the container with secure web access (HTTPS).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Terminal",
-      "key": "WEB_TERMINAL_SHELL_PATH",
-      "value": "/bin/sh",
-      "description": "The shell used by the web terminal.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Authentication",
-      "key": "WEB_AUTHENTICATION",
-      "value": "0",
-      "description": "When set to `1`, protects the application's GUI with a login page when accessed via a web browser. Access is granted only with valid credentials. Requires secure web access (HTTPS).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Authentication Allow Insecure",
-      "key": "WEB_AUTHENTICATION_ALLOW_INSECURE",
-      "value": "0",
-      "description": "When set to `1`, allows web authentication without secure connection (HTTPS). NOT RECOMMENDED. Use only if you fully understand the risks.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Authentication Token Validity Time",
-      "key": "WEB_AUTHENTICATION_TOKEN_VALIDITY_TIME",
-      "value": "24",
-      "description": "Lifetime of a token, in hours. A token is assigned to the user after successful login. As long as the token is valid, the user can access the application's GUI without logging in again. Once the token expires, the login page is displayed again.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Authentication Username",
-      "key": "WEB_AUTHENTICATION_USERNAME",
-      "value": "",
-      "description": "Optional username for web authentication. Provides a quick and easy way to configure credentials for a single user. For more secure configuration or multiple users, see the documentation.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Authentication Password",
-      "key": "WEB_AUTHENTICATION_PASSWORD",
-      "value": "",
-      "description": "Optional password for web authentication. Provides a quick and easy way to configure credentials for a single user. For more secure configuration or multiple users, see the documentation.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Secure Connection",
-      "key": "SECURE_CONNECTION",
-      "value": "0",
-      "description": "When set to `1`, uses an encrypted connection to access the application's GUI (via web browser or VNC client).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Secure Connection VNC Method",
-      "key": "SECURE_CONNECTION_VNC_METHOD",
-      "value": "SSL",
-      "description": "Method used for encrypted VNC connection. Possible values are `SSL` or `TLS`.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Secure Connection Certificate Check Interval",
-      "key": "SECURE_CONNECTION_CERTS_CHECK_INTERVAL",
-      "value": "60",
-      "description": "Interval, in seconds, at which the system checks if web or VNC certificates have changed. When a change is detected, affected services are automatically restarted. A value of `0` disables the check.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web Listening Port (Non-Bridge Network Type)",
-      "key": "WEB_LISTENING_PORT",
-      "value": "5800",
-      "description": "Port used by the web server to serve the application's GUI. This port is internal to the container and typically does not need to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VNC Listening Port (Non-Bridge Network Type)",
-      "key": "VNC_LISTENING_PORT",
-      "value": "5900",
-      "description": "Port used by the VNC server to serve the application's GUI. This port is internal to the container and typically does not need to be changed. NOTE: This setting is relevant only when the Network Type is set to something else than Bridge.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Enable CJK Font",
-      "key": "ENABLE_CJK_FONT",
-      "value": "0",
-      "description": "When set to `1`, installs the open-source font `WenQuanYi Zen Hei`, supporting a wide range of Chinese/Japanese/Korean characters.",
+      "value": "022",
+      "description": "Permission mask for newly created files. Use 000 if you want every container user to read/write everything.",
       "required": false,
       "mask": false
     }

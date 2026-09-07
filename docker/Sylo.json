@@ -1,10 +1,10 @@
 {
   "name": "Sylo",
-  "repo": "ghcr.io/ferdinand99/sylo:latest",
+  "repo": "docker.io/iwgamin/sylo:latest",
   "category": [
     "Network"
   ],
-  "registry": "https://github.com/Ferdinand99/Sylo/pkgs/container/sylo",
+  "registry": "https://hub.docker.com/r/iwgamin/sylo",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:3000]/",
   "icon": "https://raw.githubusercontent.com/Ferdinand99/Sylo/main/unraid/sylo-icon.png",
   "project": "https://github.com/Ferdinand99/Sylo",
-  "description": "Sylo is a multi-function Discord bot with a web dashboard. It has a per-guild module system - moderation with warning thresholds, server logging, tickets/modmail answered from the dashboard, reaction roles & autoroles, welcome/leave messages, sticky messages, auto-moderation (invite/link/flood/mention/caps/word filters), a counting mini-game, and a message/embed creator - plus per-server command management and Battlefield-series player stats (BF1, BF3, BF4, BFV, Hardline, and best-effort BF2042/BF6) via the public gametools.network API. State is stored in a single SQLite file under /app/data and survives updates. Setup: create a Discord application at https://discord.com/developers/applications, then set DISCORD_TOKEN (Bot tab) and DISCORD_CLIENT_ID (General Information). Invite the bot with the scopes \"bot\" and \"applications.commands\". Intents: the member/message-driven modules (logging, welcome, roles, auto-moderation, counting) need the \"Server Members\" and/or \"Message Content\" intents enabled on the Developer Portal Bot page. Leave INTENT_GUILD_MEMBERS / INTENT_MESSAGE_CONTENT at their defaults, or set one to false to boot without that intent (its modules stay unavailable). Dashboard: runs open by default (use only on a trusted LAN). To require \"Log in with Discord\" for server admins, set DISCORD_CLIENT_SECRET and add http:// :[HOST-PORT]/auth/discord/callback to the app's OAuth2 Redirects.",
+  "description": "Sylo is a multi-function Discord bot with a web dashboard. It has a per-guild module system (31 modules) - moderation with warning thresholds and a numbered case log (/history, /case), server logging, tickets/modmail answered from the dashboard, reaction roles & autoroles, verification (Verify button or Cloudflare Turnstile captcha), welcome/leave messages, a Welcome Channel builder, birthday announcements, sticky messages, auto-moderation (invite/link/flood/mention/caps/word filters, optionally pushed to Discord's native AutoMod), a counting mini-game, action-based custom slash commands, an autoresponder, reminders (one-off or recurring channel posts), leveling (text + optional voice XP, per-role/channel multipliers, all-time/weekly/monthly public leaderboard), AFK, server statistics (live-count voice channels), server insights (activity charts - messages, joins/leaves and voice-channel usage over time), a free games notifier (Epic Games Store, plus more stores with an IsThereAnyDeal key), ban appeals (banned members get a DM'd link to an appeal form; staff accept/deny from the dashboard), MEE6-style temporary voice channels (\"join to create\" hubs plus /voice-* control commands), a starboard (re-posts messages that get enough of a reaction into a highlights channel), an invite tracker (credits who invited each member and ranks inviters), reaction polls (/poll with a timer or vote cap), prize giveaways (Enter button, auto-drawn winners), optional Battlefield-series and RuneScape (OSRS/RS3) player stats (/stats, gated by the Game stats module), Twitch / YouTube / Kick go-live & new-video alerts (with an optional \"delete the message when the stream ends\" mode), RSS/Atom feed alerts (plus Reddit / Mastodon / Bluesky handles), scheduled channel cleanup (auto-delete messages older than a threshold from a channel, on a weekly schedule you pick), and a message/embed creator - plus per-server command management, a Prometheus /metrics endpoint (a ready-made Grafana dashboard ships in the repo), and an editable Discord presence/activity. State is stored in a single SQLite file under /app/data and survives updates. The database is snapshotted automatically (before every schema migration and on a schedule) into /app/data/backups - optionally shipped off-site as well (WebDAV and/or a Discord webhook; see BACKUP_WEBDAV_URL / BACKUP_WEBHOOK_URL); from the dashboard's Health page you can also create, download, import and restore a snapshot (restore swaps the file and lets the container restart on the restored data). Setup: create a Discord application at https://discord.com/developers/applications, then set DISCORD_TOKEN (Bot tab) and DISCORD_CLIENT_ID (General Information). Invite the bot with the scopes \"bot\" and \"applications.commands\". Intents: the member/message-driven modules (logging, welcome, reaction roles, verification, leveling, server statistics, invite tracker, auto-moderation, counting, autoresponder, starboard) need the \"Server Members\" and/or \"Message Content\" intents enabled on the Developer Portal Bot page. Leave INTENT_GUILD_MEMBERS / INTENT_MESSAGE_CONTENT at their defaults, or set one to false to boot without that intent (its modules stay unavailable). Dashboard: runs open by default (use only on a trusted LAN). To require \"Log in with Discord\" for server admins, set DISCORD_CLIENT_SECRET and add http:// :[HOST-PORT]/auth/discord/callback to the app's OAuth2 Redirects. Community & support: https://discord.gg/GAzR9k5hhS",
   "paths": [
     {
       "name": "Data Directory",
@@ -54,10 +54,18 @@
       "mask": false
     },
     {
-      "name": "DISCORD_GUILD_ID",
-      "key": "DISCORD_GUILD_ID",
+      "name": "DISCORD_DEV_GUILD_IDS",
+      "key": "DISCORD_DEV_GUILD_IDS",
       "value": "",
-      "description": "Optional. Set to a server ID to register slash commands to that one guild instantly (useful for testing). Leave blank to register globally (can take up to ~1 hour the first time).",
+      "description": "Optional. Set to a server ID (or several, comma-separated) to register slash commands to those guild(s) instantly (useful for testing). Leave blank to register globally (can take up to ~1 hour the first time).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISCORD_SHARD_COUNT",
+      "key": "DISCORD_SHARD_COUNT",
+      "value": "",
+      "description": "Optional. Number of Discord gateway shards this one container runs. Leave blank (or 'auto') to follow Discord's recommendation - it stays at 1 until the bot is in ~2,500+ servers, so most instances never need this. Multi-process sharding is not supported.",
       "required": false,
       "mask": false
     },
@@ -73,7 +81,7 @@
       "name": "INTENT_GUILD_MEMBERS",
       "key": "INTENT_GUILD_MEMBERS",
       "value": "true",
-      "description": "Whether to request the Server Members privileged intent (needed by logging, welcome, roles/autoroles and leveling). Must also be enabled on the Developer Portal Bot page. Set to false to boot without it - those modules then stay unavailable.",
+      "description": "Whether to request the Server Members privileged intent (needed by logging, welcome, reaction roles/autoroles, verification, leveling, server statistics and the invite tracker). Must also be enabled on the Developer Portal Bot page. Set to false to boot without it - those modules then stay unavailable.",
       "required": false,
       "mask": false
     },
@@ -81,7 +89,7 @@
       "name": "INTENT_MESSAGE_CONTENT",
       "key": "INTENT_MESSAGE_CONTENT",
       "value": "true",
-      "description": "Whether to request the Message Content privileged intent (needed by logging, auto-moderation and the counting game). Must also be enabled on the Developer Portal Bot page. Set to false to boot without it - those modules then stay unavailable.",
+      "description": "Whether to request the Message Content privileged intent (needed by logging, auto-moderation, the autoresponder, the counting game and the starboard). Must also be enabled on the Developer Portal Bot page. Set to false to boot without it - those modules then stay unavailable.",
       "required": false,
       "mask": false
     },
@@ -97,9 +105,65 @@
       "name": "DASHBOARD_URL",
       "key": "DASHBOARD_URL",
       "value": "",
-      "description": "Optional. Only needed behind a reverse proxy: the public dashboard URL (e.g. https://sylo.example.com) used to build the OAuth2 redirect URI. Leave blank for direct IP access.",
+      "description": "Optional. The public dashboard URL (e.g. https://sylo.example.com or http:// :[HOST-PORT]). Needed behind a reverse proxy for the OAuth2 redirect URI, and to build the links members open for verification-captcha and ban appeals. Leave blank for direct IP access without those features.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "TURNSTILE_SITE_KEY",
+      "key": "TURNSTILE_SITE_KEY",
+      "value": "",
+      "description": "Optional. Cloudflare Turnstile site key \u2014 enables the Verification module's captcha mode. Free at dash.cloudflare.com -&gt; Turnstile. Needs both keys and DASHBOARD_URL set; otherwise captcha mode falls back to a plain Verify button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURNSTILE_SECRET_KEY",
+      "key": "TURNSTILE_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Cloudflare Turnstile secret key \u2014 pairs with TURNSTILE_SITE_KEY for the Verification captcha.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ITAD_API_KEY",
+      "key": "ITAD_API_KEY",
+      "value": "",
+      "description": "Optional. IsThereAnyDeal API key (free at isthereanydeal.com/apps) \u2014 broadens the Free games module beyond the Epic Games Store to Steam, GOG, Fanatical, Humble and more. Without it, Free games is Epic-only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TWITCH_CLIENT_ID",
+      "key": "TWITCH_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Twitch application client id for the Twitch alerts module ('go live' notifications). Free app at dev.twitch.tv/console. Needs TWITCH_CLIENT_SECRET too; without both, the module's poll loop does nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TWITCH_CLIENT_SECRET",
+      "key": "TWITCH_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Twitch application client secret, paired with TWITCH_CLIENT_ID for the Twitch alerts module.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "KICK_CLIENT_ID",
+      "key": "KICK_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Kick application client id for the Kick alerts module ('go live' notifications). Free app at kick.com/settings/developer. Needs KICK_CLIENT_SECRET too; without both, the module's poll loop does nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "KICK_CLIENT_SECRET",
+      "key": "KICK_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Kick application client secret, paired with KICK_CLIENT_ID for the Kick alerts module.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "STATS_CACHE_TTL_MINUTES",
@@ -126,6 +190,62 @@
       "mask": false
     },
     {
+      "name": "BACKUP_INTERVAL_HOURS",
+      "key": "BACKUP_INTERVAL_HOURS",
+      "value": "24",
+      "description": "How often (hours) to write an automatic compacted database snapshot into Data Directory/backups. A snapshot is also always taken just before a schema migration, and on demand from the Health page. Set to 0 to disable the scheduled backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_RETENTION",
+      "key": "BACKUP_RETENTION",
+      "value": "14",
+      "description": "How many database snapshots to keep in Data Directory/backups. Older ones are pruned automatically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "",
+      "description": "Optional. Directory (inside the container) for database snapshots. Leave blank to use Data Directory/backups; must sit inside the Data Directory mount if set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_URL",
+      "key": "BACKUP_WEBDAV_URL",
+      "value": "",
+      "description": "Optional. Off-site backups: a WebDAV folder URL (e.g. a Nextcloud path like https://cloud.example.com/remote.php/dav/files/me/sylo-backups). After every local snapshot a gzipped copy is PUT to url/name.db.gz. Best-effort and logged; never blocks the local backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_USER",
+      "key": "BACKUP_WEBDAV_USER",
+      "value": "",
+      "description": "Optional. Username for BACKUP_WEBDAV_URL (HTTP basic auth). Use an app password, not your account password.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_PASS",
+      "key": "BACKUP_WEBDAV_PASS",
+      "value": "",
+      "description": "Optional. Password / app password for BACKUP_WEBDAV_URL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BACKUP_WEBHOOK_URL",
+      "key": "BACKUP_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional. Off-site backups: a Discord webhook URL. Each gzipped snapshot is uploaded as an attachment (skipped when it is over ~8 MiB \u2014 use WebDAV for a larger database).",
+      "required": false,
+      "mask": true
+    },
+    {
       "name": "WEB_PORT",
       "key": "WEB_PORT",
       "value": "3000",
@@ -138,6 +258,22 @@
       "key": "NODE_ENV",
       "value": "production",
       "description": "Node environment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: debug, info, warn or error. debug also emits one line per HTTP request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FORMAT",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log line format: text or json (LOG_JSON=1 is shorthand for json).",
       "required": false,
       "mask": false
     },

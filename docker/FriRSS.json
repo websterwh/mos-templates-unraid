@@ -38,6 +38,22 @@
   ],
   "variables": [
     {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the FriRSS process runs as. Unraid uses 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the FriRSS process runs as. Unraid uses 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "NODE_ENV",
       "key": "NODE_ENV",
       "value": "production",
@@ -56,8 +72,8 @@
     {
       "name": "Timezone",
       "key": "TZ",
-      "value": "Europe/Zurich",
-      "description": "Container timezone, for example Europe/Zurich.",
+      "value": "",
+      "description": "Container timezone, for example Europe/Zurich or America/New_York. Leave empty to use UTC.",
       "required": false,
       "mask": false
     },
@@ -81,7 +97,15 @@
       "name": "Cache Sync Interval",
       "key": "CACHE_SYNC_INTERVAL",
       "value": "15",
-      "description": "Redis cache synchronization interval.",
+      "description": "Background sync interval in minutes, for pre-filling the cache with no browser open. Requires the Redis URL above: without it, this value does nothing. Set 0 to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FreshRSS Internal Host",
+      "key": "PROXY_INTERNAL_HOSTS",
+      "value": "",
+      "description": "Set this if FreshRSS runs on a private address - 192.168.x.x, 10.x.x.x, or a container name on a shared Docker network. FriRSS blocks private targets by default so that a logged-in user cannot aim it at your NAS, your database or a cloud metadata endpoint; listing your FreshRSS host here allows that one address. Comma-separated. Leave empty when your FreshRSS URL is public. Without it, connecting fails and the container log shows: POST /api/proxy 403",
       "required": false,
       "mask": false
     },
@@ -89,7 +113,7 @@
       "name": "Proxy Rewrites",
       "key": "PROXY_REWRITES",
       "value": "",
-      "description": "Optional proxy rewrite configuration.",
+      "description": "Optional. Rewrites a public FreshRSS URL to an internal one, as from=to, comma-separated. Useful when FriRSS and FreshRSS share a Docker network: it cuts the round trip through your reverse proxy. Hosts listed here are trusted automatically.",
       "required": false,
       "mask": false
     }

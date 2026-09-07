@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/",
   "icon": "https://raw.githubusercontent.com/The-Grog/FolderFrame-Deployment/main/icon.png",
   "project": "https://www.folderframe.com/",
-  "description": "FolderFrame is a folder-based photo and video gallery with album browsing and slideshows, served by Caddy. Select a dedicated media folder; it is mounted read-only. Configuration is stored separately in appdata. Anyone who can reach the WebUI can download its media. No authentication or TLS is configured. Use on a trusted LAN, or add access controls before public exposure. Do not select an entire share, source repository, private files, or a folder containing symlinks.",
+  "description": "FolderFrame is a folder-based photo and video gallery with album browsing and slideshows, served by Caddy. Select a dedicated media folder; it is mounted read-only. Configuration, generated thumbnails, and the persistent media manifest are stored separately in appdata. Thumbnail and manifest generation are enabled by default for faster large galleries. Videos use native playback first, with optional CPU-based H.264/AAC compatibility streaming when needed; originals stay untouched and no converted movies are stored. Anyone who can reach the WebUI can download its media. No authentication or TLS is configured. Use on a trusted LAN, or add access controls before public exposure. Do not select an entire share, source repository, private files, or a folder containing symlinks. Learn more: https://www.folderframe.com/",
   "paths": [
     {
       "name": "Media Folder",
       "host": "",
       "container": "/media",
       "mode": "ro",
-      "description": "Select an existing dedicated gallery folder. Read-only does not prevent downloads. Do not select a whole share or repository.",
+      "description": "Select an existing dedicated gallery folder. To add more, use Add another Path with a unique container path below /media/, such as /media/Archive, and keep it read-only. Do not select a whole share or repository.",
       "required": true
     },
     {
@@ -45,6 +45,54 @@
     }
   ],
   "variables": [
+    {
+      "name": "Generate Thumbnails",
+      "key": "FOLDERFRAME_THUMBNAILS",
+      "value": "true",
+      "description": "Generate persistent 480px WebP previews in appdata for faster galleries. Originals remain read-only. Set false to disable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Persistent Media Manifest",
+      "key": "FOLDERFRAME_MANIFEST",
+      "value": "true",
+      "description": "Maintain an incremental media index in appdata for faster large-library startup. Independent of thumbnails. Originals remain read-only.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Scan Interval",
+      "key": "FOLDERFRAME_THUMBNAIL_INTERVAL",
+      "value": "3600",
+      "description": "Seconds between background media scans (60-86400). Used by thumbnails and the persistent manifest; unchanged directories are reused.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Video Compatibility Fallback",
+      "key": "FOLDERFRAME_VIDEO_TRANSCODE",
+      "value": "true",
+      "description": "Try native video playback first, then use CPU-based FFmpeg H.264/AAC streaming when the original cannot decode. Valid values: true or false. Originals remain untouched and no converted movies are stored. Set false to avoid transcoding CPU use.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Transcodes",
+      "key": "FOLDERFRAME_TRANSCODE_JOBS",
+      "value": "2",
+      "description": "Maximum simultaneous compatibility streams: integer 1-8. Every active software transcode uses CPU and memory; use 1 on smaller systems or for large 4K media.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Threads per Transcode",
+      "key": "FOLDERFRAME_TRANSCODE_THREADS",
+      "value": "2",
+      "description": "FFmpeg decoder and encoder threads per compatibility stream: integer 1-16. Higher values may increase throughput but multiply CPU use across active transcodes.",
+      "required": true,
+      "mask": false
+    },
     {
       "name": "Source Label",
       "key": "FOLDERFRAME_SOURCE_LABEL",

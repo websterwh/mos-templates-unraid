@@ -1,0 +1,89 @@
+{
+  "name": "Watchable",
+  "repo": "ghcr.io/poag/watchable:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Poag/watchable/pkgs/container/watchable",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Poag/watchable/main/icon/watchable-256.png",
+  "project": "https://github.com/Poag/watchable",
+  "description": "Syncs watch state (played/unplayed, in-progress position) between Plex, Jellyfin, and Emby through a local SQLite database -- nothing syncs server-to-server directly. Configured entirely from one YAML file: servers, per-person account mapping, and sync pairs that can be one-way or bidirectional with configurable conflict resolution. Also takes scheduled database backups with automatic retention. Beta: actively developed, config format and behaviour may still change between releases. Full setup docs at https://github.com/Poag/watchable.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/watchable/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Directory containing config.yaml -- mounted as a folder, not the file directly (Unraid's Docker UI doesn't handle single-file mappings well).",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/watchable/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database (watch state, sync log) and scheduled backups live here.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PLEX_TOKEN",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Referenced by config.yaml as ${PLEX_TOKEN}. Plex scopes watch state to the token making the request, so add one extra variable per additional synced person (e.g. ALEX_PLEX_TOKEN) via this template's Add another Path, Port, Variable... button.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JELLYFIN_API_KEY",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Referenced by config.yaml as ${JELLYFIN_API_KEY}.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EMBY_API_KEY",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "Referenced by config.yaml as ${EMBY_API_KEY}.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The container starts as root and drops to the built-in watchable user remapped to this id before running anything -- match whoever owns the paths above (Unraid's default user is 99).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "See PUID (Unraid's default group is 100).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone, e.g. Europe/London.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,59 @@
+{
+  "name": "dockyard",
+  "repo": "ghcr.io/raymunro/dockyard:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/RayMunro/dockyard/pkgs/container/dockyard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/RayMunro/dockyard/main/public/icon.png",
+  "project": "https://github.com/RayMunro/dockyard",
+  "description": "Dockyard is a minimal, self-hosted tiled launcher dashboard for your favorite apps. Add tiles with a name, URL, and icon - or pick them from a dropdown list of running containers - show/hide them, and drag to rearrange. Optionally lock changes behind a password (with a forced change on first use). Everything is stored in a single apps.json file on a mounted volume.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/dockyard",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for your app list, icons, background image, and password",
+      "required": true
+    },
+    {
+      "name": "Docker Socket (optional)",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Optional: mount to enable 'Pick from Running Containers' in the Add App form. Security note: even mounted read-only, this gives Dockyard's process full control over Docker on this host - leave blank to skip.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8090",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port to reach the Dockyard web interface on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Edit Password",
+      "key": "EDIT_PASSWORD",
+      "value": "",
+      "description": "Optional: sets an initial password required before any changes can be made (you'll be forced to change it on first use). Leave blank for open editing.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

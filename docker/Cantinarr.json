@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8585]/",
   "icon": "https://raw.githubusercontent.com/windoze95/cantinarr/main/app/web/icons/Icon-512.png",
   "project": "https://github.com/windoze95/cantinarr",
-  "description": "Cantinarr is one app over your whole media stack. The people in your house browse, request movies, TV, and books from the web app or the companion iPhone and Android apps, and get a push notification when something is ready. You get everything behind that: Radarr, Sonarr, and Chaptarr controlled down to the individual episode, live queues for SABnzbd, qBittorrent, NZBGet, and Transmission, Tautulli activity, and Plex invites. It is also an MCP server: connect Claude or any MCP client and manage your library with the same tools that power the built-in AI agents. No one but you sees an API key or a quality profile. When a download gets stuck, Cantinarr reads what your services already know and tells you in plain English what went wrong, then offers to fix it. You can also turn the agent on. It watches for the same problems, waits to see whether Sonarr or Radarr sorts things out on its own, and only then brings you something to approve. You set what it is allowed to do, and nothing destructive happens without your approval. It runs as one container on one port. The same process serves the web app, and the phone apps only ever talk to this server. Your arrs and download clients can stay on the internal network under names like http://radarr:7878, because Cantinarr never hands one of those URLs to a device to dial. API keys and download client passwords are AES-256-GCM encrypted in its database and never come back out through the API. Sign-in is passwordless by default, with passwords and passkeys available if you want them.",
+  "description": "Cantinarr is one app over your whole media stack. The people in your house browse, request movies, TV, books, and music from the web app or the companion iPhone and Android apps, and get a push notification when something is ready. You get everything behind that: Radarr, Sonarr, Chaptarr, and Lidarr controlled down to the individual episode, live queues for SABnzbd, qBittorrent, NZBGet, and Transmission, Tautulli activity, and Plex invites. It is also an MCP server: connect Claude or any MCP client and manage your library with the same tools that power the built-in AI agents. No one but you sees an API key or a quality profile. When a download gets stuck, Cantinarr reads what your services already know and tells you in plain English what went wrong, then offers to fix it. You can also turn the agent on. It watches for the same problems, waits to see whether Sonarr or Radarr sorts things out on its own, and only then brings you something to approve. You set what it is allowed to do, and nothing destructive happens without your approval. It runs as one container on one port. The same process serves the web app, and the phone apps only ever talk to this server. Your arrs and download clients can stay on the internal network under names like http://radarr:7878, because Cantinarr never hands one of those URLs to a device to dial. API keys and download client passwords are AES-256-GCM encrypted in its database and never come back out through the API. Sign-in is passwordless by default, with passwords and passkeys available if you want them.",
   "paths": [
     {
       "name": "Appdata",
@@ -29,7 +29,7 @@
       "host": "",
       "container": "/media",
       "mode": "ro",
-      "description": "Only needed if you want signed-in users to download completed files (ebooks, audiobooks, movies, episodes) from your library. Map the share holding that library here, then set Media roots below to /media. Leave blank to keep file downloads off.",
+      "description": "Only needed if you want signed-in users to download completed files (ebooks, audiobooks, movies, episodes, tracks) from your library. Map the share holding that library here, then set Media roots below to /media. Leave blank to keep file downloads off.",
       "required": false
     }
   ],
@@ -48,8 +48,8 @@
     {
       "name": "Push gateway URL",
       "key": "CANTINARR_PUSH_GATEWAY_URL",
-      "value": "https://push.julian.codes",
-      "description": "Enables push notifications to the iOS and Android apps. Leave it set and the server enrolls itself on first start and stores its own key in the appdata volume, with no signup and no account. Clear the field to disable push entirely, or point it at your own gateway.",
+      "value": "https://push.cantinarr.com",
+      "description": "Enables push notifications to the iOS and Android apps. Leave it set and the server enrolls itself on first start and stores its own key in the appdata volume, with no signup and no account. Clear the field to disable push entirely, or point it at your own gateway. The relay's former address, https://push.julian.codes, still works and is rewritten to the new one by current images.",
       "required": false,
       "mask": false
     },
@@ -74,6 +74,22 @@
       "key": "CANTINARR_OAUTH_ISSUER",
       "value": "",
       "description": "Only needed if you expose Cantinarr's Model Context Protocol endpoint to external AI clients through a reverse proxy. Set it to the canonical external HTTPS origin, for example https://cantinarr.example.com, and keep it stable, because changing it makes existing MCP clients reconnect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id the server runs as. On every start the container makes the appdata folder belong to this user, so its database and encryption key are owned by that user on the array (99 is Unraid's nobody). Leave blank to run as root, the previous behaviour.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id to pair with PUID (100 is Unraid's users group). Ignored when PUID is blank.",
       "required": false,
       "mask": false
     }

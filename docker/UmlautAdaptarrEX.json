@@ -2,7 +2,7 @@
   "name": "UmlautAdaptarrEX",
   "repo": "lexfi/umlautadaptarrex:latest",
   "category": [
-    "Media"
+    "Downloader"
   ],
   "registry": "https://hub.docker.com/r/lexfi/umlautadaptarrex",
   "network": "bridge",
@@ -12,9 +12,9 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:5007]/",
-  "icon": "https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon.svg",
+  "icon": "https://raw.githubusercontent.com/xpsony/UmlautAdaptarrEX-Unraid-Template/main/icon-128.png",
   "project": "https://github.com/xpsony/UmlautAdaptarrEX",
-  "description": "UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr. Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required. Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), optional release renaming, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), German + English UI.",
+  "description": "UmlautAdaptarrEX - Umlaut and multi-language title proxy for Sonarr, Radarr, Lidarr, Readarr and Prowlarr. Complete Next.js + Fastify + Prisma rewrite of the legacy .NET UmlautAdaptarr. Sits between your *Arr stack and the indexers, rewrites searches and Newznab/Torznab responses on the fly so releases with umlauts, German titles, TVDB aliases or bad naming are reliably found, downloaded and imported. Ships a full Web UI with setup wizard, dashboard, library browser, sync runs, request and rename history, and live WebSocket logs. Configuration and title cache are stored in a persistent SQLite DB under /data - no external database required. Highlights: Sonarr / Radarr (native via alternateTitles + optional TMDB) / Lidarr / Readarr / Prowlarr / NZB Hydra support, multiple instances per *Arr type, language plugins (German umlauts, Swedish umlauts, French accents) that can be combined, configurable title providers (TVDB, TMDB, db-cache), configurable search fan-out and release renaming, manual title overrides, two operating modes (Prowlarr indexer proxy on 5006 or direct as indexer on 5005), optional headless mode without the Web UI, UI in German, English, Swedish and French. Ports: 5007 Web UI (open http:// :5007/setup after the first start), 5005 Fastify API - the URL your *Arrs point at, 5006 HTTP-CONNECT proxy for Prowlarr indexers. IMPORTANT - 1:1 port mapping: each port variable sets both the in-container bind port and the published host port, so host and container side must always be identical. To move a service to another port, change the host port, the container port AND the matching UMLAUTADAPTARREX_*_PORT variable to the same value. A mismatched mapping breaks /api proxying and the indexer URLs your *Arrs point at.",
   "paths": [
     {
       "name": "App Data",
@@ -108,6 +108,14 @@
       "key": "LOG_LEVEL",
       "value": "info",
       "description": "Pino log level: trace, debug, info, warn, error, fatal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUST_PROXY",
+      "key": "TRUST_PROXY",
+      "value": "loopback",
+      "description": "Only needed behind an EXTERNAL reverse proxy (Traefik / NPM / Caddy on another host or in another container). Controls how far X-Forwarded-* headers are trusted. Default 'loopback' trusts them only for requests arriving via 127.0.0.1/::1. Use a comma-separated list of trusted CIDRs/IPs for an external proxy, or 'true' to trust any hop. Hop counts (e.g. '1') are NOT supported and are ignored with a startup warning. Leave empty to keep the default.",
       "required": false,
       "mask": false
     },

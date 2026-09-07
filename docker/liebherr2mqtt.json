@@ -1,0 +1,121 @@
+{
+  "name": "liebherr2mqtt",
+  "repo": "ghcr.io/ripleyxlr8/liebherr2mqtt:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/ripleyXLR8/liebherr2mqtt/pkgs/container/liebherr2mqtt",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/ripleyXLR8/liebherr2mqtt/main/liebherr2mqtt-icon.png",
+  "project": "https://github.com/ripleyXLR8/liebherr2mqtt",
+  "description": "Bridges connected Liebherr fridges and freezers (SmartDeviceBox) to your MQTT broker, using Home Assistant style discovery. The appliance then shows up on its own in Jeedom, Home Assistant, or any other MQTT Discovery consumer: temperature, setpoint, SuperCool, SuperFrost, Party Mode, Night Mode, presentation light, ice maker, HydroBreeze, BioFresh-Plus and auto door - whichever your own appliance actually exposes. Multi-zone appliances get one entity per zone. REAL TIME, NO POLLING: State changes arrive as a push over Server-Sent Events, so the Liebherr cloud is never polled in a loop. That avoids the API rate limits and the IP blocks people have run into. The bridge is built on pyliebherrhomeapi, the library behind the official Home Assistant integration. ROBUST: Discovery, states and command subscriptions are replayed on every reconnection to the broker, so a broker restart cannot leave the bridge publishing states while silently ignoring commands. An MQTT Last Will reports the bridge going down. REQUIREMENTS: An MQTT broker, and a HomeAPI key generated in the Liebherr SmartDevice mobile app: Settings > Become a beta tester > Activate the HomeAPI interface > Generate a new key. Note that the key can only be copied once. Door state and door alarms are not available: they are not part of the Liebherr HomeAPI. Not affiliated with, endorsed by, or supported by Liebherr.",
+  "paths": [
+    {
+      "name": "Config folder",
+      "host": "",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Optional. Lets you supply a liebherr2mqtt.conf file instead of the variables above. The variables take precedence over the file, so you can leave this unset.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "HomeAPI key",
+      "key": "LIEBHERR_API_KEY",
+      "value": "",
+      "description": "Generated in the Liebherr SmartDevice mobile app: Settings &gt; Become a beta tester &gt; Activate the HomeAPI interface &gt; Generate a new key. The key can only be copied once, so save it somewhere before leaving that screen.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MQTT broker host",
+      "key": "MQTT_HOST",
+      "value": "",
+      "description": "IP address or hostname of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT broker port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "Port of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT username",
+      "key": "MQTT_USER",
+      "value": "",
+      "description": "Leave empty if your broker allows anonymous connections.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "Leave empty if your broker allows anonymous connections.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Discovery topic prefix",
+      "key": "MQTT_DISCOVERY_PREFIX",
+      "value": "homeassistant",
+      "description": "Where discovery messages are published. Must match what your consumer listens on: homeassistant for Home Assistant, or the configuration topic of the Jeedom MQTT Discovery plugin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "State topic prefix",
+      "key": "MQTT_TOPIC_PREFIX",
+      "value": "liebherr",
+      "description": "Root of the state and command topics. Jeedom users: this prefix must also be listed in the data topics setting of the MQTT Discovery plugin - the plugin only creates equipment for roots listed there. You do not have to type it: once its daemon has run, the plugin offers the roots it has discovered with a + button.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Safety re-read interval",
+      "key": "LIEBHERR_REFRESH_INTERVAL",
+      "value": "900",
+      "description": "Seconds between two full re-reads of the appliance state, 0 disables it. Changes normally arrive as a push, so this is only a safety net. Do not lower it much: Liebherr rate-limits the HomeAPI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT client id",
+      "key": "MQTT_CLIENT_ID",
+      "value": "liebherr2mqtt",
+      "description": "Only change this if another client already uses that id on your broker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone used for the timestamps in the container log.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,260 @@
+{
+  "name": "qm-companion",
+  "repo": "ghcr.io/lewlew-glitch/qm-companion:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/lewlew-glitch/qm_companion/pkgs/container/qm-companion",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --read-only --cap-drop=ALL --security-opt=no-new-privileges --tmpfs=/tmp:size=16m,mode=1777 --label=qm.protected=true --user=99:100 --link=qm-socket-proxy:socket-proxy",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]",
+  "icon": "https://raw.githubusercontent.com/lewlew-glitch/qm_companion/main/src/assets/logo.png",
+  "project": "https://github.com/lewlew-glitch/qm_companion",
+  "description": "Self-hosted companion for the Quartermaster phone app. It provides service discovery, encrypted setup transfers and an optional Docker dashboard.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/qm-companion",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent encrypted state. Back up this directory and keep the same SECRET_KEY during upgrades.",
+      "required": true
+    },
+    {
+      "name": "Radarr config",
+      "host": "",
+      "container": "/stack/radarr/config.xml",
+      "mode": "ro",
+      "description": "Optional config.xml for a container named radarr. Add another read-only Path entry with a unique /stack/radarr-name/config.xml target for each extra instance.",
+      "required": false
+    },
+    {
+      "name": "Sonarr config",
+      "host": "",
+      "container": "/stack/sonarr/config.xml",
+      "mode": "ro",
+      "description": "Optional config.xml for a container named sonarr. Add another read-only Path entry with a unique /stack/sonarr-name/config.xml target for each extra instance.",
+      "required": false
+    },
+    {
+      "name": "Lidarr config",
+      "host": "",
+      "container": "/stack/lidarr/config.xml",
+      "mode": "ro",
+      "description": "Optional host path to Lidarr config.xml.",
+      "required": false
+    },
+    {
+      "name": "Prowlarr config",
+      "host": "",
+      "container": "/stack/prowlarr/config.xml",
+      "mode": "ro",
+      "description": "Optional host path to Prowlarr config.xml.",
+      "required": false
+    },
+    {
+      "name": "Bazarr config",
+      "host": "",
+      "container": "/stack/bazarr/config.yaml",
+      "mode": "ro",
+      "description": "Optional host path to Bazarr config.yaml.",
+      "required": false
+    },
+    {
+      "name": "SABnzbd config",
+      "host": "",
+      "container": "/stack/sabnzbd/sabnzbd.ini",
+      "mode": "ro",
+      "description": "Optional host path to SABnzbd sabnzbd.ini.",
+      "required": false
+    },
+    {
+      "name": "Jellyseerr config",
+      "host": "",
+      "container": "/stack/jellyseerr/settings.json",
+      "mode": "ro",
+      "description": "Optional host path to Jellyseerr settings.json.",
+      "required": false
+    },
+    {
+      "name": "Overseerr config",
+      "host": "",
+      "container": "/stack/overseerr/settings.json",
+      "mode": "ro",
+      "description": "Optional host path to Overseerr settings.json.",
+      "required": false
+    },
+    {
+      "name": "Tautulli config",
+      "host": "",
+      "container": "/stack/tautulli/config.ini",
+      "mode": "ro",
+      "description": "Optional host path to Tautulli config.ini.",
+      "required": false
+    },
+    {
+      "name": "Jackett config",
+      "host": "",
+      "container": "/stack/jackett/ServerConfig.json",
+      "mode": "ro",
+      "description": "Optional host path to Jackett ServerConfig.json.",
+      "required": false
+    },
+    {
+      "name": "NZBHydra2 config",
+      "host": "",
+      "container": "/stack/nzbhydra2/nzbhydra.yml",
+      "mode": "ro",
+      "description": "Optional host path to NZBHydra2 nzbhydra.yml.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Host port for the Companion web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mobile HTTPS port",
+      "host": "8788",
+      "container": "8788",
+      "protocol": "tcp",
+      "description": "Enter 8788 when enabling the persistent mobile connection. Leave blank while it is off.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Encryption key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "64 hexadecimal characters used to encrypt saved credentials. Generate it once with openssl rand -hex 32 and keep it for upgrades.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Proxy key",
+      "key": "QM_PROXY_KEY",
+      "value": "",
+      "description": "Key used to authenticate to qm-socket-proxy. Enter the same QM_PROXY_KEY used by the proxy template.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Server address",
+      "key": "QM_HOST",
+      "value": "",
+      "description": "LAN or Tailscale address of this Unraid server that the phone can reach. Enter a host only, without a scheme, port or path.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Away address",
+      "key": "QM_REMOTE_HOST",
+      "value": "",
+      "description": "Optional host name or Tailscale address suggested for away routes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker access limit",
+      "key": "DOCKER_ACCESS_MAX",
+      "value": "read",
+      "description": "Installed maximum: read, manage or shell. Keep read unless the proxy POST and EXEC settings are changed to match.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Bind address",
+      "key": "BIND_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Listener inside the container. Keep 0.0.0.0 for the Unraid port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Docker host",
+      "key": "DOCKER_HOST",
+      "value": "tcp://socket-proxy:2375",
+      "description": "Internal qm-socket-proxy address. Keep this value unchanged and do not expose port 2375 on the host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trusted reverse proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Set true only when the panel is behind a trusted HTTPS reverse proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Persistent mobile connection",
+      "key": "MOBILE_API_ENABLED",
+      "value": "false",
+      "description": "Set true only after entering the Mobile HTTPS origin. Browser sign-in then moves from port 8787 to that direct HTTPS address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow new phone pairings",
+      "key": "MOBILE_ENROLMENT_ENABLED",
+      "value": "true",
+      "description": "Allows new pairings while the persistent mobile connection is enabled. Existing paired phones continue when this is false.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mobile HTTPS origin",
+      "key": "QM_ADVERTISED_ORIGIN",
+      "value": "",
+      "description": "Exact direct LAN or Tailscale origin reached by phones, including https:// and :8788. Reverse-proxy addresses are not supported.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mobile listener port",
+      "key": "MOBILE_PORT",
+      "value": "8788",
+      "description": "Internal HTTPS listener port. Keep this at 8788 so it matches the Mobile HTTPS port and origin.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mobile bind address",
+      "key": "MOBILE_BIND_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Listener inside the container. Keep 0.0.0.0 for the Unraid port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Marketplace bind roots",
+      "key": "DOCKER_DEPLOY_BIND_ROOTS",
+      "value": "",
+      "description": "Optional host roots allowed for Marketplace bind mounts. Leave blank to allow named volumes only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Marketplace bind address",
+      "key": "DOCKER_DEPLOY_BIND_ADDRESS",
+      "value": "",
+      "description": "Optional host address used for ports published by Marketplace deployments.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

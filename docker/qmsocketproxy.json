@@ -1,0 +1,129 @@
+{
+  "name": "qm-socket-proxy",
+  "repo": "ghcr.io/lewlew-glitch/qm-companion-socket-proxy:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/lewlew-glitch/qm_companion/pkgs/container/qm-companion-socket-proxy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --read-only --cap-drop=ALL --security-opt=no-new-privileges --tmpfs=/tmp:size=4m,mode=1777 --tmpfs=/run:size=1m,mode=0755 --label=qm.protected=true",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/lewlew-glitch/qm_companion/main/src/assets/logo.png",
+  "project": "https://github.com/lewlew-glitch/qm_companion",
+  "description": "Dedicated authenticated Docker API proxy required by Quartermaster Companion. It keeps the Docker socket out of the main application and does not publish a host port.",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket used by the restricted proxy. Keep this mount read only.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Proxy key",
+      "key": "QM_PROXY_KEY",
+      "value": "",
+      "description": "Shared key used to authenticate Companion. Generate it with openssl rand -hex 32 and enter the same value in qm-companion.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Docker writes",
+      "key": "POST",
+      "value": "0",
+      "description": "Keep 0 for read only. Set 1 only when qm-companion uses the manage or shell access level.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container shell",
+      "key": "EXEC",
+      "value": "0",
+      "description": "Keep 0 unless qm-companion uses the shell access level.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Containers API",
+      "key": "CONTAINERS",
+      "value": "1",
+      "description": "Allows Companion to inspect containers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Images API",
+      "key": "IMAGES",
+      "value": "1",
+      "description": "Allows Companion to inspect images.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Volumes API",
+      "key": "VOLUMES",
+      "value": "1",
+      "description": "Allows Companion to inspect volumes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Networks API",
+      "key": "NETWORKS",
+      "value": "1",
+      "description": "Allows Companion to inspect networks.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Events API",
+      "key": "EVENTS",
+      "value": "1",
+      "description": "Allows Companion to follow Docker events.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host information API",
+      "key": "INFO",
+      "value": "1",
+      "description": "Allows Companion to read Docker host information.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disk usage API",
+      "key": "SYSTEM",
+      "value": "1",
+      "description": "Allows Companion to read Docker disk usage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ping API",
+      "key": "PING",
+      "value": "1",
+      "description": "Allows Companion to check the Docker connection.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Version API",
+      "key": "VERSION",
+      "value": "1",
+      "description": "Allows Companion to read the Docker API version.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

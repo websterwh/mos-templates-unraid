@@ -1,0 +1,107 @@
+{
+  "name": "Nginx-Proxy-Manager-MCP",
+  "repo": "ghcr.io/b3nw/nginx-proxy-manager-mcp:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/b3nw/nginx-proxy-manager-mcp/pkgs/container/nginx-proxy-manager-mcp",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/Skylinar/unraid_templates/refs/heads/main/images/npm-mcp.png?raw=true",
+  "project": "https://github.com/b3nw/nginx-proxy-manager-mcp",
+  "description": "MCP server for Nginx Proxy Manager - manage your reverse proxy through AI assistants. This container exposes an MCP (Model Context Protocol) endpoint on port 8000 that AI assistants can use to manage your Nginx Proxy Manager instance: list proxy hosts, create/update/delete hosts, manage SSL certificates, check system health and more. It has no web interface - connect to it from an MCP client (e.g. Claude Desktop, Cursor, or any MCP-compatible agent) using the HTTP transport: http://YOUR-Unraid-IP:8000/mcp Before Installing: 1. Make sure you have Nginx Proxy Manager running and note its API URL (http://NPM-IP:81/api) 2. Create an NPM user or use an existing admin account (email + password) 3. Optional: enable the destructive tools (create/update/delete) by setting NPM_MCP_ENABLE_DESTRUCTIVE_TOOLS=true 4. Optional: set NPM_MCP_AUTH_TOKEN to require a bearer token for MCP clients For log access (get_proxy_host_logs tool), mount your NPM data directory read-only and set NPM_LOG_DIR accordingly - see the project documentation for details.",
+  "paths": [
+    {
+      "name": "NPM Logs",
+      "host": "/mnt/cache/appdata/npm-mcp/logs",
+      "container": "/data/npm-logs",
+      "mode": "ro",
+      "description": "Optional: mount NPM's log directory here (read-only) and set NPM Log Dir to /data/npm-logs",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "MCP Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "MCP server port (HTTP transport). Connect MCP clients to http://YOUR-UNRAID-IP:8000/mcp",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NPM API URL",
+      "key": "NPM_API_URL",
+      "value": "http://NPM-IP:81/api",
+      "description": "Nginx Proxy Manager API endpoint, e.g. http://192.168.1.10:81/api",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NPM Identity",
+      "key": "NPM_IDENTITY",
+      "value": "",
+      "description": "NPM user email (e.g. admin@example.com)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NPM Secret",
+      "key": "NPM_SECRET",
+      "value": "",
+      "description": "NPM user password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Enable Destructive Tools",
+      "key": "NPM_MCP_ENABLE_DESTRUCTIVE_TOOLS",
+      "value": "false",
+      "description": "Enable write/destructive tools (create, update, delete, enable, disable). Leave false for read-only access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP Auth Token",
+      "key": "NPM_MCP_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional: bearer token required for MCP HTTP clients. Generate one with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MCP Host",
+      "key": "NPM_MCP_HOST",
+      "value": "0.0.0.0",
+      "description": "MCP server bind address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP Transport",
+      "key": "NPM_MCP_TRANSPORT",
+      "value": "http",
+      "description": "Transport mode: http (default, for remote agents) or stdio",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NPM Log Dir",
+      "key": "NPM_LOG_DIR",
+      "value": "",
+      "description": "Optional: path to mounted NPM log directory (enables get_proxy_host_logs). Mount NPM's /data/logs read-only and point this at the mount path.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

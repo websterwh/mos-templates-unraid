@@ -1,0 +1,170 @@
+{
+  "name": "hikvision-unifi-fire-bridge",
+  "repo": "ghcr.io/pacman-clyde/hikvision-unifi-fire-bridge:0.1.1",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io/pacman-clyde/hikvision-unifi-fire-bridge",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m --cap-drop ALL --security-opt no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/status",
+  "icon": "https://raw.githubusercontent.com/Pacman-Clyde/unraid-templates/main/images/hikvision-unifi-fire-bridge.svg",
+  "project": "https://github.com/Pacman-Clyde/hikvision-unifi-fire-bridge",
+  "description": "Bridges a Hikvision thermal camera's fire and Temperature-Measurement-Alarm (TMA) events into a UniFi Protect Alarm Manager webhook - a camera fire alarm can ring a Protect siren, send a priority push, or drive any Alarm Manager action. Fail-loud by design: re-alerts every 60s while the fire stays active, proactively probes the Protect path so a broken webhook surfaces before a fire, and enforces strict TLS. NOT certified life-safety equipment: not a substitute for compliant smoke alarms, fire panels, or emergency procedures, and carries no safety certification. Use only in addition to properly certified fire detection, at your own risk.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Health port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Health/readiness/status HTTP port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Hikvision host",
+      "key": "HIKVISION_HOST",
+      "value": "",
+      "description": "Camera IP or hostname (optionally host:port).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hikvision user",
+      "key": "HIKVISION_USER",
+      "value": "",
+      "description": "Restricted camera account with event/ISAPI read only (e.g. hik-operator).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hikvision password",
+      "key": "HIKVISION_PASS",
+      "value": "",
+      "description": "Camera account password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Hikvision scheme",
+      "key": "HIKVISION_SCHEME",
+      "value": "http",
+      "description": "http or https toward the camera.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Protect base URL",
+      "key": "PROTECT_BASE_URL",
+      "value": "",
+      "description": "HTTPS URL of the UNVR running Protect (certificate-valid hostname, e.g. https://unvr.example.com).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Protect webhook ID",
+      "key": "PROTECT_WEBHOOK_ID",
+      "value": "",
+      "description": "Alarm Manager incoming-webhook ID.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Protect API key",
+      "key": "PROTECT_API_KEY",
+      "value": "",
+      "description": "Minimum-scope Protect integration API key (sent as X-API-Key).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Protect webhook URL override",
+      "key": "PROTECT_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional full webhook URL; replaces base URL + webhook ID if your Protect version uses a different path.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Fire event types",
+      "key": "FIRE_EVENT_TYPES",
+      "value": "",
+      "description": "Comma-separated eventType values treated as fire (case-insensitive). Empty = TMA,fireDetection,fire_detection,fireAlarm.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fire cooldown seconds",
+      "key": "FIRE_COOLDOWN_SECONDS",
+      "value": "60",
+      "description": "Minimum gap between edge-trigger alerts per source.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Re-alert seconds",
+      "key": "FIRE_REALERT_SECONDS",
+      "value": "60",
+      "description": "Re-alert interval while a fire stays active; 0 disables re-alerting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Active TTL seconds",
+      "key": "FIRE_ACTIVE_TTL_SECONDS",
+      "value": "300",
+      "description": "Active state expires after this many seconds of silence (anti-latch safety).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Protect probe seconds",
+      "key": "PROTECT_PROBE_SECONDS",
+      "value": "60",
+      "description": "Protect reachability probe interval; 0 disables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stream idle timeout",
+      "key": "STREAM_IDLE_TIMEOUT_SECONDS",
+      "value": "90",
+      "description": "Reconnect when the camera stream is silent this long.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook timeout",
+      "key": "WEBHOOK_TIMEOUT_SECONDS",
+      "value": "5",
+      "description": "Per-attempt Protect request timeout.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Webhook attempts",
+      "key": "WEBHOOK_ATTEMPTS",
+      "value": "3",
+      "description": "Delivery attempts (permanent 4xx not retried).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "RUST_LOG",
+      "value": "info",
+      "description": "Tracing filter (error, warn, info, debug).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

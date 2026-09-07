@@ -1,0 +1,107 @@
+{
+  "name": "RsyncWebUI",
+  "repo": "knex666/rsyncwebui",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://registry.hub.docker.com/r/knex666/rsyncwebui",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://icons.iconarchive.com/icons/papirus-team/papirus-apps/256/realtimesync-icon.png",
+  "project": "https://github.com/maschhoff/RsyncWebUi",
+  "description": "RsyncWebUI is a web interface for rsync. Pick one or more sources and a destination from a file browser, tick the rsync options you want, save it as a task, and let it repeat on a cron schedule. Every run shows a live log with a progress bar and is kept in a history. Note: the container needs read and write access to the shares it backs up. By default /mnt/user and /mnt/disks are mounted.",
+  "paths": [
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/rsyncwebui",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database of tasks and run history. An ssh directory with SSH keys can live here too.",
+      "required": true
+    },
+    {
+      "name": "Shares (/mnt/user)",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "Access to the Unraid shares. Sources and destinations are picked from here.",
+      "required": true
+    },
+    {
+      "name": "Unassigned Devices (/mnt/disks)",
+      "host": "/mnt/disks",
+      "container": "/mnt/disks",
+      "mode": "rw,slave",
+      "description": "External drives from Unassigned Devices as a backup destination. The rw,slave mode makes drives plugged in later visible inside the container.",
+      "required": false
+    },
+    {
+      "name": "Remote Shares (/mnt/remotes)",
+      "host": "/mnt/remotes",
+      "container": "/mnt/remotes",
+      "mode": "rw,slave",
+      "description": "Mounted SMB or NFS shares from Unassigned Devices.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone used for schedules. Should match the server timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed roots",
+      "key": "BROWSE_ROOTS",
+      "value": "/mnt",
+      "description": "Comma-separated paths the file browser may show. Anything outside is rejected.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Username (optional)",
+      "key": "AUTH_USER",
+      "value": "",
+      "description": "Enables simple access protection. Leave empty for no login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password (optional)",
+      "key": "AUTH_PASS",
+      "value": "",
+      "description": "Password matching the username above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Port (internal)",
+      "key": "PORT",
+      "value": "8080",
+      "description": "Port the web server listens on inside the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,75 @@
+{
+  "name": "AoNarr",
+  "repo": "allornothing/aonarr:combined",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/aonarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9876]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/AoNarr/icon.png",
+  "project": "https://github.com/aon082910/AoNarr",
+  "description": "Self-hosted media manager covering every library the individual *arr apps split across separate containers - Movies, TV Shows, Anime, Music, Books, Audiobooks, Comics, Manga, ROMs, Online Videos, Courses, Podcasts and Adult - in one app, one database, one container. Same core mechanics as Sonarr/Radarr/Lidarr/Readarr: quality profiles, custom formats, indexers (Torznab/Newznab, Prowlarr/Jackett sync), download clients (qBittorrent, SABnzbd, Real-Debrid, AllDebrid, direct HTTP, yt-dlp, Soulseek), notifications, calendar, naming templates, a recycle bin, scheduled jobs, delay profiles and per-connection notification triggers - all built in, not bolted on as separate services. Also included: an OPDS catalog and Send-to-Kindle for e-readers, subtitle management with multi-language downloads and a background rescan for anything missed, an MCP server for AI-agent control, a Discord /request slash command, IRC instant-grab announce feeds (Autobrr-style), Plex/ Jellyfin/Emby watch-status sync with automatic archival, household user accounts with self-service invite links, hardlink/symlink import strategies for debrid/rclone-mounted setups, and watch- history-based auto-recommendations. This is the single-container build (nginx + the API in one image) - the simplest way to run it on Unraid. A split two-container version exists upstream for setups that want the UI and API to scale or update independently, but the combined image here is what this template uses. On first run, open the WebUI - it walks you through creating the admin account and generates an API key for you. Everything else (indexers, download clients, root folders, quality profiles) is configured from inside the app itself, not through container variables.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/aonarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, settings and the generated admin API key all live here. Back this up.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Where your download client(s) save completed files for AoNarr to import - point this at the same share your download client itself writes to.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your library storage. Add individual root folders as subpaths of this from inside the app (Settings - Root Folders) - one per library type, e.g. /media/movies, /media/books.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9876",
+      "container": "9876",
+      "protocol": "tcp",
+      "description": "Port for the web interface. The container's own API runs behind it on the same port - nothing else needs to be published.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID files under Appdata are chowned to on startup. Matches Unraid's default nobody user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID files under Appdata are chowned to on startup. Matches Unraid's default users group.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

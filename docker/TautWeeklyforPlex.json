@@ -9,12 +9,12 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m,mode=1777 --stop-timeout 1800 --security-opt no-new-privileges:true --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER --cap-add SETGID --cap-add SETUID",
+  "extra_parameters": "--read-only --publish 127.0.0.1:8787:8080/tcp --tmpfs /tmp:rw,noexec,nosuid,size=256m,mode=1777 --tmpfs /run:rw,noexec,nosuid,size=16m,mode=0755 --stop-timeout 1800 --security-opt no-new-privileges:true --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER --cap-add SETGID --cap-add SETUID",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/sparkmoxie/TautWeekly/main/assets/branding/tautweekly-app-icon-512.png",
   "project": "https://github.com/sparkmoxie/TautWeekly",
-  "description": "Generate preview-first weekly Plex activity newsletters using Tautulli. The WebUI opens the authenticated TautWeekly Manager for setup, verification, previews, test delivery, and embedded scheduling. After installation, retrieve the one-time pairing token from the container Console with: /opt/tautweekly/bin/run-as-user.sh /opt/tautweekly/bin/tautweekly-manager access-bootstrap --data-dir /data/manager. The pairing token is never written to logs. Unraid owns container lifecycle and stable image updates.",
+  "description": "Generate preview-first weekly Plex activity newsletters using Tautulli. The authenticated TautWeekly Manager recovery endpoint is fixed to Unraid loopback port 8787; use an SSH local forward for initial setup and recovery, then optional public HTTPS access only through Tailscale Funnel. After installation, retrieve the one-time pairing token from the container Console with: /opt/tautweekly/bin/run-as-user.sh /opt/tautweekly/bin/tautweekly-manager access-bootstrap --data-dir /data/manager. The pairing token is never written to logs. Unraid owns container lifecycle and stable image updates.",
   "paths": [
     {
       "name": "Appdata",
@@ -23,19 +23,17 @@
       "mode": "rw",
       "description": "Private configuration, Manager credentials, state, backups, logs, assets, and generated previews. Preserve this path across updates and reinstalls.",
       "required": true
-    }
-  ],
-  "ports": [
+    },
     {
-      "name": "Manager Web UI",
-      "host": "8787",
-      "container": "8080",
-      "protocol": "tcp",
-      "description": "Authenticated Manager for a trusted LAN. Do not expose plain HTTP publicly; use an explicitly configured TLS reverse proxy when remote access is required.",
-      "required": true,
-      "mask": false
+      "name": "Tailscale state",
+      "host": "/mnt/cache/appdata/tautweekly-tailscale",
+      "container": "/var/lib/tautweekly-tailscale",
+      "mode": "rw",
+      "description": "Root-only state for the optional official Tailscale userspace runtime. Keep separate from /data; never share, inspect, or back it up as ordinary Manager data.",
+      "required": true
     }
   ],
+  "ports": [],
   "variables": [
     {
       "name": "Timezone",
@@ -78,10 +76,18 @@
       "mask": false
     },
     {
+      "name": "Public Funnel adapter",
+      "key": "TAUTWEEKLY_FUNNEL_ADAPTER",
+      "value": "disabled",
+      "description": "Set to enabled only to start the isolated official Tailscale userspace runtime. Then use the container Console command /opt/tautweekly/bin/tautweekly-funnel login; auth keys and tokens are refused.",
+      "required": true,
+      "mask": false
+    },
+    {
       "name": "Preview Base URL",
       "key": "TAUTWEEKLY_PREVIEW_BASE_URL",
       "value": "",
-      "description": "Optional LAN URL embedded in preview links, for example http://tower:8787. Never use a public URL.",
+      "description": "Leave empty for loopback recovery. The Manager supplies its independently verified Funnel URL when public access is Active.",
       "required": false,
       "mask": false
     },
@@ -89,7 +95,7 @@
       "name": "Manager Allowed Hosts",
       "key": "TAUTWEEKLY_MANAGER_ALLOWED_HOSTS",
       "value": "",
-      "description": "Optional comma-separated DNS hostnames accepted by the Manager, for example tower,tautweekly.example.test. IP-literal access needs no entry. Do not include schemes, paths, ports, or wildcards.",
+      "description": "Leave empty for loopback recovery. The exact active Funnel hostname is admitted automatically after backend verification; schemes, paths, ports, and wildcards are refused.",
       "required": false,
       "mask": false
     },
@@ -97,7 +103,7 @@
       "name": "Secure Manager Cookies",
       "key": "TAUTWEEKLY_MANAGER_SECURE_COOKIES",
       "value": "false",
-      "description": "Set true only when every browser connection uses HTTPS through a correctly configured TLS reverse proxy. Plain HTTP login cannot work while enabled.",
+      "description": "Leave false for loopback HTTP recovery. Verified Funnel requests receive the public HTTPS cookie boundary automatically.",
       "required": true,
       "mask": false
     },
@@ -112,7 +118,7 @@
     {
       "name": "Host Adapter API",
       "key": "TAUTWEEKLY_HOST_ADAPTER_API",
-      "value": "3",
+      "value": "4",
       "description": "Package compatibility marker used to detect an older saved Unraid template. Keep this at the value supplied by the current Community Apps template.",
       "required": true,
       "mask": false

@@ -1,0 +1,147 @@
+{
+  "name": "Subtitle-Edit",
+  "repo": "ghcr.io/pegasbur/subtitleedit:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/users/pegasbur/packages/container/package/subtitleedit",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]/",
+  "icon": "https://raw.githubusercontent.com/pegasbur/subtitleedit/main/unraid/icon.png",
+  "project": "https://github.com/pegasbur/subtitleedit",
+  "description": "Run native Linux Subtitle Edit in a web browser. Includes FFmpeg, libmpv, Tesseract OCR, browser audio, GTK file chooser integration, persistent settings, and Intel/AMD hardware video decoding. No Wine or virtual machine is used.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/subtitleedit",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent Subtitle Edit settings, GTK bookmarks, OCR databases, downloaded language models, and GUI state.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Media and subtitle files. Select files under /data inside Subtitle Edit.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "3001",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Browser interface over HTTP. The default host port remains 3001 for compatibility with earlier releases.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "Numeric ID used to access mapped files. Unraid normally uses 99.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "Numeric group ID used to access mapped files. Unraid normally uses 100.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone, for example Europe/Zurich.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Browser audio",
+      "key": "WEB_AUDIO",
+      "value": "1",
+      "description": "Stream Subtitle Edit audio through the browser. The browser may require one click before allowing playback.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Keep application running",
+      "key": "KEEP_APP_RUNNING",
+      "value": "1",
+      "description": "Restart Subtitle Edit inside the container if its main window is closed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial display width",
+      "key": "DISPLAY_WIDTH",
+      "value": "1920",
+      "description": "Initial virtual desktop width in pixels. Browser remote resizing can adjust it later.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial display height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "1080",
+      "description": "Initial virtual desktop height in pixels. Browser remote resizing can adjust it later.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure connection (optional)",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "Set to 1 for direct HTTPS with a generated self-signed certificate. Normally leave disabled when HTTPS is provided by a trusted reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web authentication (optional)",
+      "key": "WEB_AUTHENTICATION",
+      "value": "0",
+      "description": "Set to 1 to enable jlesage web authentication. Direct authentication also requires Secure connection to be enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web authentication username",
+      "key": "WEB_AUTHENTICATION_USERNAME",
+      "value": "",
+      "description": "Optional username used when web authentication is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web authentication password",
+      "key": "WEB_AUTHENTICATION_PASSWORD",
+      "value": "",
+      "description": "Optional password used when web authentication is enabled.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel/AMD GPU device (optional)",
+      "host": "",
+      "container": "/dev/dri",
+      "description": "Enter /dev/dri to enable Intel or AMD rendering and hardware video decoding. Leave blank for CPU-only operation.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

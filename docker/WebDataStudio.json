@@ -1,0 +1,83 @@
+{
+  "name": "WebDataStudio",
+  "repo": "ghcr.io/fgilde/webdatastudio:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/fgilde/WebDataStudio/pkgs/container/webdatastudio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/fgilde/WebDataStudio/master/docs/assets/icon.png",
+  "project": "https://github.com/fgilde/WebDataStudio",
+  "description": "A database studio that runs in your browser: PostgreSQL, MySQL/MariaDB, SQL Server, SQLite, Oracle, DuckDB, ClickHouse, MongoDB and Redis in one container. Schema explorer, SQL editor with completion and history, a visual query builder, result charts, ER diagrams drawn from the foreign keys, schema editing, a column-by-column comparison between two connections, saved and scheduled queries with file export, and an MCP endpoint for AI agents. Connections are added in the studio or handed in as WDS_CONN_NAME variables. Set the admin user and password below - without both, the studio has no login screen at all. Read-only connections are enforced in the driver, not only in the interface.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/webdatastudio",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Saved connections, query history, layouts and the studio's own database.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8095",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin user",
+      "key": "WDS_USER",
+      "value": "admin",
+      "description": "Admin user name. Together with the password below this turns on the login screen.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "WDS_PASSWORD",
+      "value": "",
+      "description": "Admin password. Leave it empty only if an open studio on this network is what you want.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Title",
+      "key": "WDS_TITLE",
+      "value": "WebDataStudio",
+      "description": "Name shown in the header and the browser tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Read only",
+      "key": "WDS_READONLY",
+      "value": "",
+      "description": "Set to true to make every connection read-only, enforced in the driver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

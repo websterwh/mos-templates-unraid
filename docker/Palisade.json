@@ -5,7 +5,7 @@
     "Game Server"
   ],
   "registry": "https://github.com/Shakes63/palisade/pkgs/container/palisade",
-  "network": "ark-net",
+  "network": "palisade-net",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:3000]/",
   "icon": "https://raw.githubusercontent.com/Shakes63/palisade/main/unraid/palisade-icon.png",
   "project": "https://github.com/Shakes63/palisade",
-  "description": "Palisade - a web control panel for game dedicated servers (ARK ASA/ASE, Conan, Palworld, Minecraft Java + Bedrock, Icarus, Valheim, 7 Days to Die, Enshrouded, Project Zomboid, V Rising, Sons of the Forest, Satisfactory, Life is Feudal: Your Own, American + Euro Truck Simulator, Core Keeper, Terraria, Factorio, Rust, BeamNG.drive). Manages every setting, mods, backups, schedules, players, and port-forwards, and spawns one container per game server. Controls Docker through the host socket mounted at /var/run/docker.sock.",
+  "description": "Palisade - a web control panel for game dedicated servers (ARK ASA/ASE, Conan, Palworld, Minecraft Java + Bedrock, Icarus, Valheim, 7 Days to Die, Enshrouded, Project Zomboid, V Rising, Sons of the Forest, Satisfactory, Life is Feudal: Your Own, American + Euro Truck Simulator, Core Keeper, Terraria, Factorio, Rust, BeamNG.drive, OpenTTD). Manages every setting, mods, backups, schedules, players, and port-forwards, and spawns one container per game server. Controls Docker through the host socket mounted at /var/run/docker.sock.",
   "paths": [
     {
       "name": "App data",
@@ -49,7 +49,7 @@
       "name": "PUBLIC_BASE_URL",
       "key": "PUBLIC_BASE_URL",
       "value": "",
-      "description": "The address you actually reach the manager at, e.g. http://10.10.10.10:8970. Used for links and for each game server's WebUI button on the Unraid Docker page.",
+      "description": "The address you actually reach the manager at, e.g. http://10.10.10.10:8970. Used for links and for each game server's WebUI button on the Unraid Docker page. Also settable later in Settings - General, where it overrides this field.",
       "required": false,
       "mask": false
     },
@@ -57,23 +57,23 @@
       "name": "SECRETS_KEY",
       "key": "SECRETS_KEY",
       "value": "",
-      "description": "32-byte key (64 hex characters) that encrypts saved passwords in the database. IMPORTANT: keep this value stable - if it changes, previously saved admin and server passwords can no longer be decrypted. Generate: openssl rand -hex 32",
-      "required": true,
+      "description": "Optional. LEAVE BLANK and the manager generates a strong key on first start and saves it in App data, so it stays stable across restarts - nothing to do. Only set one yourself (openssl rand -hex 32, 64 hex chars) if you want to control it or reuse an App-data folder from another install. It encrypts saved passwords, so if it ever changes, previously saved passwords can't be decrypted.",
+      "required": false,
       "mask": true
     },
     {
       "name": "JWT_SECRET",
       "key": "JWT_SECRET",
       "value": "",
-      "description": "Secret that signs your login session tokens. Keep it private. Changing it just logs everyone out - no data loss. Generate: openssl rand -hex 24",
-      "required": true,
+      "description": "Optional. LEAVE BLANK - the manager generates and persists one on first start. It signs your login session tokens; changing it just logs everyone out (no data loss). Only set one (openssl rand -hex 24) if you specifically want to.",
+      "required": false,
       "mask": true
     },
     {
       "name": "GAME_HOST_NETWORK",
       "key": "GAME_HOST_NETWORK",
       "value": "true",
-      "description": "Run game servers directly on the host network instead of a Docker bridge. true (recommended) gives more reliable ASA/EOS public server listing; false puts them on the ark-net bridge.",
+      "description": "Run game servers directly on the host network instead of a Docker bridge. true (recommended) gives more reliable ASA/EOS public server listing; false puts them on the palisade-net bridge. This is the starting value only - change it later in Settings - General, or per server on that server's General card.",
       "required": false,
       "mask": false
     },
@@ -86,11 +86,27 @@
       "mask": false
     },
     {
+      "name": "AUTO_CREATE_NETWORK",
+      "key": "AUTO_CREATE_NETWORK",
+      "value": "true",
+      "description": "Let Palisade manage its Docker network by itself: create it when a game server needs it, attach this container to it when it isn't already, and let go of the old 'ark-net' network once no server uses it. true (recommended) means there is nothing to set up by hand - including on a custom network, where Palisade keeps its own IP and just adds a route to the game servers. Set false to manage networks yourself. Also settable later in Settings - General.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHARED_NETWORK",
+      "key": "SHARED_NETWORK",
+      "value": "",
+      "description": "Optional. LEAVE BLANK. Name of the Docker network the manager and its game servers share; blank means 'palisade-net'. That name matters on Unraid: a container's WebUI link is built from the first of its networks sorted by name, so a network sorting before br0 would take the link with it. Installs made before v1.11 used 'ark-net' and move across on their own as each server is restarted.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "HOST_DATA_DIR",
       "key": "HOST_DATA_DIR",
-      "value": "/mnt/cache/appdata/ark-manager",
-      "description": "The host-side path of App data. The manager needs it to bind-mount data into the game-server containers it spawns, so it MUST match the App data path above.",
-      "required": true,
+      "value": "",
+      "description": "Optional. LEAVE BLANK - the manager auto-detects the host-side path of App data from its own /data mount on start. It only needs this to bind-mount data into the game-server containers it spawns. Set it manually only if auto-detection fails (check the log), in which case use the exact App data path above - or fix it in Settings - General without editing this container.",
+      "required": false,
       "mask": false
     },
     {

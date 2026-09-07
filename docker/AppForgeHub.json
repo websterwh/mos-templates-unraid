@@ -1,0 +1,99 @@
+{
+  "name": "AppForgeHub",
+  "repo": "allornothing/appforge-hub:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/appforge-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/AppForge-Hub/icon.png",
+  "project": "https://github.com/aon082910/appforge-hub",
+  "description": "Self-hosted AI app builder: describe an app in chat and it scaffolds a real, running web app (Express + SQLite + built-in auth) inside its own sandboxed process, with a live preview and an editable file tree -- no cloud account, billing, or account creation involved. AI is fully pluggable and optional. Point it at a cloud API (Anthropic, OpenAI, or any OpenAI-compatible endpoint) for the best results, or run entirely offline against a local Ollama or llama.cpp server -- switch anytime from Settings. Nothing is generated until you configure a provider. First visit creates the single admin account for this instance (no other signup exists). Generated apps run as child processes inside this container on internal ports 4100-4999 and are reverse-proxied through the same web UI port, so nothing extra needs to be exposed.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/appforge-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Admin account, settings, and every generated app's files + database",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Web UI / API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid's nobody user -- keeps appdata editable from the host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid's users group",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AI Provider",
+      "key": "AI_PROVIDER",
+      "value": "none",
+      "description": "Optional, can also be set from the Settings page after install: none | anthropic | openai | openai_compatible | ollama | llamacpp",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "AI_API_KEY",
+      "value": "",
+      "description": "Used when AI Provider = anthropic, openai, or openai_compatible",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Base URL",
+      "key": "AI_BASE_URL",
+      "value": "",
+      "description": "Used when AI Provider = openai_compatible, ollama, or llamacpp -- e.g. http://ollama:11434 or http://llamacpp:8080",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Model",
+      "key": "AI_MODEL",
+      "value": "",
+      "description": "Model name/ID for the selected provider",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

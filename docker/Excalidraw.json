@@ -1,0 +1,76 @@
+{
+  "name": "Excalidraw",
+  "repo": "junkerderprovinz/excalidraw:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/excalidraw",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:443]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/excalidraw/icon.png",
+  "project": "https://excalidraw.com",
+  "description": "Excalidraw is a virtual whiteboard for sketches that look hand-drawn. This is a self-hosted build of it that keeps to itself: shared links, live collaboration, the session scene, the fonts and the icons all come from your own server, and the browser never contacts anyone else. What that means in practice: \u2022 Shared links are stored in this container, not on json.excalidraw.com \u2022 A live session keeps its scene here, not in Google Firestore \u2022 Pasted images stay here, not in Firebase Storage \u2022 The collaboration socket is this container, not oss-collab.excalidraw.com \u2022 Fonts are served from the image, and the analytics script is gone \u2022 Everything is encrypted in your browser before it is stored, with the key in the part of the link after the # \u2014 which browsers never send to a server. The container holds bytes it cannot read Two features would still talk to Excalidraw's servers, so they are switches rather than a decision made for you, and both are OFF by default: the shape library and the text-to-diagram feature. Off means the request never leaves your server. Notes: \u2022 Use the HTTPS port. Live collaboration needs crypto.subtle, which browsers only provide over HTTPS, so on the plain HTTP port the \"start session\" button fails with a cryptography error. The container generates a self-signed certificate on first start and keeps it in /config, so your browser only has to be told once. \u2022 The HTTP port is there for a reverse proxy that terminates TLS, and for the single-user case where no session is ever started. \u2022 Behind a reverse proxy: allow WebSocket upgrades on /socket.io/ and a body size of 64 MB, otherwise collaboration cannot connect and drawings with images are refused. \u2022 /config holds the drawings database and the certificate. Back it up and you have backed up everything.",
+  "paths": [
+    {
+      "name": "AppData (/config)",
+      "host": "/mnt/cache/appdata/excalidraw",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds the drawings database (shared links, live sessions, pasted images) and the self-signed certificate. This is the only thing worth backing up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port (HTTPS)",
+      "host": "8443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "The port to open in your browser. HTTPS is required for live collaboration, because browsers only provide the cryptography it needs over a secure connection. The certificate is self-signed and generated on first start \u2014 accept it once.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port (HTTP)",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "For a reverse proxy that terminates TLS in front of the container, or for solo drawing where no session is ever started. Live collaboration does NOT work over this port when opened directly in a browser.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Shape library",
+      "key": "ENABLE_LIBRARY",
+      "value": "false",
+      "description": "Set to true to allow the shape library to load from libraries.excalidraw.com. That is a public catalogue of drawings other people published, so nothing of yours is sent, but your browser does contact Excalidraw's server. Left false, the library button reports an error and nothing leaves your network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Text to diagram",
+      "key": "ENABLE_AI",
+      "value": "false",
+      "description": "Set to true to allow the text-to-diagram feature, which sends what you typed to Excalidraw's AI service. Left false, the feature reports an error and your text stays here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone used for the container log.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

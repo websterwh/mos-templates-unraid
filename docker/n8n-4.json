@@ -1,55 +1,143 @@
 {
   "name": "n8n",
-  "repo": "n8nio/n8n",
+  "repo": "medzin/n8n",
   "category": [
-    "Home Automation"
+    "Productivity"
   ],
-  "registry": "https://hub.docker.com/r/n8nio/n8n/",
+  "registry": "https://hub.docker.com/r/medzin/n8n",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--restart unless-stopped",
+  "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5678]/",
-  "icon": "https://raw.githubusercontent.com/tmchow/unraid-docker-templates/master/img/n8n-icon.png",
-  "project": "https://n8n.io/",
-  "description": "n8n (pronounced n-eight-n) helps you to interconnect every app with an API in the world with each other to share and manipulate its data without a single line of code. It is an easy to use, user-friendly and highly customizable service, which uses an intuitive user interface for you to design your unique workflows very fast. Hosted on your server and not based in the cloud, it keeps your sensible data very secure in your own trusted database. Configuration Config : Storing n8n config and SQL Lite db for your personal workflows. Timezone : (Optional) Required for scheduling to know what time zone the workflows should be started. See https://momentjs.com/timezone/ to find your timezone string. Webhook Tunnel : (Optional) Set the webhook URL manually to correctly display in Editor UI and for it to get registered correctly with external services. Must have trailing slash. (e.g.'http://192.168.1.161:5678/') Important: To avoid `permission denied` errors, you must ensure the user id and group id of that appdata folder to user:group of 1000:1000. Run this command in the terminal `chown 1000:1000 /mnt/cache/appdata/n8n`.",
+  "web_ui_url": "http://[IP]:[PORT:5678]",
+  "icon": "https://raw.githubusercontent.com/medzin/docker-templates/main/images/n8n-icon.png",
+  "project": "https://github.com/n8n-io/n8n",
+  "description": "Fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, and hundreds of integrations.",
   "paths": [
     {
-      "name": "Config",
+      "name": "Appdata",
       "host": "/mnt/cache/appdata/n8n",
-      "container": "/home/node/.n8n",
+      "container": "/data",
       "mode": "rw",
-      "description": "Where to save config and SQL Lite Database which holds your workflows.",
+      "description": "Container path: /data",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Port",
+      "name": "WebUI",
       "host": "5678",
       "container": "5678",
       "protocol": "tcp",
-      "description": "Container Port: 5678",
+      "description": "The port for n8n web interface.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Timezone",
+      "name": "GENERIC_TIMEZONE",
       "key": "GENERIC_TIMEZONE",
-      "value": "America/Los_Angeles",
-      "description": "Required for scheduling to know what time zone the workflows should be started. See https://momentjs.com/timezone/ to find your timezone string.",
+      "value": "Etc/UTC",
+      "description": "The n8n instance timezone. Important for schedule nodes (such as Cron).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "N8N_DEFAULT_LOCALE",
+      "key": "N8N_DEFAULT_LOCALE",
+      "value": "en",
+      "description": "A locale identifier, compatible with the Accept-Language header. n8n doesn't support regional identifiers, such as de-AT. When running in a locale other than the default, n8n displays UI strings in the selected locale, and falls back to en for any untranslated strings.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Webhook Tunnel",
-      "key": "WEBHOOK_URL",
-      "value": "http://192.168.1.161:5678/",
-      "description": "Set the webhook URL manually to correctly display in Editor UI and for it to get registered correctly with external services. Must have trailing slash. (e.g.'http://192.168.1.161:5678/')",
+      "name": "N8N_PORT",
+      "key": "N8N_PORT",
+      "value": "5678",
+      "description": "The HTTP port n8n runs on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "EXECUTIONS_DATA_MAX_AGE",
+      "key": "EXECUTIONS_DATA_MAX_AGE",
+      "value": "168",
+      "description": "The execution age (in hours) before it's deleted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_EDITOR_BASE_URL",
+      "key": "N8N_EDITOR_BASE_URL",
+      "value": "",
+      "description": "Public URL where users can access the editor. Also used for emails sent from n8n and the redirect URL for SAML based authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_HIRING_BANNER_ENABLED",
+      "key": "N8N_HIRING_BANNER_ENABLED",
+      "value": "false",
+      "description": "Whether to show the n8n hiring banner in the console (true) or not (false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_HOST",
+      "key": "N8N_HOST",
+      "value": "",
+      "description": "Host name n8n runs on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_LOG_FORMAT",
+      "key": "N8N_LOG_FORMAT",
+      "value": "text",
+      "description": "The log format to use. text prints human readable messages. json prints one JSON object per line containing the message, level, timestamp, and all metadata. This is useful for production monitoring as well as debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_LOG_LEVEL",
+      "key": "N8N_LOG_LEVEL",
+      "value": "info",
+      "description": "Log output level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_PROXY_HOPS",
+      "key": "N8N_PROXY_HOPS",
+      "value": "0",
+      "description": "Number of reverse-proxies n8n is running behind.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_SECURE_COOKIE",
+      "key": "N8N_SECURE_COOKIE",
+      "value": "true",
+      "description": "Ensures that cookies are only sent over HTTPS, enhancing security.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the process and file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the process and file permissions.",
       "required": false,
       "mask": false
     }

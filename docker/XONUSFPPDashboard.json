@@ -1,0 +1,147 @@
+{
+  "name": "X-ONU-SFPP-Dashboard",
+  "repo": "ghcr.io/jpetovello/x-onu-sfpp-dashboard:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/JPetovello/x-onu-sfpp-dashboard/pkgs/container/x-onu-sfpp-dashboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/JPetovello/unraid-templates/main/icons/x-onu-sfpp-dashboard.png",
+  "project": "https://github.com/JPetovello/x-onu-sfpp-dashboard",
+  "description": "A lightweight monitoring dashboard for EXEN X-ONU-SFPP and compatible ONTs running 8311 community firmware. Core monitoring uses the 8311 JSON metrics endpoint and provides live and historical optical levels, temperatures, PLOAM state, and ONT connectivity without requiring SSH. Optional SSH telemetry adds live XGS-PON traffic rates, byte counters, FEC/BIP/HEC/MIC statistics, alarms, ONT system information, and optical module details. The Unraid host must have network access to the ONT management IP. IMPORTANT - NON-ROOT UPGRADE: The container now runs as nobody:users (UID 99 / GID 100). Fresh installations require no additional permission changes. Existing installations from earlier versions may have a root-owned metrics database. Before updating the container, run this one-time command on the Unraid host if using the default appdata path: chown -R 99:100 /mnt/user/appdata/x-onu-dashboard This preserves the existing database and historical data while allowing the non-root container to continue writing new samples.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/x-onu-dashboard",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for the SQLite metrics database.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8766",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port used to access the X-ONU-SFPP Dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ONT Metrics URL",
+      "key": "ONT_URL",
+      "value": "https://192.168.11.1/cgi-bin/luci/8311/metrics",
+      "description": "URL of the 8311 JSON metrics endpoint.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Polling Interval",
+      "key": "POLL_SECONDS",
+      "value": "10",
+      "description": "Number of seconds between core ONT metric requests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Retention",
+      "key": "RETENTION_DAYS",
+      "value": "30",
+      "description": "Number of days of historical samples to retain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable Advanced SSH Telemetry",
+      "key": "SSH_ENABLED",
+      "value": "false",
+      "description": "Enable optional SSH-based advanced telemetry. Core monitoring works without SSH.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSH Host",
+      "key": "SSH_HOST",
+      "value": "192.168.11.1",
+      "description": "Management IP or hostname of the ONT used for advanced SSH telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH Port",
+      "key": "SSH_PORT",
+      "value": "22",
+      "description": "SSH port used for advanced telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH Username",
+      "key": "SSH_USER",
+      "value": "root",
+      "description": "SSH username used for advanced telemetry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH Password",
+      "key": "SSH_PASSWORD",
+      "value": "",
+      "description": "SSH password used for advanced telemetry. The value is passed to the container as a Docker environment variable and can be inspected by users with Docker or Unraid host access.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SSH Polling Interval",
+      "key": "SSH_POLL_SECONDS",
+      "value": "30",
+      "description": "Number of seconds between advanced SSH telemetry collection cycles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH Connection Timeout",
+      "key": "SSH_TIMEOUT",
+      "value": "10",
+      "description": "SSH connection timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH Command Timeout",
+      "key": "SSH_COMMAND_TIMEOUT",
+      "value": "30",
+      "description": "Maximum time in seconds allowed for advanced telemetry commands.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Request Timeout",
+      "key": "REQUEST_TIMEOUT",
+      "value": "5",
+      "description": "Timeout in seconds when requesting metrics from the ONT.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Directory",
+      "key": "DATA_DIR",
+      "value": "/data",
+      "description": "Container directory used for persistent dashboard data. Normally this should remain /data.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

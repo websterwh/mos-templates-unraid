@@ -1,5 +1,5 @@
 {
-  "name": "Ombi-Discord-Router",
+  "name": "MediaOps-Discord-Router",
   "repo": "ghcr.io/miakkia/mediaops-ombi-discord-router:latest",
   "category": [
     "Media"
@@ -14,14 +14,14 @@
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/miakkia/docker-icons/main/icons/ombi-discord-router.png",
   "project": "https://github.com/miakkia/MediaOps/tree/main/addons/ombi-discord-router",
-  "description": "Companion service for MediaOps that receives Ombi webhook notifications and routes media request lifecycle updates into managed Discord Forum threads.",
+  "description": "Optional companion service for MediaOps that receives Ombi or Seerr webhook notifications and routes media-request lifecycle updates into managed Discord Forum threads. The historical image, template filename, and default appdata path are retained for upgrade compatibility.",
   "paths": [
     {
       "name": "Router Data",
       "host": "/mnt/cache/appdata/ombi-discord-router/data",
       "container": "/data",
       "mode": "rw",
-      "description": "Persistent Ombi Discord Router request/thread index.",
+      "description": "Persistent MediaOps Discord Router request/thread index. Historical appdata path retained for compatibility.",
       "required": true
     }
   ],
@@ -52,6 +52,14 @@
       "mask": false
     },
     {
+      "name": "Discord Bot Token",
+      "key": "DISCORD_BOT_TOKEN",
+      "value": "",
+      "description": "Optional Discord bot token used only for dynamic Forum tag updates. Secret: keep masked, never publish or log it, and grant only the permissions required for the target Forum.",
+      "required": false,
+      "mask": true
+    },
+    {
       "name": "Requested Status Tag ID",
       "key": "MEDIA_TAG_REQUESTED",
       "value": "",
@@ -71,7 +79,7 @@
       "name": "Available Status Tag ID",
       "key": "MEDIA_TAG_AVAILABLE",
       "value": "",
-      "description": "Discord Forum tag ID used when the requested media is available on the configured media server. This is a terminal request state.",
+      "description": "Discord Forum tag ID used when the request provider reports the requested media as available. MediaOps may independently verify actual media-server availability for its own notifications.",
       "required": true,
       "mask": false
     },
@@ -111,7 +119,7 @@
       "name": "Test Tag ID",
       "key": "MEDIA_TAG_TEST",
       "value": "",
-      "description": "Optional Discord Forum tag ID used only by Ombi's built-in Webhook Send test action. Test posts carry only this tag, are not indexed as media requests, and are ignored by the MediaOps request lifecycle.",
+      "description": "Optional Discord Forum tag ID used for provider webhook diagnostics. Ombi and Seerr test posts carry only this tag and are not indexed as media-request lifecycle entries.",
       "required": false,
       "mask": false
     },

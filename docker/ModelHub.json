@@ -1,0 +1,107 @@
+{
+  "name": "ModelHub",
+  "repo": "allornothing/model-hub:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/model-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8420]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/Model-Hub/icon.png",
+  "project": "https://github.com/aon082910/model-hub",
+  "description": "Self-hosted, open clone of Meshory's 3D print file library: STL/3MF/OBJ/STEP/FBX organization, thumbnails, duplicate detection, tagging, semantic search, smart collections, filament inventory and a print queue. AI tagging/search can run against a local Ollama instance (nothing leaves your network) or an external OpenRouter/OpenAI-compatible API using your own key -- switch anytime from the in-app Settings tab. Point \"Library Path\" at the share where your STL/3MF files already live; nothing is modified on disk, files are only read and hashed. On first open you'll be asked to create an admin login (or set Admin Username/Password below to skip that screen). Also includes print time/filament weight estimates, a browser extension for one-click import from Printables/ MakerWorld, and optional webhook notifications (ntfy/Discord/Slack).",
+  "paths": [
+    {
+      "name": "Library Path",
+      "host": "/mnt/cache/models/model-hub-library",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Folder containing your STL/3MF/OBJ/STEP/FBX files. Read-only usage: files are hashed and thumbnailed, never modified.",
+      "required": true
+    },
+    {
+      "name": "App Config/DB",
+      "host": "/mnt/cache/appdata/model-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where the SQLite database, thumbnails, and settings are stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8420",
+      "container": "8420",
+      "protocol": "tcp",
+      "description": "Port for the Model Hub web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Scan Interval",
+      "key": "SCAN_INTERVAL_SECONDS",
+      "value": "300",
+      "description": "Seconds between automatic background library scans.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Host",
+      "key": "OLLAMA_HOST",
+      "value": "http://ollama:11434",
+      "description": "Address of your Ollama container/instance for local AI tagging. Only used when AI mode is set to 'local' in the app's Settings tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Vision Model",
+      "key": "OLLAMA_VISION_MODEL",
+      "value": "llava",
+      "description": "Vision-capable Ollama model used for auto-tagging thumbnails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Embed Model",
+      "key": "OLLAMA_EMBED_MODEL",
+      "value": "nomic-embed-text",
+      "description": "Ollama embedding model used for semantic search.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Username",
+      "key": "AUTH_USERNAME",
+      "value": "",
+      "description": "Creates the admin login automatically on first start. Leave blank to set it up from the WebUI's first-run screen instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Paired with Admin Username above. Leave both blank to use the in-app setup screen instead (recommended -- avoids the password sitting in plain text in the container's env).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Slicer CLI Path (advanced)",
+      "key": "SLICER_CLI_PATH",
+      "value": "",
+      "description": "Optional: absolute path *inside the container* to a headless slicer CLI binary (e.g. an extracted PrusaSlicer/OrcaSlicer AppImage) for exact print time/filament estimates instead of the built-in volumetric approximation. Bind-mount the binary in via 'Add another Path' first, then point this at it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

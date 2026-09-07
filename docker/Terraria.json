@@ -1,64 +1,151 @@
 {
   "name": "Terraria",
-  "repo": "ghcr.io/ich777/terrariaserver",
+  "repo": "ferment9348/terraria:latest",
   "category": [
     "Game Server"
   ],
-  "registry": "https://hub.docker.com/r/ich777/terrariaserver/",
+  "registry": "https://hub.docker.com/r/ferment9348/terraria/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8080]/",
-  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/terraria.png",
-  "project": "https://terraria.org/",
-  "description": "This Docker will download and install Terraria and run it. SERVER PASSWORD: Docker ATTENTION: First Startup can take very long since it downloads the gameserver files and creates the map! Update Notice: The Container will check on every start/restart if there is a newer version of the game available and install it if so. WEB CONSOLE: You can connect to the Terraria console by opening your browser and go to HOSTIP:9012 (eg: 192.168.1.1:9012) or click on WebUI on the Docker page within Unraid.",
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/terraria.png",
+  "project": "https://github.com/blckassassin/unraid-game-servers",
+  "description": "Terraria dedicated server. Terraria ships a native Linux server, so the install is just a small download from terraria.org, checksummed before it is unpacked. First boot installs about 45MB and generates a world in seconds. Settings are applied on every start, so changing Max Players or the password here and restarting takes effect. The exception is World Name: pointing it at a name that does not exist yet generates a new world rather than renaming the old one, and the container will list the worlds it found in the log. Only 7777/tcp needs forwarding, and note that it is TCP rather than UDP. The server saves its world when the container stops. Leave Unraid's stop timeout at the default; the shutdown is designed to finish well inside it.",
   "paths": [
     {
-      "name": "ServerFiles",
+      "name": "Server Files",
       "host": "/mnt/cache/appdata/terraria",
       "container": "/serverdata/serverfiles",
       "mode": "rw",
-      "description": "Container Path: /serverdata/serverfiles",
+      "description": "Where the server, worlds and config live. About 100MB - the array is fine, no SSD needed.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "TCP",
+      "name": "Game Port",
       "host": "7777",
       "container": "7777",
       "protocol": "tcp",
-      "description": "Container Port: 7777",
+      "description": "Game traffic. TCP, not UDP. This is the one to forward. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type.",
       "required": true,
-      "mask": false
-    },
-    {
-      "name": "TCP - WebConsole",
-      "host": "9012",
-      "container": "8080",
-      "protocol": "tcp",
-      "description": "WebConsole (by default, you can connect to the Terraria console by opening your browser and go to HOSTIP:9012 - eg: 192.168.1.1:9012 - or click on WebUI on the Docker page within Unraid).",
-      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Preferred Terraria version",
-      "key": "TERRARIA_SRV_V",
-      "value": "1.4.4.9",
-      "description": "Enter your prefered Terraria version (you can get the latest version number for example here: https://terraria.fandom.com/wiki/Server#Downloads)",
+      "name": "Server Port",
+      "key": "GAME_PORT",
+      "value": "7777",
+      "description": "The port the server binds, and the number it prints in the log. Keep it equal to Game Port above, both the Container Port and the Host Port. If it differs from the Container Port nothing reaches the server; if it differs from the Host Port the log reports a number players cannot use.",
       "required": true,
       "mask": false
     },
     {
-      "name": "GAME_PARAMS",
-      "key": "GAME_PARAMS",
-      "value": "-config serverconfig.txt",
-      "description": "Enter your start up commands for the server.",
+      "name": "World Name",
+      "key": "WORLD_NAME",
+      "value": "World",
+      "description": "Name of the world file. Changing this after first boot generates a NEW world - the old one stays on disk and the log lists it. It does not rename anything.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "World Size",
+      "key": "WORLD_SIZE",
+      "value": "2",
+      "description": "1 = small, 2 = medium, 3 = large. Only used when the world is first generated.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Difficulty",
+      "key": "DIFFICULTY",
+      "value": "0",
+      "description": "0 = classic, 1 = expert, 2 = master, 3 = journey. Only used when the world is first generated.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "World Seed",
+      "key": "WORLD_SEED",
+      "value": "",
+      "description": "Optional seed for world generation. Leave blank for random. Only used when the world is first generated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "8",
+      "description": "Player slots. Applied on every restart.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Password",
+      "key": "SRV_PWD",
+      "value": "",
+      "description": "Join password. Leave blank for an open server. Applied on every restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MOTD",
+      "key": "MOTD",
+      "value": "",
+      "description": "Message shown to players as they join.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Mode",
+      "key": "SECURE",
+      "value": "1",
+      "description": "Terraria's built-in anti-cheat validation, rejecting actions a legitimate client could not have produced. 1 = on (default), 0 = off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPnP",
+      "key": "UPNP",
+      "value": "0",
+      "description": "Ask the router to auto-forward the game port via UPnP. Off by default - manual port forwarding (see Game Port above) is more reliable and works even when the router has UPnP disabled. 1 = on, 0 = off (default).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Verbose Log",
+      "key": "VERBOSE_LOG",
+      "value": "false",
+      "description": "Prints every line Terraria emits verbatim, including per-0.1% worldgen and save progress - thousands of lines on first boot. Leave off unless you are diagnosing something; it cannot slow the server down, it just floods the log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Terraria Version",
+      "key": "TERRARIA_VERSION",
+      "value": "1458",
+      "description": "Server build to install, as it appears in terraria.org's download URL. If you change this you MUST change the checksum below to match, or the container will refuse to start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Terraria Checksum",
+      "key": "TERRARIA_SHA256",
+      "value": "f513a4ac9789d34af766291ae217c9cd7d9472e13782a0e2b17512f70d7a8334",
+      "description": "sha256 of the server zip. Verified before anything is unpacked. Must match the version above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Timeout",
+      "key": "STOP_TIMEOUT",
+      "value": "6",
+      "description": "Seconds to wait for a save-and-exit before force killing. Kept low on purpose: this plus a bounded 3s wait for the log reader must stay under Docker's 10s default stop grace (6+3=9s, 1s to spare). Raise this and you must raise the container's own stop timeout to match, or Docker's outer kill fires before the save finishes.",
       "required": false,
       "mask": false
     },
@@ -66,7 +153,7 @@
       "name": "UID",
       "key": "UID",
       "value": "500",
-      "description": "Container Variable: UID",
+      "description": "User ID. 99 is the Unraid default.",
       "required": true,
       "mask": false
     },
@@ -74,8 +161,16 @@
       "name": "GID",
       "key": "GID",
       "value": "500",
-      "description": "Container Variable: GID",
+      "description": "Group ID. 100 is the Unraid default.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "umask for files the server creates. 000 keeps them editable over the share.",
+      "required": false,
       "mask": false
     }
   ],

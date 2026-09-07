@@ -1,0 +1,107 @@
+{
+  "name": "step-ca",
+  "repo": "smallstep/step-ca",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/smallstep/step-ca/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:9000]/health",
+  "icon": "https://raw.githubusercontent.com/simonlehmann/unraid-templates/main/step-ca/icon.svg",
+  "project": "https://github.com/smallstep/certificates",
+  "description": "Private Certificate Authority for Unraid, providing trusted HTTPS certificates for services on your LAN and an internal ACME server for automated certificate issuance - built on Smallstep's open-source step-ca. Rather than self-signing each internal service's certificate separately (and having to trust every one of them individually), step-ca lets you run your own CA: trust its single root certificate once, and every certificate it issues - for any internal hostname - is trusted automatically. Pair it with an ACME-capable reverse proxy to issue and renew those certificates without any manual steps. step-ca can also issue SSH certificates and be used as a general-purpose X.509 CA; the ACME/TLS use case above is just the most common reason to run it on Unraid. On first start (when the appdata directory is empty), the container initializes a brand-new root and intermediate CA using the \"CA Name\" and \"DNS Names\" values below. Keep the appdata volume safe afterwards: it holds your root CA's private key, and must survive container recreation and image upgrades.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/step-ca",
+      "container": "/home/step",
+      "mode": "rw",
+      "description": "Persistent CA state: root/intermediate keys, database and config. Must be empty the first time you start the container so step-ca can initialize.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "CA Port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "Port the CA listens on for HTTPS and ACME requests.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "CA Name",
+      "key": "DOCKER_STEPCA_INIT_NAME",
+      "value": "",
+      "description": "Friendly name for your CA, e.g. 'Home Lab CA'. Only read during first-run initialization.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DNS Names",
+      "key": "DOCKER_STEPCA_INIT_DNS_NAMES",
+      "value": "",
+      "description": "Comma-separated hostnames/IPs clients will use to reach this CA, e.g. 'ca.home.arpa,192.168.1.10'. Only read during first-run initialization.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable ACME",
+      "key": "DOCKER_STEPCA_INIT_ACME",
+      "value": "true",
+      "description": "Enable the built-in ACME provisioner on first run, so other services can request certificates automatically (true/false). Only read during first-run initialization.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CA Password",
+      "key": "DOCKER_STEPCA_INIT_PASSWORD",
+      "value": "",
+      "description": "Password used to encrypt the CA's private keys on first run. Leave blank to auto-generate a random password, which is printed once to the container log - check the log right after first start. Only read during first-run initialization.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Provisioner Name",
+      "key": "DOCKER_STEPCA_INIT_PROVISIONER_NAME",
+      "value": "admin",
+      "description": "Name of the default JWK provisioner created on first run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable SSH CA",
+      "key": "DOCKER_STEPCA_INIT_SSH",
+      "value": "false",
+      "description": "Enable SSH certificate authority support on first run (true/false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Remote Management",
+      "key": "DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT",
+      "value": "false",
+      "description": "Enable step-ca's remote administration API on first run (true/false), so provisioners can be managed with 'step ca admin' instead of editing config files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Subject",
+      "key": "DOCKER_STEPCA_INIT_ADMIN_SUBJECT",
+      "value": "step",
+      "description": "Admin username created when Remote Management is enabled.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

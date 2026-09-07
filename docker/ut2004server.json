@@ -1,0 +1,133 @@
+{
+  "name": "ut2004-server",
+  "repo": "ghcr.io/phasecorex/ut2004-server:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/phasecorex/ut2004-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/PhasecoreX/unraid-community-apps/main/templates/icon/ut2004-server.png",
+  "project": "https://github.com/PhasecoreX/docker-ut2004-server",
+  "description": "Unreal Tournament 2004 server",
+  "paths": [
+    {
+      "name": "Server Data",
+      "host": "/mnt/cache/appdata/ut2004-server",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Server data, configuration files, and any addons will be stored here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": "Port used by clients connecting to the server. If this is changed, all of the ports below will need to be recalculated.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port",
+      "host": "7778",
+      "container": "7778",
+      "protocol": "udp",
+      "description": "Port used by clients querying server info. (Game Port + 1)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GameSpy Query Port",
+      "host": "7787",
+      "container": "7787",
+      "protocol": "udp",
+      "description": "Port used for querying more detailed server information. (Game Port + 10)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "CD Key",
+      "key": "CD_KEY",
+      "value": "",
+      "description": "Your server CD key. This is needed for first run; afterwards you will see a cdkey file created in the /data/config directory, and can safely remove this environment variable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Map Name",
+      "key": "MAP_NAME",
+      "value": "DM-Antalus",
+      "description": "Initial map to be loaded.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Type",
+      "key": "GAME_TYPE",
+      "value": "xGame.xDeathMatch",
+      "description": "Initial game type to be loaded.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mutators",
+      "key": "MUTATORS",
+      "value": "",
+      "description": "Mutators you want to load, separated by comma (no spaces). For example: UT2Vote61.UT2VoteX,ExcessiveV302.MutExcessive",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Start Extras",
+      "key": "SERVER_START_EXTRAS",
+      "value": "",
+      "description": "If you need to add any other parameters to the server launch command, put them in this variable. This must start with a question mark (?), as it will be appended to the end of the mutators list in the built server start command.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Start Command",
+      "key": "SERVER_START_COMMAND",
+      "value": "",
+      "description": "If you don't want to use the environment variables to specify map/gametype/mutators/extras, you can just specify the entire server start command here. All except SERVER_START_EXTRAS will be ignored (for legacy purposes, it's appended to the end of SERVER_START_COMMAND).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID to run the container as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID to run the container as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Install",
+      "key": "SKIP_INSTALL",
+      "value": "",
+      "description": "If you don't want to download/update your server files, set this to true. I assume you know what you're doing. Maybe manually installing your own server to the /data/server directory or something? I don't know.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

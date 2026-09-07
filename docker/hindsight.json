@@ -1,0 +1,212 @@
+{
+  "name": "hindsight",
+  "repo": "ghcr.io/vectorize-io/hindsight:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/vectorize-io/hindsight/pkgs/container/hindsight",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --stop-timeout=60",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9999]/",
+  "icon": "https://raw.githubusercontent.com/PikkonMG/unraid-docker-templates/main/templates/img/hindsight.png",
+  "project": "https://github.com/vectorize-io/hindsight",
+  "description": "Shared memory for AI agents through MCP and HTTP. Includes the API, web UI, and embedded PostgreSQL for a first deployment. Before first start: 1. The container runs as user 1000 and cannot fix folder ownership itself. Before the first start, run this in the Unraid terminal: mkdir -p /mnt/user/appdata/hindsight && chown -R 1000:1000 /mnt/user/appdata/hindsight && chmod 700 /mnt/user/appdata/hindsight If you started the container first and the log says the database directory is not writable, stop the container, run the same command, and start it again. 2. Local Ollama is selected by default. Set Model endpoint to your Ollama address and Model name to a model you have pulled. To use a hosted API instead, change Model service and paste its key into Model provider key. 3. Set a strong Memory API key. Paste the SAME key into Web UI backend key. Set a separate Web UI login key. 4. Open the WebUI. Agents use http://YOUR_Unraid_IP:8888/mcp/YOUR_BANK/ with Authorization: Bearer YOUR_MEMORY_API_KEY. One bank per project. No project folders or Docker socket mounts are needed. Keep ports on a trusted network. Shared API keys grant access across every bank, so bank names are not separate access controls. Back up appdata while the container is stopped. For a long-lived shared service, use external PostgreSQL with pgvector as described in the guide.",
+  "paths": [
+    {
+      "name": "Memory data",
+      "host": "/mnt/cache/appdata/hindsight",
+      "container": "/home/hindsight/.pg0",
+      "mode": "rw",
+      "description": "Embedded database. Prepare the host folder with owner 1000:1000 and mode 700 before starting. Do not map a code repository here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Memory API / MCP port",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "Host port for API and MCP. Use /mcp/PROJECT/ and the Memory API key.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web UI port",
+      "host": "9999",
+      "container": "9999",
+      "protocol": "tcp",
+      "description": "Host port for the memory dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Model service",
+      "key": "HINDSIGHT_API_LLM_PROVIDER",
+      "value": "ollama",
+      "description": "Local Ollama is selected. Keep ollama unless you choose another service in the guide. Hosted options include openai, anthropic, gemini, groq, ollama-cloud, openrouter and deepseek.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Model name",
+      "key": "HINDSIGHT_API_LLM_MODEL",
+      "value": "gemma4:12b",
+      "description": "Exact name of a model already pulled in Ollama. The model must support tool calling and JSON output. gemma4:12b fits a 12 GB GPU. Gemma 3 has no tool calling and breaks reflect. Change this when you change Model service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Model endpoint",
+      "key": "HINDSIGHT_API_LLM_BASE_URL",
+      "value": "",
+      "description": "Needed for Ollama only. Use your Unraid IP, not localhost, for example http://YOUR_UNRAID_IP:11434/v1. Leave blank for hosted services.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Model provider key",
+      "key": "HINDSIGHT_API_LLM_API_KEY",
+      "value": "",
+      "description": "Leave blank for local Ollama. Enter the key for your hosted service. This is not the Memory API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama context size",
+      "key": "HINDSIGHT_API_LLM_OLLAMA_NUM_CTX",
+      "value": "16384",
+      "description": "Ollama only. Prompt window in tokens. Upstream recommends setting this explicitly. Lower it if the model does not fit in memory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Parallel model calls",
+      "key": "HINDSIGHT_API_LLM_MAX_CONCURRENT",
+      "value": "1",
+      "description": "Upstream recommends 1 for a local model. A single GPU serves one request at a time. Raise this for a hosted API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Background observations",
+      "key": "HINDSIGHT_API_ENABLE_OBSERVATIONS",
+      "value": "false",
+      "description": "Extra model calls after each save that build higher-level insights. Upstream recommends false for a local model because it is slow. Set true for a hosted API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Model call timeout",
+      "key": "HINDSIGHT_API_LLM_TIMEOUT",
+      "value": "120",
+      "description": "Seconds to wait for one model reply. Raise it for a slow local model. Do not leave this blank.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "HINDSIGHT_API_DATABASE_URL",
+      "value": "pg0",
+      "description": "Keep pg0 to use the embedded database in the Memory data folder. For an external PostgreSQL with pgvector, replace this with its connection string. Do not leave this blank.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "HINDSIGHT_API_LOG_LEVEL",
+      "value": "info",
+      "description": "One of critical, error, warning, info or debug. Use debug when you need to report a problem.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stateless MCP",
+      "key": "HINDSIGHT_API_MCP_STATELESS",
+      "value": "false",
+      "description": "Keep false for normal use. Set true when a reverse proxy or client cannot hold a streaming session open.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Memory API key",
+      "key": "HINDSIGHT_API_TENANT_API_KEY",
+      "value": "",
+      "description": "Required. Create a long random secret for agents. Paste the same value into Web UI backend key. No shared default is supplied.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web UI backend key",
+      "key": "HINDSIGHT_CP_DATAPLANE_API_KEY",
+      "value": "",
+      "description": "Required. Must exactly match Memory API key so the dashboard can read and write memory.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web UI login key",
+      "key": "HINDSIGHT_CP_ACCESS_KEY",
+      "value": "",
+      "description": "Required. Use a separate long random secret to sign in to the dashboard. Leaving this blank disables dashboard login.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "API authentication",
+      "key": "HINDSIGHT_API_TENANT_EXTENSION",
+      "value": "hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension",
+      "description": "Keep enabled. Startup fails when Memory API key is empty.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web UI backend URL",
+      "key": "HINDSIGHT_CP_DATAPLANE_API_URL",
+      "value": "http://127.0.0.1:8888",
+      "description": "Internal API address for the bundled dashboard. Leave unchanged when changing host port mappings.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Worker identity",
+      "key": "HINDSIGHT_API_WORKER_ID",
+      "value": "hindsight-unraid",
+      "description": "Keep stable across restarts so interrupted work keeps the same owner. Use a unique value for each instance sharing a database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MCP enabled",
+      "key": "HINDSIGHT_API_MCP_ENABLED",
+      "value": "true",
+      "description": "Enable memory tools for MCP clients.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container home",
+      "key": "HOME",
+      "value": "/home/hindsight",
+      "description": "Path inside the container. Keep unchanged.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container time zone. Change to your local zone.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

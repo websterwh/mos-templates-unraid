@@ -1,64 +1,200 @@
 {
   "name": "radarr",
-  "repo": "lscr.io/linuxserver/radarr",
+  "repo": "ghcr.io/hotio/radarr:latest",
   "category": [
     "Downloader"
   ],
-  "registry": "https://github.com/orgs/linuxserver/packages/container/package/radarr",
+  "registry": "https://github.com/hotio/radarr/pkgs/container/radarr",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--hostname=radarr.internal --cap-add=NET_ADMIN",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:7878]/system/status",
-  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/radarr-logo.png",
-  "project": "https://github.com/Radarr/Radarr",
-  "description": "Radarr(https://github.com/Radarr/Radarr) - A fork of Sonarr to work with movies \u00e0 la Couchpotato.",
+  "web_ui_url": "http://[IP]:[PORT:7878]",
+  "icon": "https://hotio.dev/webhook-avatars/radarr.png",
+  "project": "https://hotio.dev/containers/radarr",
+  "description": "WireGuard VPN, Privoxy and Unbound built-in! Like Sonarr, but for movies.",
   "paths": [
     {
-      "name": "Appdata",
+      "name": "Host Path for /config",
       "host": "",
       "container": "/config",
       "mode": "rw",
-      "description": "Database and Radarr configs",
+      "description": "Container Path: /config",
       "required": true
     },
     {
-      "name": "Path: /movies",
+      "name": "Host Path for /data",
       "host": "",
-      "container": "/movies",
+      "container": "/data",
       "mode": "rw",
-      "description": "Location of Movie library on disk (See note in Application setup)",
-      "required": false
-    },
-    {
-      "name": "Path: /downloads",
-      "host": "",
-      "container": "/downloads",
-      "mode": "rw",
-      "description": "Location of download managers output directory (See note in Application setup)",
-      "required": false
+      "description": "Container Path: /data",
+      "required": true
     }
   ],
   "ports": [
     {
-      "name": "WebUI",
+      "name": "Host Port for 7878",
       "host": "7878",
       "container": "7878",
       "protocol": "tcp",
-      "description": "The port for the Radarr Web UI",
+      "description": "Container Port: 7878",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
+      "name": "PRIVOXY_ENABLED",
+      "key": "PRIVOXY_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: PRIVOXY_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNBOUND_ENABLED",
+      "key": "UNBOUND_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: UNBOUND_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UNBOUND_NAMESERVERS",
+      "key": "UNBOUND_NAMESERVERS",
+      "value": "",
+      "description": "Container Variable: UNBOUND_NAMESERVERS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_ENABLED",
+      "key": "VPN_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_CONF",
+      "key": "VPN_CONF",
+      "value": "wg0",
+      "description": "Container Variable: VPN_CONF",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PROVIDER",
+      "key": "VPN_PROVIDER",
+      "value": "generic|proton|pia",
+      "description": "Container Variable: VPN_PROVIDER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_LAN_NETWORK",
+      "key": "VPN_LAN_NETWORK",
+      "value": "",
+      "description": "Container Variable: VPN_LAN_NETWORK",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_LAN_LEAK_ENABLED",
+      "key": "VPN_LAN_LEAK_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_LAN_LEAK_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_EXPOSE_PORTS_ON_LAN",
+      "key": "VPN_EXPOSE_PORTS_ON_LAN",
+      "value": "",
+      "description": "Container Variable: VPN_EXPOSE_PORTS_ON_LAN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_AUTO_PORT_FORWARD",
+      "key": "VPN_AUTO_PORT_FORWARD",
+      "value": "false",
+      "description": "Container Variable: VPN_AUTO_PORT_FORWARD",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_REDIRECTS",
+      "key": "VPN_PORT_REDIRECTS",
+      "value": "",
+      "description": "Container Variable: VPN_PORT_REDIRECTS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_HEALTHCHECK_ENABLED",
+      "key": "VPN_HEALTHCHECK_ENABLED",
+      "value": "false|true",
+      "description": "Container Variable: VPN_HEALTHCHECK_ENABLED",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_NAMESERVERS",
+      "key": "VPN_NAMESERVERS",
+      "value": "",
+      "description": "Container Variable: VPN_NAMESERVERS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_USER",
+      "key": "VPN_PIA_USER",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_USER",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PASS",
+      "key": "VPN_PIA_PASS",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_PASS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PREFERRED_REGION",
+      "key": "VPN_PIA_PREFERRED_REGION",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_PREFERRED_REGION",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_DIP_TOKEN",
+      "key": "VPN_PIA_DIP_TOKEN",
+      "value": "",
+      "description": "Container Variable: VPN_PIA_DIP_TOKEN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PIA_PORT_FORWARD_PERSIST",
+      "key": "VPN_PIA_PORT_FORWARD_PERSIST",
+      "value": "false|true",
+      "description": "Container Variable: VPN_PIA_PORT_FORWARD_PERSIST",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "PUID",
       "key": "PUID",
       "value": "500",
       "description": "Container Variable: PUID",
-      "required": true,
+      "required": false,
       "mask": false
     },
     {
@@ -66,13 +202,13 @@
       "key": "PGID",
       "value": "500",
       "description": "Container Variable: PGID",
-      "required": true,
+      "required": false,
       "mask": false
     },
     {
       "name": "UMASK",
       "key": "UMASK",
-      "value": "022",
+      "value": "002",
       "description": "Container Variable: UMASK",
       "required": false,
       "mask": false

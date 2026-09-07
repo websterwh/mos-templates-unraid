@@ -1,75 +1,22 @@
 {
   "name": "KyDNS",
-  "repo": "ghcr.io/yoshiofthewire/kydns-server:latest",
+  "repo": "ghcr.io/Busness-app/kydns-server:latest",
   "category": [
     "Network"
   ],
-  "registry": "https://github.com/Yoshiofthewire/kydns-server/pkgs/container/kydns-server",
-  "network": "br0",
+  "registry": "https://github.com/Busness-app/kydns-server/pkgs/container/kydns-server",
+  "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--cap-drop ALL --cap-add NET_BIND_SERVICE --cap-add DAC_OVERRIDE --security-opt no-new-privileges:true",
+  "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8053]/",
+  "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/Yoshiofthewire/unraid_docker_apps/main/kydns-icon.png",
-  "project": "https://github.com/Yoshiofthewire/kydns-server",
+  "project": "https://github.com/Busness-app/kydns-server",
   "description": "KyDNS is a self-hosted local DNS server and service directory for homes, homelabs, and small teams. Register a service once and it answers on your private domain (home.arpa by default) with address records, aliases, and derived reverse (PTR) records \u2014 no hosts files, no opaque rewrite rules. It also does per-subnet views, dnsmasq DHCP lease discovery, service health checks, opt-out blackhole filtering, and upstream forwarding over DNS-over-TLS or DNS-over-HTTPS with a cache and failover. Queries are default-closed: anything outside the allowed networks gets REFUSED, so an accidentally exposed KyDNS is not an open resolver. IMPORTANT \u2014 this template uses a custom br0 network so the container gets its own LAN address and owns port 53 there, without fighting Unraid's host DNS or an existing AdGuard Home / Pi-hole. Set \"Fixed IP address\" below to an address inside your LAN subnet and OUTSIDE your router's DHCP pool. Do not leave it blank: Docker then picks the first free address in the subnet for you \u2014 usually x.x.x.2 \u2014 which will collide with a device you already have or sit inside the DHCP pool, and KyDNS answers nowhere. No config file needed to start: the image ships a working one. Set the fixed IP, apply, and it serves. Mapping your own kydns.yaml is optional and lives under Advanced, for settings this template does not expose (upstream resolvers, private domain, reverse zones). AFTER FIRST START: read the setup token from the log (or from setup-token in the data directory) and finish setup at the WebUI. KyDNS speaks plain HTTP \u2014 put a TLS-terminating reverse proxy in front if you expose it. Note: macvlan/ipvlan networks deliberately block traffic between the Unraid host and its own containers. Everything else on the LAN reaches KyDNS fine; only the host itself cannot.",
-  "paths": [
-    {
-      "name": "Config File",
-      "host": "",
-      "container": "/etc/kydns/kydns.yaml",
-      "mode": "ro",
-      "description": "Optional. The image ships a working config, so leave this BLANK unless you want to change a setting that is not in this template \u2014 upstream resolvers, the private domain, reverse zones, per-query logging. If you do use it: copy kydns.example.yaml from the project to somewhere like /mnt/user/appdata/kydns/kydns.yaml, edit it, and put that host path here. The file must already exist \u2014 Docker creates a directory when the host path is missing, and the container will then refuse to start. Keep data_dir: /var/lib/kydns and admin.listen: &quot;0.0.0.0:8053&quot; in whatever you write. Services, records, views, and API tokens are not in this file; they live in the database and are edited in the web UI.",
-      "required": false
-    },
-    {
-      "name": "Data Directory",
-      "host": "/mnt/cache/appdata/kydns/data",
-      "container": "/var/lib/kydns",
-      "mode": "rw",
-      "description": "Holds kydns.db plus the first-run setup and bootstrap tokens. BACK THIS UP \u2014 it is every service, record, view, user, and API token you have. Must match data_dir in the config file above. The container writes here as root, and Unraid creates appdata directories owned by nobody:users, which is why this template grants DAC_OVERRIDE alongside dropping every other capability.",
-      "required": true
-    },
-    {
-      "name": "DHCP Lease File",
-      "host": "",
-      "container": "/var/lib/misc/dnsmasq.leases",
-      "mode": "ro",
-      "description": "Optional: a dnsmasq lease file for DHCP lease discovery, so leased hosts resolve and can be promoted to services. Also set discovery.dhcp_lease_file to this container path in the config file \u2014 the mapping alone does not tell KyDNS where to look. Leave blank if your DHCP server is your router.",
-      "required": false
-    }
-  ],
-  "ports": [
-    {
-      "name": "DNS Port (UDP)",
-      "host": "53",
-      "container": "53",
-      "protocol": "udp",
-      "description": "The DNS port. On a custom br0 network this is the port on KyDNS's own LAN address, so it does not contend with anything on the Unraid host. Point your clients or your router's DHCP at that address.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "DNS Port (TCP)",
-      "host": "53",
-      "container": "53",
-      "protocol": "tcp",
-      "description": "DNS over TCP, used for truncated or large answers. Bound alongside the UDP port; keep them the same.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "WebUI Port",
-      "host": "8053",
-      "container": "8053",
-      "protocol": "tcp",
-      "description": "The web UI and JSON API. Must match admin.listen in the config file, which needs to be 0.0.0.0:8053 here rather than the 127.0.0.1 default. Plain HTTP \u2014 put a TLS-terminating reverse proxy in front if you expose it beyond your LAN.",
-      "required": true,
-      "mask": false
-    }
-  ],
+  "paths": [],
+  "ports": [],
   "variables": [],
   "devices": [],
   "labels": []

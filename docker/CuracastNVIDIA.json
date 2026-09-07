@@ -1,0 +1,59 @@
+{
+  "name": "Curacast-NVIDIA",
+  "repo": "curacast/curacast:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/curacast/curacast",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://curacast.tv/icon.png",
+  "project": "https://curacast.tv",
+  "description": "Curacast turns your Plex, Jellyfin or Emby library into always-on live TV channels with a real schedule and programme guide. It appears to Plex as an HDHomeRun tuner, and serves M3U and XMLTV for any IPTV client. Channels are managed from the Curacast web UI on port 8000. FFmpeg is bundled in the image, which carries the NVENC encoders. This is the same image as the standard template, run with the NVIDIA runtime. It needs the Nvidia Driver plugin installed, and your GPU's UUID in NVIDIA_VISIBLE_DEVICES -- copy it from the plugin's page. Set the encoder to NVENC in Curacast under Settings, FFmpeg. Licensing: free for 14 days on up to 2 channels, then a subscription removes the limit. When the trial ends your channels are kept but stop playing until a licence is activated. A programme already playing is never cut off part-way through.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/curacast-nvidia/",
+      "container": "/home/curacast/app/.curacast",
+      "mode": "rw",
+      "description": "Container Path: /home/curacast/app/.curacast",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webui &amp; HDHR",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Container Port: 8000",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Your GPU's UUID, from the Nvidia Driver plugin page. 'all' works when the machine has one GPU.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,video,utility",
+      "description": "Driver capabilities exposed to the container. 'video' is the one NVENC needs.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

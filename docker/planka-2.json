@@ -1,23 +1,83 @@
 {
   "name": "planka",
-  "repo": "meltyshev/planka",
+  "repo": "ghcr.io/plankanban/planka",
   "category": [
-    "Productivity"
+    "Misc"
   ],
-  "registry": "https://hub.docker.com/r/meltyshev/planka/",
+  "registry": "https://github.com/plankanban/planka/pkgs/container/planka",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": null,
-  "icon": "https://raw.githubusercontent.com/C4ArtZ/Unraid-Templates/master/templates/icons/planka.png",
-  "project": "https://github.com/plankanban/planka",
-  "description": "A Trello-like kanban board built with React and Redux. Default user is 'demo@demo.demo' with password 'demo'.",
-  "paths": [],
-  "ports": [],
-  "variables": [],
+  "web_ui_url": "http://[IP]:[PORT:1337]",
+  "icon": "https://raw.githubusercontent.com/selfhosters/unRAID-CA-templates/master/templates/img/planka.png",
+  "project": "https://planka.app/",
+  "description": "The realtime kanban board for workgroups built with React and Redux.",
+  "paths": [
+    {
+      "name": "User Avatars",
+      "host": "/mnt/cache/appdata/planka/user-avatars",
+      "container": "/app/public/user-avatars",
+      "mode": "rw",
+      "description": "User Avatar Storage Location",
+      "required": true
+    },
+    {
+      "name": "Project Background Images",
+      "host": "/mnt/cache/appdata/planka/project-background-images",
+      "container": "/app/public/project-background-images",
+      "mode": "rw",
+      "description": "Background Image Location",
+      "required": true
+    },
+    {
+      "name": "Attachments",
+      "host": "/mnt/cache/appdata/planka/attachments",
+      "container": "/app/private/attachments",
+      "mode": "rw",
+      "description": "Attachment Storage Location",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "1337",
+      "protocol": "tcp",
+      "description": "Web UI Port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "description": "Base URL of Planka",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "postgresql://postgres@postgres/planka",
+      "description": "Postgres Database Auth",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "notsecretkey",
+      "description": "Secret Key",
+      "required": true,
+      "mask": true
+    }
+  ],
   "devices": [],
   "labels": []
 }

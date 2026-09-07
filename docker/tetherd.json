@@ -1,0 +1,121 @@
+{
+  "name": "tetherd",
+  "repo": "philbarker79/tetherd:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/philbarker79/tetherd",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Phil-Barker/tetherd/main/img/tetherd-logo-500px.png",
+  "project": "https://github.com/Phil-Barker/tetherd",
+  "description": "Keeps containers attached to the network of the container they route through, such as apps using --network container:gluetun. When the VPN container restarts, those apps stay running but go offline; Tetherd repairs that with a restart where possible, and only rebuilds when the VPN container was recreated. Clean-room successor to Rebuild-DNDC: it reads live Docker config, not Unraid XML. Stop Rebuild-DNDC before installing. Needs the Docker socket, same trade-off as Watchtower. After install, docker exec tetherd tetherd doctor. Set restart policy to Unless Stopped.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/tetherd",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Snapshots and provider ID history.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Host Docker socket. Required, same as Watchtower.",
+      "required": true
+    },
+    {
+      "name": "Unraid webGui",
+      "host": "/usr/local/emhttp",
+      "container": "/usr/local/emhttp",
+      "mode": "ro",
+      "description": "Unraid marker and template audit. Not used for notifications.",
+      "required": false
+    },
+    {
+      "name": "Unraid notifications",
+      "host": "/tmp/notifications",
+      "container": "/tmp/notifications",
+      "mode": "rw",
+      "description": "Unraid's .notify directory. Required for the notification bell. The host PHP notify script cannot run in this image.",
+      "required": false
+    },
+    {
+      "name": "Docker templates",
+      "host": "/boot/config/plugins/dockerMan/templates-user",
+      "container": "/config/docker-templates",
+      "mode": "ro",
+      "description": "User templates, read-only, for tetherd doctor. Tetherd never rebuilds from these files.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Provider",
+      "key": "TETHERD_PROVIDER",
+      "value": "",
+      "description": "Exact name of the VPN/network-provider container (e.g. GluetunVPN). Case-sensitive; match docker ps.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Include",
+      "key": "TETHERD_INCLUDE",
+      "value": "",
+      "description": "If set, only these dependents are managed. Exact names, space or comma separated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Exclude",
+      "key": "TETHERD_EXCLUDE",
+      "value": "",
+      "description": "Dependents to leave alone. Exact names, space or comma separated.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Probe provider",
+      "key": "TETHERD_PROBE__ENABLED",
+      "value": "false",
+      "description": "Actively test that the VPN container can route. Leave false if the image already has a healthcheck (gluetun does).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify URLs",
+      "key": "TETHERD_NOTIFY__URLS",
+      "value": "",
+      "description": "Apprise URLs (Discord, Telegram, Gotify, ntfy, \u2026). Unraid's own bell is used when /tmp/notifications is mounted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "TETHERD_LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

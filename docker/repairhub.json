@@ -1,0 +1,115 @@
+{
+  "name": "repair-hub",
+  "repo": "allornothing/repair-hub:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/repair-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/Repair-Hub/icon.png",
+  "project": "https://github.com/aon082910/repair-hub",
+  "description": "Self-hosted repair-reference and shop-management app. Vehicle records with VIN decode, live NHTSA recalls/complaints and EPA fuel-economy specs, a DTC (diagnostic trouble code) lookup preloaded with the ~140 generic SAE-standard OBD-II codes, and free-text search against iFixit's guide library and Wikimedia Commons for reference photos -- all backed by content you add yourself (repair guides, wiring diagrams, photos). Full shop management on top: customers, work orders, estimates with no-login customer approval (signature capture included), appointment scheduling, parts inventory, digital vehicle inspections, sales tax, payment tracking, warranty tracking, a technician time clock, PDF invoices, and revenue reports. Three account tiers share one login page -- staff (full access), technicians (repair reference plus only their assigned jobs), and customers (their own vehicles and service history, via a login staff can create for them). Does not scrape, mirror, or resell ALLDATA or any other paid data provider -- if you already pay for ALLDATA, a vehicle's page lets you save a quick link to the matching page in your own account, or attach a file you personally exported. All other external lookups (NHTSA, EPA, iFixit, Wikimedia Commons) are free, public APIs and degrade gracefully with no internet access. SET DJANGO_SECRET_KEY before starting -- pick any long random string. Set the superuser username and password too, or you'll have no way to log in (create one later via `docker exec -it repair-hub python manage.py createsuperuser` if you skip it here). Everything lives under the single /config mount: the SQLite database and all uploaded media (guide photos, wiring diagrams, ALLDATA attachments, inspection photos). Back that one directory up and you've backed up the whole app -- see the README for a scripted hot-backup that's safer than a raw file copy while the container is running.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/repair-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "SQLite database and all uploaded media (guide photos, wiring diagrams, attachments) -- the only folder you need to back up",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid's nobody user -- keeps appdata editable from the host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid's users group",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone for dates shown in the app",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Django Secret Key",
+      "key": "DJANGO_SECRET_KEY",
+      "value": "",
+      "description": "Required. Any long random string -- used to sign sessions/cookies. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Superuser Username",
+      "key": "DJANGO_SUPERUSER_USERNAME",
+      "value": "admin",
+      "description": "Your first login. Created automatically on first boot if this and the password below are both set.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Superuser Password",
+      "key": "DJANGO_SUPERUSER_PASSWORD",
+      "value": "",
+      "description": "Required for the first login to be created. Change it in Admin after logging in.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Superuser Email",
+      "key": "DJANGO_SUPERUSER_EMAIL",
+      "value": "admin@example.com",
+      "description": "Optional, only used to pre-fill this account's email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "DJANGO_ALLOWED_HOSTS",
+      "value": "localhost,127.0.0.1",
+      "description": "Comma-separated hostnames/IPs the app will answer to. Add your Unraid LAN IP or reverse-proxy domain if you can't log in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Mode",
+      "key": "DJANGO_DEBUG",
+      "value": "false",
+      "description": "Leave false unless troubleshooting -- true shows full Python tracebacks on error pages, which can leak internal details",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

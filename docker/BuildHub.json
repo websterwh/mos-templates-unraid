@@ -1,0 +1,187 @@
+{
+  "name": "BuildHub",
+  "repo": "allornothing/build-hub:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/build-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/Build-Hub/icon.png",
+  "project": "https://github.com/aon082910/build-hub",
+  "description": "Offline parts search and AI-assisted BOM generation for electronics and 3D-printing (RepRap) builds. Crawls electronics/maker marketplaces and component distributors into a local, offline-searchable catalog; paste or AI-generate a parts list and get the cheapest source per line with links, using landed cost (unit price x MOQ + shipping), never unit price alone. Set BUILDHUB_ADMIN_TOKEN before exposing this beyond your LAN -- without it the admin pages (which mutate the catalog) refuse to serve from a non-loopback address, which every container connection is. AI BOM generation is optional and off by default -- set AI_PROVIDER to enable it with a cloud API key or a local Ollama instance. Requires --shm-size=1g (below in Extra Parameters) -- several adapters render pages in a real Chromium, and Docker's default 64MB /dev/shm makes that crash silently.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/build-hub",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, media, browser profile and editable YAML config",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Web UI / API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid's nobody user -- keeps appdata editable from the host",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid's users group",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone the crawl schedule is interpreted in",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Mode",
+      "key": "BUILDHUB_MODE",
+      "value": "serve",
+      "description": "serve = web UI + scheduler; web = UI only; schedule = crawler only",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Token",
+      "key": "BUILDHUB_ADMIN_TOKEN",
+      "value": "",
+      "description": "Required to reach /admin from a container. Any long random string; used as the HTTP Basic password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Provider",
+      "key": "AI_PROVIDER",
+      "value": "none",
+      "description": "Optional: none | anthropic | ollama. Enables AI-generated BOMs from a plain-language build description.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "AI_API_KEY",
+      "value": "",
+      "description": "Only used when AI Provider = anthropic",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ollama Base URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "http://ollama:11434",
+      "description": "Only used when AI Provider = ollama. Point at a local/LAN Ollama instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Translate Provider",
+      "key": "TRANSLATE_PROVIDER",
+      "value": "none",
+      "description": "Optional: none | claude | deepl | google_free. Needed to merge non-English listings by title.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Used by Translate Provider = claude",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Octopart Client ID",
+      "key": "OCTOPART_CLIENT_ID",
+      "value": "",
+      "description": "Free Nexar key: https://nexar.com -- aggregates Mouser/Digi-Key/LCSC pricing by part number",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Octopart Client Secret",
+      "key": "OCTOPART_CLIENT_SECRET",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mouser API Key",
+      "key": "MOUSER_API_KEY",
+      "value": "",
+      "description": "Free key: https://www.mouser.com/api-hub/ -- direct Mouser search, alongside Octopart",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Digi-Key Client ID",
+      "key": "DIGIKEY_CLIENT_ID",
+      "value": "",
+      "description": "Requires an approved app: https://developer.digikey.com -- direct Digi-Key search, alongside Octopart",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Digi-Key Client Secret",
+      "key": "DIGIKEY_CLIENT_SECRET",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "eBay Client ID",
+      "key": "EBAY_CLIENT_ID",
+      "value": "",
+      "description": "Optional -- without it the eBay baseline falls back to browser scraping",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "eBay Client Secret",
+      "key": "EBAY_CLIENT_SECRET",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Proxy",
+      "key": "BUILDHUB_PROXY",
+      "value": "",
+      "description": "Optional residential proxy URL(s), comma-separated",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

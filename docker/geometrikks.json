@@ -9,19 +9,19 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped",
+  "extra_parameters": "--restart=unless-stopped --stop-timeout=20",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/GilbN/geometrikks/main/resources/static/pwa-512x512.png",
   "project": "https://github.com/GilbN/geometrikks",
-  "description": "GeoMetrikks is a real-time geolocation analytics tool that tails your nginx access logs, performs GeoIP lookups, and visualizes traffic on a live interactive map - no external services required. Features: - Live GeoIP map with real-time request visualization - Traffic analytics dashboard with configurable date ranges - CrowdSec integration - Searchable access log history with filtering and sorting - WebSocket-backed live log tail - Structured application logging with a live in-UI log viewer, a fail2ban/CrowdSec-friendly login log, and downloadable rotated archives - Batch import of archived logs - Requires a TimescaleDB + PostGIS database - install the companion \"geometrikks-timescaledb\" template from this same repository first, or point this container at your own TimescaleDB+PostGIS instance. - Also requires a free MaxMind GeoLite2 account for GeoIP data (https://www.maxmind.com/en/geolite2/signup). See the repository README for full setup steps.",
+  "description": "GeoMetrikks is a real-time geolocation analytics tool that tails your reverse proxy's access logs, performs GeoIP lookups, and visualizes traffic on a live interactive map. No external services required. Reads nginx, Traefik JSON and Caddy JSON access logs, detected per file. Features: - Live GeoIP map with real-time request visualization - Traffic analytics dashboard with configurable date ranges, including a Top ASNs view of the networks your traffic comes from - CrowdSec integration - Searchable access log history with filtering and sorting - WebSocket-backed live log tail - Structured application logging with a live in-UI log viewer, a fail2ban/CrowdSec-friendly login log, and downloadable rotated archives - Batch import of archived logs - Multi-source ingestion: one instance can tail several files and keep the sources apart, or headless agents can write into the same database - Requires a TimescaleDB + PostGIS database - install the companion \"geometrikks-timescaledb\" template from this same repository first, or point this container at your own TimescaleDB+PostGIS instance. - Also requires a free MaxMind GeoLite2 account for GeoIP data (https://www.maxmind.com/en/geolite2/signup). See the repository README for full setup steps.",
   "paths": [
     {
       "name": "GeoIP Data",
       "host": "/mnt/cache/appdata/geometrikks/geoip",
       "container": "/app/data/geoip",
       "mode": "rw",
-      "description": "Persistent storage for the downloaded MaxMind GeoLite2 database. The container fixes ownership of this folder to PUID:PGID on every start, so no manual chown is needed.",
+      "description": "Persistent storage for the downloaded MaxMind GeoLite2 City and ASN databases. The container fixes ownership of this folder to PUID:PGID on every start, so no manual chown is needed.",
       "required": true
     },
     {
@@ -33,11 +33,11 @@
       "required": false
     },
     {
-      "name": "Nginx Logs",
+      "name": "Access Logs",
       "host": "/mnt/cache/appdata/swag/log/nginx",
       "container": "/var/log/nginx",
       "mode": "ro",
-      "description": "Host directory containing your nginx access logs, mounted read-only. Default assumes SWAG - change to your reverse proxy's log directory (Nginx Proxy Manager, etc.). The files must be readable by PUID:PGID.",
+      "description": "Host directory holding your reverse proxy's access logs, mounted read-only. The default assumes SWAG. Point it at wherever nginx, Nginx Proxy Manager, Traefik or Caddy writes instead. The files must be readable by PUID:PGID. Whichever proxy you run, the container-side path stays /var/log/nginx, so that is what LOGPARSER_LOG_PATHS refers to.",
       "required": true
     }
   ],
@@ -129,7 +129,15 @@
       "name": "LOGPARSER_LOG_PATHS",
       "key": "LOGPARSER_LOG_PATHS",
       "value": "/var/log/nginx/access.log",
-      "description": "Nginx access log file(s) to tail, container-side path(s). Single path or a JSON list ['/var/log/nginx/access.log', '/var/log/nginx/access2.log'] for multiple files.",
+      "description": "Access log file(s) to tail, named as the container sees them under /var/log/nginx. Single path, or a JSON list [&quot;/var/log/nginx/access.log&quot;, &quot;/var/log/nginx/site2/access.log&quot;] for several files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_LOG_FORMATS",
+      "key": "LOGPARSER_LOG_FORMATS",
+      "value": "auto",
+      "description": "Format of the file(s) above: auto (detected per file), geometrikks-json, nginx, traefik-json or caddy-json. One value covers every path, or give a JSON list matched to LOGPARSER_LOG_PATHS by position. Leave at auto unless detection gets it wrong.",
       "required": false,
       "mask": false
     },
@@ -137,7 +145,7 @@
       "name": "LOGPARSER_HOST_NAME",
       "key": "LOGPARSER_HOST_NAME",
       "value": "Unraid",
-      "description": "Hostname label attached to ingested log events.",
+      "description": "Hostname label attached to ingested log events. A JSON list matched to LOGPARSER_LOG_PATHS by position labels each file separately, e.g. [&quot;edge-01&quot;, &quot;edge-02&quot;], and the UI then filters them as separate sources.",
       "required": false,
       "mask": false
     },
@@ -254,6 +262,14 @@
       "mask": false
     },
     {
+      "name": "DB_MIGRATE_ON_STARTUP",
+      "key": "DB_MIGRATE_ON_STARTUP",
+      "value": "true",
+      "description": "Run pending database migrations at startup. Leave true. With it off the app expects the schema to already be at head and refuses to start otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "DB_DROP_ON_STARTUP",
       "key": "DB_DROP_ON_STARTUP",
       "value": "false",
@@ -289,7 +305,31 @@
       "name": "GEOIP_REFRESH_DAYS",
       "key": "GEOIP_REFRESH_DAYS",
       "value": "7",
-      "description": "Re-download the GeoLite2 database when older than this many days.",
+      "description": "Re-download the GeoLite2 databases when older than this many days.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_ASN_ENABLED",
+      "key": "GEOIP_ASN_ENABLED",
+      "value": "true",
+      "description": "Download the GeoLite2 ASN database alongside the City one and record the network and organization behind each request. This is what fills the Top ASNs view. Uses the same MaxMind credentials; without them the app ingests without ASN data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_DB_PATH",
+      "key": "GEOIP_DB_PATH",
+      "value": "data/geoip/GeoLite2-City.mmdb",
+      "description": "Path to the GeoLite2 City database, relative to /app. Leave it alone so the file lands in the GeoIP Data mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GEOIP_ASN_DB_PATH",
+      "key": "GEOIP_ASN_DB_PATH",
+      "value": "data/geoip/GeoLite2-ASN.mmdb",
+      "description": "Path to the GeoLite2 ASN database, relative to /app. Leave it alone so the file lands in the GeoIP Data mount.",
       "required": false,
       "mask": false
     },
@@ -346,6 +386,14 @@
       "key": "LOGPARSER_IGNORE_IPS",
       "value": "",
       "description": "IPs/CIDRs the parser drops entirely - no geo event, access log or debug row. Use it to keep your own WAN traffic through the reverse proxy out of the data(LAN traffic is never ingested), e.g. 88.99.77.66. Single value, comma-separated, or a JSON list. Empty (default): nothing is ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOGPARSER_ENABLED",
+      "key": "LOGPARSER_ENABLED",
+      "value": "true",
+      "description": "Tail and ingest the access logs. Set false for an instance that only serves the UI over data another instance writes.",
       "required": false,
       "mask": false
     },
@@ -494,6 +542,22 @@
       "mask": false
     },
     {
+      "name": "MAP_HOME_REFRESH_HOURS",
+      "key": "MAP_HOME_REFRESH_HOURS",
+      "value": "24",
+      "description": "Hours between re-detections of this instance's own public IP and its map home location.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAP_HOME_LOCATIONS",
+      "key": "MAP_HOME_LOCATIONS",
+      "value": "",
+      "description": "Per-hostname home overrides as a JSON object of latitude/longitude pairs, e.g. {&quot;edge-01&quot;: [59.91, 10.75]}. Use it for a source whose public IP geolocates wrong (CGNAT, VPN) or for hostnames in logs shipped from another machine. An override beats auto-detection; delete the entry and its row goes at the next start.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "CROWDSEC_LAPI_URL",
       "key": "CROWDSEC_LAPI_URL",
       "value": "",
@@ -586,6 +650,38 @@
       "key": "APP_ENVIRONMENT",
       "value": "production",
       "description": "Application environment name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_PROXY_ADVISORY",
+      "key": "APP_PROXY_ADVISORY",
+      "value": "true",
+      "description": "Warn on Settings &gt; Status when recent traffic for a tailed file comes from CDN or private addresses, which means the proxy is logging the hop in front of it rather than the visitor. Set false when that traffic mix is deliberate, such as Tailscale-only access or a CDN you front on purpose.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_MODE",
+      "key": "APP_MODE",
+      "value": "full",
+      "description": "full runs everything: web UI, API, migrations, scheduler, CrowdSec and ingestion. agent is headless. It tails, geolocates and writes into a shared database and serves only /health and /health/ready, so the WebUI port and the admin login do nothing. Set agent only on an extra copy of this container that feeds a full instance elsewhere, and give it the same image tag as that instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API_HOST",
+      "key": "API_HOST",
+      "value": "0.0.0.0",
+      "description": "Address the server binds inside the container. Leave at 0.0.0.0 or the port mapping cannot reach it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API_PORT",
+      "key": "API_PORT",
+      "value": "8000",
+      "description": "Port the server listens on inside the container. Change it and you must change the container side of the WebUI port mapping to match, or the UI becomes unreachable.",
       "required": false,
       "mask": false
     }

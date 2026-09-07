@@ -1,0 +1,123 @@
+{
+  "name": "gantry",
+  "repo": "ghcr.io/smidley/gantry:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/smidley/gantry/pkgs/container/gantry",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--pid=host --cap-add=SYS_PTRACE",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8380]/",
+  "icon": "https://raw.githubusercontent.com/smidley/gantry/main/template/gantry-icon.png",
+  "project": "https://github.com/smidley/gantry",
+  "description": "Gantry is a Docker and server monitor built for Unraid. One container -- install it, open the web UI, and set a username and password the first time to secure the dashboard (or preseed them with the variables below for a hands-off install). Every mount below is pre-filled so a stock install needs no edits. All of them are read-only except two: the notifications mount (so Gantry can hand alerts to Unraid's own notification center) and the config mount (Gantry's own small SQLite database). Monitoring is entirely read-only -- Gantry never writes to /sys and never touches your array configuration. The one exception is deliberate: the Maintenance view lets you remove dangling images and stopped containers, each behind a confirmation, never force-removing and never touching a running container or a volume. Set GANTRY_READ_ONLY=1 below to disable that too and keep the container strictly read-only. The Extra Parameters are already set for you; there's nothing to add. --pid=host lets Gantry attribute GPU and resource usage to the right container instead of host-only totals, and --cap-add=SYS_PTRACE lets it read other containers' /proc/pid/fdinfo. Gantry runs as an ordinary container (Docker's default capabilities plus SYS_PTRACE); it does not run --privileged and does not use host networking. Optional, host-level: Unraid ships PSI (Pressure Stall Information) compiled in but disabled. Adding psi=1 to your flash boot device's syslinux append line and rebooting lets Gantry record fuller CPU/memory/IO stall metrics. Nothing to configure on the container itself -- see the PSI note below and docs/psi.md in the repo. Optional, GPU: if you pass --runtime=nvidia (add it to Extra Parameters) and set NVIDIA_VISIBLE_DEVICES below, Gantry shows per-container GPU utilization. Without it, the GPU panel just shows a plain \"not available\" hint -- never an error.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Mounted read-only. Lets Gantry list containers and read their stats, health, logs, and start/stop/health events. The socket is also how the Maintenance view removes dangling images and stopped containers when you explicitly ask it to (confirmable, and disabled by GANTRY_READ_ONLY); nothing else is written through it.",
+      "required": true
+    },
+    {
+      "name": "Host Sysfs",
+      "host": "/sys",
+      "container": "/host/sys",
+      "mode": "ro",
+      "description": "Read-only. Gives Gantry hwmon sensor readings (fan speed, voltages, temperatures), GPU/DRM info, and the cgroup v2 fast path for per-container accounting. Gantry never writes to /sys.",
+      "required": true
+    },
+    {
+      "name": "Unraid State",
+      "host": "/var/local/emhttp",
+      "container": "/unraid",
+      "mode": "ro",
+      "description": "Read-only. The same emhttp state files the Unraid webGUI itself reads -- array status, parity check progress, disk and pool assignments, and shares. Gantry never modifies your array configuration through this mount.",
+      "required": true
+    },
+    {
+      "name": "Notifications",
+      "host": "/tmp/notifications",
+      "container": "/notify",
+      "mode": "rw",
+      "description": "Read-write -- the only other read-write mount besides Config below. Gantry drops alert notifications here so they show up in Unraid's own notification center (and anywhere you already route Unraid notifications: email, Pushover, Discord, etc). If this mount is missing or unwritable, Gantry keeps running; it just can't deliver Unraid-native alerts, and the Alerts view says so plainly instead of failing silently.",
+      "required": true
+    },
+    {
+      "name": "Update Status",
+      "host": "/var/lib/docker/unraid-update-status.json",
+      "container": "/updates/unraid-update-status.json",
+      "mode": "ro",
+      "description": "Read-only and optional. Unraid's own record of which containers have an update available. If this file doesn't exist on your system, or you remove this mount, Gantry simply won't show update-available flags -- nothing else is affected. Safe to delete if Docker Manager complains about it.",
+      "required": false
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/gantry",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Read-write. Gantry's own SQLite database and settings -- the only place it stores anything persistent. This is the second of the two read-write mounts; everything else above is read-only.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8380",
+      "container": "8380",
+      "protocol": "tcp",
+      "description": "The Gantry web UI. After the container starts, open http://your-unraid-ip:8380/.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Optional, only if you have an Nvidia GPU passed through with the Nvidia Driver plugin. Set to all, and also add --runtime=nvidia to Extra Parameters above, to enable per-container GPU utilization. Leave both blank/absent for a CPU-only box -- the GPU panel shows a plain enable hint, never an error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GANTRY_USERNAME",
+      "key": "GANTRY_USERNAME",
+      "value": "",
+      "description": "Optional, for a hands-off install. Set this together with GANTRY_PASSWORD below to create the login automatically at first boot and skip the one-time setup screen. Leave both blank to choose the username and password yourself the first time you open the web UI. Both must be set together; only one is ignored (Gantry falls back to the setup screen). Changing it later changes the username and signs out all sessions. This is the login username, not a secret -- it is stored as entered.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GANTRY_PASSWORD",
+      "key": "GANTRY_PASSWORD",
+      "value": "",
+      "description": "Optional, for a hands-off install. Set this together with GANTRY_USERNAME above (at least 8 characters) to create the login at first boot and skip the setup screen. Applied at every container start: changing it here changes the password and signs out all sessions. IMPORTANT: removing this variable later does NOT turn authentication off -- Gantry keeps the stored login so a template edit can never reopen the dashboard. You can change the login any time in Settings &gt; Access. Only the derived argon2id hash is stored, never the password itself.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GANTRY_AUTH",
+      "key": "GANTRY_AUTH",
+      "value": "",
+      "description": "Optional. Leave blank (or set to auto) for the normal behavior: Gantry requires a login, set on first run or preseeded via GANTRY_USERNAME/GANTRY_PASSWORD above. Set to none to turn authentication OFF entirely -- only for a fully trusted network. Set to proxy if a reverse proxy (authelia, SWAG, nginx auth_request...) already authenticates every request in front of Gantry, which switches Gantry's own login off. Any other value is ignored and treated as auto (login required).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GANTRY_READ_ONLY",
+      "key": "GANTRY_READ_ONLY",
+      "value": "",
+      "description": "Off by default. Set to 1 to make Gantry's write-capable paths (docker mutations, webhook-target configuration) refuse to run -- a kill switch for anyone who wants a strictly read-only monitor. Independent of authentication: read-only limits what a logged-in user can do, the login limits who gets in at all. Leave blank for normal use.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

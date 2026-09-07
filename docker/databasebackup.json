@@ -14,7 +14,7 @@
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/Greite/database-backup/main/public/images/mark.png",
   "project": "https://github.com/Greite/database-backup",
-  "description": "Lightweight Go-powered container to automate PostgreSQL, MariaDB/MySQL, and MongoDB backups on a schedule. Features: - Simple YAML configuration with strict validation and a built-in validate command - Dynamic client install at startup: only the tools your config needs are installed - Flexible cron scheduling per backup job, with graceful shutdown for in-flight backups - Streaming gzip compression, atomic file writes, timestamped dumps - Optional at-rest encryption: gpg-compatible OpenPGP or age (passphrase or public key) - Configurable per-job retention; old backups are only rotated after a successful run - Runs unprivileged (uid 1000) after client installation; secrets never appear in process arguments - Built-in healthcheck using native database drivers (no heavy CLI downloads) - Multiple databases (different types and hosts) handled by a single container - Multi-architecture (amd64, arm64) and auto-rebuilt on base image security updates Setup: 1. Copy backups.yml.example from the project repository to your appdata directory and rename it to backups.yml 2. Edit backups.yml with your databases (chmod 600, it contains credentials) 3. Map the file to /config/backups.yml and a host folder to /backups Upgrading from v1: run the built-in migrate command to convert your old backups.conf to YAML. See https://github.com/Greite/database-backup/blob/main/docs/MIGRATION-V2.md",
+  "description": "Lightweight Go-powered container to automate PostgreSQL, MariaDB/MySQL, and MongoDB backups on a schedule. Features: - Simple YAML configuration with strict validation and a built-in validate command - Dynamic client install at startup: only the tools your config needs are installed - Flexible cron scheduling per backup job, with graceful shutdown for in-flight backups - Streaming gzip compression, atomic file writes, timestamped dumps - Optional at-rest encryption: gpg-compatible OpenPGP or age (passphrase or public key) - Configurable per-job retention; old backups are only rotated after a successful run - Runs unprivileged (PUID/PGID, default 99:100 on Unraid) after client installation; secrets never appear in process arguments - Built-in healthcheck using native database drivers (no heavy CLI downloads) - Multiple databases (different types and hosts) handled by a single container - Multi-architecture (amd64, arm64) and auto-rebuilt on base image security updates Setup: 1. Copy backups.yml.example from the project repository to your appdata directory and rename it to backups.yml 2. Edit backups.yml with your databases (chmod 600, it contains credentials) 3. Map the file to /config/backups.yml and a host folder to /backups Upgrading from v1: run the built-in migrate command to convert your old backups.conf to YAML. See https://github.com/Greite/database-backup/blob/main/docs/MIGRATION-V2.md",
   "paths": [
     {
       "name": "Backups Storage",
@@ -29,7 +29,7 @@
       "host": "/mnt/cache/appdata/database-backup/backups.yml",
       "container": "/config/backups.yml",
       "mode": "ro",
-      "description": "Path to the backups.yml file on the host. Get the example from https://github.com/Greite/database-backup/blob/main/backups.yml.example and edit it before starting the container. Upgrading from v1? Convert your backups.conf with the built-in migrate command (see the migration guide linked in the Overview).",
+      "description": "Path to the backups.yml file on the host. Get the example from https://github.com/Greite/database-backup/blob/main/backups.yml.example and edit it before starting the container. Keep it chmod 600 and owned by PUID (99 by default) so the container can read it. Upgrading from v1? Convert your backups.conf with the built-in migrate command (see the migration guide linked in the Overview).",
       "required": true
     }
   ],
@@ -42,6 +42,22 @@
       "description": "Optional. Enables gpg-compatible at-rest encryption of every backup (decrypt with gpg -d). Leave empty to disable, or use the encryption block in backups.yml for more options (age, key files).",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID the scheduler and dumps run as. The Backups Storage path is chowned to it at startup. 99 = nobody (Unraid default). Requires v2.1.0 or later.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID the scheduler and dumps run as. 100 = users (Unraid default). Requires v2.1.0 or later.",
+      "required": false,
+      "mask": false
     }
   ],
   "devices": [],

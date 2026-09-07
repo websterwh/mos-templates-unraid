@@ -14,7 +14,7 @@
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/miakkia/MediaOps/main/assets/mediaops-icon.png",
   "project": "https://github.com/miakkia/MediaOps",
-  "description": "MediaOps is a self-hosted, single-tenant Discord automation platform for media-server communities. Each operator creates their own Discord application/bot and connects this container to their own Emby, Ombi and Watch Party services.",
+  "description": "MediaOps is a self-hosted, single-tenant Discord automation platform for media-server communities. Each operator creates their own Discord application/bot and connects this container to their selected media and request providers.",
   "paths": [
     {
       "name": "MediaOps Data",
@@ -55,7 +55,7 @@
       "name": "Media Provider",
       "key": "MEDIA_PROVIDER",
       "value": "emby",
-      "description": "Media provider backend. Emby is currently supported.",
+      "description": "Media provider backend. Supported values: emby or jellyfin.",
       "required": true,
       "mask": false
     },
@@ -87,23 +87,39 @@
       "name": "Emby URL",
       "key": "EMBY_URL",
       "value": "",
-      "description": "Emby base URL reachable from this container.",
-      "required": true,
+      "description": "Emby base URL reachable from this container. Required only when MEDIA_PROVIDER=emby.",
+      "required": false,
       "mask": false
     },
     {
       "name": "Emby API Key",
       "key": "EMBY_API_KEY",
       "value": "",
-      "description": "Emby API key used by MediaOps.",
-      "required": true,
+      "description": "Emby API key used by MediaOps. Required only when MEDIA_PROVIDER=emby.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin base URL reachable from this container. Required only when MEDIA_PROVIDER=jellyfin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API Key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Jellyfin API key used by MediaOps. Required only when MEDIA_PROVIDER=jellyfin.",
+      "required": false,
       "mask": true
     },
     {
       "name": "Request Provider",
       "key": "REQUEST_PROVIDER",
       "value": "none",
-      "description": "Optional request backend. Use ombi to enable /request after configuring Ombi URL and API key.",
+      "description": "Optional request backend. Supported values: none, ombi or seerr.",
       "required": false,
       "mask": false
     },
@@ -111,7 +127,7 @@
       "name": "Ombi URL",
       "key": "OMBI_URL",
       "value": "",
-      "description": "Ombi base URL reachable from MediaOps. Required when REQUEST_PROVIDER=ombi.",
+      "description": "Ombi base URL reachable from MediaOps. Required only when REQUEST_PROVIDER=ombi.",
       "required": false,
       "mask": false
     },
@@ -119,23 +135,31 @@
       "name": "Ombi API Key",
       "key": "OMBI_API_KEY",
       "value": "",
-      "description": "Ombi API key used to search and create requests. Required when REQUEST_PROVIDER=ombi.",
+      "description": "Ombi API key used to search and create requests. Required only when REQUEST_PROVIDER=ombi.",
       "required": false,
       "mask": true
     },
     {
-      "name": "Ombi Auto Approve",
-      "key": "OMBI_AUTO_APPROVE",
-      "value": "false",
-      "description": "true automatically approves newly created requests; false leaves them pending for an Ombi administrator.",
+      "name": "Seerr URL",
+      "key": "SEERR_URL",
+      "value": "",
+      "description": "Seerr base URL reachable from MediaOps. Required only when REQUEST_PROVIDER=seerr.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "Seerr API Key",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Seerr API key used to search and create requests. Required only when REQUEST_PROVIDER=seerr.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "Media Requests Forum ID",
       "key": "MEDIA_REQUESTS_FORUM_ID",
       "value": "",
-      "description": "Optional Discord Forum channel used for Ombi request lifecycle synchronization.",
+      "description": "Optional Discord Forum channel used for request lifecycle synchronization.",
       "required": false,
       "mask": false
     },

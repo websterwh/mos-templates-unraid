@@ -1,0 +1,91 @@
+{
+  "name": "fetchly",
+  "repo": "giiibates/fetchly:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/giiibates/fetchly",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/Gill-Bates/unraid-app-templates/main/icons/04_fetchly.png",
+  "project": "https://github.com/Gill-Bates/fetchly",
+  "description": "Self-hosted media downloader for YouTube, TikTok, Instagram & Facebook. Paste a link, preview it, pick a format - with a live job dashboard, waveform audio trimming, and Lalal.ai stem separation. Features: - Download video or audio from YouTube, TikTok, Instagram, and Facebook - Live dashboard for queued, active, completed, and failed jobs - Trim audio visually on an interactive waveform - Optional Lalal.ai integration to split vocals/instrumentals (API key entered in-app under Settings) - Authenticated access with CSRF protection, anti-bot checks, and login rate limiting IMPORTANT - Required Environment Variables: - FETCHLY_SECRET_KEY: signs session cookies. Generate with: openssl rand -base64 32 - FETCHLY_ADMIN_PASSWORD: password for the admin login (username defaults to \"admin\") The container refuses to start without both of these set. Reverse Proxy: - fetchly speaks plain HTTP inside the container. If terminating TLS at a reverse proxy, set FETCHLY_BEHIND_HTTPS=1 so session cookies are marked Secure. Only publicly accessible URLs work - private videos will not download. Source: https://github.com/Gill-Bates/fetchly",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/fetchly/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Jobs, SQLite database, and downloads",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "fetchly Web UI/API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "FETCHLY_SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED: Signs session cookies. Generate with: openssl rand -base64 32. The app refuses to start without this.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Password",
+      "key": "FETCHLY_ADMIN_PASSWORD",
+      "value": "",
+      "description": "REQUIRED: Password for the admin login.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Username",
+      "key": "FETCHLY_ADMIN_USER",
+      "value": "admin",
+      "description": "Admin login username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Behind HTTPS",
+      "key": "FETCHLY_BEHIND_HTTPS",
+      "value": "0",
+      "description": "Set to '1' when serving over HTTPS (e.g. behind a reverse proxy) so session cookies are marked Secure",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Verbosity of the container logs. Default: INFO. Use DEBUG only for troubleshooting - it is noisy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone (IANA name, e.g. Etc/UTC or Europe/Berlin), used for timestamps in the UI and logs",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

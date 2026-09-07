@@ -118,6 +118,30 @@
       "mask": false
     },
     {
+      "name": "Sync Upload Rate Limit (max)",
+      "key": "SYNC_UPLOAD_RATE_LIMIT_MAX",
+      "value": "",
+      "description": "Max POST /api/sync/ops requests per minute, enforced per user AND per source IP (upstream default 100). Upstream hardcodes this; this image reads it at startup. Behind a reverse proxy every client shares one IP, so the per-IP cap bites sooner than 100/user suggests \u2014 raise this if legitimate clients hit 429s. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Global Rate Limit (max)",
+      "key": "SYNC_GLOBAL_RATE_LIMIT_MAX",
+      "value": "",
+      "description": "Max requests per source IP across ALL routes per 15 minutes (upstream default 500). Upstream hardcodes this; this image reads it at startup. Raise alongside the upload limit when many users share one IP via a reverse proxy. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sync Snapshot Rate Limit (max)",
+      "key": "SYNC_SNAPSHOT_RATE_LIMIT_MAX",
+      "value": "",
+      "description": "Max POST /api/sync/snapshot (full-state upload) requests per source IP per 15 minutes (upstream default 10). Upstream hardcodes this; this image reads it at startup. Behind a reverse proxy that is 10/15min for the whole instance. Snapshot uploads are heavy (large body + full replay), so raise with care; a client repeatedly hitting this is usually stuck in a resync loop worth diagnosing. Leave blank for the upstream default.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "SMTP Host",
       "key": "SMTP_HOST",
       "value": "",

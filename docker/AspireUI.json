@@ -1,0 +1,75 @@
+{
+  "name": "AspireUI",
+  "repo": "ghcr.io/fgilde/aspireui:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/fgilde/AspireUI/pkgs/container/aspireui",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/fgilde/AspireUI/master/docs/aspireui.png",
+  "project": "https://github.com/fgilde/AspireUI",
+  "description": "AspireUI is a self-hosted app platform and visual builder for container stacks. Install apps from a built-in store of 140+ apps, deploy any docker-compose repository straight from Git, and manage what runs: logs, env vars, ports, volumes, scheduled backups, notifications and your own domains (with Let's Encrypt HTTPS via Nginx Proxy Manager). It is also a visual editor for .NET Aspire AppHost projects - drag resources onto a canvas, generate real C# code, run it, or publish Docker Compose. AspireUI drives the host Docker daemon, so the /var/run/docker.sock mapping is required for the Run and Hosting features. That is root-equivalent access to this server: keep the WebUI off the public internet and set an admin password on first start. A first-run wizard creates the admin user. Set ASPIREUI_ADMIN_USERNAME / ASPIREUI_ADMIN_PASSWORD to skip the wizard.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/aspireui",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, workspace and stack sources.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required: lets AspireUI run and host container stacks on this server (root-equivalent access).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "AspireUI web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin username",
+      "key": "ASPIREUI_ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Seeds the admin account on first start (skips the setup wizard).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "ASPIREUI_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the seeded admin account. Leave empty to create the account in the browser instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public host",
+      "key": "ASPIREUI_SET_PublicHost",
+      "value": "",
+      "description": "Hostname or IP used in links to hosted apps, e.g. tower.local. Leave empty to use the browser host.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

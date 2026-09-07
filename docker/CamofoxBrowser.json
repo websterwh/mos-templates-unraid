@@ -1,0 +1,196 @@
+{
+  "name": "Camofox-Browser",
+  "repo": "ghcr.io/jo-inc/camofox-browser:1.14.0",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/jo-inc/camofox-browser/pkgs/container/camofox-browser",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --security-opt no-new-privileges=true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9377]",
+  "icon": "https://raw.githubusercontent.com/MircoBlitz/unraid-camofox-stealth-browser/main/assets/camofox.png",
+  "project": "https://github.com/jo-inc/camofox-browser",
+  "description": "Private Camofox Browser REST backend for local AI agents and MCP adapters. It provides token-efficient Firefox-based browser automation and optional password-protected noVNC access for shared human-and-LLM browsing. This template pins the official multi-architecture 1.14.0 image, persists profiles locally, requires bearer authentication, and disables upstream crash telemetry.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/camofox-browser",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent browser profiles, cookies, uploads, and short-lived traces. This directory can contain login credentials and must be backed up and protected.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "REST API Port",
+      "host": "9377",
+      "container": "9377",
+      "protocol": "tcp",
+      "description": "Authenticated Camofox REST API. Restrict access to LAN or VPN.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "noVNC Web Port",
+      "host": "6080",
+      "container": "6080",
+      "protocol": "tcp",
+      "description": "Optional noVNC browser desktop. Keep restricted to LAN/VPN; noVNC traffic is not encrypted by default.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Enable noVNC",
+      "key": "ENABLE_VNC",
+      "value": "0",
+      "description": "Set to 1 to enable shared human-and-LLM browser access through the noVNC web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "noVNC Password",
+      "key": "VNC_PASSWORD",
+      "value": "",
+      "description": "Password for interactive noVNC access. Set 8 random ASCII characters before enabling noVNC; classic VNC authentication ignores additional characters.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "noVNC Resolution",
+      "key": "VNC_RESOLUTION",
+      "value": "1920x1080",
+      "description": "Virtual display resolution used by the interactive browser desktop.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "noVNC Bind Address",
+      "key": "VNC_BIND",
+      "value": "0.0.0.0",
+      "description": "Required inside Docker so the mapped noVNC port is reachable. Keep the host port restricted to LAN/VPN.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "View Only",
+      "key": "VIEW_ONLY",
+      "value": "0",
+      "description": "Set to 1 to prevent human mouse and keyboard input; keep 0 for interactive login and shared browsing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Access Key",
+      "key": "CAMOFOX_ACCESS_KEY",
+      "value": "",
+      "description": "Required bearer token protecting normal REST and MCP operations.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cookie API Key",
+      "key": "CAMOFOX_API_KEY",
+      "value": "",
+      "description": "Required bearer token for cookie import. Use a separate long random value.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Bind Address",
+      "key": "CAMOFOX_BIND_HOST",
+      "value": "0.0.0.0",
+      "description": "Required inside the container so the mapped REST port is reachable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Service Port",
+      "key": "CAMOFOX_PORT",
+      "value": "9377",
+      "description": "Internal HTTP port; keep aligned with the container port mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Profile Directory",
+      "key": "CAMOFOX_PROFILE_DIR",
+      "value": "/data/profiles",
+      "description": "Persistent per-user cookies and localStorage.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie Directory",
+      "key": "CAMOFOX_COOKIES_DIR",
+      "value": "/data/cookies",
+      "description": "Sandboxed location for optional Netscape-format cookie imports.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Upload Directory",
+      "key": "CAMOFOX_UPLOADS_DIR",
+      "value": "/data/uploads",
+      "description": "Sandboxed location from which agents may upload files to websites.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trace Directory",
+      "key": "CAMOFOX_TRACES_DIR",
+      "value": "/data/traces",
+      "description": "Short-lived Playwright trace archives when tracing is explicitly enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable Crash Telemetry",
+      "key": "CAMOFOX_CRASH_REPORT_ENABLED",
+      "value": "false",
+      "description": "Keep crash and hang reports local for this private deployment.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Sessions",
+      "key": "MAX_SESSIONS",
+      "value": "5",
+      "description": "Limit simultaneous isolated browser sessions for a small private deployment.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Tabs per Session",
+      "key": "MAX_TABS_PER_SESSION",
+      "value": "10",
+      "description": "Limit tabs in each browser session.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum Global Tabs",
+      "key": "MAX_TABS_GLOBAL",
+      "value": "20",
+      "description": "Hard global tab limit for the service.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Browser Idle Shutdown",
+      "key": "BROWSER_IDLE_TIMEOUT_MS",
+      "value": "300000",
+      "description": "Stop the browser engine after five idle minutes while keeping the REST service available.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

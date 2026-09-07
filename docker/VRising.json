@@ -1,111 +1,241 @@
 {
   "name": "V-Rising",
-  "repo": "ghcr.io/ich777/steamcmd:vrising",
+  "repo": "ferment9348/v-rising:latest",
   "category": [
     "Game Server"
   ],
-  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "registry": "https://hub.docker.com/r/ferment9348/v-rising/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:9876-9877]",
-  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/vrising.png",
-  "project": "https://steampowered.com/",
-  "description": "This Docker will download and install SteamCMD. It will also install V Rising and run it. **Save Files:** The save files are located in: .../vrising/save-data/Saves **Config Files:** The config files are located in: .../vrising/save-data/Settings ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "web_ui_url": "http://[IP]:[PORT:27015]",
+  "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/v-rising.png",
+  "project": "https://github.com/blckassassin/unraid-game-servers",
+  "description": "V Rising dedicated server. V Rising ships no Linux server binary, so this pulls the Windows depot with SteamCMD and runs it under GE-Proton, the same way the ARK: Survival Ascended container here does. First boot downloads about 2GB and then builds a Proton prefix, which can sit quiet for several minutes before anything appears in the log. That is normal. Settings here are applied on every restart, so changing Max Players or the password and restarting takes effect. They are passed to the server as launch options rather than written into its config files, which means your own edits to ServerHostSettings.json and ServerGameSettings.json are never overwritten - the container seeds those two files once from the defaults the server ships with and then leaves them alone forever. Anything not listed as a field below is still reachable: the server reads its own VR_ environment variables, so adding a variable named VR_FPS with a value of 45 sets the server framerate, and every setting in Stunlock's documentation works the same way. See https://github.com/StunlockStudios/vrising-dedicated-server-instructions for the full list. The server saves when the container stops. Raise Unraid's own container stop timeout to at least 75 seconds so the save is not cut off.",
   "paths": [
+    {
+      "name": "Game Files",
+      "host": "/mnt/cache/appdata/v-rising",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Where the server, saves and settings live. Several GB - see Requires below.",
+      "required": true
+    },
     {
       "name": "SteamCMD",
       "host": "/mnt/cache/appdata/steamcmd",
       "container": "/serverdata/steamcmd",
       "mode": "rw",
-      "description": null,
-      "required": true
-    },
-    {
-      "name": "ServerFiles",
-      "host": "/mnt/cache/appdata/vrising",
-      "container": "/serverdata/serverfiles",
-      "mode": "rw",
-      "description": null,
+      "description": "SteamCMD itself. Small, and shareable with other SteamCMD containers.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "UDP - Game Ports",
-      "host": "9876-9877",
-      "container": "9876-9877",
+      "name": "Game Port",
+      "host": "27015",
+      "container": "27015",
       "protocol": "udp",
-      "description": "UDP Game Ports (if you need other ports please delete this entry and create a new port mapping, also don't forget to change the ports in the config file which is located at .../vrising/save-data/Settings/ServerHostSettings.json).",
+      "description": "Game traffic. UDP. This is the one to forward. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. If you also run the ARK: Survival Ascended container on this server, its Query Port defaults to 27015 as well and Docker will refuse to start the second container. Change one of them - ARK's is the safer one to move, since its 27015 is vestigial and discovery goes via EOS.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port",
+      "host": "27016",
+      "container": "27016",
+      "protocol": "udp",
+      "description": "Steam server list traffic. Forward this too, or the server runs fine and never appears in the browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RCON Port",
+      "host": "25575",
+      "container": "25575",
+      "protocol": "tcp",
+      "description": "RCON. Only forward this if you administer the server from outside this box - anyone who reaches it and has the admin password controls the server.",
+      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "GAME_ID",
-      "key": "GAME_ID",
-      "value": "1829350",
-      "description": "The GAME_ID that the container download at startup. If you want to install a static or beta version of the game change the value to: '1829350 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "name": "Server Port",
+      "key": "GAME_PORT",
+      "value": "27015",
+      "description": "The port the server binds. Keep it equal to Game Port above, both the Container Port and the Host Port.",
       "required": true,
       "mask": false
     },
     {
-      "name": "Validate Installation",
-      "key": "VALIDATE",
-      "value": "",
-      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "name": "Server Query Port",
+      "key": "QUERY_PORT",
+      "value": "27016",
+      "description": "The query port the server binds. Keep it equal to Query Port above, both the Container Port and the Host Port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server RCON Port",
+      "key": "RCON_PORT",
+      "value": "25575",
+      "description": "The RCON port the server binds. Keep it equal to RCON Port above.",
       "required": false,
       "mask": false
     },
     {
       "name": "Server Name",
       "key": "SERVER_NAME",
-      "value": "V Rising Docker",
-      "description": "Enter your preferred server name.",
+      "value": "V Rising Server",
+      "description": "Name shown in the server browser. Applied on every restart.",
       "required": true,
       "mask": false
     },
     {
-      "name": "World Name",
+      "name": "Save Name",
       "key": "WORLD_NAME",
       "value": "world1",
-      "description": "Enter your prefered world name.",
+      "description": "Name of the save directory. Changing this after first boot starts a NEW world - the old one stays on disk under save-data/Saves and can be switched back to by setting this name again. It does not rename anything.",
       "required": true,
       "mask": false
     },
     {
-      "name": "Game Parameters",
-      "key": "GAME_PARAMS",
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "40",
+      "description": "Player slots. 128 is the documented maximum. Applied on every restart.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Password",
+      "key": "SRV_PWD",
       "value": "",
-      "description": "Enter additional game startup parameters if needed, otherwise leave empty.",
+      "description": "Join password. Leave blank for an open server. Applied on every restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Admin Password",
+      "key": "SRV_ADMIN_PWD",
+      "value": "",
+      "description": "RCON password. Leaving this blank disables RCON entirely, which is the safe default - the server still saves and shuts down cleanly without it. Set it only if you want to run admin commands.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Server Description",
+      "key": "SERVER_DESC",
+      "value": "",
+      "description": "Shown in the server browser's details panel, and printed in chat as players connect.",
       "required": false,
       "mask": false
     },
     {
-      "name": "BepInEx",
-      "key": "ENABLE_BEPINEX",
-      "value": "",
-      "description": "If you want to enable BepInEx for V Rising set this variable to 'true' (without quotes). For more information please refer to this site: https://v-rising.thunderstore.io/package/BepInEx/BepInExPack_V_Rising/",
+      "name": "Max Admins",
+      "key": "MAX_ADMINS",
+      "value": "4",
+      "description": "Admins allowed to connect even when the server is full.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Steam-Username",
+      "name": "Game Settings Preset",
+      "key": "GAME_PRESET",
+      "value": "",
+      "description": "Load one of the presets shipped in VRisingServer_Data/StreamingAssets/GameSettingPresets, e.g. StandardPvP. Blank uses ServerGameSettings.json as it stands.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Difficulty Preset",
+      "key": "DIFFICULTY_PRESET",
+      "value": "",
+      "description": "Difficulty_Easy, Difficulty_Normal or Difficulty_Brutal. Blank leaves the setting alone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "List on Steam",
+      "key": "LIST_ON_STEAM",
+      "value": "true",
+      "description": "Register on the Steam server list. true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "List on EOS",
+      "key": "LIST_ON_EOS",
+      "value": "true",
+      "description": "Register on the EOS server list, which is where the client looks by default. true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Mode",
+      "key": "SECURE",
+      "value": "true",
+      "description": "VAC protection. VAC banned clients cannot connect. true or false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "",
+      "description": "Appended to the launch line verbatim. Most settings do not need this - see the Overview about VR_ variables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Files",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set to true to have SteamCMD verify every file on the next start. Slow. Use it after a crash or a failed update.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Logging",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Turns on Proton and wine logging. Noisy and slows startup - use it when the server exits without writing any log of its own.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proton Version",
+      "key": "PROTON_VERSION",
+      "value": "GE-Proton10-34",
+      "description": "GE-Proton build to run the server under. This image is tested against GE-Proton10-34. A build the game does not tolerate fails silently, before any log is written - if that happens, set this back and delete the proton folder so the prefix is rebuilt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Timeout",
+      "key": "STOP_TIMEOUT",
+      "value": "60",
+      "description": "Seconds to wait for a graceful save-and-exit before force killing. Also raise Unraid's own container stop timeout to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Username",
       "key": "USERNAME",
       "value": "",
-      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "description": "Leave blank. The V Rising server downloads anonymously.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Steam-Password",
+      "name": "Steam Password",
       "key": "PASSWRD",
       "value": "",
-      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
+      "description": "Leave blank.",
       "required": false,
       "mask": true
     },
@@ -113,7 +243,7 @@
       "name": "UID",
       "key": "UID",
       "value": "500",
-      "description": null,
+      "description": "User ID. 99 is the Unraid default.",
       "required": true,
       "mask": false
     },
@@ -121,8 +251,24 @@
       "name": "GID",
       "key": "GID",
       "value": "500",
-      "description": null,
+      "description": "Group ID. 100 is the Unraid default.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Permissions",
+      "key": "DATA_PERM",
+      "value": "775",
+      "description": "Mode applied to the top of the server directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "umask for files the server creates. 000 keeps them editable over the share.",
+      "required": false,
       "mask": false
     }
   ],
