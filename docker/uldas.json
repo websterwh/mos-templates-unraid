@@ -1,0 +1,123 @@
+{
+  "name": "uldas",
+  "repo": "netplexflix/uldas:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/netplexflix/uldas",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2119]",
+  "icon": "https://raw.githubusercontent.com/MrCorehh/unraid-templates/main/netplexflix/uldas.png",
+  "project": "https://github.com/netplexflix/ULDAS",
+  "description": "ULDAS (Undefined Language Detector for Audio and Subtitles) scans video and subtitle files for audio and subtitle tracks tagged as undefined or unknown, extracts samples, uses Whisper speech recognition to detect the audio language, detects subtitle language (including FORCED and SDH flags), and writes the correct language codes back to the file metadata. Optionally remuxes non-MKV video to MKV first. Includes a WebUI on port 2119 for settings, scheduler and logs. Setup: 1. Map each media library you want scanned to a path inside the container (e.g. /folder1, /folder2). Add more paths as needed. 2. Start the container once, then edit /appdata/uldas/config.yml (or use the WebUI Settings page) so the 'path' list matches the container-side paths you mapped. 3. CRON_SCHEDULE and SCHEDULE_HOURS are only read on first launch. After that the schedule is managed in the WebUI under Settings, Scheduler. 4. ULDAS does not run on container start by default. Trigger a run from the WebUI dashboard or enable Run on Startup in Settings. Warning: with remux_to_mkv enabled the original non-MKV file is deleted after a successful remux. Use dry_run: true in config.yml to test first. Optional NVIDIA GPU: install the Nvidia Driver plugin, set Extra Parameters to --runtime=nvidia and fill in NVIDIA_VISIBLE_DEVICES with your GPU UUID. Set device to cuda in config.yml.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/uldas",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Holds config.yml and tracking data.",
+      "required": true
+    },
+    {
+      "name": "Media Folder 1",
+      "host": "/mnt/cache/media/movies",
+      "container": "/folder1",
+      "mode": "rw",
+      "description": "First media library to scan (e.g. Movies). The container-side path must be listed under 'path' in config.yml.",
+      "required": true
+    },
+    {
+      "name": "Media Folder 2",
+      "host": "/mnt/cache/media/tv",
+      "container": "/folder2",
+      "mode": "rw",
+      "description": "Second media library to scan (e.g. TV Shows). The container-side path must be listed under 'path' in config.yml. Remove if not needed.",
+      "required": false
+    },
+    {
+      "name": "Temp Directory",
+      "host": "",
+      "container": "/tmp/uldas",
+      "mode": "rw",
+      "description": "Optional. Host path for temporary audio and subtitle extraction. Leave empty to use the container's internal /tmp. Point at a fast drive if you process large files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "2119",
+      "container": "2119",
+      "protocol": "tcp",
+      "description": "Port for the ULDAS WebUI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the process runs as. 99 is the Unraid 'nobody' user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the process runs as. 100 is the Unraid 'users' group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Australia/Brisbane",
+      "description": "Timezone, e.g. Europe/Brussels, America/New_York, Australia/Brisbane.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CRON_SCHEDULE",
+      "key": "CRON_SCHEDULE",
+      "value": "0 5 * * 5",
+      "description": "Cron expression for scheduled runs. Only used as the initial default on first launch; afterwards edit in the WebUI (Settings, Scheduler). Leave empty together with SCHEDULE_HOURS to run once and exit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULE_HOURS",
+      "key": "SCHEDULE_HOURS",
+      "value": "",
+      "description": "Alternative to CRON_SCHEDULE: run every N hours (e.g. 24). Only used as the initial default on first launch. Leave empty if using CRON_SCHEDULE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Optional GPU acceleration. GPU UUID from the Nvidia Driver plugin, or 'all'. Requires --runtime=nvidia in Extra Parameters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "all",
+      "description": "Optional GPU acceleration. Leave as 'all' when using an NVIDIA GPU.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

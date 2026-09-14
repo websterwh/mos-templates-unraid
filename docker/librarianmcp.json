@@ -1,0 +1,145 @@
+{
+  "name": "librarian-mcp",
+  "repo": "bitcryptic/librarian-mcp:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://hub.docker.com/r/bitcryptic/librarian-mcp",
+  "network": "ai-net",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/bitcryptic-gw/unraid-templates/main/icon.png",
+  "project": "https://github.com/bitcryptic-gw/librarian-mcp",
+  "description": "Librarian MCP \u2014 a self-hosted MCP server that curates a shared, git-backed document store for AI agents. Other agents (Claude, CC, OC, Hermes, k2) query it for context and submit new information at the end of sessions, instead of touching files directly. The librarian owns all writes, maintains an FTS5 search index, and keeps a git log plus provenance cache (log.ndjson) of who submitted what and when. TOOLS: - query(criteria, scope?) \u2014 keyword search across granted scopes; returns ranked matches (no LLM call) - submit(content, scope, hint?) \u2014 a curator model (via litellm) decides create / update / merge / reject_duplicate, then the result is written and committed - get(doc_id) \u2014 full document content plus commit history TAILNET IDENTITY \u2014 Unraid NATIVE integration (no image changes needed): This image is Tailscale-unaware. Unraid's built-in per-container Tailscale (Unraid 7+) gives the container its own tailnet presence via the container's Tailscale settings in the Docker UI: - Use Tailscale toggle: ENABLED (pre-set by this template) - Tailscale hostname: librarian-mcp (node appears as librarian-mcp.pygmy-bramble.ts.net) - Tailscale tag: tag:librarian-mcp (ACL grant live: tag:librarian-mcp \u2192 tcp:8090) - Tailscale State Directory: /mnt/user/appdata/tailscale/librarian-mcp FIRST DEPLOY / REGISTRATION (pre-tagged auth key, no log-link): Gary generates a pre-tagged, reusable auth key in the Tailscale admin console (scoped to tag:librarian-mcp), saves it to 1Password, and pastes it into the Tailscale Extra Parameters field in place of the REPLACE_WITH_TAILSCALE_AUTH_KEY placeholder (the field is pre-filled with the full flags below). Then start the container \u2014 no interactive registration is needed. Confirm in the admin console that the node appears with tag:librarian-mcp. \u26a0 AUTH KEY VISIBILITY: the Tailscale Extra Parameters field is a plain text field (not password-masked) and the value is stored in the template/container config, so the pasted key is visible in the Unraid UI and via docker inspect. This matches the earlier env-var-visibility caveat. If strict no-inspect compliance is required, say so and we'll switch to a file-mounted key instead. BINDING: the app listens on 0.0.0.0 inside its isolated container netns (BIND_ADDRESS=0.0.0.0). No host port is published, so the service is reachable only via its Tailscale identity \u2014 tailnet-only. SECURITY: - Agent bearer tokens are loaded from a file mount only (Agent Token File), never env/CLI. - Timing-safe token comparison; scope enforcement (a caller cannot write outside its granted scopes). - Request body size limits on submit; input validation on all tool parameters. - Refuses to start if required secrets are missing. BEFORE FIRST START: 1. Create the data directory: /mnt/user/appdata/librarian 2. Create the agent token file (one identity per agent so provenance records who wrote what; all share the single `shared` pool): printf '%s' '{\"agents\":{\"gary-cc\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]},\"gary-claude\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]},\"gary-oc\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]},\"gary-k4\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]},\"graham-hermes\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]},\"graham-neo\":{\"token\":\"REPLACE_WITH_LONG_RANDOM_TOKEN\",\"scopes\":[\"shared\"]}}}' /mnt/user/appdata/librarian/tokens.json chown 99:100 /mnt/user/appdata/librarian/tokens.json && chmod 600 /mnt/user/appdata/librarian/tokens.json 3. Create the litellm API key file (a scoped litellm virtual key, e.g. gary-agents): printf '%s' 'sk-your-litellm-virtual-key' /mnt/user/appdata/librarian/litellm_key chown 99:100 /mnt/user/appdata/librarian/litellm_key && chmod 600 /mnt/user/appdata/librarian/litellm_key AGENT CONNECTION: point your agent's MCP client at: http://librarian-mcp.pygmy-bramble.ts.net:8090/mcp with header: Authorization: Bearer agent-token Full docs: https://github.com/bitcryptic-gw/librarian-mcp",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/librarian",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Data directory containing the git repo (repo/), the FTS5 search index (index.sqlite) and the provenance cache (log.ndjson).",
+      "required": true
+    },
+    {
+      "name": "Agent Token File",
+      "host": "/mnt/cache/appdata/librarian/tokens.json",
+      "container": "/run/secrets/agent_tokens",
+      "mode": "ro",
+      "description": "Host path to the JSON file mapping agent tokens to identities and scopes. Read-only inside the container.",
+      "required": true
+    },
+    {
+      "name": "Litellm API Key File",
+      "host": "/mnt/cache/appdata/librarian/litellm_key",
+      "container": "/run/secrets/litellm_key",
+      "mode": "ro",
+      "description": "Host path to a file containing the litellm virtual key (e.g. gary-agents). Sent as a Bearer token to litellm. Keeps the secret out of docker inspect.",
+      "required": true
+    },
+    {
+      "name": "Tailscale State",
+      "host": "/mnt/cache/appdata/tailscale/librarian-mcp",
+      "container": "/mnt/user/appdata/tailscale/librarian-mcp",
+      "mode": "rw",
+      "description": "Persistent Tailscale state directory. Host and container paths must be identical so the container resumes its tailnet identity (same node) across restarts/recreates instead of registering a duplicate.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Repo Path",
+      "key": "REPO_PATH",
+      "value": "/data/repo",
+      "description": "Path (inside the container) to the git working tree that holds docs/. Must sit under the Data Path mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Litellm API Key File Path",
+      "key": "LITELLM_API_KEY_FILE",
+      "value": "/run/secrets/litellm_key",
+      "description": "Container path to the mounted litellm key file (matches the Litellm API Key File mount). Read at boot; the value itself is never an env var.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LITELLM_BASE_URL",
+      "key": "LITELLM_BASE_URL",
+      "value": "http://litellm:4000",
+      "description": "Full URL to your litellm proxy (OpenAI-compatible). Default assumes the litellm container on the same ai-net bridge network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LITELLM_MODEL",
+      "key": "LITELLM_MODEL",
+      "value": "deepseek-flash",
+      "description": "litellm model_name to route to. deepseek-flash = DeepSeek V4 Flash via the litellm proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "EMBEDDING_MODEL",
+      "key": "EMBEDDING_MODEL",
+      "value": "qwen3-embedding",
+      "description": "litellm model_name of the embedding route used for semantic search (e.g. qwen3-embedding). The embeddings call goes to litellm's /embeddings endpoint - the same litellm base URL + API key the curator uses; litellm routes to the Ollama embedding model. Configure the route in litellm's config.yaml, not here. Unset disables semantic search entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Delete Confirm Agents",
+      "key": "DELETE_CONFIRM_AGENTS",
+      "value": "",
+      "description": "Comma-separated allowlist of agent ids allowed to confirm deletes (two-step delete confirm step only). Empty/unset = any agent may confirm (still after the cooldown). Set to your interactive-only identities (e.g. gary-claude) to stop background agents closing the loop unattended. Whitespace around ids tolerated; ids match [a-z0-9._-].",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rollback Confirm Agents",
+      "key": "ROLLBACK_CONFIRM_AGENTS",
+      "value": "",
+      "description": "Comma-separated allowlist of agent ids allowed to confirm rollbacks (two-step rollback confirm step only; requests are unrestricted). Empty/unset = any agent may confirm (still gated by the token TTL and the requester-identity binding). NOTE: an identity that can write documents but is excluded here can damage a doc and then be unable to repair it via rollback \u2014 set deliberately. Whitespace around ids tolerated; ids match [a-z0-9._-].",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server Port",
+      "key": "PORT",
+      "value": "8090",
+      "description": "Port the MCP endpoint listens on inside the container. Exposed on the tailnet via Unraid's native Tailscale integration \u2014 never a published LAN port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bind Address",
+      "key": "BIND_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Address the server binds. 0.0.0.0 is correct for Unraid's native Tailscale (userspace networking): the container netns is isolated and no host port is published, so the service is tailnet-only. Set a specific tailnet IP only if you disable userspace networking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the container process runs as. Default 99 = nobody on Unraid. The Data Path is chowned to this UID at start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the container process runs as. Default 100 = users on Unraid.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

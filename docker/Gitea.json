@@ -1,51 +1,68 @@
 {
   "name": "Gitea",
-  "repo": "gitea/gitea",
+  "repo": "ghcr.io/go-gitea/gitea:latest",
   "category": [
-    "Backup"
+    "Productivity"
   ],
-  "registry": "https://registry.hub.docker.com/r/gitea/gitea/",
+  "registry": "https://github.com/go-gitea/gitea",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:3000]",
-  "icon": "https://raw.githubusercontent.com/fanningert/unraid-docker-templates/master/fanningert/icons/gitea.png",
-  "project": null,
-  "description": "Gitea: Git with a cup of tea - The goal of this project is to make the easiest, fastest, and most painless way of setting up a self-hosted Git service. Using Go, this can be done with an independent binary distribution across all platforms which Go supports, including Linux, macOS, and Windows on x86, amd64, ARM and PowerPC architectures. Want to try it before doing anything else? Do it with the online demo! This project has been forked from Gogs.",
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/UberMetroid/unraid-thirdparty/main/icons/gitea.png",
+  "project": "https://github.com/go-gitea/gitea",
+  "description": "Gitea is a painless self-hosted Git service. It is a community-managed fork of Gogs, written in Go and licensed under the MIT license. It runs light on resources and includes issue tracking, pull requests, wikis, and integrations. Note: This is a third-party community template and is not an official XML file from the application developers.",
   "paths": [
     {
-      "name": "Data Storage Path",
+      "name": "Data Path",
       "host": "/mnt/cache/appdata/gitea",
       "container": "/data",
       "mode": "rw",
-      "description": "Container Path: /data",
+      "description": "Persistent storage path for configurations, databases, keys, and git repositories.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Git over SSH",
-      "host": "22",
-      "container": "22",
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
       "protocol": "tcp",
-      "description": "Container Port: 22",
+      "description": "Gitea Web Interface HTTP port.",
       "required": true,
       "mask": false
     },
     {
-      "name": "WebUI and Git over HTTP",
-      "host": "3000",
-      "container": "3000",
+      "name": "SSH Port",
+      "host": "2222",
+      "container": "22",
       "protocol": "tcp",
-      "description": "Container Port: 3000",
+      "description": "SSH port for git operations. Unraid host port 22 is usually reserved, so 2222 is recommended.",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "User UID",
+      "key": "USER_UID",
+      "value": "99",
+      "description": "UID of the user running Gitea (Unraid default 'nobody' user is 99).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User GID",
+      "key": "USER_GID",
+      "value": "100",
+      "description": "GID of the group running Gitea (Unraid default 'users' group is 100).",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

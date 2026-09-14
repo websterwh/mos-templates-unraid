@@ -1,0 +1,203 @@
+{
+  "name": "deadair",
+  "repo": "deadair/deadair:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/deadair/deadair",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/robert-dean/deadair/main/apps/web/public/logo-mark.png",
+  "project": "https://github.com/robert-dean/deadair",
+  "description": "An AI radio station: it picks the records, writes what the presenter says between them, speaks it, and streams the result. Everything is in this one container \u2014 the station, its console, the audio chain and the stream server. Pick the tag that matches what your server already runs: deadair/deadair:latest \u2014 a voice is included; point it at your own PostgreSQL and Redis. deadair/deadair:full \u2014 brings its own database and cache as well. Nothing else needed. deadair/deadair:slim \u2014 no voice either; for pointing at a speech server on another machine. Everything it keeps lives under one path, so backing it up is backing up one share. First run: open the console on the WebUI port and sign in. The database schema is applied automatically. The stream is served by this same container at /live.mp3, so whatever you put in front of the WebUI port (a reverse proxy or a tunnel) carries the station too. On Spotify there are TWO authorizations on the plugin page, and the station needs both. The connection lets the plugin read your library; the playback authorization below it lets the station fetch the audio. With only the first, your playlists list perfectly and nothing ever plays. The page Spotify sends your browser to will not load \u2014 that is expected, not a failure \u2014 so copy that address out of the bar and paste it back into the console.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/deadair",
+      "container": "/data",
+      "mode": "rw",
+      "description": "What the station IS: its settings, presenters, schedule, pronunciations and ratings, installed plugins, the stream's own credentials, the audio you recorded yourself, logs \u2014 and, on the full tag, the database holding most of it. Small, authored, and the thing to back up. Belongs on the cache pool.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Optional, and only about size. What the station HOLDS rather than what it is: records downloaded before they air, cover art, the speech it rendered, voice previews, the speech model's weights. All of it can be produced again by running the station, and it grows to roughly the size of the library you play \u2014 so put it on the array and leave it out of your backups. Blank keeps it under Data, which is fine until the library gets big.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "The console, the API and the stream, all on this one port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public address",
+      "key": "APP_BASE_URL",
+      "value": "",
+      "description": "The address you type into a browser to reach this station, all of it: scheme, host and port, with nothing after the port. On your own network that is http:// with your server's address and the WebUI port above, such as http://192.168.1.10:8080; behind a proxy that terminates TLS it is the https:// name. Sign-in links and a music provider's authorization are sent back here, so a wrong value is a sign-in that lands nowhere. It does not decide whether the console loads.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console address",
+      "key": "SPA_BASE_URL",
+      "value": "",
+      "description": "The same address as the public address above, because one port serves the console and the API.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "An IANA zone name such as America/New_York or Europe/London. The station reads the clock in this when it says the time and when it works out what half of the day it is; left unset a container reports UTC, which is a presenter saying &quot;tonight&quot; through your afternoon. Only the fallback \u2014 the station's own &quot;Where the station is&quot; setting, on the settings page, wins over it, because a station is a place and its listeners are in it rather than wherever the server happens to sit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret key",
+      "key": "KMS_LOCAL_ROOT_KEY",
+      "value": "",
+      "description": "Encrypts every credential the station stores, including your music provider's. Generate once with: openssl rand -hex 32 \u2014 it must be hex, and keep it. Losing it means entering all of them again.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session key",
+      "key": "AUTHENTICATION_SESSION_JWT_PRIVATE_KEY",
+      "value": "",
+      "description": "Signs sessions, RS256, so it must be an RSA key. Generate one with: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 | base64 -w0 \u2014 a key is several lines and this field is one, so base64 it and paste that. Losing it signs everybody out and nothing worse.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database host",
+      "key": "DATABASE_HOST",
+      "value": "",
+      "description": "Your PostgreSQL server, version 13 or newer (17 is what the station is tested on). No extensions needed. Leave every database and cache field blank on the full tag, which runs its own.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database port",
+      "key": "DATABASE_PORT",
+      "value": "5432",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database name",
+      "key": "DATABASE_NAME",
+      "value": "deadair",
+      "description": "Must already exist, owned by the database user below; the station creates its own schema inside it, not the database itself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database user",
+      "key": "DATABASE_USER",
+      "value": "",
+      "description": "Owns the schema: the station applies its migrations as this user at every start. It needs CREATEROLE, or a role named app_user created beforehand by a superuser (CREATE ROLE app_user NOLOGIN), because the first migration makes one.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "DATABASE_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Runtime database user",
+      "key": "DATABASE_APP_USER",
+      "value": "",
+      "description": "Optional, and both this and the password below have to be filled in for either to take effect. A second, non-owner role for the request path, holding DML grants only, so a request cannot alter the schema \u2014 migrations still run as the owner above. Leave both empty to run everything as the owner, which is what happens today.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Runtime database password",
+      "key": "DATABASE_APP_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cache host",
+      "key": "REDIS_HOST",
+      "value": "",
+      "description": "Your Redis server. Sessions live here rather than in the database, so losing it signs everybody out and costs nothing else.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sign-in client id",
+      "key": "GOOGLE_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Optional, for signing in with Google. Without this the station signs you in with a one-time code instead. Register the public address followed by /api/auth/login/oidc/callback as the OAuth client's authorized redirect URI in the Google Cloud console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sign-in client secret",
+      "key": "GOOGLE_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Proxy in front",
+      "key": "REAL_IP_FROM",
+      "value": "",
+      "description": "Leave empty unless a tunnel or a reverse proxy sits in front of this station. When one does, every listener reaches the station as THAT, so they all share one rate limit and the listener count collapses to however many different players are tuned in. Naming the proxy here \u2014 an address or a CIDR, and 172.16.0.0/12 covers another container on this box \u2014 lets the station see who actually asked. Only name something you put there yourself: it means believing an address that arrives in a header.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy address header",
+      "key": "REAL_IP_HEADER",
+      "value": "X-Forwarded-For",
+      "description": "Which header the proxy above puts the listener's address in. X-Forwarded-For suits almost everything; a Cloudflare tunnel also sends CF-Connecting-IP. Ignored while the field above is empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Apply migrations at start",
+      "key": "MIGRATE_ON_BOOT",
+      "value": "true",
+      "description": "Leave on unless you apply the schema yourself. An out-of-date schema otherwise degrades quietly rather than failing.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

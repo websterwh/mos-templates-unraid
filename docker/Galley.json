@@ -1,0 +1,75 @@
+{
+  "name": "Galley",
+  "repo": "kevincardwell/galley:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/kevincardwell/galley",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/kevincardwell/galley/main/public/icon-512.png",
+  "project": "https://github.com/kevincardwell/galley",
+  "description": "Galley is a self-hosted home for the work around a project: what needs doing, what it will say, who you are hiring, when it happens, and the files that go with it. Each project gets its own space with tasks, a copy editor with approval states and version history, a calendar of deadlines and scheduled entries, a shared supplier directory, and an asset library with thumbnails and colour palettes. You can hand a client a read-only link, or let them comment on and approve individual sections without an account. Everything lives in one SQLite file and one uploads folder inside the appdata path, so backing it up is a folder copy. Access is invite only: the first account you create is the admin, and everyone else sees only the projects they are added to. After the container starts, open the WebUI and create the admin account. Tick the box on that screen to load a worked example so nothing starts empty. If you put this behind a reverse proxy, set the Public URL variable to the address people will actually use. Installing it to a phone home screen needs https.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/galley",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the database, uploads and backups. Back this folder up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "GALLEY_URL",
+      "value": "http://[IP]:[PORT:3000]",
+      "description": "The address people use to reach Galley, used for invite links and to mark cookies secure. Use your https address if it sits behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max upload (MB)",
+      "key": "MAX_UPLOAD_MB",
+      "value": "500",
+      "description": "Largest single file upload. Raise your reverse proxy body limit to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxy hops",
+      "key": "TRUSTED_PROXY_HOPS",
+      "value": "1",
+      "description": "How many reverse proxies sit in front, so login rate limiting can find the real client address. Use 0 when nothing proxies it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Used for due dates, the calendar and the nightly backup time.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

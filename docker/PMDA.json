@@ -14,23 +14,55 @@
   "web_ui_url": "http://[IP]:5005/",
   "icon": "https://raw.githubusercontent.com/silkyclouds/PMDA_unraid_xml/main/pmda_p_icon.png",
   "project": "https://pmda.muteq.eu/",
-  "description": "PMDA (pronounced \"pimda\") is one music lover's take on building the music library of his dreams \u2014 self-hosted, private, and genuinely a joy to use. \u2022 Understands your collection \u2014 scans huge folders and identifies every album against MusicBrainz, with a smart soft / release-group pass that recovers the covers and metadata other tools give up on. \u2022 Keeps it clean \u2014 preserves the tags and artwork you trust, quarantines duplicates and incomplete rips, and publishes a fast, PostgreSQL-backed library. \u2022 Made for listening \u2014 gapless playback with history, cross-user recommendations, clickable artist pages, synced lyrics and waveforms. \u2022 Yours everywhere \u2014 native iOS and Android apps stream and download your library, lossless FLAC included. \u2022 100% self-hosted \u2014 no cloud lock-in, no phoning home, no AI tokens. Your music, your server, your rules. Made for people who are in love with music. \ud83c\udfb5",
+  "description": "PMDA (pronounced \"pimda\") is one music lover's take on building the music library of his dreams \u2014 self-hosted, private, and genuinely a joy to use. \u2022 Understands your collection \u2014 scans huge folders and identifies every album against MusicBrainz, with a smart soft / release-group pass that recovers the covers and metadata other tools give up on. \u2022 Keeps it clean \u2014 preserves the tags and artwork you trust, quarantines duplicates and incomplete rips, and publishes a fast, PostgreSQL-backed library. \u2022 Made for listening \u2014 gapless playback with history, cross-user recommendations, clickable artist pages, synced lyrics and waveforms. \u2022 Yours everywhere \u2014 native iOS and Android apps stream and download your library, lossless FLAC included. \u2022 100% self-hosted \u2014 no cloud lock-in, no phoning home, no AI tokens. Your music, your server, your rules. PMDA needs FIVE folders, and asks for all five even if the way you choose to run it uses only some of them \u2014 that way you can change your mind later without coming back here. It will NOT start until all five are mapped. Set the Host Path of each \u2014 the folder on your server. Do NOT touch the Container Path: /library, /intake, /organised, /quarantine and /config are the addresses PMDA reads, not names to pick, and renaming one stops the container with a message telling you so. Your music (/library) \u2014 what you already have. PMDA reads it and never changes it. New music (/intake) \u2014 where you drop music you have just got. Empty is normal. The organised folder (/organised) \u2014 a tidy version of your library, named and sorted PMDA's way. Set aside (/quarantine) \u2014 duplicates, incomplete albums and the trash. Nothing is ever deleted: it is moved, and it can be moved back. PMDA's own files (/config) \u2014 its database, your settings, the covers it downloads. This is the one to back up. Want the organised folder built with hard links, at no extra disk cost? Map one more folder: the one that contains both your music and the organised folder. See \u201cOptional: the folder that contains both\u201d below. Keep these five apart. In particular Set aside must NOT sit inside your music, or PMDA keeps finding what it just moved out of the way \u2014 it will refuse that layout and tell you so on first run. Made for people who are in love with music. \ud83c\udfb5",
   "paths": [
     {
-      "name": "Config Directory",
+      "name": "PMDA's own files",
       "host": "/mnt/cache/appdata/pmda",
       "container": "/config",
       "mode": "rw",
-      "description": "Persistent PMDA data: PostgreSQL, Redis state, settings, auth state, logs, and generated cache. If you install the optional local MusicBrainz mirror, its data (~170 GB) also lives here - put this on a fast pool with room to spare.",
+      "description": "Leave the Container Path exactly as it is (/config) \u2014 that is the address PMDA reads, not a name to choose, and the container refuses to start if it is renamed. Only the Host Path, the folder on your server, is yours to set. PMDA's database, your settings, auth state, logs and the covers it downloads. This is the one to back up. If you install the optional local MusicBrainz mirror, its data (~170 GB) lives here too \u2014 put this on a fast pool with room to spare. Keep it outside your music folders.",
       "required": true
     },
     {
-      "name": "Music Root",
+      "name": "Your music",
       "host": "/mnt/cache/Music",
-      "container": "/music",
+      "container": "/library",
       "mode": "rw",
-      "description": "Parent music share. Configure the exact Standard and Incoming source folders later in PMDA Settings.",
+      "description": "Leave the Container Path exactly as it is (/library) \u2014 that is the address PMDA reads, not a name to choose, and the container refuses to start if it is renamed. Only the Host Path, the folder on your server, is yours to set. The music you already have. PMDA reads it. In read-only mode \u2014 the recommended one \u2014 it never changes a single file here. Point this at the share that holds your collection.",
       "required": true
+    },
+    {
+      "name": "New music",
+      "host": "/mnt/cache/PMDA/intake",
+      "container": "/intake",
+      "mode": "rw",
+      "description": "Leave the Container Path exactly as it is (/intake) \u2014 that is the address PMDA reads, not a name to choose, and the container refuses to start if it is renamed. Only the Host Path, the folder on your server, is yours to set. Where you drop music you have just got. Empty is normal \u2014 PMDA watches this folder and identifies whatever lands in it. It must NOT be inside Your music, or PMDA cannot tell what has just arrived from what you already had.",
+      "required": true
+    },
+    {
+      "name": "The organised folder",
+      "host": "/mnt/cache/PMDA/organised",
+      "container": "/organised",
+      "mode": "rw",
+      "description": "Leave the Container Path exactly as it is (/organised) \u2014 that is the address PMDA reads, not a name to choose, and the container refuses to start if it is renamed. Only the Host Path, the folder on your server, is yours to set. Where PMDA can keep a tidy version of your library, named and sorted its way. Left empty in read-only mode. If you want it built with hardlinks (no extra disk space at all), it has to be on the SAME filesystem as Your music \u2014 two Unraid user shares often are not, and PMDA will tell you when it has to make real copies instead.",
+      "required": true
+    },
+    {
+      "name": "Set aside",
+      "host": "/mnt/cache/PMDA/quarantine",
+      "container": "/quarantine",
+      "mode": "rw",
+      "description": "Leave the Container Path exactly as it is (/quarantine) \u2014 that is the address PMDA reads, not a name to choose, and the container refuses to start if it is renamed. Only the Host Path, the folder on your server, is yours to set. Duplicates, incomplete albums and the trash go here. Nothing is ever deleted: it is moved, and it can be moved back. It must NOT sit inside your music or your intake folder \u2014 PMDA would keep finding what it just moved out of the way, and it refuses that layout on first run.",
+      "required": true
+    },
+    {
+      "name": "Optional: the folder that contains both",
+      "host": "",
+      "container": "/linkroot",
+      "mode": "rw",
+      "description": "ONLY if you want the organised folder built with hard links \u2014 the option that costs no extra disk space at all, because the same file simply appears in two places. A hard link cannot cross between two mappings, whatever the disk, so PMDA needs one more: the folder on your server that CONTAINS both Your music and The organised folder. If they live in one share, map that share here (for example /mnt/user/Music) and leave the Container Path as /linkroot. PMDA works the rest out on its own. Leave this empty and PMDA makes real copies instead, which always works and uses the space twice.",
+      "required": false
     },
     {
       "name": "Docker Socket",
@@ -41,12 +73,20 @@
       "required": false
     },
     {
-      "name": "Review Root",
-      "host": "/mnt/cache/PMDA/review",
+      "name": "Music Root (existing installs)",
+      "host": "",
+      "container": "/music",
+      "mode": "rw",
+      "description": "ONLY for installs that were set up before PMDA asked for the five folders above. Those instances have their folders configured under /music and keep working exactly as they are \u2014 PMDA validates what each folder is FOR, not what it is called. Leave this empty on a new install.",
+      "required": false
+    },
+    {
+      "name": "Review Root (existing installs)",
+      "host": "",
       "container": "/dupes",
       "mode": "rw",
-      "description": "Root folder used for duplicate and incomplete review targets.",
-      "required": true
+      "description": "ONLY for installs that were set up before PMDA asked for the five folders above, where duplicates and incomplete albums go to /dupes. New installs use Set aside (/quarantine) instead; leave this empty.",
+      "required": false
     }
   ],
   "ports": [],

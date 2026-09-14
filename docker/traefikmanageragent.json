@@ -1,0 +1,371 @@
+{
+  "name": "traefik-manager-agent",
+  "repo": "ghcr.io/chr0nzz/traefik-manager-agent:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/chr0nzz/traefik-manager-agent",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8090]/health",
+  "icon": "https://raw.githubusercontent.com/chr0nzz/unraid-templates/main/icon-agent.png",
+  "project": "https://github.com/chr0nzz/traefik-manager",
+  "description": "Puts an Unraid server under a Traefik Manager you already run somewhere else. The agent exposes this server Traefik config, certificates, logs and CrowdSec to that hub over one authenticated port, so its routes are edited from the same UI as every other server. It has no UI of its own. Install Traefik Manager first, add a server under Settings, Agents to generate the API key, then paste that key here.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/traefik/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Your Traefik dynamic config on this server. Point it at the directory Traefik loads, or at a single .yml file. The agent writes here, so it cannot be read only.",
+      "required": true
+    },
+    {
+      "name": "Backups Directory",
+      "host": "/mnt/cache/appdata/traefik-manager-agent/backups",
+      "container": "/app/backups",
+      "mode": "rw",
+      "description": "Timestamped backups taken before every change, and the git clone when backups go to a repository. Without this mapping everything here is lost each time the container is updated.",
+      "required": true
+    },
+    {
+      "name": "Static Config / Plugins - traefik.yml",
+      "host": "",
+      "container": "/etc/traefik/traefik.yml",
+      "mode": "rw",
+      "description": "Optional: this server traefik.yml, for the Static Config editor and the Plugins tab. Must be the same file Traefik itself reads, and read-write to allow saving. Also set the Static Config Path variable to match.",
+      "required": false
+    },
+    {
+      "name": "Certs - acme.json",
+      "host": "",
+      "container": "/app/acme.json",
+      "mode": "ro",
+      "description": "Optional: this server acme.json, for certificate expiry and for spotting certificates nothing uses. Also set the acme.json Path variable to /app/acme.json. Read-only is enough to view them; set it read-write, with a Restart Method, to remove certificates from this server.",
+      "required": false
+    },
+    {
+      "name": "Logs - access.log",
+      "host": "",
+      "container": "/app/logs/access.log",
+      "mode": "ro",
+      "description": "Optional: this server Traefik access log, for the Logs tab. Also set the Access Log Path variable to /app/logs/access.log.",
+      "required": false
+    },
+    {
+      "name": "Docker Socket (direct restart)",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Optional: only for Restart Method socket. A socket proxy is the safer choice. Host path: /var/run/docker.sock",
+      "required": false
+    },
+    {
+      "name": "Restart Signals Volume",
+      "host": "",
+      "container": "/signals",
+      "mode": "rw",
+      "description": "Optional: only for Restart Method poison-pill. Map a shared path here and at the same target in your watcher container, then point Signal File Path inside it. Leave blank for the other restart methods.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Agent Port",
+      "host": "8090",
+      "container": "8090",
+      "protocol": "tcp",
+      "description": "Port the Traefik Manager hub connects to. Publish it only on a network the hub can reach.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "API Key",
+      "key": "TMA_API_KEY",
+      "value": "",
+      "description": "Key the hub authenticates with. Generate it in Traefik Manager under Settings, Agents, then paste the same value here.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Traefik API URL",
+      "key": "TRAEFIK_API_URL",
+      "value": "http://traefik:8080",
+      "description": "URL of the Traefik API on this server. Usually http://traefik:8080 when both containers share a Docker network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Config Path",
+      "key": "CONFIG_PATH",
+      "value": "/app/config",
+      "description": "Path inside the container to the config mapped above. Change it only if you mapped the config somewhere other than /app/config.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Static Config Path",
+      "key": "STATIC_CONFIG_PATH",
+      "value": "",
+      "description": "Path inside the container to traefik.yml, for example /etc/traefik/traefik.yml. Leave blank unless you mapped it above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "acme.json Path",
+      "key": "ACME_JSON_PATH",
+      "value": "",
+      "description": "Path inside the container to acme.json. Accepts several files comma-separated, or a directory, for one storage file per resolver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access Log Path",
+      "key": "ACCESS_LOG_PATH",
+      "value": "",
+      "description": "Path inside the container to the Traefik access log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugins Directory",
+      "key": "PLUGINS_DIR",
+      "value": "",
+      "description": "Path inside the container to Traefik local plugins directory, for the Plugins tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Traefik API Username",
+      "key": "TRAEFIK_API_USER",
+      "value": "",
+      "description": "Optional: basic-auth username, when the Traefik API sits behind a basicAuth middleware.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Traefik API Password",
+      "key": "TRAEFIK_API_PASSWORD",
+      "value": "",
+      "description": "Optional: basic-auth password for the Traefik API.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Skip Traefik API TLS Verification",
+      "key": "TRAEFIK_INSECURE_SKIP_VERIFY",
+      "value": "false",
+      "description": "Set true when the Traefik API URL is https with a self-signed or Origin certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restart Method",
+      "key": "RESTART_METHOD",
+      "value": "",
+      "description": "How this agent restarts Traefik after a static config change. proxy for a Docker socket proxy, socket for the Docker socket directly, poison-pill for a signal file read by a watcher. Leave blank to disable restarts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Traefik Container Name",
+      "key": "TRAEFIK_CONTAINER",
+      "value": "traefik",
+      "description": "Name of the Traefik container to restart, used by the proxy and socket methods.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker Host (socket proxy)",
+      "key": "DOCKER_HOST",
+      "value": "",
+      "description": "Socket proxy address for Restart Method proxy, for example tcp://socket-proxy:2375.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal File Path (poison pill)",
+      "key": "SIGNAL_FILE_PATH",
+      "value": "",
+      "description": "File the agent touches to ask a watcher sidecar to restart Traefik, for example /signals/restart.sig. Map the same volume into both containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Directory Path",
+      "key": "BACKUP_DIR",
+      "value": "/app/backups",
+      "description": "Path inside the container for backups. Change it only if you mapped backups somewhere other than /app/backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Retention",
+      "key": "BACKUP_KEEP_COUNT",
+      "value": "0",
+      "description": "Keep only the last N backups per config file. 0 keeps every backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Agent Listen Port",
+      "key": "TMA_PORT",
+      "value": "8090",
+      "description": "Port the agent listens on inside the container. Change the port mapping above to match if you change this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Rate Limit",
+      "key": "TMA_RATE_LIMIT",
+      "value": "300",
+      "description": "Requests per minute accepted from the hub.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Logging",
+      "key": "TMA_DEBUG",
+      "value": "false",
+      "description": "Set true to log every request the agent handles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec LAPI URL",
+      "key": "CROWDSEC_LAPI_URL",
+      "value": "",
+      "description": "Optional: CrowdSec Local API on this server, for example http://crowdsec:8080. Enables the CrowdSec tab for this server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec API Key",
+      "key": "CROWDSEC_API_KEY",
+      "value": "",
+      "description": "Optional: CrowdSec bouncer key, used to read decisions. Generate with: cscli bouncers add traefik-manager",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CrowdSec Machine ID",
+      "key": "CROWDSEC_MACHINE_ID",
+      "value": "",
+      "description": "Optional: CrowdSec machine login, needed to view alerts and to unban. Create with: cscli machines add traefik-manager --auto",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Machine Password",
+      "key": "CROWDSEC_MACHINE_PASSWORD",
+      "value": "",
+      "description": "Optional: password for the CrowdSec machine login above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CrowdSec Client Certificate",
+      "key": "CROWDSEC_CLIENT_CERT",
+      "value": "",
+      "description": "Optional: path inside the container to a TLS client certificate, when the LAPI requires mTLS instead of a key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Client Key",
+      "key": "CROWDSEC_CLIENT_KEY",
+      "value": "",
+      "description": "Optional: path inside the container to the private key for the client certificate above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec CA Certificate",
+      "key": "CROWDSEC_CA_CERT",
+      "value": "",
+      "description": "Optional: path inside the container to the CA that signed the LAPI certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Alert Limit",
+      "key": "CROWDSEC_ALERT_LIMIT",
+      "value": "500",
+      "description": "How many alerts to read at once, 0 to 100000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Read Timeout",
+      "key": "CROWDSEC_READ_TIMEOUT",
+      "value": "20",
+      "description": "Seconds to wait for a CrowdSec LAPI response, 1 to 120.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Enabled",
+      "key": "GIT_BACKUP_ENABLED",
+      "value": "false",
+      "description": "Leave false unless this agent pushes to git on its own. The usual setup is Use Host Repository in Traefik Manager under Backups, Git, where the hub pushes this server config to its own repository on a separate branch and nothing is configured here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Repository",
+      "key": "GIT_BACKUP_REPO",
+      "value": "",
+      "description": "Only for a standalone agent: HTTPS URL of the repository to push to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Branch",
+      "key": "GIT_BACKUP_BRANCH",
+      "value": "main",
+      "description": "Only for a standalone agent: branch to push to. Give every server its own branch, or they overwrite each other.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Username",
+      "key": "GIT_BACKUP_USERNAME",
+      "value": "",
+      "description": "Only for a standalone agent: username the token belongs to.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Token",
+      "key": "GIT_BACKUP_TOKEN",
+      "value": "",
+      "description": "Only for a standalone agent: personal access token with write access to the repository.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Git Backup Auto Push",
+      "key": "GIT_BACKUP_AUTO_PUSH",
+      "value": "true",
+      "description": "Only for a standalone agent: push after every change instead of committing locally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git Backup Commit Message",
+      "key": "GIT_BACKUP_COMMIT_MESSAGE",
+      "value": "traefik-manager: {action} at {timestamp}",
+      "description": "Only for a standalone agent: commit message template. {action} and {timestamp} are replaced.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

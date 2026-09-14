@@ -1,0 +1,156 @@
+{
+  "name": "DeceiveInc",
+  "repo": "ghcr.io/the3venthoriz0n/steamcmd:deceiveinc",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/the3venthoriz0n/docker-steamcmd-server/pkgs/container/steamcmd",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/the3venthoriz0n/docker-templates/master/images/deceiveinc.png",
+  "project": "https://store.steampowered.com/app/820520/Deceive_Inc/",
+  "description": "This Docker will download and install SteamCMD. It will also install the Deceive Inc. Dedicated Server and run it. **Configuration:** The configuration is located at: .../serverfiles/config/TripwireServer.ini Every option in that file is documented with a comment above it (server name, password, game mode, map rotation, bots, heat values). The server reads the config once at startup, so restart the container after any change. **Ports:** The Game Port and Query Port variables set the initial values when the configuration is first created. After that the configuration file is authoritative and is never rewritten, so you can edit the ports there freely. If you change a port, change it in both the config file and the port mapping - the container warns you on start if they disagree. Both ports are UDP and both must be forwarded in your router. **UPnP:** Seeded to off. UPnP relies on SSDP multicast which cannot reach your router from a bridged container, so forward UDP 7777 and 7778 manually. On host networking you can set bEnableUPnP back to true in the config. **Region:** Leave ServerRegion empty at your own risk - region auto-detection can fail in a container and an empty region may hide your server from browser filters. Set it explicitly to one of: us-east, us-central, us-west, eu, oce, br, asia, me. **Note:** AutoShutdownEmptyMinutes in the config defaults to 0 (disabled). Setting it non-zero makes the server shut itself down when empty, which stops the container. **ATTENTION:** First Startup can take very long since it downloads the gameserver files (~1GB)! Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "paths": [
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    },
+    {
+      "name": "ServerFiles",
+      "host": "/mnt/cache/appdata/deceiveinc",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "UDP1 - Game Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": "UDP Gameport. If you change this you must also change the GAME_PORT variable to the same number.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UDP2 - Query Port",
+      "host": "7778",
+      "container": "7778",
+      "protocol": "udp",
+      "description": "UDP Queryport used by the server browser. If you change this you must also change the QUERY_PORT variable to the same number. Must differ from the game port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GAME_ID",
+      "key": "GAME_ID",
+      "value": "5007710",
+      "description": "The GAME_ID that the container downloads at startup. If you want to install a static or beta version of the game change the value to: '5007710 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game Port",
+      "key": "GAME_PORT",
+      "value": "7777",
+      "description": "Sets GamePort in TripwireServer.ini when the configuration is first created. Afterwards the configuration file wins and this value is only used to warn you on start if the two no longer match. Must match the UDP1 port mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port",
+      "key": "QUERY_PORT",
+      "value": "7778",
+      "description": "Sets QueryPort in TripwireServer.ini when the configuration is first created. Afterwards the configuration file wins and this value is only used for the mismatch warning. Must match the UDP2 port mapping above and must differ from the game port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable UPnP",
+      "key": "DISABLE_UPNP",
+      "value": "true",
+      "description": "If set to 'true' the configuration is seeded with bEnableUPnP=false. Only applies when the configuration is first created. UPnP cannot work from a bridged container, so forward UDP 7777 and 7778 in your router instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Config Path",
+      "key": "SERVER_CONFIG",
+      "value": "/serverdata/serverfiles/config/TripwireServer.ini",
+      "description": "Full path to the live server configuration. Kept outside the SteamCMD managed files so game updates cannot revert your settings.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Game Parameters",
+      "key": "GAME_PARAMS",
+      "value": "",
+      "description": "Enter your game parameters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "",
+      "description": "Enter your Extra Game Parameters seperated with a space and - (eg: -useperfthreads -NoAsyncLoadingThread)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Not required for this game, the server installs with an anonymous login. Leave blank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam-Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Not required for this game, the server installs with an anonymous login. Leave blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Validate Installation",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

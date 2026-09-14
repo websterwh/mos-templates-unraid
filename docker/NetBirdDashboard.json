@@ -1,86 +1,111 @@
 {
   "name": "NetBird-Dashboard",
-  "repo": "netbirdio/dashboard:latest",
+  "repo": "netbirdio/dashboard",
   "category": [
     "Network"
   ],
-  "registry": "https://hub.docker.com/r/netbirdio/dashboard",
+  "registry": "https://hub.docker.com/r/wiretrustee/dashboard/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:80]",
-  "icon": "https://raw.githubusercontent.com/realitymolder/unraid-templates/main/templates/img/netbird-dashboard.svg",
-  "project": "https://github.com/netbirdio/netbird",
-  "description": "NetBird web dashboard for managing peers, networks, access policies, and users in your self-hosted mesh VPN. Requires the NetBird-Server container and a reverse proxy for TLS.",
+  "web_ui_url": "http://[IP]:[PORT:8089]",
+  "icon": "https://raw.githubusercontent.com/dannymate/unraid-templates/master/icons/netbird-dashboard-icon-256px.png",
+  "project": "https://netbird.io",
+  "description": "NetBird is an open-source VPN management platform built on top of WireGuard\u00ae making it easy to create secure private networks for your organization or home. The Dashboard service provides a user friendly interface for management of peers and the overall network. Look at the \"Additional Requirements\" for the other two parts of the server stack.",
   "paths": [],
   "ports": [
     {
-      "name": "Web Port",
-      "host": "8080",
+      "name": "HTTP",
+      "host": "8089",
       "container": "80",
       "protocol": "tcp",
-      "description": "Dashboard web UI port",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS",
+      "host": "7443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": null,
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "API Endpoint",
-      "key": "NETBIRD_MGMT_API_ENDPOINT",
-      "value": "https://netbird.yourdomain.com",
-      "description": "Public HTTPS URL of the management REST API",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "gRPC Endpoint",
-      "key": "NETBIRD_MGMT_GRPC_API_ENDPOINT",
-      "value": "https://netbird.yourdomain.com",
-      "description": "Public HTTPS URL of the management gRPC API (same as API endpoint)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Auth Authority",
-      "key": "AUTH_AUTHORITY",
-      "value": "https://netbird.yourdomain.com/oauth2",
-      "description": "OIDC issuer URL (embedded IdP lives at /oauth2)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Client ID",
-      "key": "AUTH_CLIENT_ID",
-      "value": "netbird-dashboard",
-      "description": "OAuth2 client ID registered with the IdP",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Audience",
+      "name": "AUTH_AUDIENCE",
       "key": "AUTH_AUDIENCE",
-      "value": "netbird-dashboard",
-      "description": "OAuth2 audience claim",
-      "required": false,
+      "value": "netbird-client",
+      "description": null,
+      "required": true,
       "mask": false
     },
     {
-      "name": "Scopes",
+      "name": "AUTH_CLIENT_ID",
+      "key": "AUTH_CLIENT_ID",
+      "value": "netbird-client",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_AUTHORITY",
+      "key": "AUTH_AUTHORITY",
+      "value": "https://keycloak.meydomain.net/realms/netbird",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "USE_AUTH0",
+      "key": "USE_AUTH0",
+      "value": "false",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_SUPPORTED_SCOPES",
       "key": "AUTH_SUPPORTED_SCOPES",
-      "value": "openid profile email groups",
-      "description": "OAuth2 scopes to request",
+      "value": "openid profile email offline_access api",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NETBIRD_MGMT_API_ENDPOINT",
+      "key": "NETBIRD_MGMT_API_ENDPOINT",
+      "value": "https://netbird.mydomain.net",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NETBIRD_MGMT_GRPC_API_ENDPOINT",
+      "key": "NETBIRD_MGMT_GRPC_API_ENDPOINT",
+      "value": "https://netbird.mydomain.net",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AUTH_REDIRECT_URI",
+      "key": "AUTH_REDIRECT_URI",
+      "value": "",
+      "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "Let's Encrypt Domain",
-      "key": "LETSENCRYPT_DOMAIN",
-      "value": "none",
-      "description": "Set to 'none' when behind a reverse proxy (most setups), or your domain for standalone",
+      "name": "AUTH_SILENT_REDIRECT_URI",
+      "key": "AUTH_SILENT_REDIRECT_URI",
+      "value": "",
+      "description": null,
       "required": false,
       "mask": false
     }

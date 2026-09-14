@@ -1,0 +1,67 @@
+{
+  "name": "wealth-dashboard",
+  "repo": "ghcr.io/halvar20000/wealth-dashboard:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/halvar20000/wealth-dashboard/pkgs/container/wealth-dashboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/halvar20000/wealth-dashboard/main/icon.png",
+  "project": "https://github.com/halvar20000/wealth-dashboard",
+  "description": "Self-hosted net worth tracking. One SQLite file on your own server \u2014 no account with anybody, no telemetry, and no cloud component that could be switched off. \u2699 Nothing to configure to start: set a port, keep the Data path on appdata, apply, then open the WebUI and create your login. That login is the only one, and it lives in your database. \ud83c\udf10 English, German, French and Spanish \u2014 including the way numbers and dates are written. It follows your browser unless you pick one under Settings. \ud83d\udcca What it does: accounts you enter by hand, broker CSV import (Degiro and Trade Republic, recognised by their columns), holdings computed from those trades, and an overview with net worth, cash against securities, cash flow, budgets, detected subscriptions, transactions and categories that learn a rule once and apply it retroactively. \ud83c\udfe6 Optional bank sync over PSD2 via Enable Banking (a few thousand banks across the EEA). You register your own application with them, so the consent is between you and your bank \u2014 nothing passes through a server belonging to whoever wrote this. Read-only: the app cannot move money. Set it up later in the app under Settings; it is not needed to start. \ud83d\udcbe Everything you own is under /data \u2014 the database, your settings, and in /data/secrets the bank credentials and the key that signs your sessions. Map it to appdata and it survives updates. Back that folder up: there is no password reset, because there is nobody to reset it. \u26a0 It holds your finances and it has one password. Keep it on your LAN, or behind your own reverse proxy and access control \u2014 do not port-forward it to the internet. \ud83d\udcd6 Install and setup guide: https://github.com/halvar20000/wealth-dashboard/blob/main/docs/INSTALL.md",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/wealth-dashboard",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Everything you own: the database, your settings, and /data/secrets holding the Enable Banking private key and the key that signs your sessions. Keep it on appdata and back it up \u2014 there is no password reset and no copy of any of this anywhere else.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port the dashboard is reached on. If you change it, and you use bank sync, the Redirect URL registered with Enable Banking has to match the new one.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Your timezone, e.g. Europe/Berlin, Europe/London, America/New_York. It decides when a month rolls over for the cash flow and budget pages. Leave it wrong and 'this month' changes at UTC midnight.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base currency (optional)",
+      "key": "WD_BASE_CURRENCY",
+      "value": "",
+      "description": "Leave BLANK \u2014 set the base currency in the app under Settings. Filling this in pins the value: the Settings page will accept a change and the container will overwrite it again on the next restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bank redirect URL (optional)",
+      "key": "WD_REDIRECT_URL",
+      "value": "",
+      "description": "Leave BLANK \u2014 set it in the app under Settings, where it can be checked against what Enable Banking has registered. Filling this in pins the value the same way as the base currency above. For reference the value looks like http://YOUR-SERVER-IP:8000/connect/callback and must match a redirect URL registered in the Enable Banking Control Panel exactly.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

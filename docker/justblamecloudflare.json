@@ -1,0 +1,50 @@
+{
+  "name": "just-blame-cloudflare",
+  "repo": "ghcr.io/theodorecharles/just-blame-cloudflare:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/theodorecharles/JustBlameCloudflare/pkgs/container/just-blame-cloudflare",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --cap-drop=ALL --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/theodorecharles/JustBlameCloudflare/main/assets/icon.png",
+  "project": "https://github.com/theodorecharles/JustBlameCloudflare",
+  "description": "Serve a simulated Cloudflare outage page during maintenance, with Browser and Host marked Working and Cloudflare marked Error. Uses the original error-page layout and icons, automatically displays the current hostname, and estimates the nearest Cloudflare city from a bundled IPv4/IPv6 GeoIP database. Works without Cloudflare, API keys, or external runtime lookups. No persistent storage or domain configuration needed.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "18080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Plain HTTP port for previewing the outage page or connecting your reverse proxy. HTTPS is handled by your own proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Trust Reverse Proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Enable for visitor GeoIP behind your proxy, only when clients cannot bypass it. Your proxy must overwrite X-Real-IP with the visitor IP; otherwise the rightmost X-Forwarded-For entry is used. With multiple proxies, configure trusted real-IP handling at your proxy. Does not change HTTPS or hostname detection.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Fallback Location Code",
+      "key": "FALLBACK_COLO",
+      "value": "",
+      "description": "Optional Cloudflare code for private, LAN, or unknown IPs, such as IAD (Ashburn) or LHR (London). Blank displays Cloudflare network. Successful GeoIP estimates always take priority.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

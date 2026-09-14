@@ -1,73 +1,241 @@
 {
   "name": "hermes-agent",
-  "repo": "bitcryptic/hermes-agent:latest",
+  "repo": "nousresearch/hermes-agent:latest",
   "category": [
-    "Productivity"
+    "Misc"
   ],
-  "registry": "https://hub.docker.com/r/bitcryptic/hermes-agent",
+  "registry": "https://hub.docker.com/r/nousresearch/hermes-agent/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped --shm-size=1g",
+  "extra_parameters": "--shm-size=1g",
   "post_parameters": "gateway run",
-  "web_ui_url": "http://[IP]:[PORT:8642]/",
-  "icon": "https://raw.githubusercontent.com/bitcryptic-gw/unraid-templates/main/hermes-agent/hermes-agent-icon.png",
-  "project": "https://github.com/NousResearch/hermes-agent",
-  "description": "Hermes Agent by Nous Research \u2014 self-hosted autonomous AI agent with persistent memory, multi-platform gateway (Matrix, Telegram, Discord, Slack, and more), MCP tool support, and self-improving skills. This image is the BitCryptic fork with Matrix E2EE fixes. BEFORE STARTING: Create /mnt/cache/appdata/hermes/.hermes.env with your API keys. See https://github.com/bitcryptic-gw/hermes-agent for required configuration. Credentials must NOT be entered as container variables \u2014 they live in the .hermes.env file.",
+  "web_ui_url": "http://[IP]:[PORT:8642]",
+  "icon": "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/assets/banner.png",
+  "project": "https://hermes-agent.nousresearch.com/",
+  "description": "Hermes Agent in Docker. Stores all config, memory, sessions, and skills in /opt/data.",
   "paths": [
     {
-      "name": "Data Path",
-      "host": "/mnt/cache/appdata/hermes",
+      "name": "Hermes data path",
+      "host": "/mnt/cache/appdata/hermes-agent",
       "container": "/opt/data",
       "mode": "rw",
-      "description": "Persistent storage for Hermes config, credentials, memory, and Matrix crypto store.",
+      "description": "Persistent Hermes data directory (.env, config.yaml, skills, memories, logs).",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "WebUI Port",
+      "name": "Gateway/API port (optional)",
       "host": "8642",
       "container": "8642",
       "protocol": "tcp",
-      "description": "Dashboard / API server port.",
-      "required": true,
+      "description": "Expose only if you enable Hermes API/gateway HTTP endpoint in config.",
+      "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "User ID the container process runs as. Default 99 = nobody on Unraid.",
+      "name": "API server enabled",
+      "key": "API_SERVER_ENABLED",
+      "value": "true",
+      "description": "Enable Hermes OpenAI-compatible API for Open WebUI integration.",
       "required": true,
       "mask": false
     },
     {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Group ID the container process runs as. Default 100 = users on Unraid.",
+      "name": "API server host",
+      "key": "API_SERVER_HOST",
+      "value": "0.0.0.0",
+      "description": "Bind API server on all interfaces so Unraid port mapping works.",
       "required": true,
       "mask": false
     },
     {
-      "name": "HERMES_HOME",
-      "key": "HERMES_HOME",
-      "value": "/opt/data",
-      "description": "Internal container path for Hermes data. Must match the container mount point. Do not change.",
+      "name": "API server port",
+      "key": "API_SERVER_PORT",
+      "value": "8642",
+      "description": "Hermes API server port used by Open WebUI (/v1).",
       "required": true,
       "mask": false
     },
     {
-      "name": "HERMES_LOG_LEVEL",
-      "key": "HERMES_LOG_LEVEL",
+      "name": "API server key",
+      "key": "API_SERVER_KEY",
+      "value": "change-me",
+      "description": "Bearer token. Set a strong value and use the same value in Open WebUI OPENAI_API_KEY.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Telegram bot token",
+      "key": "TELEGRAM_BOT_TOKEN",
       "value": "",
-      "description": "Set to DEBUG for verbose logging (useful for Matrix E2EE troubleshooting). Leave blank for INFO.",
+      "description": "Telegram bot token from @BotFather.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram allowed users",
+      "key": "TELEGRAM_ALLOWED_USERS",
+      "value": "",
+      "description": "Comma-separated Telegram user IDs allowed to use your bot.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "OpenRouter API key",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "OpenRouter provider API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "OpenAI (or OpenAI-compatible) provider API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic API key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic provider API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Gateway API key",
+      "key": "AI_GATEWAY_API_KEY",
+      "value": "",
+      "description": "Vercel AI Gateway API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GLM API key",
+      "key": "GLM_API_KEY",
+      "value": "",
+      "description": "z.ai / ZhipuAI GLM provider API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Kimi API key",
+      "key": "KIMI_API_KEY",
+      "value": "",
+      "description": "Kimi / Moonshot provider API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MiniMax API key",
+      "key": "MINIMAX_API_KEY",
+      "value": "",
+      "description": "MiniMax global API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MiniMax CN API key",
+      "key": "MINIMAX_CN_API_KEY",
+      "value": "",
+      "description": "MiniMax China endpoint API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Kilo Code API key",
+      "key": "KILOCODE_API_KEY",
+      "value": "",
+      "description": "Kilo Code API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Xiaomi API key",
+      "key": "XIAOMI_API_KEY",
+      "value": "",
+      "description": "Xiaomi MiMo API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Hugging Face token",
+      "key": "HF_TOKEN",
+      "value": "",
+      "description": "Hugging Face Inference Providers token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google API key",
+      "key": "GOOGLE_API_KEY",
+      "value": "",
+      "description": "Google AI Studio API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Groq API key",
+      "key": "GROQ_API_KEY",
+      "value": "",
+      "description": "Groq API key (for Groq Whisper STT).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DashScope API key",
+      "key": "DASHSCOPE_API_KEY",
+      "value": "",
+      "description": "Alibaba DashScope API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DeepSeek API key",
+      "key": "DEEPSEEK_API_KEY",
+      "value": "",
+      "description": "DeepSeek API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenCode Zen API key",
+      "key": "OPENCODE_ZEN_API_KEY",
+      "value": "",
+      "description": "OpenCode Zen API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenCode Go API key",
+      "key": "OPENCODE_GO_API_KEY",
+      "value": "",
+      "description": "OpenCode Go API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Tavily API key",
+      "key": "TAVILY_API_KEY",
+      "value": "",
+      "description": "Tavily API key for AI-native web search, extract, and crawl.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Exa API key",
+      "key": "EXA_API_KEY",
+      "value": "",
+      "description": "Exa API key for AI-native web search and content retrieval.",
+      "required": false,
+      "mask": true
     }
   ],
   "devices": [],

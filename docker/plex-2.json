@@ -1,231 +1,61 @@
 {
   "name": "plex",
-  "repo": "ghcr.io/hotio/plex:latest",
+  "repo": "lscr.io/linuxserver/plex",
   "category": [
     "Media"
   ],
-  "registry": "https://github.com/hotio/plex/pkgs/container/plex",
-  "network": "bridge",
+  "registry": "https://github.com/orgs/linuxserver/packages/container/package/plex",
+  "network": "host",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--hostname=plex.internal --cap-add=NET_ADMIN",
+  "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:32400]/web",
-  "icon": "https://hotio.dev/webhook-avatars/plex.png",
-  "project": "https://hotio.dev/containers/plex",
-  "description": "WireGuard VPN, Privoxy and Unbound built-in! It's Plex, do I really need to explain what it is?",
+  "web_ui_url": "http://[IP]:[PORT:32400]/web/index.html",
+  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/plex-logo.png",
+  "project": "https://plex.tv",
+  "description": "Plex(https://plex.tv) organizes video, music and photos from personal media libraries and streams them to smart TVs, streaming boxes and mobile devices. This container is packaged as a standalone Plex Media Server. Straightforward design and bulk actions mean getting things done faster.",
   "paths": [
     {
-      "name": "Host Path for /config",
+      "name": "Appdata",
       "host": "",
       "container": "/config",
       "mode": "rw",
-      "description": "Container Path: /config",
+      "description": "Plex library location. *This can grow very large, 50gb+ is likely for a large collection.*",
       "required": true
     },
     {
-      "name": "Host Path for /data",
+      "name": "Path: /tv",
       "host": "",
-      "container": "/data",
+      "container": "/tv",
       "mode": "rw",
-      "description": "Container Path: /data",
+      "description": "Media goes here. Add as many as needed e.g. `/movies`, `/tv`, etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /movies",
+      "host": "",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Media goes here. Add as many as needed e.g. `/movies`, `/tv`, etc.",
       "required": true
     }
   ],
-  "ports": [
-    {
-      "name": "Host Port for 32400",
-      "host": "32400",
-      "container": "32400",
-      "protocol": "tcp",
-      "description": "Container Port: 32400",
-      "required": true,
-      "mask": false
-    }
-  ],
+  "ports": [],
   "variables": [
     {
-      "name": "PLEX_CLAIM_TOKEN",
-      "key": "PLEX_CLAIM_TOKEN",
+      "name": "VERSION",
+      "key": "VERSION",
+      "value": "docker",
+      "description": "Set whether to update plex or not - see Application Setup section.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PLEX_CLAIM",
+      "key": "PLEX_CLAIM",
       "value": "",
-      "description": "Container Variable: PLEX_CLAIM_TOKEN&lt;br&gt;Example: claim-xxxxxxxxxxxxxxxxxxxx&lt;br&gt;Visit plex.tv/claim in your browser to get your claim code.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PLEX_ADVERTISE_URL",
-      "key": "PLEX_ADVERTISE_URL",
-      "value": "",
-      "description": "Container Variable: PLEX_ADVERTISE_URL",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PLEX_NO_AUTH_NETWORKS",
-      "key": "PLEX_NO_AUTH_NETWORKS",
-      "value": "",
-      "description": "Container Variable: PLEX_NO_AUTH_NETWORKS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PLEX_BETA_INSTALL",
-      "key": "PLEX_BETA_INSTALL",
-      "value": "false|true",
-      "description": "Container Variable: PLEX_BETA_INSTALL",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PLEX_PURGE_CODECS",
-      "key": "PLEX_PURGE_CODECS",
-      "value": "false|true",
-      "description": "Container Variable: PLEX_PURGE_CODECS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PRIVOXY_ENABLED",
-      "key": "PRIVOXY_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: PRIVOXY_ENABLED",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "UNBOUND_ENABLED",
-      "key": "UNBOUND_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: UNBOUND_ENABLED",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "UNBOUND_NAMESERVERS",
-      "key": "UNBOUND_NAMESERVERS",
-      "value": "",
-      "description": "Container Variable: UNBOUND_NAMESERVERS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_ENABLED",
-      "key": "VPN_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_ENABLED",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_CONF",
-      "key": "VPN_CONF",
-      "value": "wg0",
-      "description": "Container Variable: VPN_CONF",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PROVIDER",
-      "key": "VPN_PROVIDER",
-      "value": "generic|proton|pia",
-      "description": "Container Variable: VPN_PROVIDER",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_LAN_NETWORK",
-      "key": "VPN_LAN_NETWORK",
-      "value": "",
-      "description": "Container Variable: VPN_LAN_NETWORK",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_LAN_LEAK_ENABLED",
-      "key": "VPN_LAN_LEAK_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_LAN_LEAK_ENABLED",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_EXPOSE_PORTS_ON_LAN",
-      "key": "VPN_EXPOSE_PORTS_ON_LAN",
-      "value": "",
-      "description": "Container Variable: VPN_EXPOSE_PORTS_ON_LAN",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_AUTO_PORT_FORWARD",
-      "key": "VPN_AUTO_PORT_FORWARD",
-      "value": "false",
-      "description": "Container Variable: VPN_AUTO_PORT_FORWARD",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PORT_REDIRECTS",
-      "key": "VPN_PORT_REDIRECTS",
-      "value": "",
-      "description": "Container Variable: VPN_PORT_REDIRECTS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_HEALTHCHECK_ENABLED",
-      "key": "VPN_HEALTHCHECK_ENABLED",
-      "value": "false|true",
-      "description": "Container Variable: VPN_HEALTHCHECK_ENABLED",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_NAMESERVERS",
-      "key": "VPN_NAMESERVERS",
-      "value": "",
-      "description": "Container Variable: VPN_NAMESERVERS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_USER",
-      "key": "VPN_PIA_USER",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_USER",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_PASS",
-      "key": "VPN_PIA_PASS",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_PASS",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_PREFERRED_REGION",
-      "key": "VPN_PIA_PREFERRED_REGION",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_PREFERRED_REGION",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_DIP_TOKEN",
-      "key": "VPN_PIA_DIP_TOKEN",
-      "value": "",
-      "description": "Container Variable: VPN_PIA_DIP_TOKEN",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "VPN_PIA_PORT_FORWARD_PERSIST",
-      "key": "VPN_PIA_PORT_FORWARD_PERSIST",
-      "value": "false|true",
-      "description": "Container Variable: VPN_PIA_PORT_FORWARD_PERSIST",
+      "description": "Optionally you can obtain a claim token from https://plex.tv/claim and input here. Keep in mind that the claim tokens expire within 4 minutes.",
       "required": false,
       "mask": false
     },
@@ -234,7 +64,7 @@
       "key": "PUID",
       "value": "500",
       "description": "Container Variable: PUID",
-      "required": false,
+      "required": true,
       "mask": false
     },
     {
@@ -242,13 +72,13 @@
       "key": "PGID",
       "value": "500",
       "description": "Container Variable: PGID",
-      "required": false,
+      "required": true,
       "mask": false
     },
     {
       "name": "UMASK",
       "key": "UMASK",
-      "value": "002",
+      "value": "022",
       "description": "Container Variable: UMASK",
       "required": false,
       "mask": false

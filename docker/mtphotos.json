@@ -1,0 +1,75 @@
+{
+  "name": "mtphotos",
+  "repo": "mtphotos/mt-photos:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/mtphotos/mt-photos",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8063]",
+  "icon": "https://raw.githubusercontent.com/baofeidyz/unraid-template-mtphotos/main/icons/mtphotos.png",
+  "project": "https://mtmt.tech/",
+  "description": "MT Photos \u662f\u9762\u5411 NAS \u7528\u6237\u7684\u79c1\u6709\u7167\u7247\u4e0e\u89c6\u9891\u7ba1\u7406\u7cfb\u7edf\uff0c\u652f\u6301\u5bfc\u5165\u5df2\u6709\u56fe\u5e93\u3001\u624b\u673a\u5907\u4efd\u3001\u7f29\u7565\u56fe\u3001\u9884\u89c8\u3001\u4eba\u8138\u8bc6\u522b\u548c\u5730\u7406\u4f4d\u7f6e\u5143\u6570\u636e\u3002\u672c\u6a21\u677f\u4f7f\u7528 mtphotos/mt-photos:latest\uff0c\u5185\u7f6e PostgreSQL \u6570\u636e\u5e93\u3002 English: MT Photos is a private photo and video management system for NAS users. It supports importing existing libraries, mobile photo backup, thumbnails, previews, face recognition and location metadata. This template uses mtphotos/mt-photos:latest with bundled PostgreSQL.",
+  "paths": [
+    {
+      "name": "\u914d\u7f6e\u4e0e\u6570\u636e\u5e93\u76ee\u5f55 / Config and Database",
+      "host": "/mnt/cache/appdata/mtphotos",
+      "container": "/config",
+      "mode": "rw",
+      "description": "\u4fdd\u5b58\u5185\u7f6e PostgreSQL \u6570\u636e\u5e93\u3001\u5e94\u7528\u914d\u7f6e\u3001\u7f29\u7565\u56fe\u3001\u9884\u89c8\u53ca\u7f13\u5b58\u3002\u6b64\u76ee\u5f55\u5fc5\u987b\u6301\u4e45\u5316\u5e76\u5907\u4efd\u3002 English: Stores the bundled PostgreSQL database, application settings, thumbnails, previews and cache. This directory must be persisted and backed up.",
+      "required": true
+    },
+    {
+      "name": "\u4e0a\u4f20\u76ee\u5f55 / Upload",
+      "host": "/mnt/cache/photos/MTPhotos-Upload",
+      "container": "/upload",
+      "mode": "rw",
+      "description": "\u4fdd\u5b58\u901a\u8fc7 MT Photos \u624b\u673a App \u5907\u4efd\u7684\u7167\u7247\u548c\u89c6\u9891\uff0c\u9700\u8981\u53ef\u5199\u6743\u9650\u3002 English: Writable destination for photos and videos backed up from the MT Photos mobile app.",
+      "required": true
+    },
+    {
+      "name": "\u56fe\u5e93\u76ee\u5f55 / Photos",
+      "host": "/mnt/cache/photos",
+      "container": "/photos",
+      "mode": "rw",
+      "description": "\u5df2\u6709\u7167\u7247\u548c\u89c6\u9891\u6240\u5728\u76ee\u5f55\uff0c\u8bf7\u5c06\u5bbf\u4e3b\u673a\u8def\u5f84\u6539\u4e3a\u5b9e\u9645\u56fe\u5e93\u8def\u5f84\u3002\u5982\u4e0d\u5141\u8bb8\u4fee\u6539\u539f\u6587\u4ef6\uff0c\u8bf7\u6539\u4e3a\u53ea\u8bfb\u6a21\u5f0f\u3002 English: Existing photo and video library. Set the host path to your library; use read-only mode to prevent changes to originals.",
+      "required": true
+    },
+    {
+      "name": "\u4e34\u65f6\u76ee\u5f55\uff08\u53ef\u9009\uff09 / temp (optional)",
+      "host": "/mnt/cache/appdata/mtphotos/temp",
+      "container": "/temp",
+      "mode": "rw",
+      "description": "\u53ef\u9009\u7684\u4e34\u65f6\u6587\u4ef6\u76ee\u5f55\u6620\u5c04\uff0c\u9700\u8981\u53ef\u5199\u6743\u9650\u53ca\u8db3\u591f\u7a7a\u95f4\u3002\u5c1a\u672a\u786e\u8ba4 MT Photos \u4f1a\u81ea\u52a8\u5c06\u4e34\u65f6\u8f6c\u7801\u6587\u4ef6\u5199\u5165 /temp\uff1b\u4ec5\u6dfb\u52a0\u6620\u5c04\u4e0d\u4ee3\u8868\u8f6c\u7801\u8def\u5f84\u5df2\u8bbe\u7f6e\u3002 English: Optional writable temporary storage with sufficient free space. Automatic use of /temp for transcoding has not been verified; this mapping alone does not configure the transcoding path.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "\u7f51\u9875\u7aef\u53e3 / WebUI Port",
+      "host": "8063",
+      "container": "8063",
+      "protocol": "tcp",
+      "description": "MT Photos \u7f51\u9875\u8bbf\u95ee\u7aef\u53e3\uff0c\u53ef\u6309\u9700\u4fee\u6539\u5bbf\u4e3b\u673a\u7aef\u53e3\u3002 English: MT Photos web interface port; change the host port if needed.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "\u65f6\u533a / Timezone",
+      "key": "TZ",
+      "value": "Asia/Shanghai",
+      "description": "\u5bb9\u5668\u65f6\u533a\uff0c\u4f7f\u7528 IANA \u683c\u5f0f\uff0c\u4f8b\u5982 Asia/Shanghai \u6216 Europe/London\u3002 English: Container timezone in IANA format, for example Asia/Shanghai or Europe/London.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

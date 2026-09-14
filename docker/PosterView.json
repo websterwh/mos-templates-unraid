@@ -1,0 +1,67 @@
+{
+  "name": "PosterView",
+  "repo": "ghcr.io/bamcel/poster-view:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/bamcel/poster-view/pkgs/container/poster-view",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--add-host=host.docker.internal:host-gateway",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7979]/",
+  "icon": "https://raw.githubusercontent.com/bamcel/unraid-templates/main/icons/posterview.png",
+  "project": "https://github.com/bamcel/poster-view",
+  "description": "Self-hosted artwork manager for Plex, Jellyfin, and Emby. Browse libraries, including collections, and replace posters, backgrounds, and logos from multiple artwork providers.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/posterview",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database, encryption key, settings, apply history, and persistent artwork caches",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7979",
+      "container": "7979",
+      "protocol": "tcp",
+      "description": "Port for the PosterView web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Require Login",
+      "key": "POSTERVIEW_AUTH_ENABLED",
+      "value": "false",
+      "description": "false disables login for ALL connections, including reverse proxies and remote access. true requires administrator login unless local-network bypass is enabled in Settings. Defaults to false. Use only on a trusted network when disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Administrator Username",
+      "key": "POSTERVIEW_USERNAME",
+      "value": "admin",
+      "description": "Username when Require Login is true. Defaults to admin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Administrator Password",
+      "key": "POSTERVIEW_PASSWORD",
+      "value": "",
+      "description": "Password for the PosterView sign-in screen. Leave blank to generate one in /data/admin-password.txt.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

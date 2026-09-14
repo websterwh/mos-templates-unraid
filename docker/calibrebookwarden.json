@@ -1,0 +1,91 @@
+{
+  "name": "calibre-bookwarden",
+  "repo": "ghcr.io/felixapel/calibre-bookwarden:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/felixapel/calibre-bookwarden/pkgs/container/calibre-bookwarden",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/felixapel/unraid-templates/main/icons/calibre-bookwarden.png",
+  "project": "https://github.com/felixapel/calibre-bookwarden",
+  "description": "Calibre Bookwarden is the content-grounded metadata verification and cover forensics guardian for Calibre libraries. The book file is the ground truth, LLMs are witnesses. Zero hallucinations, read-only 360-degree forensic audits, Cover Deck triage UI with keyboard shortcuts, Series Gap Hunter, multi-format duplicate consolidator, and sealed cryptographic evidence packages.",
+  "paths": [
+    {
+      "name": "Calibre Library Path",
+      "host": "/mnt/cache/data/media/books",
+      "container": "/calibre",
+      "mode": "rw",
+      "description": "Path to your Calibre Library root containing metadata.db",
+      "required": true
+    },
+    {
+      "name": "Config &amp; Artifacts Path",
+      "host": "/mnt/cache/appdata/calibre-bookwarden",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for audit reports, restore points, and local cache",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for WebUI and REST API (Host maps 8080 to container 8080)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Library Environment Path",
+      "key": "BOOKWARDEN_LIBRARY_PATH",
+      "value": "/calibre",
+      "description": "Path where Calibre library is mounted inside container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Read Only Mode",
+      "key": "BOOKWARDEN_READ_ONLY",
+      "value": "true",
+      "description": "When true, mutations are strictly blocked (safe for zero-risk inspection)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Gemini API Key",
+      "key": "GEMINI_API_KEY",
+      "value": "",
+      "description": "Google Gemini API Key for multimodal cover verification (Gemini 2.5/3.0)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "Optional OpenAI API Key for fallback LLM witness",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Calibre-Web Container Name",
+      "key": "CALIBRE_WEB_CONTAINER",
+      "value": "calibre-web-automated",
+      "description": "Docker container name for Calibre-Web thumbnail cache purge",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

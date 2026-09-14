@@ -1,0 +1,161 @@
+{
+  "name": "samsung2mqtt",
+  "repo": "ghcr.io/ripleyxlr8/samsung2mqtt:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/ripleyXLR8/samsung2mqtt/pkgs/container/samsung2mqtt",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/ripleyXLR8/samsung2mqtt/main/samsung2mqtt-icon.png",
+  "project": "https://github.com/ripleyXLR8/samsung2mqtt",
+  "description": "Bridges Samsung Wi-Fi home appliances (washer, dryer, oven, fridge, and more) to your MQTT broker using Home Assistant style discovery. Your appliances then show up on their own in Jeedom, Home Assistant, or any other MQTT Discovery consumer. LOCAL, NOT CLOUD: The bridge talks to the appliance directly on your LAN over OCF/IoTivity (DTLS), so it does not depend on Samsung's SmartThings cloud API (which becomes paid from October 2026). The appliance must have been onboarded once in the SmartThings app so it trusts the client certificate. ONE PROCESS, MANY APPLIANCES: Set APPLIANCE_COUNT and one block of APPLIANCE_n_* variables per appliance. Entities are derived from the resources the appliance itself exposes: operating state, cycle, remaining time, progress, temperature, door, power, and - where the appliance allows it - start/stop commands. CERTIFICATE: A client certificate + key must be generated once (see the project's setup_cert.py) and placed in the mounted /config folder as client_fullchain.pem and client.key. Based on QuiteYellow/SmartThings-Local (MIT). Not affiliated with, endorsed by, or supported by Samsung Electronics.",
+  "paths": [
+    {
+      "name": "Config folder (certificate)",
+      "host": "",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Folder holding client_fullchain.pem and client.key, generated with setup_cert.py.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "MQTT broker host",
+      "key": "MQTT_BROKER",
+      "value": "",
+      "description": "IP address or hostname of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT broker port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "Port of your MQTT broker.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT username",
+      "key": "MQTT_USER",
+      "value": "",
+      "description": "Leave empty for an anonymous broker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "MQTT_PASS",
+      "value": "",
+      "description": "Leave empty for an anonymous broker.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Number of appliances",
+      "key": "APPLIANCE_COUNT",
+      "value": "1",
+      "description": "How many APPLIANCE_n_* blocks to read.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Appliance 1 - class",
+      "key": "APPLIANCE_1_CLASS",
+      "value": "washer",
+      "description": "washer, dryer, oven or fridge.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Appliance 1 - IP",
+      "key": "APPLIANCE_1_IP",
+      "value": "",
+      "description": "LAN IP address of the appliance.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Appliance 1 - OCF port",
+      "key": "APPLIANCE_1_OCF_PORT",
+      "value": "",
+      "description": "Leave empty to auto-discover the DTLS port (49153-49156), or pin it (e.g. 49154).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Appliance 1 - topic",
+      "key": "APPLIANCE_1_TOPIC",
+      "value": "samsung_washer",
+      "description": "Root of the state/command topics. Jeedom users: add this to the data topics of the MQTT Discovery plugin.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Appliance 1 - name",
+      "key": "APPLIANCE_1_NAME",
+      "value": "Samsung Washer",
+      "description": "Friendly name shown by the discovery.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Discovery topic prefix",
+      "key": "HA_DISCOVERY_PREFIX",
+      "value": "homeassistant",
+      "description": "Where discovery messages are published. homeassistant for Home Assistant; must match the configuration topic of the Jeedom MQTT Discovery plugin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Certificate path",
+      "key": "CERT_PATH",
+      "value": "/config/client_fullchain.pem",
+      "description": "Client certificate chain inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Key path",
+      "key": "KEY_PATH",
+      "value": "/config/client.key",
+      "description": "Client private key inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health interval (s)",
+      "key": "HEALTH_INTERVAL_S",
+      "value": "60",
+      "description": "How often the bridge health topic is republished.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ping interval (s)",
+      "key": "PING_INTERVAL_S",
+      "value": "25",
+      "description": "DTLS-layer liveness ping cadence; three failures mark the appliance offline.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone for log timestamps.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

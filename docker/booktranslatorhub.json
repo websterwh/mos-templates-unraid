@@ -1,0 +1,212 @@
+{
+  "name": "book-translator-hub",
+  "repo": "ghcr.io/felixapel/book-translator-hub:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/felixapel/book-translator-hub/pkgs/container/book-translator-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/felixapel/unraid-templates/main/icons/book-translator-hub.png",
+  "project": "https://github.com/felixapel/book-translator-hub",
+  "description": "Book Translator Hub is the universal, zero-wait bilingual reading overlay and real-time translation engine for Calibre-Web Automated (CWA), Kavita, and self-hosted ebook libraries. Powered by local LLMs (vLLM, Ollama, Bifrost) or leading cloud providers (Gemini, OpenAI, Claude, DeepSeek, Groq). Features literary-tuned chunking, instant SSE token streaming, context-aware translation, auto-detect source language, and SQLite WAL persistent caching.",
+  "paths": [
+    {
+      "name": "Appdata (Database &amp; Cache)",
+      "host": "/mnt/cache/appdata/book-translator-hub/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for SQLite translations.db and persistent caching",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8390",
+      "container": "8390",
+      "protocol": "tcp",
+      "description": "Direct translation API port (REST + SSE streaming)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Proxy Port",
+      "host": "8385",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Reader proxy injection port (browse CWA or Kavita through this port to get the translation overlay)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Runtime Role",
+      "key": "BT_ROLE",
+      "value": "all",
+      "description": "Runtime role: all (combined API + proxy overlay on :8385 - recommended for Unraid), api (pure API mode for SWAG/master proxy), proxy (reverse proxy overlay), hub (multi-reader)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Calibre-Web (CWA) URL",
+      "key": "CWA_URL",
+      "value": "",
+      "description": "URL of your Calibre-Web / CWA container (e.g. http://192.168.0.122:8383 or http://calibre-web-automated:8083)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Kavita URL",
+      "key": "KAVITA_URL",
+      "value": "",
+      "description": "URL of your Kavita container (e.g. http://192.168.0.122:5547 or http://kavita:5000)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Provider",
+      "key": "LLM_PROVIDER",
+      "value": "local",
+      "description": "LLM backend provider: local (vLLM / Ollama / Bifrost), gemini, openai, anthropic, groq, deepseek, openrouter",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM Model",
+      "key": "LLM_MODEL",
+      "value": "gemma4-12b",
+      "description": "Model name (e.g. gemma4-12b, qwen2.5-14b, deepseek-chat, gpt-4o-mini)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Local LLM URL",
+      "key": "BT_LOCAL_URL",
+      "value": "http://192.168.0.122:2819/v1/chat/completions",
+      "description": "OpenAI-compatible endpoint of your local LLM (vLLM/Ollama/Bifrost). Use host IP or host.docker.internal, NOT localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM API Key",
+      "key": "LLM_API_KEY",
+      "value": "",
+      "description": "API key for cloud providers (leave blank when using local LLM)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allowed Origins",
+      "key": "BT_ALLOWED_ORIGINS",
+      "value": "*",
+      "description": "Comma-separated allowed web origins for CORS (e.g. http://192.168.0.122:8383,https://books.example.com)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Mode",
+      "key": "BT_AUTH_MODE",
+      "value": "disabled",
+      "description": "Authentication: disabled (for private LAN), token (for reverse proxy), cwa_session, reader_session",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Insecure Auth",
+      "key": "BT_ALLOW_INSECURE_AUTH",
+      "value": "true",
+      "description": "Set to true to allow BT_AUTH_MODE=disabled on private LAN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Size",
+      "key": "BT_BATCH_SIZE",
+      "value": "6",
+      "description": "Paragraphs per LLM call. Higher = faster throughput on GPU models.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Batch Source Budget",
+      "key": "BT_BATCH_SOURCE_TOKEN_BUDGET",
+      "value": "1500",
+      "description": "Max input source tokens per batch group. Paragraphs exceeding this are split or processed as singletons.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prefetch Pacing Delay (ms)",
+      "key": "BT_CLIENT_PREFETCH_GAP_MS",
+      "value": "1000",
+      "description": "Delay in milliseconds between background lookahead prefetch requests (0 to disable pacing)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Tokens (single)",
+      "key": "BT_MAX_TOKENS",
+      "value": "4096",
+      "description": "Maximum token ceiling for a single paragraph request",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Tokens (batch)",
+      "key": "BT_BATCH_MAX_TOKENS",
+      "value": "8192",
+      "description": "Maximum token ceiling for a batched request",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Upstream Inflight",
+      "key": "BT_MAX_UPSTREAM_INFLIGHT",
+      "value": "8",
+      "description": "Maximum simultaneous requests sent to LLM backend (e.g. 4-8 for GPU, 1-2 for CPU)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Concurrent",
+      "key": "BT_MAX_CONCURRENT",
+      "value": "8",
+      "description": "Maximum simultaneous batch requests processed by Hub",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Request Timeout (s)",
+      "key": "BT_TIMEOUT",
+      "value": "90",
+      "description": "Timeout in seconds before an LLM request is aborted",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Context Window",
+      "key": "BT_CONTEXT_WINDOW",
+      "value": "1",
+      "description": "Surrounding paragraphs given as [CONTEXT] to LLM for literary coherence",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

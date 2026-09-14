@@ -1,22 +1,50 @@
 {
   "name": "bitcoind",
-  "repo": "animai/bitcoind",
+  "repo": "ofawx/bitcoind",
   "category": [
     "Crypto"
   ],
-  "registry": "https://hub.docker.com/r/animai/bitcoind",
+  "registry": "https://hub.docker.com/r/ofawx/bitcoind/",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": null,
-  "icon": "https://github.com/AnimaI/unraid-templates/raw/master/bitcoind/img/bitcoind.png",
+  "web_ui_url": "http://[IP]:[PORT:8333]",
+  "icon": "https://github.com/ofawx/unraid-templates/raw/master/img/bitcoin.png",
   "project": "https://bitcoin.org/",
-  "description": "#### Support the Bitcoin network by hosting your own BTC node! This template provides a full Bitcoin Core Node, built with CMake in a verifiably trustless way. To let other nodes in the network find your node, ensure port 8333 is forwarded from your router to the P2P port set below. keeps the most recent blocks. This version is built using the new CMake build system introduced in Bitcoin Core v29.0.",
-  "paths": [],
-  "ports": [],
+  "description": "Support the Bitcoin network by hosting your own node! This template provides a full Bitcoin Core node, built in a verifiably trustless way. To let other nodes in the network find your node, ensure port 8333 is forwarded from your router to the P2P port set below. To customize all settings, create a file called bitcoin.conf in the data directory. Refer to https://github.com/bitcoin/bitcoin/blob/master/share/examples/bitcoin.conf for examples of settings you may apply.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/bitcoin/core/",
+      "container": "/root/.bitcoin/",
+      "mode": "rw",
+      "description": "Blockchain and database storage. Requires at least 500 GiB free disk.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "P2P TCP",
+      "host": "8333",
+      "container": "8333",
+      "protocol": "tcp",
+      "description": "Port to listen for incoming node connections",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local RPC",
+      "host": "8332",
+      "container": "8332",
+      "protocol": "tcp",
+      "description": "Port to listen for RPC connections (Optional)",
+      "required": false,
+      "mask": false
+    }
+  ],
   "variables": [],
   "devices": [],
   "labels": []

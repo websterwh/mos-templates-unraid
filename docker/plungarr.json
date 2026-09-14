@@ -1,0 +1,377 @@
+{
+  "name": "plungarr",
+  "repo": "ghcr.io/stove-bison/plungarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io/stove-bison/plungarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/stove-bison/plungarr/master/icon.svg",
+  "project": "https://github.com/stove-bison/plungarr",
+  "description": "Unclogs your Sonarr/Radarr download pipeline: auto-fixes stuck imports, removes dead usenet posts stalling SABnzbd, blocklists junk releases, flags chronic failures, and reports suspicious library files for manual inspection. What it can't fix safely it reports and leaves alone. Requires Sonarr and/or Radarr API keys; SABnzbd credentials are optional and enable the stall watcher.",
+  "paths": [
+    {
+      "name": "State",
+      "host": "/mnt/cache/appdata/plungarr",
+      "container": "/state",
+      "mode": "rw",
+      "description": "Persists first-seen ages and loop guards across restarts.",
+      "required": true
+    },
+    {
+      "name": "Completed downloads",
+      "host": "",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Optional. SABnzbd's completed folder (the one holding tv/, movies/, ...). Needed only for the leftover-folder sweep; set Leftover dirs too. Read-only is enough unless Leftover action is delete.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Sonarr URL",
+      "key": "SONARR_URL",
+      "value": "http://SERVER-IP:8989",
+      "description": "Sonarr base URL. Leave empty to disable Sonarr handling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr API key",
+      "key": "SONARR_API_KEY",
+      "value": "",
+      "description": "Sonarr Settings > General > Security > API Key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Radarr URL",
+      "key": "RADARR_URL",
+      "value": "http://SERVER-IP:7878",
+      "description": "Radarr base URL. Leave empty to disable Radarr handling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr API key",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Radarr Settings > General > Security > API Key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr 2 URL",
+      "key": "SONARR_2_URL",
+      "value": "",
+      "description": "Optional second Sonarr instance (e.g. anime). Leave empty if you have one Sonarr. For more instances add SONARR_3_URL etc. as extra variables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sonarr 2 API key",
+      "key": "SONARR_2_API_KEY",
+      "value": "",
+      "description": "API key for the second Sonarr instance.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr 2 name",
+      "key": "SONARR_2_NAME",
+      "value": "sonarr-2",
+      "description": "Label for the second Sonarr in logs and notifications, e.g. anime.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr 2 URL",
+      "key": "RADARR_2_URL",
+      "value": "",
+      "description": "Optional second Radarr instance (e.g. 4K). Leave empty if you have one Radarr. For more instances add RADARR_3_URL etc. as extra variables.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Radarr 2 API key",
+      "key": "RADARR_2_API_KEY",
+      "value": "",
+      "description": "API key for the second Radarr instance.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Radarr 2 name",
+      "key": "RADARR_2_NAME",
+      "value": "radarr-2",
+      "description": "Label for the second Radarr in logs and notifications, e.g. 4k.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SABnzbd URL",
+      "key": "SABNZBD_URL",
+      "value": "http://SERVER-IP:8080",
+      "description": "Optional. The stalled/dead-download watcher turns on only when both this and the API key are set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SABnzbd API key",
+      "key": "SABNZBD_API_KEY",
+      "value": "",
+      "description": "SABnzbd Config > General > API Key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Dry run",
+      "key": "DRY_RUN",
+      "value": "false",
+      "description": "true = log intended actions without doing anything. Recommended for the first day.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cycle seconds",
+      "key": "INTERVAL_SECONDS",
+      "value": "300",
+      "description": "Seconds between queue checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Archive action",
+      "key": "ARCHIVE_ACTION",
+      "value": "replace",
+      "description": "Unextracted archive in a completed download: replace (remove, blocklist, search again), discard (remove, blocklist, no search), or notify (leave it, report it).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dangerous file action",
+      "key": "DANGEROUS_FILE_ACTION",
+      "value": "replace",
+      "description": "Dangerous or executable file in a download: replace, discard, or notify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sample action",
+      "key": "SAMPLE_ACTION",
+      "value": "notify",
+      "description": "File flagged as a sample: replace, discard, or notify. Default notify because short-form shows trip the sample detector on real episodes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Not-an-upgrade action",
+      "key": "NOT_UPGRADE_ACTION",
+      "value": "discard",
+      "description": "Download that is not an upgrade for the existing library file, or a single-episode file that would replace a multi-episode file: replace, discard, or notify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Folder mismatch action",
+      "key": "FOLDER_MISMATCH_ACTION",
+      "value": "import",
+      "description": "Sonarr: episode numbers in the file name disagree with the release folder name (usually a parser quirk like 1x8_720.mkv). import uses Sonarr's own mapping when it covers exactly the grabbed episodes and the mismatch looks like a parser quirk (another season, or many episodes); a few same-season episodes is reported as a possible mislabel. Also takes replace, discard, or notify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Orphan action",
+      "key": "ORPHAN_ACTION",
+      "value": "delete",
+      "description": "Completed or failed download that no configured Sonarr/Radarr grabbed, e.g. a series deleted while it was downloading. delete removes it from the queue and the download client (no blocklist, no search); notify only reports it. Set notify if you add NZBs by hand and import them yourself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify URL",
+      "key": "NOTIFY_URL",
+      "value": "",
+      "description": "Optional webhook for digests: Discord/Slack webhook URL, ntfy topic URL, Gotify https://host/message, Apprise API notify URL, or your own endpoint. Empty = log only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify format",
+      "key": "NOTIFY_FORMAT",
+      "value": "json",
+      "description": "discord, slack, ntfy, gotify, apprise, or json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify token",
+      "key": "NOTIFY_TOKEN",
+      "value": "",
+      "description": "Optional. Bearer token for ntfy/apprise/json, app token for gotify.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify extra JSON",
+      "key": "NOTIFY_EXTRA_JSON",
+      "value": "",
+      "description": "Optional JSON object merged into every payload (Discord username, Gotify priority, Apprise urls). For ntfy the fields become headers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: attention",
+      "key": "NOTIFY_ATTENTION",
+      "value": "immediate",
+      "description": "Items plungarr will not touch. immediate, daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: errors",
+      "key": "NOTIFY_ERRORS",
+      "value": "immediate",
+      "description": "API and cycle errors. immediate, daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: actions",
+      "key": "NOTIFY_ACTIONS",
+      "value": "daily",
+      "description": "Itemised list of everything plungarr did. immediate, daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: problems",
+      "key": "NOTIFY_PROBLEMS",
+      "value": "daily",
+      "description": "Chronic grab failures from the failure review. immediate, daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: corruption",
+      "key": "NOTIFY_CORRUPTION",
+      "value": "weekly",
+      "description": "Suspect library files from the corruption sweep. immediate, daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: summary",
+      "key": "NOTIFY_SUMMARY",
+      "value": "none",
+      "description": "Totals for the period with no per-item lines. daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify: heartbeat",
+      "key": "NOTIFY_HEARTBEAT",
+      "value": "none",
+      "description": "A 'plungarr alive' line even when nothing happened. daily, weekly, monthly, or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Digest hour",
+      "key": "NOTIFY_DIGEST_HOUR",
+      "value": "8",
+      "description": "Hour (0-23, container local time; set TZ) for daily, weekly, and monthly digests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Digest weekday",
+      "key": "NOTIFY_DIGEST_DAY",
+      "value": "monday",
+      "description": "Weekday for weekly digests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Digest day of month",
+      "key": "NOTIFY_DIGEST_DAY_OF_MONTH",
+      "value": "1",
+      "description": "Day (1-28) for monthly digests.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reminder days",
+      "key": "NOTIFY_REMIND_DAYS",
+      "value": "7",
+      "description": "Re-send an attention item still unresolved after this many days. 0 = never.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Corruption report classes",
+      "key": "CORRUPT_REPORT_CLASSES",
+      "value": "unreadable,stub,junk_readable",
+      "description": "Comma-separated suspect classes to report. Add tiny_readable and/or scanner_blind for the full list. Each suspect is reported once.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the service runs as; /state is chowned to it at start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the service runs as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "",
+      "description": "Container timezone for digest scheduling, e.g. Europe/London or America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Leftover dirs",
+      "key": "LEFTOVER_DIRS",
+      "value": "",
+      "description": "Container paths whose children are job folders, e.g. /downloads/tv,/downloads/movies. Empty keeps the leftover sweep off. SABnzbd never deletes completed job folders and an arr only cleans up its own, so folders nobody references pile up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Leftover action",
+      "key": "LEFTOVER_ACTION",
+      "value": "notify",
+      "description": "notify (report each unreferenced old folder in the digest) or delete (remove it; needs the path mapped read-write). Only direct children of the leftover dirs, never symlinks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Leftover minimum age hours",
+      "key": "LEFTOVER_MIN_AGE_HOURS",
+      "value": "24",
+      "description": "A folder is a leftover only if neither it nor any file in it changed within this many hours.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

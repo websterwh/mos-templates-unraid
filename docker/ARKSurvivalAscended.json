@@ -1,234 +1,72 @@
 {
-  "name": "ARK-Survival-Ascended",
-  "repo": "ferment9348/ark-survival-ascended:latest",
+  "name": "ARKSurvivalAscended",
+  "repo": "acekorneya/asa_server:latest",
   "category": [
     "Game Server"
   ],
-  "registry": "https://hub.docker.com/r/ferment9348/ark-survival-ascended/",
+  "registry": "https://hub.docker.com/r/acekorneya/asa_server",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped --ulimit nofile=1048576:1048576",
+  "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:7777]",
-  "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/icon.png",
-  "project": "https://github.com/blckassassin/unraid-game-servers",
-  "description": "ARK: Survival Ascended dedicated server. ASA ships Windows-only server binaries, so this container installs the Windows depot with SteamCMD and runs it under GE-Proton. Both SteamCMD and Proton are fetched on first start, so the image itself stays small. Heads up before you start: the game files are about 15GB installed and the server wants a lot of RAM (16GB is a sensible floor for a vanilla map, more with mods or players). Put the appdata on an SSD or a cache pool rather than the array - not for the space, but because ARK is heavy on random I/O and spinning disks make startup and world saves noticeably slower. First boot downloads about 13GB and then builds a Proton prefix. Expect a long, quiet first startup - check the logs rather than assuming it hung. Once the files are in place the server starts in well under a minute. Config files are kept editable over SMB. A \"config\" shortcut is created at the top of the game files folder pointing at ShooterGame/Saved/Config/WindowsServer, so you can browse straight to it from Windows. Stop the container before editing - the server rewrites GameUserSettings.ini when it shuts down and will overwrite changes made while it is running. Only 7777/udp needs forwarding at your router. The old 27015 query port is vestigial in ASA because server discovery goes through Epic Online Services rather than Steam. Forward RCON only if you administer from outside your LAN.",
+  "icon": "https://raw.githubusercontent.com/mavrag/unraid-templates/master/logos/asa.png",
+  "project": "https://survivetheark.com/",
+  "description": "`ich777` no longer supports ARK: Survival Ascended, so this is an alternative Unraid template that uses the `acekorneya/asa_server` image. This Docker will download and install ARK: Survival Ascended Dedicated Server and run it (Normal server startup of ARK can take a long time!). ATTENTION: First Startup can take very long since it downloads the gameserver files! Update Notice: Simply restart the container if a newer version of the game is available.",
   "paths": [
     {
-      "name": "Game Files",
-      "host": "/mnt/cache/appdata/ark-survival-ascended",
-      "container": "/serverdata/serverfiles",
+      "name": "ShooterGame",
+      "host": "/mnt/cache/appdata/ark-sa/ASA",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/common/ARK Survival Ascended Dedicated Server/ShooterGame",
       "mode": "rw",
-      "description": "Where the server files, saves and configs live - about 15GB. Use a cache pool or SSD share: ARK is heavy on random I/O and spinning disks slow startup and world saves.",
+      "description": "ShooterGame directory (config/saves/mods)",
       "required": true
     },
     {
-      "name": "SteamCMD",
-      "host": "/mnt/cache/appdata/steamcmd",
-      "container": "/serverdata/steamcmd",
+      "name": "DedicatedServer",
+      "host": "/mnt/cache/appdata/ark-sa/Server",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/common/ARK Survival Ascended Dedicated Server",
       "mode": "rw",
-      "description": "Shared SteamCMD install. Safe to point several game containers at the same folder.",
+      "description": "Dedicated server installation directory",
+      "required": true
+    },
+    {
+      "name": "downloading",
+      "host": "/mnt/cache/appdata/ark-sa/downloading",
+      "container": "/usr/games/.wine/drive_c/POK/Steam/steamapps/downloading",
+      "mode": "rw",
+      "description": "downloading directory",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Game Port",
+      "name": "UDP 7777",
       "host": "7777",
       "container": "7777",
       "protocol": "udp",
-      "description": "Game traffic. This is the one that has to be forwarded. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. Peer Port below follows it too.",
+      "description": "Game port (UDP)",
       "required": true,
       "mask": false
     },
     {
-      "name": "Peer Port",
-      "host": "7778",
-      "container": "7778",
-      "protocol": "udp",
-      "description": "Game port + 1, derived by the engine - there is no variable for it. Not normally required, but cheap to forward if players report flaky connects. If you move Game Port, set both sides of this mapping to the new number + 1 or this mapping points at nothing.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Query Port",
-      "host": "27015",
-      "container": "27015",
-      "protocol": "udp",
-      "description": "Legacy Steam query port. Vestigial in ASA - discovery runs through EOS. Left here for tooling that expects it.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "RCON Port",
+      "name": "RCON TCP",
       "host": "27020",
       "container": "27020",
       "protocol": "tcp",
-      "description": "Source RCON. Only forward at the router if you administer remotely, and never without a strong admin password.",
+      "description": "RCON port (TCP)",
       "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Server Port",
-      "key": "GAME_PORT",
-      "value": "7777",
-      "description": "The port the server binds, passed as -port, and the number it prints in the log. Keep it equal to Game Port above, both the Container Port and the Host Port. If it differs from the Container Port nothing reaches the server; if it differs from the Host Port the log reports a number players cannot use.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Server Name",
-      "key": "SERVER_NAME",
-      "value": "ASA Server",
-      "description": "Session name shown in the Unofficial server list.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Map",
-      "key": "MAP",
-      "value": "TheIsland_WP",
-      "description": "Note the _WP suffix - ASA maps are World Partition and the bare ASE name will not load. e.g. TheIsland_WP, ScorchedEarth_WP, TheCenter_WP, Aberration_WP, Extinction_WP, Ragnarok_WP, Astraeos_WP",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Max Players",
-      "key": "MAX_PLAYERS",
-      "value": "20",
-      "description": "Passed as -WinLiveMaxPlayers. The old ?MaxPlayers= is ignored by ASA.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Server Password",
-      "key": "SRV_PWD",
-      "value": "",
-      "description": "Join password. Leave blank for an open server.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Admin Password",
-      "key": "SRV_ADMIN_PWD",
-      "value": "changeme",
-      "description": "Admin password, and also the RCON password - ASA has no separate RCON credential. Change this from the default.",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "Mods",
-      "key": "MODS",
-      "value": "",
-      "description": "Comma separated CurseForge project IDs, no spaces. ASA mods come from CurseForge, not the Steam Workshop. Load order follows the list, leftmost first.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Crossplay",
-      "key": "CROSSPLAY",
-      "value": "false",
-      "description": "Set true to let Epic Games Store players join. Not on by default for self-hosted servers - this is the usual reason Epic players cannot find a server.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "BattlEye",
-      "key": "BATTLEYE",
-      "value": "false",
-      "description": "BattlEye does not run cleanly under Proton, so this defaults to false (which passes -NoBattlEye).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Extra Game Parameters",
-      "key": "GAME_PARAMS_EXTRA",
-      "value": "",
-      "description": "Extra dash flags, space separated. e.g. -ForceAllowCaveFlyers -servergamelog -NoTransferFromFiltering",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Extra Query Parameters",
-      "key": "QUERY_PARAMS_EXTRA",
-      "value": "",
-      "description": "Extra ?key=value pairs for the map string, no leading ?. e.g. AllowCrateSpawnsOnTopOfStructures=true?PreventDownloadSurvivors=false",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Cluster ID",
-      "key": "CLUSTER_ID",
-      "value": "",
-      "description": "Set the same value on every server in a cluster to enable transfers. Leave blank for a standalone server.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Cluster Directory",
-      "key": "CLUSTER_DIR",
-      "value": "/serverdata/serverfiles/cluster",
-      "description": "Shared transfer folder. For a real cluster, map this to a path shared by all the containers.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Validate Files",
-      "key": "VALIDATE",
-      "value": "",
-      "description": "Set to true to have SteamCMD verify every file on start. Slow - turn it back off once it has run.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Debug Logging",
-      "key": "DEBUG",
-      "value": "false",
-      "description": "Set true to capture verbose wine output and a Proton log in the logs folder under your game files. Use this when the server exits during startup without writing an engine log. Noisy and slower - turn it back off afterwards.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Proton Version",
-      "key": "PROTON_VERSION",
-      "value": "GE-Proton10-34",
-      "description": "Leave this alone unless you know why you are changing it. GE-Proton 11 hangs the ASA server before it writes any log at all - no crash, no error, it just never starts. Verified with this image: GE-Proton11-5 hangs, GE-Proton10-34 starts in under a minute on the same files. Setting 'latest' will currently get you GE-Proton 11.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Stop Timeout",
-      "key": "STOP_TIMEOUT",
-      "value": "120",
-      "description": "Seconds to wait for a graceful save-and-exit before force killing. Also raise Unraid's own container stop timeout to match.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Steam Username",
-      "key": "USERNAME",
-      "value": "",
-      "description": "Leave blank. The ASA server app downloads anonymously.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Steam Password",
-      "key": "PASSWRD",
-      "value": "",
-      "description": "Leave blank. The ASA server app downloads anonymously.",
-      "required": false,
-      "mask": true
-    },
-    {
       "name": "UID",
       "key": "UID",
       "value": "500",
-      "description": "User ID. 99 is the Unraid default.",
+      "description": "Unraid compatibility (not used by this image)",
       "required": true,
       "mask": false
     },
@@ -236,39 +74,199 @@
       "name": "GID",
       "key": "GID",
       "value": "500",
-      "description": "Group ID. 100 is the Unraid default.",
+      "description": "Unraid compatibility (not used by this image)",
       "required": true,
       "mask": false
     },
     {
-      "name": "Fix Share Permissions",
-      "key": "FIX_PERMS",
-      "value": "true",
-      "description": "Keeps the Saved folder (configs and saves) readable and writable over SMB, so you can edit the ini files from a Windows PC. Runs on every start and again on shutdown. Set false only if you want to manage permissions yourself.",
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The UID to run server as",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The GID to run server as",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "Config UMASK",
-      "key": "CONFIG_UMASK",
+      "name": "BattleEye",
+      "key": "BATTLEEYE",
+      "value": "TRUE",
+      "description": "Set to TRUE to use BattleEye, FALSE to not use BattleEye",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable RCON",
+      "key": "RCON_ENABLED",
+      "value": "TRUE",
+      "description": "Needed for Graceful Shutdown",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Display Monitor Messages",
+      "key": "DISPLAY_POK_MONITOR_MESSAGE",
+      "value": "FALSE",
+      "description": "TRUE to show the Server Monitor Messages / Update Monitor",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Server",
+      "key": "UPDATE_SERVER",
+      "value": "TRUE",
+      "description": "Enable or disable update checks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Check Interval",
+      "key": "CHECK_FOR_UPDATE_INTERVAL",
+      "value": "24",
+      "description": "Check for Updates interval in hours",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Window Minimum",
+      "key": "UPDATE_WINDOW_MINIMUM_TIME",
+      "value": "12:00 AM",
+      "description": "Defines the minimum time, relative to server time, when an update check should run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Window Maximum",
+      "key": "UPDATE_WINDOW_MAXIMUM_TIME",
+      "value": "11:59 PM",
+      "description": "Defines the maximum time, relative to server time, when an update check should run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restart Notice Minutes",
+      "key": "RESTART_NOTICE_MINUTES",
+      "value": "30",
+      "description": "Duration in minutes for notifying players before a server restart due to updates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable MOTD",
+      "key": "ENABLE_MOTD",
+      "value": "FALSE",
+      "description": "Enable or disable Message of the Day",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MOTD",
+      "key": "MOTD",
       "value": "",
-      "description": "umask applied to the Saved folder (configs and saves) when Fix Share Permissions is on. Leave blank to reuse the container UMASK, which is the usual choice. 000 = everyone can edit. 007 = owner and group only, which still works for Unraid SMB users since they belong to the users group. 022 = read-only for everyone but the owner. 077 = owner only.",
+      "description": "Message of the Day",
       "required": false,
       "mask": false
     },
     {
-      "name": "Data Permissions",
-      "key": "DATA_PERM",
-      "value": "775",
-      "description": "chmod applied to the top-level server files folder. 775 rather than 770 so an SMB client that is not the owner and not in the group can still traverse into it.",
+      "name": "MOTD Duration",
+      "key": "MOTD_DURATION",
+      "value": "30",
+      "description": "Duration for the Message of the Day",
       "required": false,
       "mask": false
     },
     {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "000",
-      "description": "umask for files the server creates. 000 means new files land as 666 and new directories as 777, which keeps them editable over the share.",
+      "name": "Map",
+      "key": "MAP_NAME",
+      "value": "TheIsland",
+      "description": "The map name (`TheIsland`) or a custom map name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Name",
+      "key": "SESSION_NAME",
+      "value": "Server_name",
+      "description": "The session name for the server",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "SERVER_ADMIN_PASSWORD",
+      "value": "MyPassword",
+      "description": "The admin password for the server",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Server Password",
+      "key": "SERVER_PASSWORD",
+      "value": "",
+      "description": "Set a server password or leave it blank (ONLY NUMBERS AND CHARACTERS ARE ALLOWED BY DEVS)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ASA Port",
+      "key": "ASA_PORT",
+      "value": "7777",
+      "description": "The game port for the server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RCON Port",
+      "key": "RCON_PORT",
+      "value": "27020",
+      "description": "Rcon Port Use for Most Server Operations",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "127",
+      "description": "Max allowed players",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cluster ID",
+      "key": "CLUSTER_ID",
+      "value": "cluster",
+      "description": "The Cluster ID for the server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mod IDs",
+      "key": "MOD_IDS",
+      "value": "",
+      "description": "Add your mod IDs here, separated by commas, e.g., 123456789,987654321",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Custom Server Args",
+      "key": "CUSTOM_SERVER_ARGS",
+      "value": "",
+      "description": "If You need to add more Custom Args -ForceRespawnDinos -ForceAllowCaveFlyers",
       "required": false,
       "mask": false
     }

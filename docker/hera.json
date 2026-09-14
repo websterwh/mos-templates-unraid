@@ -1,0 +1,91 @@
+{
+  "name": "hera",
+  "repo": "athuul/hera:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/athuul/hera",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/athuull/hera/main/src/main/resources/static/favicon.png",
+  "project": "https://github.com/athuull/hera",
+  "description": "Hera is a self-hosted music recommendation and automated downloader service powered by Last.fm and Downtify. Discover new music tailored to your listening taste, download tracks, albums, or playlists, and synchronize your local music library.",
+  "paths": [
+    {
+      "name": "Music Downloads Directory",
+      "host": "/mnt/cache/data/media/music",
+      "container": "/music/downloads",
+      "mode": "rw",
+      "description": "Directory where downloaded audio files are stored (must match Downtify's download folder)",
+      "required": true
+    },
+    {
+      "name": "App Configuration",
+      "host": "/mnt/cache/appdata/hera",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent directory for Hera settings and history",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "HTTP port for the Hera Web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Container timezone (e.g. America/New_York, Europe/London, Asia/Kolkata)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Downtify API URL",
+      "key": "DOWNTIFY_API_URL",
+      "value": "http://[IP]:8000",
+      "description": "URL to the Downtify backend container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Last.fm API Key",
+      "key": "LASTFM_API_KEY",
+      "value": "",
+      "description": "Your Last.fm API Key (can also be entered in the WebUI)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm Username",
+      "key": "LASTFM_USERNAME",
+      "value": "",
+      "description": "Your Last.fm Username (can also be entered in the WebUI)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cron Schedule",
+      "key": "CRON_SCHEDULE",
+      "value": "0 0 2 * * *",
+      "description": "Cron expression for automated nightly download pipeline",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,58 +1,85 @@
 {
   "name": "mosquitto",
-  "repo": "eclipse-mosquitto:2",
+  "repo": "cmccambridge/mosquitto-unraid:latest",
   "category": [
     "Home Automation"
   ],
-  "registry": "https://hub.docker.com/_/eclipse-mosquitto",
+  "registry": "https://hub.docker.com/r/cmccambridge/mosquitto-unraid/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--restart=unless-stopped",
+  "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:1883]",
-  "icon": "https://raw.githubusercontent.com/simonsickle/unraid-templates/main/mosquitto/logo.png",
+  "icon": "https://raw.githubusercontent.com/cmccambridge/mosquitto-unraid/master/media/eclipse-mosquitto.png",
   "project": "https://mosquitto.org",
-  "description": "MQTT Data Broker",
+  "description": "[p]This container is a minimal port of the official [a href='https://mosquitto.org/']Eclipse Mosquitto[/a] Docker container with minor tweaks to work more conveniently in Unraid.[/p] [h4]Configuration[/h4] [p]To set up paths and ports, see the descriptions in the Unraid docker settings page.[/p] [p]To further control mosquitto configuration, place a [code]mosquitto.conf[/code] file in the config path, or start the container one time and it will write a template [code]mosquitto.conf.example[/code] file to the config path for you to copy and edit. For further details, refer to the full README at [a href='https://github.com/cmccambridge/mosquitto-Unraid/blob/master/README.md']https://github.com/cmccambridge/mosquitto-Unraid/blob/master/README.md[/a][/p]",
   "paths": [
     {
-      "name": "config",
-      "host": "/mnt/cache/appdata/mosquitto/config/",
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/mosquitto",
       "container": "/mosquitto/config",
       "mode": "rw",
-      "description": "Store mosquitto.conf and passwd files",
-      "required": false
+      "description": "Store codemosquitto.conf/code (or additional code*.conf/code files). emContainer Path: code/mosquitto/config/code/em",
+      "required": true
     },
     {
-      "name": "data",
-      "host": "/mnt/cache/appdata/mosquitto/data",
+      "name": "Persistent Data Directory",
+      "host": "",
       "container": "/mosquitto/data",
       "mode": "rw",
-      "description": "Store persistent MQTT data. Note: Persistent data must be enabled in the mosquitto.conf config file.",
+      "description": "em(Optional)/em Store persistent MQTT data. strongNote:/strong Persistent data must be enabled in the codemosquitto.conf/code config file. emContainer Path: code/mosquitto/data/code/em",
       "required": false
     },
     {
-      "name": "logs",
-      "host": "/mnt/cache/appdata/mosquitto/log",
+      "name": "Log Directory",
+      "host": "",
       "container": "/mosquitto/log",
       "mode": "rw",
-      "description": "Store mosquitto logs. Note: Logs must be enabled in the mosquitto.conf config file",
+      "description": "em(Optional)/em Store mosquitto logs. strongNote:/strong Logs must be enabled in the codemosquitto.conf/code config file. emContainer Path: code/mosquitto/log/code/em",
       "required": false
     }
   ],
   "ports": [
     {
-      "name": "MQTT Port",
+      "name": "Host Port: MQTT Server",
       "host": "1883",
       "container": "1883",
       "protocol": "tcp",
-      "description": null,
+      "description": "MQTT Server Port. emContainer Port: code1883/code/em",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host Port: MQTT TLS",
+      "host": "8883",
+      "container": "8883",
+      "protocol": "tcp",
+      "description": "em(Optional)/em MQTT-TLS Server Port strongNote:/strong TLS must be configured in the codemosquitto.conf/code config file. emContainer Port: code8883/code/em",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host Port: MQTT Websockets",
+      "host": "9001",
+      "container": "9001",
+      "protocol": "tcp",
+      "description": "em(Optional)/em MQTT Websockets Server Port. strongNote:/strong Websockets must be enabled in the codemosquitto.conf/code config file. emContainer Port: code9001/code/em",
       "required": false,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Run Insecure MQTT Server",
+      "key": "RUN_INSECURE_MQTT_SERVER",
+      "value": "0",
+      "description": "Set to code1/code to enable anonymous connections on port 1883 as in Mosquitto 1.x",
+      "required": true,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

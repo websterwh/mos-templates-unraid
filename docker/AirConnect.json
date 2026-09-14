@@ -1,23 +1,273 @@
 {
   "name": "AirConnect",
-  "repo": "1activegeek/airconnect",
+  "repo": "iflip721/airconnect:latest",
   "category": [
     "Media"
   ],
-  "registry": "https://hub.docker.com/r/1activegeek/airconnect/",
+  "registry": "https://hub.docker.com/r/iflip721/airconnect",
   "network": "host",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--stop-timeout=15",
   "post_parameters": null,
-  "web_ui_url": null,
-  "icon": "https://i.imgur.com/hatCnm0.png",
-  "project": "https://github.com/philippe44/AirConnect",
-  "description": "AirConnect container for turning Chromecast into Airplay targets This is a containerized build of the fantastic program by philippe44 called AirConnect. It allows you to be able to use AirPlay to push audio to Chromecast and UPNP based devices. There are some advanced details and information that you should review on his GitHub Project. https://github.com/philippe44/AirConnect For the most part this container needs nothing more than to launch it using Host networking.",
-  "paths": [],
+  "web_ui_url": "http://[IP]:8282",
+  "icon": "https://raw.githubusercontent.com/iFlip721/AirConnect/refs/heads/main/assets/logo/airconnect-mark-dark-circle.png",
+  "project": "https://github.com/iFlip721/AirConnect",
+  "description": "AirPlay to UPnP/Sonos and Chromecast, in a single container, with a web interface for seeing what is actually happening. Host networking is required, not a preference. AirPlay discovery is mDNS (5353/udp multicast), UPnP discovery is SSDP (1900/udp multicast), and the bridges bind ephemeral RTSP/RTP/HTTP ports per device unless AIRCONNECT_PORT_BASE is set. None of that survives a bridge network, and the Diagnostics page fails explicitly if bridge mode is detected. Two host-side gotchas: if avahi holds 5353 exclusively, set disallow-other-stacks=no in /etc/avahi/avahi-daemon.conf; and IGMP snooping on your switch will silently filter discovery.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/airconnect/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds airupnp.xml and aircast.xml, so discovered devices survive an upgrade. The directory must be writable \u2014 a read-only mount crashes upstream's config writer.",
+      "required": true
+    }
+  ],
   "ports": [],
-  "variables": [],
+  "variables": [
+    {
+      "name": "AIRCONNECT_MODE",
+      "key": "AIRCONNECT_MODE",
+      "value": "both",
+      "description": "Which bridges to run. Options: both (default) | upnp (alias airupnp) | cast (alias aircast). Any unrecognised value falls back to both.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_PRESET",
+      "key": "AIRCONNECT_PRESET",
+      "value": "sonos-fast",
+      "description": "Tuning preset. Options: sonos-fast (default, implies -g 0 -l 50:100; aliases fast, sonos_fast) | compat (adds -c wav for firmware that refuses FLAC, but WAV caps a session at roughly 3-6 hours; alias wav) | upstream (stock upstream behaviour, no overrides; aliases stock, default). Any other value is treated as custom and implies nothing. Explicit variables below always override whatever the preset implied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_WEB_PORT",
+      "key": "AIRCONNECT_WEB_PORT",
+      "value": "8282",
+      "description": "Port for the web UI, JSON API and /healthz. Under host networking this port is taken directly on the host, so change it here if 8282 is already in use. The image default is 8080. If you change it, update the WebUI link on this template to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_CODEC",
+      "key": "AIRCONNECT_CODEC",
+      "value": "mp3:320",
+      "description": "Stream codec (-c). Options: flac[:0-9][/1152-16384] | wav | pcm | mp3[:rate] | aac[:rate]. Must be lossy (mp3 or aac) when AIRCONNECT_STREAM_TYPE is radio \u2014 a FLAC payload over x-rincon-mp3radio:// is fetched continuously and never played. FLAC also runs about 900 kbit/s, which a Sonos on a marginal wireless link will not sustain. Leave blank to use the preset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_HTTP_LENGTH",
+      "key": "AIRCONNECT_HTTP_LENGTH",
+      "value": "-1",
+      "description": "Content length advertised to the renderer (-g), airupnp only. Options: -3 (chunked) | -1 (advertise no length) | 0 (fixed \u2014 this means INT_MAX, NOT 'no length', so the renderer paces its reads as if fetching a 2 GiB track and stalls Sonos S2 30-50s in) | a byte count. Leave blank to use the preset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_STREAM_TYPE",
+      "key": "AIRCONNECT_STREAM_TYPE",
+      "value": "radio",
+      "description": "How a Sonos is told to present the stream (-S), airupnp only; every other renderer always gets audioBroadcast. Options: broadcast (audioBroadcast, no res@duration \u2014 the binary default) | track (upstream's musicTrack with a 1ms res@duration; combined with -g 0 this makes S2 firmware pace the stream like a file and drop it) | radio (audioBroadcast plus Sonos' x-rincon-mp3radio:// scheme, which removes the 10-15s startup wait; requires a lossy codec). Leave blank to pass no -S at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_UPDATE_CHECK",
+      "key": "AIRCONNECT_UPDATE_CHECK",
+      "value": "true",
+      "description": "Check GitHub for a newer upstream release tag. Notify only \u2014 nothing ever self-updates. Options: true (default) | false. Also accepts 0, no, off and disabled as false; any other value is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Not read by AirConnect itself \u2014 glibc uses it to render local timestamps in logs and the web UI. Any tz database name, e.g. America/New_York, Europe/London, Etc/UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_WEB_BIND",
+      "key": "AIRCONNECT_WEB_BIND",
+      "value": "0.0.0.0",
+      "description": "Bind address for the web UI and API. Options: 0.0.0.0 (all interfaces, default) | 127.0.0.1 (localhost only) | a specific host IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LATENCY",
+      "key": "AIRCONNECT_LATENCY",
+      "value": "",
+      "description": "Latency (-l), given as rtp:http[:f] in milliseconds, e.g. 50:100. Leave blank to use the preset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_FLUSH",
+      "key": "AIRCONNECT_FLUSH",
+      "value": "true",
+      "description": "Options: true (default) | false. Setting false passes --noflush to the bridges. Also accepts 0, no, off and disabled as false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_DRIFT",
+      "key": "AIRCONNECT_DRIFT",
+      "value": "false",
+      "description": "Clock drift correction. Options: false (default) | true. Setting true passes -r to the bridges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_BIND_IP",
+      "key": "AIRCONNECT_BIND_IP",
+      "value": "",
+      "description": "Interface used for discovery (-b). Accepts an IP address or an interface name. Set this on a multi-homed host, where discovery would otherwise bind the wrong interface. Leave blank to auto-detect.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_BIND_INTERFACE",
+      "key": "AIRCONNECT_BIND_INTERFACE",
+      "value": "",
+      "description": "Alias for AIRCONNECT_BIND_IP. Only consulted when AIRCONNECT_BIND_IP is unset.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_UPNP_PORT",
+      "key": "AIRCONNECT_UPNP_PORT",
+      "value": "",
+      "description": "UPnP control port, appended to the airupnp binding as -b ip:port. airupnp only. Must be 49152 or above. Leave blank to auto-assign.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_PORT_BASE",
+      "key": "AIRCONNECT_PORT_BASE",
+      "value": "",
+      "description": "Pins the per-device RTSP/RTP/HTTP port pool (-a) instead of using ephemeral ports, e.g. 49200. Leave blank for ephemeral ports.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_PORT_RANGE",
+      "key": "AIRCONNECT_PORT_RANGE",
+      "value": "",
+      "description": "Size of the pinned port pool; only used when AIRCONNECT_PORT_BASE is set. Size it for at least (devices x 4) + 1, e.g. 128.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_NAME_FORMAT",
+      "key": "AIRCONNECT_NAME_FORMAT",
+      "value": "",
+      "description": "Device name format (-N), applied to both bridges. %s is the discovered device name, so &quot;%s+&quot; appends a plus to each one.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_EXCLUDE_MODELS",
+      "key": "AIRCONNECT_EXCLUDE_MODELS",
+      "value": "",
+      "description": "Comma-separated list of model names to skip (-m). airupnp only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_EXCLUDE_NAMES",
+      "key": "AIRCONNECT_EXCLUDE_NAMES",
+      "value": "",
+      "description": "Comma-separated list of device names to skip (-n). airupnp only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_INCLUDE_MODELS",
+      "key": "AIRCONNECT_INCLUDE_MODELS",
+      "value": "",
+      "description": "Comma-separated allow-list of model names (-o). airupnp only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_MEDIA_VOLUME",
+      "key": "AIRCONNECT_MEDIA_VOLUME",
+      "value": "",
+      "description": "Media volume (-v). aircast only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG_MAIN",
+      "key": "AIRCONNECT_LOG_MAIN",
+      "value": "",
+      "description": "Starting log level for the bridges' main component (-d main=level). Options: error | warn | info | debug | sdebug. Starting value only \u2014 the web UI changes levels on a running bridge without a restart, which is how you capture a session without dropping it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG_UTIL",
+      "key": "AIRCONNECT_LOG_UTIL",
+      "value": "",
+      "description": "Starting log level for the util component (-d util=level). Options: error | warn | info | debug | sdebug. Changeable live from the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG_RAOP",
+      "key": "AIRCONNECT_LOG_RAOP",
+      "value": "",
+      "description": "Starting log level for the raop (AirPlay) component (-d raop=level). Options: error | warn | info | debug | sdebug. Changeable live from the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG_UPNP",
+      "key": "AIRCONNECT_LOG_UPNP",
+      "value": "",
+      "description": "Starting log level for the upnp component (-d upnp=level). Options: error | warn | info | debug | sdebug. Never passed to aircast. Changeable live from the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG_CAST",
+      "key": "AIRCONNECT_LOG_CAST",
+      "value": "",
+      "description": "Starting log level for the cast component (-d cast=level). Options: error | warn | info | debug | sdebug. Never passed to airupnp. Changeable live from the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_LOG",
+      "key": "AIRCONNECT_LOG",
+      "value": "info",
+      "description": "The manager's own tracing filter, unrelated to the bridge log levels above. Options: error | warn | info (default) | debug | trace, or any tracing EnvFilter directive such as airconnect_manager=debug.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_UPNP_EXTRA_ARGS",
+      "key": "AIRCONNECT_UPNP_EXTRA_ARGS",
+      "value": "",
+      "description": "Raw flags appended verbatim to airupnp. Simple double quoting is honoured, so -N &quot;Living Room %s&quot; survives. Do not pass -Z: it disables the bridge console and with it every live web UI feature (session detail, log streaming, runtime log levels).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AIRCONNECT_CAST_EXTRA_ARGS",
+      "key": "AIRCONNECT_CAST_EXTRA_ARGS",
+      "value": "",
+      "description": "Raw flags appended verbatim to aircast. Simple double quoting is honoured, so -N &quot;Living Room %s&quot; survives. Do not pass -Z: it disables the bridge console and with it every live web UI feature (session detail, log streaming, runtime log levels).",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

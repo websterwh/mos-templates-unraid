@@ -1,0 +1,91 @@
+{
+  "name": "multivibe-host",
+  "repo": "ghcr.io/thibautrey/multivibe-host:latest",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/thibautrey/multivibe/pkgs/container/multivibe-host",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--runtime=nvidia --init --read-only --tmpfs=/tmp:rw,nosuid,nodev,noexec,mode=1777,size=512m --security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=FOWNER --cap-add=SETGID --cap-add=SETUID",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1455]",
+  "icon": "https://raw.githubusercontent.com/thibautrey/multivibe/main/assets/brand/favicon/favicon-256x256.png",
+  "project": "https://github.com/thibautrey/multivibe",
+  "description": "Run the security-bounded MultiVibe provider Host on your own supported NVIDIA GPU. Credentials and device identity are generated inside persistent appdata; the provider agent and managed Ollama stay loopback-only inside the container. Sharing and automatic downloads remain disabled until you explicitly configure the local capacity policy.",
+  "paths": [
+    {
+      "name": "Application data",
+      "host": "/mnt/cache/appdata/multivibe-host",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent private credentials, device identity, policy, database and logs.",
+      "required": true
+    },
+    {
+      "name": "Model storage",
+      "host": "/mnt/cache/multivibe-models",
+      "container": "/models",
+      "mode": "rw",
+      "description": "Persistent managed runtime and model weights. Use /models/weights when creating the local capacity policy.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "1455",
+      "container": "1455",
+      "protocol": "tcp",
+      "description": "Host port for the protected MultiVibe dashboard and API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "MULTIVIBE_HOST_PUBLIC_URL",
+      "value": "",
+      "description": "Required: enter your actual origin, for example http://192.168.1.10:1455. Match the Web UI host port; do not use or [PORT] placeholders. No path or trailing slash. Use the reverse-proxy HTTPS origin when applicable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA GPU",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "GPU UUID from the Nvidia Driver plugin, or all. Exposing one supported GPU is recommended; it is index 0 inside the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "Required CUDA compute and nvidia-smi capabilities.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Managed runtime directory",
+      "key": "MULTIVIBE_HOST_MANAGED_DIR",
+      "value": "/models/runtime",
+      "description": "Container path for the verified managed Ollama runtime. Model weights are selected separately in the local capacity policy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container CUDA device",
+      "key": "MULTIVIBE_PROVIDER_CUDA_VISIBLE_DEVICES",
+      "value": "0",
+      "description": "Zero-based GPU index inside the container. Keep 0 when a single GPU UUID is exposed.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

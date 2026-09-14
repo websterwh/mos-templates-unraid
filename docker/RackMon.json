@@ -1,0 +1,91 @@
+{
+  "name": "RackMon",
+  "repo": "rackmon/rackmon:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/rackmon/rackmon",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://rackmon.app/assets/icon-512.png",
+  "project": "https://rackmon.app",
+  "description": "Self-hosted rack temperature and SNMP monitoring. Live per-U thermal heatmaps, SNMP v2c/v3 polling, alerting with hold-down windows and deduplication, availability/SLA reports and a public status page - in a single container. No account, no phone-home. The Community edition is free forever with unlimited devices and metrics.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/rackmon",
+      "container": "/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "RACKMON_DATABASE_URL",
+      "value": "sqlite:////data/rackmon.db",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret",
+      "key": "RACKMON_JWT_SECRET",
+      "value": "CHANGE-ME-openssl-rand-hex-32",
+      "description": null,
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Master Key (encrypts stored credentials)",
+      "key": "RACKMON_MASTER_KEY",
+      "value": "CHANGE-ME-openssl-rand-hex-32",
+      "description": null,
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Use simulator (fake telemetry to look around)",
+      "key": "RACKMON_POLLER_USE_SIMULATOR",
+      "value": "true",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Seed demo data",
+      "key": "RACKMON_SEED_DEMO_DATA",
+      "value": "true",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update check (off = no outbound traffic)",
+      "key": "RACKMON_UPDATE_CHECK_ENABLED",
+      "value": "false",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

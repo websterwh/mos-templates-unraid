@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/aon082910/AoN-Unraid-Apps/main/Repair-Hub/icon.png",
   "project": "https://github.com/aon082910/repair-hub",
-  "description": "Self-hosted repair-reference and shop-management app. Vehicle records with VIN decode, live NHTSA recalls/complaints and EPA fuel-economy specs, a DTC (diagnostic trouble code) lookup preloaded with the ~140 generic SAE-standard OBD-II codes, and free-text search against iFixit's guide library and Wikimedia Commons for reference photos -- all backed by content you add yourself (repair guides, wiring diagrams, photos). Full shop management on top: customers, work orders, estimates with no-login customer approval (signature capture included), appointment scheduling, parts inventory, digital vehicle inspections, sales tax, payment tracking, warranty tracking, a technician time clock, PDF invoices, and revenue reports. Three account tiers share one login page -- staff (full access), technicians (repair reference plus only their assigned jobs), and customers (their own vehicles and service history, via a login staff can create for them). Does not scrape, mirror, or resell ALLDATA or any other paid data provider -- if you already pay for ALLDATA, a vehicle's page lets you save a quick link to the matching page in your own account, or attach a file you personally exported. All other external lookups (NHTSA, EPA, iFixit, Wikimedia Commons) are free, public APIs and degrade gracefully with no internet access. SET DJANGO_SECRET_KEY before starting -- pick any long random string. Set the superuser username and password too, or you'll have no way to log in (create one later via `docker exec -it repair-hub python manage.py createsuperuser` if you skip it here). Everything lives under the single /config mount: the SQLite database and all uploaded media (guide photos, wiring diagrams, ALLDATA attachments, inspection photos). Back that one directory up and you've backed up the whole app -- see the README for a scripted hot-backup that's safer than a raw file copy while the container is running.",
+  "description": "Self-hosted repair-reference and shop-management app. Vehicle records with VIN decode, live NHTSA recalls/complaints and EPA fuel-economy specs, a DTC (diagnostic trouble code) lookup preloaded with the ~140 generic SAE-standard OBD-II codes, and free-text search against iFixit's guide library and Wikimedia Commons for reference photos -- all backed by content you add yourself (repair guides, wiring diagrams, photos). Full shop management on top: customers, work orders, estimates with no-login customer approval (signature capture included), appointment scheduling with an .ics calendar feed, parts inventory, digital vehicle inspections, sales tax, payment tracking, warranty tracking, a technician time clock, email notifications, PDF invoices, and reports (revenue by month, average repair time, top parts, outstanding balances). Three account tiers share one login page -- staff (full access, with optional 2FA), technicians (repair reference plus only their assigned jobs), and customers (their own vehicles and service history, via a login staff can create for them). Does not scrape, mirror, or resell ALLDATA or any other paid data provider -- if you already pay for ALLDATA, a vehicle's page lets you save a quick link to the matching page in your own account, or attach a file you personally exported. All other external lookups (NHTSA, EPA, iFixit, Wikimedia Commons) are free, public APIs and degrade gracefully with no internet access. SET DJANGO_SECRET_KEY before starting -- pick any long random string. Set the superuser username and password too, or you'll have no way to log in (create one later via `docker exec -it repair-hub python manage.py createsuperuser` if you skip it here). Everything lives under the single /config mount: the SQLite database and all uploaded media (guide photos, wiring diagrams, ALLDATA attachments, inspection photos). Back that one directory up and you've backed up the whole app -- see the README for a scripted hot-backup that's safer than a raw file copy while the container is running.",
   "paths": [
     {
       "name": "Appdata",
@@ -96,8 +96,8 @@
     {
       "name": "Allowed Hosts",
       "key": "DJANGO_ALLOWED_HOSTS",
-      "value": "localhost,127.0.0.1",
-      "description": "Comma-separated hostnames/IPs the app will answer to. Add your Unraid LAN IP or reverse-proxy domain if you can't log in.",
+      "value": "*",
+      "description": "Comma-separated hostnames/IPs the app will answer to, or * for any (default -- fine for a LAN-only appliance). Only lock this down to specific hosts if you're exposing this through a reverse proxy on the open internet.",
       "required": false,
       "mask": false
     },
@@ -106,6 +106,62 @@
       "key": "DJANGO_DEBUG",
       "value": "false",
       "description": "Leave false unless troubleshooting -- true shows full Python tracebacks on error pages, which can leak internal details",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Host",
+      "key": "EMAIL_HOST",
+      "value": "",
+      "description": "Optional. Set to enable real email for appointment/estimate/invoice notifications; leave blank to just log them to the container console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Port",
+      "key": "EMAIL_PORT",
+      "value": "587",
+      "description": "Only used if SMTP Host is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Username",
+      "key": "EMAIL_HOST_USER",
+      "value": "",
+      "description": "Only used if SMTP Host is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "EMAIL_HOST_PASSWORD",
+      "value": "",
+      "description": "Only used if SMTP Host is set. Use an app password for Gmail/Outlook, not your account password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "From Email",
+      "key": "DEFAULT_FROM_EMAIL",
+      "value": "repair-hub@localhost",
+      "description": "Sender address on outgoing notification emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Interval (hours)",
+      "key": "BACKUP_INTERVAL_HOURS",
+      "value": "24",
+      "description": "How often to write an automatic JSON snapshot to /config/backups. Set to 0 to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Retention Count",
+      "key": "BACKUP_RETENTION_COUNT",
+      "value": "14",
+      "description": "How many automatic snapshots to keep before deleting the oldest.",
       "required": false,
       "mask": false
     }

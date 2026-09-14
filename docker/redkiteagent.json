@@ -1,0 +1,97 @@
+{
+  "name": "redkite-agent",
+  "repo": "ghcr.io/redkite-info/redkite-unraid:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/redkite-info/redkite-agent/pkgs/container/redkite-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add SYS_RAWIO --cap-add SYS_ADMIN --device-cgroup-rule=b 8:* r --device-cgroup-rule=b 65:* r --device-cgroup-rule=b 259:* r",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://redkite.info/icon.svg",
+  "project": "https://redkite.info",
+  "description": "Red Kite watches this server by listening for it. The agent says \"I am still here\" to a hub outside the building every few minutes, and **the alarm is the absence of that message, not the presence of one** \u2014 so a server that loses power, loses its line, or is simply switched off is noticed either way. Nothing is opened on your firewall, because nothing ever connects inwards. It also reports what is quietly going wrong: parity sync errors, a disabled disk being emulated from parity, SMART attributes that are climbing, filesystems remounted read-only, memory errors the machine is correcting and not mentioning. Sleeping disks are left alone. Every SMART read uses -n standby, and temperatures come from Unraid's own cached figures, so a spun-down array stays spun down. **You need a hub before this will do anything.** Red Kite is self-hosted: you run the hub yourself, there is no account with us, and we monitor nothing for anybody. Start at redkite.info. Free while it is in open beta. **If something is wrong, set the Console to bash and run:** redkite-Unraid --diagnose That prints everything it can and cannot see. It is safe to paste anywhere: the token is redacted on the way out.",
+  "paths": [
+    {
+      "name": "Host /proc (required)",
+      "host": "/proc",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "The machine's uptime, memory, load and real mount table. WITHOUT THIS the container reads its own /proc and reports on itself rather than on the server, so the agent refuses to start.",
+      "required": true
+    },
+    {
+      "name": "Host /sys (required)",
+      "host": "/sys",
+      "container": "/host/sys",
+      "mode": "ro",
+      "description": "Board temperatures, fan speeds and memory error counters.",
+      "required": true
+    },
+    {
+      "name": "Host filesystem (required)",
+      "host": "/",
+      "container": "/rootfs",
+      "mode": "ro",
+      "description": "Read-only, so disk sizes and free space can be measured for the array, the pools and the shares.",
+      "required": true
+    },
+    {
+      "name": "Unraid state",
+      "host": "/var/local/emhttp",
+      "container": "/emhttp",
+      "mode": "ro",
+      "description": "Unraid's own disk list and cached temperatures, so sleeping drives can be reported on without being woken.",
+      "required": false
+    },
+    {
+      "name": "Device metadata",
+      "host": "/run/udev",
+      "container": "/run/udev",
+      "mode": "ro",
+      "description": "How smartctl identifies the drives it is looking at.",
+      "required": false
+    },
+    {
+      "name": "Block devices",
+      "host": "/dev",
+      "container": "/dev",
+      "mode": "ro",
+      "description": "The disks themselves, read-only, so their SMART pages can be read. Mounted whole rather than listed one by one because the disks in a NAS change and a list that has to be edited is a list that goes stale.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Hub address",
+      "key": "HUB_URL",
+      "value": "",
+      "description": "Where this machine reports to \u2014 your own hub, not ours. Outbound HTTPS only; nothing connects in.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Machine token",
+      "key": "TOKEN",
+      "value": "",
+      "description": "The rk_live_ token your hub showed you once, when this machine was added. It authorises one thing: this machine saying it is still here.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Seconds between check-ins",
+      "key": "INTERVAL",
+      "value": "300",
+      "description": "Five minutes suits nearly everything. The hub can ask for a different figure and this will honour it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "ihasmail",
+  "repo": "ghcr.io/coffey-labs/ihasmail:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/Coffey-Labs/ihasmail/pkgs/container/ihasmail",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --tmpfs /tmp --user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Coffey-Labs/unraid-templates/main/templates/ihasmail.png",
+  "project": "https://github.com/Coffey-Labs/ihasmail",
+  "description": "Immutable webmail for Stalwart Mail Server. Mail, calendars, contacts, files and filters in one responsive app that works as well on a phone as on a desktop, talking only JMAP to a Stalwart you already run. There is no database, no IMAP or SMTP configuration and nothing to migrate between versions: everything durable stays in Stalwart, and the container is disposable. The root filesystem runs read-only; the only optional write is a session file, kept so that nobody is signed out when the container restarts. Try it first at https://demo.ihasmail.com and read the docs at https://docs.ihasmail.org.",
+  "paths": [
+    {
+      "name": "Session file folder",
+      "host": "/mnt/cache/appdata/ihasmail",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Optional, and the only thing ihasmail ever writes: sessions.json, so that nobody is signed out when the container restarts or updates. To run with no writable path at all, clear this, set Session file to empty and Immutable to 1.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "The port ihasmail answers on. Point a reverse proxy at it, or open it directly on your LAN.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Stalwart URL",
+      "key": "STALWART_URL",
+      "value": "https://mail.example.com",
+      "description": "Scheme and host of your Stalwart Mail Server, with no path: the JMAP session is discovered at /.well-known/jmap under it. Only this container talks to Stalwart; browsers never do.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App secret",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "A long random string the session keys are derived from. Generate one in the Unraid terminal with: openssl rand -base64 48. Changing it signs everyone out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Session file",
+      "key": "SESSION_FILE",
+      "value": "/data/sessions.json",
+      "description": "Where sessions are persisted, inside the container. Leave empty to hold sessions in memory only, which signs everyone out on every restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Immutable",
+      "key": "IMMUTABLE",
+      "value": "0",
+      "description": "Set to 1 to have the server refuse to start unless it really has a read-only filesystem and no session file. An assertion, not a switch: it changes nothing except what a misconfiguration does.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "App name",
+      "key": "APP_NAME",
+      "value": "ihasmail",
+      "description": "Branding shown in the UI and by the health endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image proxy",
+      "key": "IMAGE_PROXY",
+      "value": "1",
+      "description": "1 routes remote images in messages through ihasmail so senders never see your address. 0 loads them straight from the sender's server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure cookies",
+      "key": "SECURE_COOKIES",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over HTTPS, which is what a reverse proxy gives you. 1 or 0 forces it either way.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

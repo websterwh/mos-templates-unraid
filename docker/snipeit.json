@@ -1,208 +1,192 @@
 {
   "name": "snipe-it",
-  "repo": "lscr.io/linuxserver/snipe-it",
+  "repo": "snipe/snipe-it",
   "category": [
-    "Productivity"
+    "System"
   ],
-  "registry": "https://github.com/orgs/linuxserver/packages/container/package/snipe-it",
+  "registry": "https://hub.docker.com/r/snipe/snipe-it/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:80]/setup",
-  "icon": "https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/snipe-it-logo.png",
-  "project": "https://github.com/grokability/snipe-it",
-  "description": "Snipe-it(https://github.com/grokability/snipe-it) makes asset management easy. It was built by people solving real-world IT and asset management problems, and a solid UX has always been a top priority. Straightforward design and bulk actions mean getting things done faster.",
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": null,
+  "project": "https://github.com/snipe/snipe-it",
+  "description": "This is a FOSS project for asset management in IT Operations. Knowing who has which laptop, when it was purchased in order to depreciate it correctly, handling software licenses, etc. It is built on Laravel 5.5. Snipe-IT is actively developed and we release quite frequently. (Check out the live demo here.) This is web-based software. This means there is no executable file (aka no .exe files), and it must be run on a web server and accessed through a web browser. It runs on any Mac OSX, flavor of Linux, as well as Windows, and we have a Docker image available if that's what you're into.",
   "paths": [
     {
-      "name": "Appdata",
+      "name": "Appdata Config Path",
       "host": "",
       "container": "/config",
       "mode": "rw",
-      "description": "Contains your config files and data storage for Snipe-IT",
+      "description": "Container Path: /config",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/snipeit/data",
+      "container": "/var/lib/snipeit",
+      "mode": "rw",
+      "description": "Container Path: /var/lib/snipeit",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "WebUI",
-      "host": "8080",
+      "name": "Port",
+      "host": "8087",
       "container": "80",
       "protocol": "tcp",
-      "description": "Snipe-IT Web UI",
+      "description": "Container Port: 80",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "APP_KEY",
-      "key": "APP_KEY",
-      "value": "",
-      "description": "App key used for encrypting stored data. Generate with `docker exec snipe-it php /app/www/artisan key:generate --show`.",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "APP_URL",
-      "key": "APP_URL",
-      "value": "http://localhost:8080",
-      "description": "Hostname or IP and port if applicable, be sure to define https/http",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "MYSQL_PORT_3306_TCP_ADDR",
-      "key": "MYSQL_PORT_3306_TCP_ADDR",
-      "value": "",
-      "description": "Mysql hostname or IP to use",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "MYSQL_PORT_3306_TCP_PORT",
-      "key": "MYSQL_PORT_3306_TCP_PORT",
-      "value": "",
-      "description": "Mysql port to use",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "MYSQL_DATABASE",
+      "name": "MySQL Database Name",
       "key": "MYSQL_DATABASE",
       "value": "",
-      "description": "Mysql database to use",
+      "description": "The name of your Snipe-IT database.",
       "required": true,
       "mask": false
     },
     {
-      "name": "MYSQL_USER",
+      "name": "MySQL Username",
       "key": "MYSQL_USER",
       "value": "",
-      "description": "Mysql user to use",
+      "description": "The MySQL username you set up to access the database.",
       "required": true,
       "mask": false
     },
     {
-      "name": "MYSQL_PASSWORD",
+      "name": "MySQL Password",
       "key": "MYSQL_PASSWORD",
       "value": "",
-      "description": "Mysql password to use",
+      "description": "Your database password for the userd",
       "required": true,
       "mask": true
     },
     {
-      "name": "APP_DEBUG",
-      "key": "APP_DEBUG",
-      "value": "false",
-      "description": "Set to `true` to see debugging output in the web UI.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "APP_ENV",
-      "key": "APP_ENV",
-      "value": "production",
-      "description": "Default is `production` but can use `testing` or `develop`.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "APP_FORCE_TLS",
-      "key": "APP_FORCE_TLS",
-      "value": "false",
-      "description": "Set to `true` if running behind a reverse proxy",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "APP_LOCALE",
-      "key": "APP_LOCALE",
+      "name": "MySQL Database Host",
+      "key": "MYSQL_PORT_3306_TCP_ADDR",
       "value": "",
-      "description": "Default is `en-US`. Set to a language from this list(https://snipe-it.readme.io/docs/configuration#section-setting-a-language).",
-      "required": false,
+      "description": "The host for your database",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_PORT_587_TCP_ADDR",
+      "name": "MySQL Database Port",
+      "key": "MYSQL_PORT_3306_TCP_PORT",
+      "value": "3306",
+      "description": "Port number of your MySQL Database.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SMTP Address",
       "key": "MAIL_PORT_587_TCP_ADDR",
       "value": "",
-      "description": "SMTP mail server ip or hostname.",
-      "required": false,
+      "description": "Specify the hostname for your outgoing mail server. Keep in mind that this server must be accessible from the server you're running Snipe-IT on.",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_PORT_587_TCP_PORT",
+      "name": "SMTP Port",
       "key": "MAIL_PORT_587_TCP_PORT",
       "value": "",
-      "description": "SMTP mail server port.",
-      "required": false,
+      "description": "Set the port number that your mail server expects to send from",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_ENV_FROM_ADDR",
+      "name": "SMTP From Address",
       "key": "MAIL_ENV_FROM_ADDR",
       "value": "",
-      "description": "The email address mail should be replied to and listed when sent.",
-      "required": false,
+      "description": "Specify an email address that is used globally for all e-mails that are sent by your application.",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_ENV_FROM_NAME",
+      "name": "SMTP From Name",
       "key": "MAIL_ENV_FROM_NAME",
       "value": "",
-      "description": "The name listed on email sent from the default account on the system.",
-      "required": false,
+      "description": "Specify the name that should show up in the recipient's inbox when they receive email from your Snipe-IT instance.",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_ENV_ENCRYPTION",
+      "name": "SMTP Encryption",
       "key": "MAIL_ENV_ENCRYPTION",
       "value": "",
-      "description": "Mail encryption to use e.g. `tls`.",
-      "required": false,
+      "description": "Here you may specify the encryption protocol that should be used when the application sends e-mail messages. 'tls' for SMTP-over-SSL 'tcp' for unencrypted",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_ENV_USERNAME",
+      "name": "SMTP Username",
       "key": "MAIL_ENV_USERNAME",
       "value": "",
-      "description": "SMTP server login username.",
-      "required": false,
+      "description": "Set the username of the authenticated user you'll be sending email as.",
+      "required": true,
       "mask": false
     },
     {
-      "name": "MAIL_ENV_PASSWORD",
+      "name": "SMTP Email Password",
       "key": "MAIL_ENV_PASSWORD",
       "value": "",
-      "description": "SMTP server login password.",
-      "required": false,
+      "description": "Set the password for the authenticated user you'll be sending as.",
+      "required": true,
       "mask": true
     },
     {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "Container Variable: PUID",
+      "name": "App Key",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "This is a randomly generated key that your system will use to store encrypted data. Make sure you keep a backup of this value somewhere safe (password manager, etc).",
       "required": true,
       "mask": false
     },
     {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Container Variable: PGID",
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "This is the url to your application, beginning with http:// or https://",
       "required": true,
       "mask": false
     },
     {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "022",
-      "description": "Container Variable: UMASK",
-      "required": false,
+      "name": "App Timezone",
+      "key": "APP_TIMEZONE",
+      "value": "",
+      "description": "Set this to be the timezone you wish your Snipe-IT installation to use. This should use a PHP-supported timezone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Locale",
+      "key": "APP_LOCALE",
+      "value": "en",
+      "description": "Set this to reflect the two-letter or 5-letter abbreviation for the language you'd like to use for Snipe-IT. The default language is US English (en)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Environment",
+      "key": "APP_ENV",
+      "value": "production",
+      "description": "This should always be set to production unless you are a developer who is editing code within snipe-IT.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App Debug",
+      "key": "APP_DEBUG",
+      "value": "false",
+      "description": "Setting this to true will turn on debugging in your Snipe-IT installation. This can be very useful for debugging, but should NEVER be left to true in a production environment.",
+      "required": true,
       "mask": false
     }
   ],

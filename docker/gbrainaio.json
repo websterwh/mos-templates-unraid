@@ -14,30 +14,14 @@
   "web_ui_url": "https://[IP]:[PORT:3132]",
   "icon": "https://raw.githubusercontent.com/wgross19/awesome-unraid/main/icons/gbrain.png",
   "project": "https://github.com/wgross19/gbrain-aio",
-  "description": "Vanilla GBrain all-in-one for Unraid. The default setup runs one s6 container with the standard GBrain services. PostgreSQL 17 + pgvector, the official GBrain HTTP server, a Caddy TLS reverse proxy, the GBrain job supervisor, and in-container maintain (autopilot every 30 minutes, nightly dream, weekly doctor). Postgres listens on loopback only and is never published. Agents connect only through the MCP endpoint, never to Postgres. First run: 1. Set POSTGRES_PASSWORD (alphanumeric) and GBRAIN_ADMIN_BOOTSTRAP_TOKEN (32+ chars, alphanumeric + _-). Generate a token with: head -c 32 /dev/urandom | base64 | tr -d '+/=' | head -c 48 2. Set GBRAIN_LAN_BIND to your Unraid host LAN IP and GBRAIN_PUBLIC_URL to https://that IP:3132. Both are local-network only. 3. Create an empty brain folder (e.g. /mnt/user/my-brain) and set Brain Path to it. Set Source Name to the folder's name (e.g. my-brain). 4. Start the container, then open https://lan:3132/admin/ and paste the bootstrap token. The container inits the brain, git-inits if needed, registers the source, and queues a sync. No docker exec required. 5. Trust the generated CA once (caddy/certs/ca.pem) on any phone or WebView. Advanced users can point OLLAMA_BASE_URL at a local Ollama for embeddings and openai-compat chat, or add a provider API key (Anthropic, OpenAI, Gemini, DeepSeek, Groq, Voyage) in the advanced fields. Leave optional URL, budget, and toggle fields empty to keep them off.",
+  "description": "GBrain all-in-one for Unraid: a hosted knowledge base and MCP server for AI agents (Hermes Agent, OpenClaw, Codex). One container runs GBrain, PostgreSQL 17 + pgvector, Caddy TLS, and the job supervisor. Agents connect over HTTPS \u2014 Postgres is never exposed. First run (details are in each field's help text): 1. Set Postgres Password and Admin Bootstrap Token. 2. Set LAN Bind and Public URL to your host IP. 3. Set Brain Path to an empty folder. 4. Start, then open https://lan:3132/admin/ and paste the token. 5. Trust the generated CA once.",
   "paths": [
     {
-      "name": "Postgres Data",
-      "host": "/mnt/cache/appdata/gbrain-aio/data/postgres",
-      "container": "/data/postgres",
+      "name": "Appdata Root",
+      "host": "/mnt/cache/appdata/gbrain-aio",
+      "container": "/data/aio",
       "mode": "rw",
-      "description": "Persistent PostgreSQL data.",
-      "required": true
-    },
-    {
-      "name": "GBrain Home",
-      "host": "/mnt/cache/appdata/gbrain-aio/gbrain-home",
-      "container": "/var/lib/gbrain",
-      "mode": "rw",
-      "description": "GBrain config, OAuth secrets, runtime.env.",
-      "required": true
-    },
-    {
-      "name": "Caddy Certs",
-      "host": "/mnt/cache/appdata/gbrain-aio/caddy",
-      "container": "/config/caddy",
-      "mode": "rw",
-      "description": "Persistent TLS certs and CA.",
+      "description": "Single persistent folder. Sub-folders are created automatically: data/postgres (database), gbrain-home (config, OAuth, runtime.env), caddy (TLS certs + CA).",
       "required": true
     },
     {
@@ -97,8 +81,8 @@
       "name": "Public URL",
       "key": "GBRAIN_PUBLIC_URL",
       "value": "",
-      "description": "Local HTTPS origin clients use. Must be https://your LAN IP:3132 (same IP as LAN Bind). Local-only. Example: https://192.168.1.50:3132",
-      "required": true,
+      "description": "Optional. Empty = derived from LAN Bind (https://LAN Bind:3132). Override only for custom port, DNS-name access, reverse proxy, or a Tailscale origin. Must match how clients actually reach the container.",
+      "required": false,
       "mask": false
     },
     {
@@ -140,22 +124,6 @@
       "description": "OpenAI-compatible endpoint for embeddings + chat. Point at your local Ollama. Example: http://192.168.1.50:11434/v1 (replace with your Ollama host IP). Leave empty to skip local Ollama.",
       "required": false,
       "mask": false
-    },
-    {
-      "name": "Ollama API Key",
-      "key": "OLLAMA_API_KEY",
-      "value": "ollama",
-      "description": "Ollama API key. 'ollama' is the default for a local Ollama. Only needed if your Ollama requires a key.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Together API Key",
-      "key": "TOGETHER_API_KEY",
-      "value": "ollama",
-      "description": "Together-compatible key. GBrain routes chat/dream/think through the Ollama /v1 endpoint using this key. For a local Ollama, 'ollama' works. Set a real Together key only if you route through Together.",
-      "required": false,
-      "mask": true
     },
     {
       "name": "Chat Model",
@@ -214,12 +182,116 @@
       "mask": false
     },
     {
+      "name": "OpenRouter API Key",
+      "key": "OPENROUTER_API_KEY",
+      "value": "",
+      "description": "Optional. Enables OpenRouter models (any provider:model id). Secret.",
+      "required": false,
+      "mask": true
+    },
+    {
       "name": "Anthropic API Key",
       "key": "ANTHROPIC_API_KEY",
       "value": "",
       "description": "Optional. Enables Claude models for chat/think. Secret.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Chat Provider",
+      "key": "CHAT_PROVIDER",
+      "value": "",
+      "description": "Empty or ollama = route chat/expansion through the ollama recipe (raw gbrain, zero-cost). together = legacy provider_base_urls redirect kept for compatibility. Only used when Ollama Base URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Runtime Config",
+      "key": "GBRAIN_EXTRA_CONFIG",
+      "value": "",
+      "description": "Universal escape hatch. Comma-separated key=value pairs for ANY gbrain config key (e.g. models.drift=ollama:deepseek-v4-flash:cloud, dream.triage.threshold=0.6). provider_base_urls is refused. Applied after known defaults; explicit entries win.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedding Model",
+      "key": "EMBEDDING_MODEL",
+      "value": "",
+      "description": "Empty = ollama:embeddinggemma. Any provider:model id supported by gbrain init.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Embedding Dimensions",
+      "key": "EMBEDDING_DIMENSIONS",
+      "value": "",
+      "description": "Empty = 768. Must match the embedding model native width (e.g. bge-m3=1024, nomic=768).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Schema Pack",
+      "key": "SCHEMA_PACK",
+      "value": "",
+      "description": "Empty = gbrain-everything. Schema pack id passed to gbrain schema use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Autopilot Interval",
+      "key": "AUTOPILOT_INTERVAL",
+      "value": "",
+      "description": "Empty = 1800 seconds. Seconds between autopilot cycles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dream Time",
+      "key": "DREAM_AT",
+      "value": "",
+      "description": "Empty = 02:00 local. HH:MM for the nightly dream cycle.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Doctor Day",
+      "key": "DOCTOR_DAY",
+      "value": "",
+      "description": "Empty = monday. Weekday for the weekly doctor exam (mon|tue|...).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Doctor Time",
+      "key": "DOCTOR_AT",
+      "value": "",
+      "description": "Empty = 06:00. HH:MM for the weekly doctor run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tailscale Origin Policy",
+      "key": "TS_PUBLIC_URL",
+      "value": "",
+      "description": "Empty = auto when Unraid per-container Tailscale is enabled (origin = MagicDNS name). off = keep LAN origin. Any URL = explicit origin. Public URL override wins over this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cert Extra DNS",
+      "key": "CERT_EXTRA_DNS",
+      "value": "",
+      "description": "Optional. Comma-separated extra DNS names for the TLS cert SAN (e.g. your MagicDNS name). Empty = only base SAN plus auto-discovered tailnet names.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cert Extra IPs",
+      "key": "CERT_EXTRA_IPS",
+      "value": "",
+      "description": "Optional. Comma-separated extra IPs for the TLS cert SAN (e.g. 100.x.y.z)",
+      "required": false,
+      "mask": false
     },
     {
       "name": "OpenAI API Key",

@@ -1,0 +1,507 @@
+{
+  "name": "traefik-manager",
+  "repo": "ghcr.io/chr0nzz/traefik-manager:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/chr0nzz/traefik-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]",
+  "icon": "https://raw.githubusercontent.com/chr0nzz/unraid-templates/main/icon.png",
+  "project": "https://github.com/chr0nzz/traefik-manager",
+  "description": "A web UI for managing Traefik routes, middlewares, services, and certificates. Supports multiple config files, API keys for mobile access, two-factor authentication, and config backups. Requires access to your Traefik dynamic config file and the Traefik API.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/traefik-manager/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Stores manager.yml (settings, password, API keys) and the session signing key. Must be persistent.",
+      "required": true
+    },
+    {
+      "name": "Backups Directory",
+      "host": "/mnt/cache/appdata/traefik-manager/backups",
+      "container": "/app/backups",
+      "mode": "rw",
+      "description": "Timestamped backups of your dynamic config are saved here before every change.",
+      "required": false
+    },
+    {
+      "name": "Certs Tab - acme.json",
+      "host": "",
+      "container": "/app/acme.json",
+      "mode": "ro",
+      "description": "Optional: path to your Traefik acme.json file on the host. Required for the Certs tab. Read-only is enough to see certificates and which of them nothing uses. Set it read-write, together with a Restart Method, to also remove certificates from the Certs tab.",
+      "required": false
+    },
+    {
+      "name": "Static Config / Plugins Tab - traefik.yml",
+      "host": "",
+      "container": "/app/traefik.yml",
+      "mode": "rw",
+      "description": "Optional: path to your Traefik static config file (traefik.yml) on the host. Required for the Plugins tab and the Static Config editor. Mount read-write to allow editing; read-only enables the Plugins tab only. Also set the Static Config Path variable below to /app/traefik.yml.",
+      "required": false
+    },
+    {
+      "name": "Logs Tab - access.log",
+      "host": "",
+      "container": "/app/logs/access.log",
+      "mode": "ro",
+      "description": "Optional: path to your Traefik access log file on the host. Required for the Logs tab. Enable access logging in traefik.yml first: accessLog: filePath: /logs/access.log. Mount read-only.",
+      "required": false
+    },
+    {
+      "name": "Docker Socket (direct)",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Optional: mount the Docker socket for the direct socket restart method (RESTART_METHOD=socket). Host path: /var/run/docker.sock",
+      "required": false
+    },
+    {
+      "name": "Restart Signals Volume",
+      "host": "",
+      "container": "/signals",
+      "mode": "rw",
+      "description": "Optional: only for Restart Method poison-pill. Map a shared path here and at the same target in your watcher container, then point Signal File Path inside it. Leave blank for the other restart methods.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port to access the Traefik Manager web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Traefik API URL",
+      "key": "TRAEFIK_API_URL",
+      "value": "http://traefik:8080",
+      "description": "URL of the Traefik API. Usually http://traefik:8080 when on the same Docker network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Traefik API Username",
+      "key": "TRAEFIK_API_USER",
+      "value": "",
+      "description": "Optional: basic-auth username for the Traefik API, if your API/dashboard is protected by a basicAuth middleware.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Traefik API Password",
+      "key": "TRAEFIK_API_PASSWORD",
+      "value": "",
+      "description": "Optional: basic-auth password for the Traefik API. Only needed if TRAEFIK_API_USER is set.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Domains",
+      "key": "DOMAINS",
+      "value": "example.com",
+      "description": "Comma-separated list of base domains shown in the Add Route form. Example: example.com,home.lab",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cert Resolver",
+      "key": "CERT_RESOLVER",
+      "value": "cloudflare",
+      "description": "Default ACME certificate resolver name from your traefik.yml. Comma-separate multiple resolvers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config File Path (single file)",
+      "key": "CONFIG_PATH",
+      "value": "/app/config/dynamic.yml",
+      "description": "Path inside the container to your Traefik dynamic config file. Use this for a single config file. Mount the file via the path mapping below. Leave blank if using CONFIG_DIR or CONFIG_PATHS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Directory Path (multi-file)",
+      "key": "CONFIG_DIR",
+      "value": "",
+      "description": "Path inside the container to a directory containing multiple .yml config files. All .yml files in this directory will be loaded. Use instead of CONFIG_PATH when managing multiple files. Leave blank if using CONFIG_PATH.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Paths (explicit list)",
+      "key": "CONFIG_PATHS",
+      "value": "",
+      "description": "Comma-separated list of full config file paths inside the container. Use instead of CONFIG_PATH for 2-5 named files. Example: /app/config/routes.yml,/app/config/services.yml. Leave blank if using CONFIG_PATH or CONFIG_DIR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Static Config Path",
+      "key": "STATIC_CONFIG_PATH",
+      "value": "",
+      "description": "Path inside the container to the static config (traefik.yml) you mounted above. Set to /app/traefik.yml to enable the Static Config editor and Plugins tab. Leave blank if not mounting traefik.yml.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restart Method",
+      "key": "RESTART_METHOD",
+      "value": "proxy",
+      "description": "How Traefik Manager restarts Traefik after a static config change. Options: proxy (socket proxy - recommended), socket (direct Docker socket), poison-pill (signal file, requires watcher sidecar). Removing this field falls back to proxy, it does not turn restarts off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Traefik Container Name",
+      "key": "TRAEFIK_CONTAINER",
+      "value": "traefik",
+      "description": "Name of the Traefik Docker container to restart. Used by the proxy and socket restart methods.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker Host (socket proxy)",
+      "key": "DOCKER_HOST",
+      "value": "",
+      "description": "Docker host URL for the socket proxy restart method. Example: tcp://socket-proxy:2375. Only set when RESTART_METHOD=proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Signal File Path (poison pill)",
+      "key": "SIGNAL_FILE_PATH",
+      "value": "/signals/restart.sig",
+      "description": "Path to the signal file written by Traefik Manager to trigger a Traefik restart. Only used when RESTART_METHOD=poison-pill. Mount a shared volume to /signals in both this container and the watcher sidecar.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional: set a fixed admin password. If left empty a temporary password is generated on first start - check the container log for it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cookie Secure",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set to true when accessing Traefik Manager over HTTPS (e.g. behind a Traefik reverse proxy with TLS). Required for session cookies to work correctly over HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Enabled",
+      "key": "AUTH_ENABLED",
+      "value": "true",
+      "description": "Set to false to disable built-in login. Only use this when Traefik Manager is protected by an external auth provider such as Authentik or Authelia.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec LAPI URL",
+      "key": "CROWDSEC_LAPI_URL",
+      "value": "",
+      "description": "Optional: CrowdSec Local API URL (e.g. http://crowdsec:8080) to enable the CrowdSec tab. Can also be set in Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec API Key",
+      "key": "CROWDSEC_API_KEY",
+      "value": "",
+      "description": "Optional: CrowdSec bouncer API key, used to read decisions. Generate with: cscli bouncers add traefik-manager",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CrowdSec Machine ID",
+      "key": "CROWDSEC_MACHINE_ID",
+      "value": "",
+      "description": "Optional: CrowdSec machine login, required to view Alerts and to unban (bouncer keys cannot). Create with: cscli machines add traefik-manager --auto",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Machine Password",
+      "key": "CROWDSEC_MACHINE_PASSWORD",
+      "value": "",
+      "description": "Optional: password for the CrowdSec machine login above. Found in /etc/crowdsec/local_api_credentials.yaml.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Settings File Path",
+      "key": "SETTINGS_PATH",
+      "value": "/app/config/manager.yml",
+      "description": "Path inside the container to the Traefik Manager settings file. Change this if you want to store it separately from the dynamic config.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Directory Path",
+      "key": "BACKUP_DIR",
+      "value": "/app/backups",
+      "description": "Path inside the container where backups are written. Change this if you mount a custom backup volume at a different path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Inactivity Timeout (minutes)",
+      "key": "INACTIVITY_TIMEOUT_MINUTES",
+      "value": "120",
+      "description": "Minutes of inactivity before a non-remembered session is logged out.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OTP Encryption Key",
+      "key": "OTP_ENCRYPTION_KEY",
+      "value": "",
+      "description": "Fernet key for encrypting the 2FA TOTP secret at rest. Auto-generated on first start if not set. Set this if you want to manage the key yourself or ensure it survives config volume replacement. Generate with: python3 -c &quot;from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())&quot;",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Session signing key. Auto-generated on first start and saved to /app/config/.secret_key. Set this explicitly to ensure sessions survive a full config wipe, or to share a key across multiple instances.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Trusted Proxy Hops",
+      "key": "PROXY_FIX_HOPS",
+      "value": "1",
+      "description": "How many reverse-proxy hops to trust when reading X-Forwarded-For. With Cloudflare in front of Traefik in front of this container, set 2 so the login and audit log record the real client. Set 0 to ignore the header entirely. Only count hops you actually control - each trusted hop is one more entry a client could forge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Traefik API TLS Verification",
+      "key": "TRAEFIK_INSECURE_SKIP_VERIFY",
+      "value": "false",
+      "description": "Set true when the Traefik API URL is https with a self-signed or Cloudflare Origin certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "acme.json Path",
+      "key": "ACME_JSON_PATH",
+      "value": "",
+      "description": "Path to acme.json inside the container, when it is not the default /app/acme.json. Accepts several files comma-separated, or a directory whose .json files are all read - Traefik writes one storage file per certificate resolver.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access Log Path",
+      "key": "ACCESS_LOG_PATH",
+      "value": "",
+      "description": "Path to the Traefik access log inside the container, when it is not the default /app/logs/access.log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plugins Directory",
+      "key": "PLUGINS_DIR",
+      "value": "",
+      "description": "Path to Traefik's local plugins directory, for the Plugins tab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup Retention",
+      "key": "BACKUP_KEEP_COUNT",
+      "value": "0",
+      "description": "Keep only the last N backups per config file. 0 keeps every backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GeoIP Database Path",
+      "key": "GEOIP_DB_PATH",
+      "value": "",
+      "description": "Path to a custom MaxMind-format .mmdb for IP geolocation. Leave empty to use the free DB-IP Lite database, downloaded on demand. Lookups run locally - no IP leaves the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity. One of debug, info, warning, error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base Path",
+      "key": "BASE_PATH",
+      "value": "",
+      "description": "Serve Traefik Manager under a sub path instead of its own hostname, for example /tm. Leave blank to serve at the root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Alert Limit",
+      "key": "CROWDSEC_ALERT_LIMIT",
+      "value": "",
+      "description": "How many CrowdSec alerts to read at once. Leave blank for the default of 500.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Client Certificate",
+      "key": "CROWDSEC_CLIENT_CERT",
+      "value": "",
+      "description": "Path inside the container to a TLS client certificate for the CrowdSec LAPI, when it requires mTLS instead of an API key.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Client Key",
+      "key": "CROWDSEC_CLIENT_KEY",
+      "value": "",
+      "description": "Path inside the container to the private key for the CrowdSec client certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec CA Certificate",
+      "key": "CROWDSEC_CA_CERT",
+      "value": "",
+      "description": "Path inside the container to the CA that signed the CrowdSec LAPI certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Connect Timeout",
+      "key": "CROWDSEC_CONNECT_TIMEOUT",
+      "value": "",
+      "description": "Seconds to wait for the CrowdSec LAPI to accept a connection. Leave blank for the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CrowdSec Read Timeout",
+      "key": "CROWDSEC_READ_TIMEOUT",
+      "value": "",
+      "description": "Seconds to wait for a CrowdSec LAPI response. Leave blank for the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Enabled",
+      "key": "OIDC_ENABLED",
+      "value": "false",
+      "description": "Set true to sign in with an OpenID Connect provider such as Authentik, Authelia or Keycloak.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Provider URL",
+      "key": "OIDC_PROVIDER_URL",
+      "value": "",
+      "description": "Issuer URL of your OIDC provider, for example https://auth.example.com/application/o/traefik-manager/",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client ID issued by your OIDC provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret issued by your OIDC provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Display Name",
+      "key": "OIDC_DISPLAY_NAME",
+      "value": "",
+      "description": "Name shown on the sign in button, for example Authentik.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Allowed Emails",
+      "key": "OIDC_ALLOWED_EMAILS",
+      "value": "",
+      "description": "Comma-separated list of email addresses allowed to sign in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Allowed Groups",
+      "key": "OIDC_ALLOWED_GROUPS",
+      "value": "",
+      "description": "Comma-separated list of groups allowed to sign in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Groups Claim",
+      "key": "OIDC_GROUPS_CLAIM",
+      "value": "",
+      "description": "Name of the token claim that carries group membership. Defaults to groups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Allow Any Authenticated",
+      "key": "OIDC_ALLOW_ANY_AUTHENTICATED",
+      "value": "false",
+      "description": "Set true to let anyone your provider authenticates sign in, instead of listing emails or groups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Auto Sign In",
+      "key": "OIDC_AUTO_LOGIN",
+      "value": "false",
+      "description": "Set true to send visitors straight to the provider instead of showing the login form.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Agent API Rate Limit",
+      "key": "AGENT_API_RATE_LIMIT",
+      "value": "",
+      "description": "Requests per minute allowed on the agent API. Leave blank for the default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra CA Bundle",
+      "key": "REQUESTS_CA_BUNDLE",
+      "value": "",
+      "description": "Path inside the container to a CA bundle, when Traefik or CrowdSec use a private certificate authority.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

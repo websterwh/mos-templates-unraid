@@ -1,191 +1,143 @@
 {
   "name": "n8n",
-  "repo": "n8nio/n8n:latest",
+  "repo": "medzin/n8n",
   "category": [
     "Productivity"
   ],
-  "registry": "https://hub.docker.com/r/n8nio/n8n",
+  "registry": "https://hub.docker.com/r/medzin/n8n",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:5678]/",
-  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/n8n/icon.png?v=1",
-  "project": "https://n8n.io",
-  "description": "n8n is a powerful workflow-automation tool: connect 400+ apps and APIs, build flows visually, and drop into code whenever you need to. This is a plug-and-play Unraid Community Applications template that wraps the official n8nio/n8n image, tuned with sensible production defaults. Variables with fixed options are dropdowns. IMPORTANT - two one-time setup steps (see the README): 1. DATABASE: this template defaults to PostgreSQL (recommended). Create a database and user first, then fill in the Postgres Host / Database / User / Password fields below. (To use SQLite instead, set DB Type to 'sqlite' and ignore the Postgres fields.) 2. PERMISSIONS: n8n runs as user 'node' (UID 1000) and has no PUID/PGID. Create the AppData folder first, then make it writable by UID 1000 - run once on the Unraid console: mkdir -p /mnt/user/appdata/n8n/files chown -R 1000:1000 /mnt/user/appdata/n8n Included defaults: task runners on, execution-history pruning (no DB bloat), binary data stored on disk, telemetry off, and N8N_SECURE_COOKIE=false so login works over plain LAN HTTP (set it to true behind HTTPS). Detailed README (full setup & options): https://github.com/junkerderprovinz/Unraid-apps/blob/main/n8n/README.md",
+  "web_ui_url": "http://[IP]:[PORT:5678]",
+  "icon": "https://raw.githubusercontent.com/medzin/docker-templates/main/images/n8n-icon.png",
+  "project": "https://github.com/n8n-io/n8n",
+  "description": "Fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, and hundreds of integrations.",
   "paths": [
     {
-      "name": "AppData (n8n data)",
+      "name": "Appdata",
       "host": "/mnt/cache/appdata/n8n",
-      "container": "/home/node/.n8n",
+      "container": "/data",
       "mode": "rw",
-      "description": "Persistent n8n data: encryption key, binary data, logs. Create the folder first, then make it writable by UID 1000 - run once: mkdir -p /mnt/user/appdata/n8n/files &amp;&amp; chown -R 1000:1000 /mnt/user/appdata/n8n",
+      "description": "Container path: /data",
       "required": true
-    },
-    {
-      "name": "Local Files (/files)",
-      "host": "/mnt/cache/appdata/n8n/files",
-      "container": "/files",
-      "mode": "rw",
-      "description": "Optional host folder the Read/Write Files node can access. Create it first (mkdir -p /mnt/user/appdata/n8n/files) and make it writable by UID 1000 (chown -R 1000:1000 /mnt/user/appdata/n8n).",
-      "required": false
     }
   ],
   "ports": [
     {
-      "name": "WebUI Port",
+      "name": "WebUI",
       "host": "5678",
       "container": "5678",
       "protocol": "tcp",
-      "description": "n8n web interface / editor port.",
+      "description": "The port for n8n web interface.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "DB Type",
-      "key": "DB_TYPE",
-      "value": "postgresdb",
-      "description": "Database type - pick from the dropdown. 'postgresdb' (recommended, template default) or 'sqlite'. For SQLite, select sqlite and leave the Postgres fields empty.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Postgres Host",
-      "key": "DB_POSTGRESDB_HOST",
-      "value": "192.168.1.10",
-      "description": "Hostname or IP of your PostgreSQL server. The pre-filled 192.168.1.10 is a placeholder - replace it with your Postgres server's IP (or its container name if on a shared Docker network). Required when DB Type is postgresdb.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Postgres Port",
-      "key": "DB_POSTGRESDB_PORT",
-      "value": "5432",
-      "description": "PostgreSQL port.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Postgres Database",
-      "key": "DB_POSTGRESDB_DATABASE",
-      "value": "n8n",
-      "description": "Database name (create it first - see README).",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Postgres User",
-      "key": "DB_POSTGRESDB_USER",
-      "value": "n8n",
-      "description": "Database user (create it first - see README).",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Postgres Password",
-      "key": "DB_POSTGRESDB_PASSWORD",
-      "value": "",
-      "description": "Password for the database user.",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "Encryption Key",
-      "key": "N8N_ENCRYPTION_KEY",
-      "value": "",
-      "description": "Key used to encrypt stored credentials. Generate a strong one on the Unraid console with: openssl rand -hex 32 - paste the output here and back it up. If left empty, n8n generates one into the AppData folder (persist it, or saved credentials become unreadable).",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Secure Cookie",
-      "key": "N8N_SECURE_COOKIE",
-      "value": "false",
-      "description": "Pick from the dropdown. 'false' for LAN access over plain HTTP (otherwise the login is blocked); 'true' when running behind HTTPS.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Timezone (TZ)",
-      "key": "TZ",
-      "value": "Europe/Vienna",
-      "description": "Container timezone - pick from the dropdown.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Generic Timezone",
+      "name": "GENERIC_TIMEZONE",
       "key": "GENERIC_TIMEZONE",
-      "value": "Europe/Vienna",
-      "description": "Timezone n8n uses for Schedule/Cron triggers - pick from the dropdown. Keep equal to TZ.",
+      "value": "Etc/UTC",
+      "description": "The n8n instance timezone. Important for schedule nodes (such as Cron).",
       "required": true,
       "mask": false
     },
     {
-      "name": "Task Runners",
-      "key": "N8N_RUNNERS_ENABLED",
-      "value": "true",
-      "description": "Run Code-node tasks in a separate runner process (n8n recommended). Pick from the dropdown.",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Prune Executions",
-      "key": "EXECUTIONS_DATA_PRUNE",
-      "value": "true",
-      "description": "Auto-delete old execution history so the database doesn't grow forever. Pick from the dropdown.",
+      "name": "N8N_DEFAULT_LOCALE",
+      "key": "N8N_DEFAULT_LOCALE",
+      "value": "en",
+      "description": "A locale identifier, compatible with the Accept-Language header. n8n doesn't support regional identifiers, such as de-AT. When running in a locale other than the default, n8n displays UI strings in the selected locale, and falls back to en for any untranslated strings.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Execution Max Age (hours)",
+      "name": "N8N_PORT",
+      "key": "N8N_PORT",
+      "value": "5678",
+      "description": "The HTTP port n8n runs on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "EXECUTIONS_DATA_MAX_AGE",
       "key": "EXECUTIONS_DATA_MAX_AGE",
-      "value": "336",
-      "description": "How many hours of execution history to keep when pruning is on (336 = 14 days).",
+      "value": "168",
+      "description": "The execution age (in hours) before it's deleted.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Binary Data Mode",
-      "key": "N8N_DEFAULT_BINARY_DATA_MODE",
-      "value": "filesystem",
-      "description": "Where to store binary data - pick from the dropdown: 'filesystem' (recommended, on disk) or 'default' (in the database).",
+      "name": "N8N_EDITOR_BASE_URL",
+      "key": "N8N_EDITOR_BASE_URL",
+      "value": "",
+      "description": "Public URL where users can access the editor. Also used for emails sent from n8n and the redirect URL for SAML based authentication.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Telemetry",
-      "key": "N8N_DIAGNOSTICS_ENABLED",
+      "name": "N8N_HIRING_BANNER_ENABLED",
+      "key": "N8N_HIRING_BANNER_ENABLED",
       "value": "false",
-      "description": "Anonymous usage diagnostics - pick from the dropdown. 'false' disables telemetry.",
+      "description": "Whether to show the n8n hiring banner in the console (true) or not (false).",
       "required": false,
       "mask": false
     },
     {
-      "name": "Webhook URL",
-      "key": "WEBHOOK_URL",
-      "value": "https://n8n.mydomain.tld/",
-      "description": "Public base URL for webhooks behind a reverse proxy. Replace n8n.mydomain.tld with your real domain (note the https:// scheme and trailing slash). Clear this field for LAN-only use.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Host",
+      "name": "N8N_HOST",
       "key": "N8N_HOST",
-      "value": "n8n.mydomain.tld",
-      "description": "Public hostname behind a reverse proxy (no scheme). Replace n8n.mydomain.tld with your real domain. Clear this field for LAN-only use.",
+      "value": "",
+      "description": "Host name n8n runs on.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Protocol",
-      "key": "N8N_PROTOCOL",
-      "value": "http",
-      "description": "Pick from the dropdown. Usually keep 'http' and terminate TLS at your reverse proxy; use 'https' only if n8n itself serves TLS.",
+      "name": "N8N_LOG_FORMAT",
+      "key": "N8N_LOG_FORMAT",
+      "value": "text",
+      "description": "The log format to use. text prints human readable messages. json prints one JSON object per line containing the message, level, timestamp, and all metadata. This is useful for production monitoring as well as debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_LOG_LEVEL",
+      "key": "N8N_LOG_LEVEL",
+      "value": "info",
+      "description": "Log output level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_PROXY_HOPS",
+      "key": "N8N_PROXY_HOPS",
+      "value": "0",
+      "description": "Number of reverse-proxies n8n is running behind.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "N8N_SECURE_COOKIE",
+      "key": "N8N_SECURE_COOKIE",
+      "value": "true",
+      "description": "Ensures that cookies are only sent over HTTPS, enhancing security.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the process and file permissions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the process and file permissions.",
       "required": false,
       "mask": false
     }
