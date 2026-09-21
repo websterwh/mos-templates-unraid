@@ -1,0 +1,107 @@
+{
+  "name": "Dockit",
+  "repo": "ghcr.io/rapha57/dockit:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/rapha57/dockit-unraid/main/icons/dockit.png",
+  "project": "https://github.com/rapha57/dockit",
+  "description": "Pin your URLs. A shared home page for the tools your team actually opens \u2014 Grafana, Proxmox, GitLab, the firewall, the wiki \u2014 organised by space, category and card. Self-hosted on Unraid. One JSON file in appdata, no database. Backup = copy the folder. Local login always works; LDAP / AD and OIDC (Keycloak, Authentik, Authelia) are optional.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/dockit",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "portal.json, curation and uploaded assets. Writable by PUID:PGID (default 99:100). Backup this folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Dockit web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that owns appdata. Unraid nobody is 99. Leave at 99 unless you know you need another uid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that owns appdata. Unraid users is 100.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Edit password",
+      "key": "PORTAL_EDIT_PASSWORD",
+      "value": "",
+      "description": "Required. 12 characters or more. First login is this password for user admin (or Edit user below).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Edit user",
+      "key": "PORTAL_EDIT_USER",
+      "value": "admin",
+      "description": "Local owner username. Default admin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public origin",
+      "key": "PORTAL_PUBLIC_ORIGIN",
+      "value": "",
+      "description": "Public URL if behind a reverse proxy, e.g. https://portal.example. Leave empty on the LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust proxy",
+      "key": "PORTAL_TRUST_PROXY",
+      "value": "",
+      "description": "Set to 1 when behind a reverse proxy so Dockit honours X-Forwarded-* headers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC client secret",
+      "key": "PORTAL_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. If set, the SSO secret is not stored in portal.json. Otherwise paste it in Dockit Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LDAP bind password",
+      "key": "PORTAL_LDAP_BIND_PASSWORD",
+      "value": "",
+      "description": "Optional. One bind password for every directory. Different accounts: leave this empty and use PORTAL_LDAP_BIND_PASSWORD_ID, or paste in Settings.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

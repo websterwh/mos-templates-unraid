@@ -1,0 +1,92 @@
+{
+  "name": "RustFS",
+  "repo": "rustfs/rustfs:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/rustfs/rustfs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9001]",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/rustfs/icon.png",
+  "project": "https://github.com/rustfs/rustfs",
+  "description": "RustFS is an S3-compatible object store written in Rust, Apache-2.0, and one of the alternatives people have been looking at since MinIO's open edition stopped moving. This template runs the official image with the two settings it needs on Unraid. THIS IS A PRE-RELEASE. RustFS has published a hundred releases and not one of them is stable: alphas, betas and release candidates only. Do not put data here that exists nowhere else. Why this template exists: started as it comes, the container does not run on Unraid at all. It runs as its own built-in user id 10001, so on a share owned by nobody:users it cannot write and dies at startup with \"Permission denied\". This template runs it as 99:100 instead, which fixes it. It also makes the credentials required fields, because without them the image falls back to a built-in default account and says so twice in its own log. Ports: 9000 is the S3 endpoint every client connects to. 9001 is the built-in web console. First start: the log runs to a handful of warnings and then goes quiet, which is what a working start looks like here. There is no \"server is listening\" line. If you see \"Permission denied\" instead, the Data folder is not writable by 99:100, or the Logs folder is mapped and is not.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/rustfs/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where the objects live. Must be writable by 99:100, which is what this template runs the container as.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Optional, and deliberately empty by default. Mapped, RustFS writes its log to a file there and the container log keeps only three lines, so Unraid's log view shows you almost nothing. Unmapped, everything goes to the container log where you can read it.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "S3 API Port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "The S3 endpoint every client (rclone, restic, aws-cli, ...) connects to.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console Port",
+      "host": "9001",
+      "container": "9001",
+      "protocol": "tcp",
+      "description": "The built-in web console. This is what WebUI opens.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Access Key",
+      "key": "RUSTFS_ACCESS_KEY",
+      "value": "",
+      "description": "The access key your S3 clients use. Required: left empty, the container stops at startup with 'RUSTFS_ACCESS_KEY must not be empty'. Removing the field entirely is worse, because then RustFS uses its built-in default account, identical in every copy of the image.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "RUSTFS_SECRET_KEY",
+      "value": "",
+      "description": "The secret key, paired with the access key above. Use a real generated secret (e.g. openssl rand -hex 24), not a short password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Console CORS Origins",
+      "key": "RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS",
+      "value": "*",
+      "description": "Which origins the web console accepts. The image ships with * (any). Narrow it to your own address if the console is reachable from outside your network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "RUSTFS_OBS_LOGGER_LEVEL",
+      "value": "warn",
+      "description": "How much RustFS writes to its log: error, warn, info, debug or trace.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

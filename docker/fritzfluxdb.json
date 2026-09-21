@@ -7,14 +7,14 @@
   "registry": "https://hub.docker.com/r/giiibates/fritzfluxdb",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
   "extra_parameters": "--restart unless-stopped",
   "post_parameters": null,
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/Gill-Bates/unraid-app-templates/main/icons/01_fritzboxinflux.png",
   "project": "https://github.com/Gill-Bates/fritzfluxdb",
-  "description": "Daemon that reads metrics from an AVM Fritz!Box (DSL/Cable, WLAN, VPN, home automation, logs) and writes them to InfluxDB v1, InfluxDB v2, or QuestDB. No Web UI. Configured entirely via environment variables. Grafana dashboards included. Source: https://github.com/Gill-Bates/fritzfluxdb",
+  "description": "Daemon that reads metrics from an AVM Fritz!Box (DSL/Cable, WLAN, VPN, home automation, logs) and writes them to InfluxDB v1, InfluxDB v2, or QuestDB. No Web UI. Configured entirely via environment variables. Grafana dashboards included. Pick your backend with \"Database Type\", then fill in the shared \"Database ...\" fields. The INFLUXDB_* variables are the canonical settings and are used for QuestDB as well. Source: https://github.com/Gill-Bates/fritzfluxdb",
   "paths": [],
   "ports": [],
   "variables": [
@@ -23,6 +23,14 @@
       "key": "TZ",
       "value": "Europe/Berlin",
       "description": "Container timezone (e.g. Europe/Berlin, Etc/UTC). Fritz!Box timezone is auto-detected at startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log level.",
       "required": false,
       "mask": false
     },
@@ -51,6 +59,38 @@
       "mask": true
     },
     {
+      "name": "Fritz!Box Port",
+      "key": "FRITZBOX_PORT",
+      "value": "49000",
+      "description": "Fritz!Box TR-064 port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fritz!Box TLS",
+      "key": "FRITZBOX_TLS_ENABLED",
+      "value": "",
+      "description": "Leave empty to automatically try HTTPS, or set to 'true'/'false' to explicitly enable/disable it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fritz!Box Verify TLS",
+      "key": "FRITZBOX_VERIFY_TLS",
+      "value": "true",
+      "description": "Verify the Fritz!Box TLS certificate when using TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fritz!Box Connect Timeout (s)",
+      "key": "FRITZBOX_CONNECT_TIMEOUT",
+      "value": "10",
+      "description": "Connection timeout in seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Fritz!Box Request Interval (s)",
       "key": "FRITZBOX_REQUEST_INTERVAL",
       "value": "10",
@@ -59,140 +99,132 @@
       "mask": false
     },
     {
+      "name": "Fritz!Box Box Tag",
+      "key": "FRITZBOX_BOX_TAG",
+      "value": "fritz.box",
+      "description": "Custom tag to identify the Fritz!Box.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fritz!Box Timezone",
+      "key": "FRITZBOX_TIMEZONE",
+      "value": "Europe/Berlin",
+      "description": "Fallback timezone for Fritz!Box log timestamps if auto-detection fails.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Database Type",
       "key": "DB_TYPE",
-      "value": "influxdb_v2",
-      "description": "Target database: influxdb_v1, influxdb_v2, or questdb.",
+      "value": "influxdb_v1",
+      "description": "Target database. Selects which of the credential fields below are used: influxdb_v1 needs Database name, influxdb_v2 needs Token/Organization/Bucket, questdb needs none of them.",
       "required": true,
       "mask": false
     },
     {
-      "name": "InfluxDB Hostname/IP",
+      "name": "Database Hostname/IP",
       "key": "INFLUXDB_HOSTNAME",
       "value": "",
-      "description": "Hostname or IP of the InfluxDB instance.",
-      "required": false,
+      "description": "Hostname or IP of the target database (InfluxDB or QuestDB). A full URL is also accepted, e.g. https://questdb.example.com, in which case TLS and port are taken from the URL.",
+      "required": true,
       "mask": false
     },
     {
-      "name": "InfluxDB Port",
+      "name": "Database Port",
       "key": "INFLUXDB_PORT",
-      "value": "8086",
-      "description": "InfluxDB port (default 8086).",
+      "value": "",
+      "description": "Leave EMPTY to use the correct default for the selected Database Type (8086 for InfluxDB, 9000 for QuestDB). Only set this if your database listens on a non-standard port.",
       "required": false,
       "mask": false
     },
     {
-      "name": "InfluxDB TLS",
+      "name": "Database TLS",
       "key": "INFLUXDB_TLS_ENABLED",
       "value": "false",
-      "description": "Enable TLS for InfluxDB connection (true/false).",
+      "description": "Enable TLS (HTTPS) for the database connection.",
       "required": false,
       "mask": false
     },
     {
-      "name": "InfluxDB Measurement Name",
+      "name": "Database Verify TLS",
+      "key": "INFLUXDB_VERIFY_TLS",
+      "value": "true",
+      "description": "Verify the database TLS certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Allow Plaintext Credentials",
+      "key": "INFLUXDB_ALLOW_PLAINTEXT_CREDENTIALS",
+      "value": "false",
+      "description": "Allow sending credentials/token over plain HTTP to a remote host (trusted networks only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Measurement / Table Name",
       "key": "INFLUXDB_MEASUREMENT_NAME",
       "value": "fritzbox",
-      "description": "InfluxDB measurement / table name.",
+      "description": "InfluxDB measurement resp. QuestDB table name (overridden by the Fritz!Box serial number if available).",
       "required": false,
       "mask": false
     },
     {
-      "name": "InfluxDB Token (v2)",
-      "key": "INFLUXDB_TOKEN",
-      "value": "",
-      "description": "InfluxDB v2 API token.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "InfluxDB Organization (v2)",
-      "key": "INFLUXDB_ORGANIZATION",
-      "value": "",
-      "description": "InfluxDB v2 organization name.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "InfluxDB Bucket (v2)",
-      "key": "INFLUXDB_BUCKET",
-      "value": "fritzflux",
-      "description": "InfluxDB v2 bucket.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "InfluxDB Database (v1)",
+      "name": "Database Name (InfluxDB v1)",
       "key": "INFLUXDB_DATABASE",
-      "value": "fritzflux",
-      "description": "InfluxDB v1 database name.",
+      "value": "",
+      "description": "InfluxDB v1 database name. Required for DB_TYPE=influxdb_v1, ignored otherwise.",
       "required": false,
       "mask": false
     },
     {
-      "name": "InfluxDB Username (v1)",
+      "name": "Database Username (InfluxDB v1 / QuestDB)",
       "key": "INFLUXDB_USERNAME",
       "value": "",
-      "description": "InfluxDB v1 username (optional).",
+      "description": "Username for InfluxDB v1 or QuestDB basic authentication (optional). For InfluxDB v1 it must be set together with the password.",
       "required": false,
       "mask": false
     },
     {
-      "name": "InfluxDB Password (v1)",
+      "name": "Database Password (InfluxDB v1 / QuestDB)",
       "key": "INFLUXDB_PASSWORD",
       "value": "",
-      "description": "InfluxDB v1 password (optional).",
+      "description": "Password for InfluxDB v1 or QuestDB basic authentication (optional). For InfluxDB v1 it must be set together with the username.",
       "required": false,
       "mask": true
     },
     {
-      "name": "QuestDB Hostname/IP",
-      "key": "QUESTDB_HOSTNAME",
+      "name": "Token (InfluxDB v2 / QuestDB)",
+      "key": "INFLUXDB_TOKEN",
       "value": "",
-      "description": "Hostname or IP of the QuestDB instance (only for DB_TYPE=questdb).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "QuestDB Port",
-      "key": "QUESTDB_PORT",
-      "value": "9000",
-      "description": "QuestDB HTTP port (default 9000).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "QuestDB TLS",
-      "key": "QUESTDB_TLS_ENABLED",
-      "value": "false",
-      "description": "Enable TLS for QuestDB connection (true/false).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "QuestDB Username",
-      "key": "QUESTDB_USERNAME",
-      "value": "",
-      "description": "QuestDB username (optional).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "QuestDB Password",
-      "key": "QUESTDB_PASSWORD",
-      "value": "",
-      "description": "QuestDB password (optional).",
+      "description": "InfluxDB v2 API token (required for DB_TYPE=influxdb_v2) or QuestDB bearer token (optional).",
       "required": false,
       "mask": true
     },
     {
-      "name": "QuestDB Token",
-      "key": "QUESTDB_TOKEN",
+      "name": "Organization (InfluxDB v2)",
+      "key": "INFLUXDB_ORGANIZATION",
       "value": "",
-      "description": "QuestDB bearer token (optional).",
+      "description": "InfluxDB v2 organization name. Required for DB_TYPE=influxdb_v2, ignored otherwise.",
       "required": false,
-      "mask": true
+      "mask": false
+    },
+    {
+      "name": "Bucket (InfluxDB v2)",
+      "key": "INFLUXDB_BUCKET",
+      "value": "",
+      "description": "InfluxDB v2 bucket. Required for DB_TYPE=influxdb_v2, ignored otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Data Retention (days, QuestDB only)",
+      "key": "INFLUXDB_DATA_RETENTION_DAYS",
+      "value": "90",
+      "description": "QuestDB only: TTL in days, applied only to a table without an existing TTL; 0 disables it (requires QuestDB 8.2.2+). Ignored for InfluxDB.",
+      "required": false,
+      "mask": false
     }
   ],
   "devices": [],

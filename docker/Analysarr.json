@@ -1,0 +1,59 @@
+{
+  "name": "Analysarr",
+  "repo": "ghcr.io/sec844/analysarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/SEC844/Analysarr/pkgs/container/analysarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1818]/",
+  "icon": "https://raw.githubusercontent.com/SEC844/Analysarr/main/unraid/analysarr.png",
+  "project": "https://github.com/SEC844/Analysarr",
+  "description": "Self-hosted dashboard that brings together Emby or Jellyfin, Sonarr, Radarr, your torrent client (qBittorrent, Deluge or Transmission) and optionally Seer and cross-seed, to show the health of every movie and series across your stack: duplicates, orphan torrents, missing hardlinks, single-tracker content, watch activity per user and who requested it. Clean up in a few clicks with a preview before anything is deleted. No configuration file needed: on first launch, create the administrator account and follow the setup wizard. Important: mount your data share exactly like in Emby/Jellyfin, your torrent client, Sonarr and Radarr (same host path, same container path), otherwise hardlinks cannot be detected.",
+  "paths": [
+    {
+      "name": "Data (media and downloads)",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Share holding your library and downloads. Use the SAME host path and the SAME container path as in Emby/Jellyfin, your torrent client, Sonarr and Radarr (e.g. TRaSH Guides layout: /mnt/user/data mounted on /data everywhere). Write access is only used when you delete media or repair hardlinks, always after a confirmation.",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/analysarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, settings and poster cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "1818",
+      "container": "1818",
+      "protocol": "tcp",
+      "description": "Port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database path",
+      "key": "DATABASE_PATH",
+      "value": "/config/analysarr.db",
+      "description": "SQLite database location inside the container. Keep it inside the Appdata path so it survives updates.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

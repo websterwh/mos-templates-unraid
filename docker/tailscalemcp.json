@@ -1,0 +1,51 @@
+{
+  "name": "tailscale-mcp",
+  "repo": "louij2/tailscale-mcp:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://www.npmjs.com/package/tailscale-mcp-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--memory=512m --cpus=0.5",
+  "post_parameters": "sh -c export TAILSCALE_API_KEY=$(cat /run/secrets/key); exec supergateway --stdio tailscale-mcp-server --port 8097",
+  "web_ui_url": "http://[IP]:[PORT:8097]",
+  "icon": "https://cdn.simpleicons.org/tailscale/4B5563",
+  "project": "https://github.com/louij2/tailscale-mcp",
+  "description": "Tailscale MCP server, bridged over HTTP with supergateway (baked into the image) so any MCP client that speaks HTTP/SSE can use it. Lets an MCP client inspect and manage your tailnet - devices, ACLs, routes.",
+  "paths": [
+    {
+      "name": "tailscale-api-key",
+      "host": "/mnt/cache/appdata/tailscale-mcp/tailscale-api-key",
+      "container": "/run/secrets/key",
+      "mode": "ro",
+      "description": "Read-only bind mount to a file containing your Tailscale API key (never put the key directly in a Variable).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port 8097",
+      "host": "8097",
+      "container": "8097",
+      "protocol": "tcp",
+      "description": "HTTP port supergateway serves the bridged MCP endpoint on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TAILSCALE_TAILNET",
+      "key": "TAILSCALE_TAILNET",
+      "value": "",
+      "description": "Your tailnet name, e.g. your-org.ts.net or an email for a personal tailnet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,157 @@
+{
+  "name": "VersityGW",
+  "repo": "versity/versitygw:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/versity/versitygw",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7071]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/versitygw/icon.png",
+  "project": "https://github.com/versity/versitygw",
+  "description": "Puts an S3 API in front of a folder you already have. Point it at a share and every file in it is an S3 object, readable over S3 and over SMB or NFS at the same time - no import, no second copy, no migration. Unlike an object store such as Garage or SeaweedFS, this one brings no storage of its own: your array stays the storage, and the bucket is a directory. Buckets are the top-level folders under the mapped path, objects are the files inside them. Ships an optional web interface for browsing and for managing accounts. Detailed README (setup, credentials, what works and what does not): https://github.com/junkerderprovinz/Unraid-apps/blob/main/versitygw/README.md",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The folder served as S3. Its top-level subfolders become buckets, the files inside them become objects. Map an existing share to expose what is already there, or a new one to start empty.",
+      "required": true
+    },
+    {
+      "name": "Accounts",
+      "host": "/mnt/cache/appdata/versitygw",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where the built-in account store keeps its users. Without this, every account except the root user is gone after a restart.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "S3 API",
+      "host": "7070",
+      "container": "7070",
+      "protocol": "tcp",
+      "description": "The S3 endpoint. Point your S3 client, backup tool or app at http://tower-ip:7070",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web Interface",
+      "host": "7071",
+      "container": "7071",
+      "protocol": "tcp",
+      "description": "Optional browser interface for buckets and accounts. Leave the variable 'Web Interface Address' empty to switch it off, then this port does nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin API",
+      "host": "7080",
+      "container": "7080",
+      "protocol": "tcp",
+      "description": "Account administration endpoint. The web interface needs it; an S3-only setup does not.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Backend",
+      "key": "VGW_BACKEND",
+      "value": "posix",
+      "description": "Which storage the gateway puts S3 in front of. 'posix' is the one that means 'the folder above'. Leave it alone unless you know you want s3, azure or scoutfs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Served Path",
+      "key": "VGW_BACKEND_ARG",
+      "value": "/data",
+      "description": "The path inside the container that the posix backend serves. Must match the container side of the Data mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Root Access Key",
+      "key": "ROOT_ACCESS_KEY",
+      "value": "",
+      "description": "The root S3 access key, your choice. This is the user name half of the S3 credentials.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Root Secret Key",
+      "key": "ROOT_SECRET_KEY",
+      "value": "",
+      "description": "The root S3 secret key, your choice. Treat it as a password: anything holding it has full access to every bucket.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "S3 Address",
+      "key": "VGW_PORT",
+      "value": ":7070",
+      "description": "Listen address for the S3 API inside the container. Change only together with the S3 API port above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web Interface Address",
+      "key": "VGW_WEBUI_PORT",
+      "value": ":7071",
+      "description": "Listen address for the web interface. Empty switches the interface off entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Address",
+      "key": "VGW_ADMIN_PORT",
+      "value": ":7080",
+      "description": "Listen address for the admin API. Empty switches it off; the web interface then cannot manage accounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plain HTTP For Web Interface",
+      "key": "VGW_WEBUI_NO_TLS",
+      "value": "true",
+      "description": "Serve the web interface over plain HTTP. Right for a LAN without a certificate; set to false once you put a reverse proxy with TLS in front.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Account Store",
+      "key": "VGW_IAM_DIR",
+      "value": "/config",
+      "description": "Directory for the built-in account store. Must match the container side of the Accounts mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Region",
+      "key": "VGW_REGION",
+      "value": "us-east-1",
+      "description": "The S3 region string the gateway answers with. Many clients insist on one; the value itself does not matter as long as client and gateway agree.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health Path",
+      "key": "VGW_HEALTH",
+      "value": "/_health",
+      "description": "A GET on this path answers without credentials, so a monitor or a reverse proxy can check the gateway is alive.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

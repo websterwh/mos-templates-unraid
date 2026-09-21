@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:7777]",
   "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/icon.png",
   "project": "https://github.com/blckassassin/unraid-game-servers",
-  "description": "ARK: Survival Ascended dedicated server. ASA ships Windows-only server binaries, so this container installs the Windows depot with SteamCMD and runs it under GE-Proton. Both SteamCMD and Proton are fetched on first start, so the image itself stays small. Heads up before you start: the game files are about 15GB installed and the server wants a lot of RAM (16GB is a sensible floor for a vanilla map, more with mods or players). Put the appdata on an SSD or a cache pool rather than the array - not for the space, but because ARK is heavy on random I/O and spinning disks make startup and world saves noticeably slower. First boot downloads about 13GB and then builds a Proton prefix. Expect a long, quiet first startup - check the logs rather than assuming it hung. Once the files are in place the server starts in well under a minute. Config files are kept editable over SMB. A \"config\" shortcut is created at the top of the game files folder pointing at ShooterGame/Saved/Config/WindowsServer, so you can browse straight to it from Windows. Stop the container before editing - the server rewrites GameUserSettings.ini when it shuts down and will overwrite changes made while it is running. Only 7777/udp needs forwarding at your router. The old 27015 query port is vestigial in ASA because server discovery goes through Epic Online Services rather than Steam. Forward RCON only if you administer from outside your LAN.",
+  "description": "ARK: Survival Ascended dedicated server. Windows depot via SteamCMD, run under GE-Proton - both fetched on first start, so the image stays small. Plan for the size: about 15GB installed, and 16GB RAM is a sensible floor for a vanilla map. Put the appdata on an SSD or cache pool - ARK is heavy on random I/O and spinning disks make startup and saves noticeably slower. First boot downloads about 13GB and then builds a Proton prefix. Expect a long, quiet first startup; check the logs rather than assuming it hung. A \"config\" shortcut at the top of the game files folder points at the config directory, so you can browse to it over SMB. Stop the container before editing - the server rewrites GameUserSettings.ini on shutdown. Only 7777/udp needs forwarding. Forward RCON only if you administer from outside your LAN.",
   "paths": [
     {
       "name": "Game Files",
@@ -39,7 +39,7 @@
       "host": "7777",
       "container": "7777",
       "protocol": "udp",
-      "description": "Game traffic. This is the one that has to be forwarded. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. Peer Port below follows it too.",
+      "description": "Game traffic. This is the one that has to be forwarded. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. Peer Port below follows it too. Unraid greys out that Container Port box for every port a template supplied, so you cannot type your number into it. To move this port, Remove this entry and add your own Port entry with the Container Port and the Host Port both set to your number - a port entry you create yourself has no container port yet, and Unraid leaves those editable. A template update can restore this entry alongside yours; remove it again. See the README.",
       "required": true,
       "mask": false
     },
@@ -48,7 +48,7 @@
       "host": "7778",
       "container": "7778",
       "protocol": "udp",
-      "description": "Game port + 1, derived by the engine - there is no variable for it. Not normally required, but cheap to forward if players report flaky connects. If you move Game Port, set both sides of this mapping to the new number + 1 or this mapping points at nothing.",
+      "description": "Game port + 1, derived by the engine - there is no variable for it. Not normally required, but cheap to forward if players report flaky connects. If you move Game Port, replace this entry the same way, with both sides set to your number + 1, or this mapping points at nothing.",
       "required": false,
       "mask": false
     },

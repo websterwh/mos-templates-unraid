@@ -1,0 +1,107 @@
+{
+  "name": "Frontend-Killer",
+  "repo": "fansmall/frontendkiller:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/fansmall/frontendkiller/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/fansmall2008/Frontend-Killer/main/unraid/icon.png",
+  "project": "https://github.com/fansmall2008/Frontend-Killer",
+  "description": "Frontend-Killer is a web-based game list manager for emulator frontends. Import, manage, export and scrape game metadata and media across Pegasus, ES-DE, RetroBat, EmuELEC, Lakka and more, with full ScreenScraper integration (auto metadata/media download, CRC32 matching, quota monitoring).",
+  "paths": [
+    {
+      "name": "App Data (db / rules / media / logs)",
+      "host": "/mnt/cache/appdata/frontend-killer/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage: H2 database, import/export rules, scraped media, input, output, backups and logs. Map to an appdata share so data survives container updates.",
+      "required": true
+    },
+    {
+      "name": "ROM Library",
+      "host": "/mnt/cache/data/roms/",
+      "container": "/data/roms",
+      "mode": "rw",
+      "description": "Your ROM library, used as the import source and for CRC/file-existence checks. Point this at the share holding your game files. Optional but recommended.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port. Container listens on 8080.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Process User ID. Files written to the mapped paths will be owned by this UID (unRAID nobody = 99). Set to 0 to run as root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Process Group ID. Files written to the mapped paths will be owned by this GID (unRAID users = 100).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Asia/Shanghai",
+      "description": "Container timezone, e.g. Asia/Shanghai, Europe/London, America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JVM Options",
+      "key": "JAVA_OPTS",
+      "value": "-Xmx2g -Xms512m -XX:+UseG1GC",
+      "description": "JVM options. Increase -Xmx for very large libraries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Spring Profile",
+      "key": "SPRING_PROFILES_ACTIVE",
+      "value": "default",
+      "description": "Active Spring profile.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tomcat Base Dir",
+      "key": "SERVER_TOMCAT_BASEDIR",
+      "value": "/data",
+      "description": "Tomcat working directory, kept on the persistent volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Static Resource Locations",
+      "key": "SPRING_RESOURCES_STATIC_LOCATIONS",
+      "value": "classpath:/static/,file:/data,file:/data/roms,file:/data/output,file:/data/input",
+      "description": "Extra static resource locations so media under /data can be served over HTTP.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

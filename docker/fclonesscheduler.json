@@ -1,0 +1,105 @@
+{
+  "name": "fclones-scheduler",
+  "repo": "cplieger/docker-fclones-scheduler:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/cplieger/docker-fclones-scheduler/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --health-start-period=6h",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/cplieger/unraid-templates/main/icons/fclones-scheduler.png",
+  "project": "https://github.com/cplieger/docker-fclones-scheduler",
+  "description": "Find and deduplicate files on a schedule, reclaiming wasted disk space automatically. Runs the fclones duplicate finder against a share on an interval and reports duplicates found and space reclaimable in the container log. The default action only reports. Switch the action to link (replace duplicates with hardlinks), remove (delete duplicates) or dedupe (reflink) once a report has shown you what it would touch. No web UI, no open port.",
+  "paths": [
+    {
+      "name": "Scan path",
+      "host": "",
+      "container": "/scandir",
+      "mode": "rw",
+      "description": "The share or folder to scan for duplicates, e.g. /mnt/user/Media (read-write is needed for link, remove and dedupe)",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/fclones-scheduler",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "fclones hash cache and the last-scan record; keeps rescans fast and the schedule stable across restarts",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Action",
+      "key": "FCLONES_ACTION",
+      "value": "group",
+      "description": "What to do with duplicates: group (report only), link (hardlink), remove (delete), dedupe (reflink). Anything but group modifies your files",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan interval",
+      "key": "SCAN_INTERVAL",
+      "value": "3h",
+      "description": "Time between scans as a Go duration (3h, 12h, 24h). off = no schedule, trigger scans by hand; 0 = run one scan and exit",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan paths",
+      "key": "FCLONES_SCAN_PATHS",
+      "value": "/scandir",
+      "description": "Container paths to scan, space-separated; each needs its own path mapping. Leave at /scandir unless you add more mappings",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan arguments",
+      "key": "FCLONES_ARGS",
+      "value": "",
+      "description": "Extra flags for the fclones group (scan) phase, e.g. --name '*.mkv' --name '*.mp4' or --rf-over 1; flags and their values only",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Action arguments",
+      "key": "FCLONES_ACTION_ARGS",
+      "value": "",
+      "description": "Extra flags for the action phase, e.g. --priority bottom; --dry-run previews the action without changing files",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scan timeout",
+      "key": "SCAN_TIMEOUT",
+      "value": "12h",
+      "description": "Per-phase timeout as a Go duration; raise it when a first scan of a large share exceeds 12h, 0 disables it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Minimum log level: debug, info, warn or error",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow unsafe arguments",
+      "key": "ALLOW_UNSAFE_ARGS",
+      "value": "false",
+      "description": "Set to true to allow the --transform, --in-place and --no-copy fclones flags, which are refused by default",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

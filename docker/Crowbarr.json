@@ -1,0 +1,66 @@
+{
+  "name": "Crowbarr",
+  "repo": "ghcr.io/amanofvaly/crowbarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/amanofvaly/crowbarr/pkgs/container/crowbarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --init --stop-timeout 45 --security-opt no-new-privileges:true --cap-drop ALL",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8449]",
+  "icon": "https://raw.githubusercontent.com/amanofvaly/unraid-templates/main/icon.png",
+  "project": "https://github.com/amanofvaly/crowbarr",
+  "description": "Audio-grounded subtitle synchronization and transcription for Sonarr, Radarr and Bazarr. Crowbarr watches your Sonarr and Radarr libraries and keeps subtitles in sync with the dialogue. It waits for Bazarr to find a subtitle, checks its timing against the audio with Whisper, and corrects it only when the audio says it is wrong. When no subtitle turns up, it transcribes one. Results are written as a new .crowbarr.en.srt file next to the video. Existing media and subtitles are never modified. This template runs on the CPU. For an NVIDIA GPU, install Crowbarr-CUDA instead. Setup: map /tv and /movies to the same shares Sonarr and Radarr use. The container runs as nobody:users (99:100), so those shares must be writable by that account. Open the WebUI, create your account, then add Sonarr, Radarr and Plex under Settings. Speech models download into appdata on first use.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/crowbarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, settings, speech models and cached transcripts.",
+      "required": true
+    },
+    {
+      "name": "Path: /tv",
+      "host": "",
+      "container": "/tv",
+      "mode": "rw",
+      "description": "Your TV library. Use the same share Sonarr uses so no path mapping is needed.",
+      "required": false
+    },
+    {
+      "name": "Path: /movies",
+      "host": "",
+      "container": "/movies",
+      "mode": "rw",
+      "description": "Your movie library. Use the same share Radarr uses so no path mapping is needed.",
+      "required": false
+    },
+    {
+      "name": "Path: /data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Optional single data share for setups that map /data into Sonarr and Radarr instead of /tv and /movies.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8449",
+      "container": "8449",
+      "protocol": "tcp",
+      "description": "Dashboard port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

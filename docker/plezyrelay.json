@@ -1,0 +1,83 @@
+{
+  "name": "plezy-relay",
+  "repo": "ghcr.io/bbergle/plezy-relay:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/BBergle/plezy-relay/pkgs/container/plezy-relay",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9977]",
+  "icon": "https://raw.githubusercontent.com/BBergle/unraid-templates/main/plezy-relay/plezy.png",
+  "project": "https://github.com/edde746/plezy",
+  "description": "Self-hosted relay server for Plezy's \"Watch Together\" feature. Plezy is a cross-platform Plex & Jellyfin client. Watch Together syncs playback between viewers through a small relay server, and this container runs your own instead of using the public one. This container has NO web interface. After starting it, open Plezy on each device and set Settings - Watch Together Relay to: http://YOUR-Unraid-IP:9977 The URL must be http:// or https://. To watch together, everyone must be using the same relay. To reach the relay from outside your LAN, put a reverse proxy with TLS in front of it (it has no TLS of its own), give clients the proxy's https:// address, and set TRUSTED_PROXY_CIDRS so rate limiting sees real client IPs. Image tags mirror Plezy app releases: tag 2.19.1 is the relay as shipped with Plezy 2.19.1. Upstream advises deploying the updated relay BEFORE updating your clients. Use the Repository dropdown to pin a specific version. UNOFFICIAL: this is a community build of the server/ directory of github.com/edde746/plezy. Not affiliated with or endorsed by the Plezy project.",
+  "paths": [
+    {
+      "name": "Path: /data",
+      "host": "/mnt/cache/appdata/plezy-relay",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent storage for room state (rooms.json), uploaded client logs, and Discord poster artifacts. Room state here lets in-progress Watch Together sessions survive a container restart.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Relay",
+      "host": "9977",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the relay. Set Plezy&apos;s Watch Together relay to http://YOUR-UNRAID-IP:THIS-PORT (base URL only, no path). Defaults to 9977 to stay clear of the many Unraid containers that want 8080; change it only if something else already uses 9977.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TRUSTED_PROXY_CIDRS",
+      "key": "TRUSTED_PROXY_CIDRS",
+      "value": "",
+      "description": "LEAVE BLANK unless this container sits behind a reverse proxy. Comma-separated CIDRs whose X-Forwarded-For header is trusted when identifying client IPs for rate limiting, e.g. 172.17.0.0/16. WARNING: an invalid value makes the relay exit immediately on startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OAUTH_BASE_URL",
+      "key": "OAUTH_BASE_URL",
+      "value": "",
+      "description": "Optional. Public base URL of this relay, used only by the MyAnimeList/AniList OAuth proxy for TV and headless sign-in, e.g. https://relay.example.com. Leave blank to disable /auth (it then returns 503). Watch Together does not need this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAL_CLIENT_ID",
+      "key": "MAL_CLIENT_ID",
+      "value": "",
+      "description": "Optional. MyAnimeList OAuth client ID. Only used when OAUTH_BASE_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANILIST_CLIENT_ID",
+      "key": "ANILIST_CLIENT_ID",
+      "value": "",
+      "description": "Optional. AniList OAuth client ID. Only used when OAUTH_BASE_URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ANILIST_CLIENT_SECRET",
+      "key": "ANILIST_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. AniList OAuth client secret. Only used when OAUTH_BASE_URL is set.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

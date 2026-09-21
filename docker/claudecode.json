@@ -1,0 +1,57 @@
+{
+  "name": "claude-code",
+  "repo": "louij2/claude-code:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/louij2/claude-code/",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--memory=2g --cpus=2",
+  "post_parameters": null,
+  "web_ui_url": "https://claude.ai/code",
+  "icon": "https://claude.ai/images/claude_app_icon.png",
+  "project": "https://claude.com/claude-code",
+  "description": "Always-on Claude Code session for managing a homelab from a phone or tablet, not just a laptop that might be closed or off the network. Runs a persistent tmux server so the same live session can be attached from any device - SSH in and run 'tmux attach -t main' (or `docker exec -it claude-code tmux attach -t main`). Sessions are also readable and repliable from the Claude mobile app via remote control. Uses host networking so it can reach the LAN directly, plus ssh/sshpass/gh/ripgrep/jq and common network-inspection tools. Sign in with 'claude-login' on first run (do not copy the OAuth URL out of a wrapped terminal by hand).",
+  "paths": [
+    {
+      "name": "Home (auth, sessions, SSH key)",
+      "host": "/mnt/cache/appdata/claude-code/home",
+      "container": "/root",
+      "mode": "rw",
+      "description": "Persisted home directory. Holds .claude/, .claude.json (oauth account + onboarding flag) and .ssh/. Mounting only .claude here is not enough - .claude.json sits beside it and losing it forces a full re-signin.",
+      "required": true
+    },
+    {
+      "name": "Workspace",
+      "host": "/mnt/cache/appdata/claude-code/workspace",
+      "container": "/workspace",
+      "mode": "rw",
+      "description": "Working directory for the session.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMUX_SESSION",
+      "key": "TMUX_SESSION",
+      "value": "main",
+      "description": "Name of the shared tmux session that every device attaches to.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

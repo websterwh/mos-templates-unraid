@@ -1,0 +1,157 @@
+{
+  "name": "StrawDroid",
+  "repo": "ghcr.io/junkerderprovinz/strawdroid:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/junkerderprovinz/strawdroid/pkgs/container/strawdroid",
+  "network": "br0.20",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=no --device=/dev/kvm --shm-size=2gb --cpus=4 --memory=8g",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/strawdroid/icon.png",
+  "project": "https://github.com/junkerderprovinz/strawdroid",
+  "description": "A straw droid is a practice dummy shaped like an Android phone: built like the real thing so somebody can strike at it without anybody getting hurt. This one runs the REAL Android emulator - the same AVD Android Studio starts - on a Selkies desktop, so an app under development can be installed, driven and broken without an APK ever touching a phone. NOT Android-in-a-container (ReDroid, Waydroid). Those run the Android userspace directly on the host kernel: no battery, no motion sensor, no power HAL. Doze therefore never fires, WorkManager runs more eagerly than it ever would on real hardware, and Android's limits on a dataSync foreground service never kick in. For an app whose job is syncing files in the background, a rig that is green because it never asks the question is worse than no rig at all. Android 16 (API 36), the NEWEST on purpose. It keeps the six-hour daily cap on dataSync foreground services that arrived in 14 AND the timeout that arrived in 15, so the newest level is the STRICTEST rather than a different one - and the Play Store wants a recent target level anyway. The google_apis image carries Play services and a real DocumentsUI, the SAF folder picker. Screen: Selkies over HTTPS on 3001. No login. Deploy from a development machine: adb connect container-ip:5555 Android Studio then lists it as an ordinary device and deploys and debugs on it exactly like a phone on a cable. Force Doze, which is the point of using a real AVD: adb -s container-ip:5555 shell dumpsys deviceidle force-idle Needs /dev/kvm, passed in via Extra Parameters. Bottich is bare metal, so no nested virtualisation is involved. Without it the emulator will not start, and the container log says so in as many words. NOT set to restart on its own, on purpose. An emulator is a virtual machine and holds its memory whether anybody is testing or not - measured idle, with no app installed, about 6 GB. Start it when it is needed and stop it after.",
+  "paths": [
+    {
+      "name": "AppData (/config)",
+      "host": "/mnt/cache/appdata/strawdroid",
+      "container": "/config",
+      "mode": "rw",
+      "description": "The AVD itself, plus installed apps, granted permissions and anything a test wrote. The ONLY persistent mount by design. Without it every restart is a factory reset, which also throws away the folder permission an app was granted through the SAF picker - one of the things being tested.",
+      "required": true
+    },
+    {
+      "name": "Share for APKs and test files (/share)",
+      "host": "/mnt/cache/download",
+      "container": "/share",
+      "mode": "ro",
+      "description": "Read-only. Drop an APK into this share from anywhere on the network and it appears ON THE DEVICE under Download/share, where the stock Files app and the SAF picker both find it - so it can be installed by tapping it on the phone, without a terminal. Mirrored rather than mounted, because an emulated phone is a virtual machine and a host directory is not reachable from inside it by any mount; the mirror compares sizes and timestamps and only sends what differs. From the container's terminal instead: sk list to see them, sk install name.apk to put one on the device, sk push file for test files. Read-only on purpose: this rig runs unfinished code, which has no business writing to a share full of everything else.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port (HTTPS / Selkies)",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "The desktop the emulator draws on, over WebRTC. Self-signed certificate - accept it once. HTTPS is the default because browsers only allow seamless clipboard over HTTPS.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port (HTTP / Selkies)",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Optional fallback. The WebUI defaults to HTTPS on 3001.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADB Port",
+      "host": "5555",
+      "container": "5555",
+      "protocol": "tcp",
+      "description": "Reached from a development machine with: adb connect container-ip:5555 . The emulator's own adb binds to loopback, so a forwarder inside the container hands this port to it; without that the port would appear open and never complete a handshake.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Emulator rendering (EMULATOR_GPU)",
+      "key": "EMULATOR_GPU",
+      "value": "swiftshader_indirect",
+      "description": "How the emulator draws. swiftshader_indirect works everywhere, including with no GPU wired in at all. 'host' is faster and is what makes scrolling read honestly, but it needs the nvidia runtime and /dev/dri - set it once the GPU is confirmed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Device profile (EMULATOR_DEVICE)",
+      "key": "EMULATOR_DEVICE",
+      "value": "pixel_6",
+      "description": "Which device the emulator pretends to be. Decides screen size and density, which is what a layout is actually judged against. Read on FIRST boot only: the AVD is created once and then kept, so changing this later needs the AVD removed from /config/.android/avd.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Emulated RAM in MB (EMULATOR_RAM)",
+      "key": "EMULATOR_RAM",
+      "value": "2048",
+      "description": "Memory given to the emulated phone. Read on FIRST boot only, same as the device profile. Below about 1536 Android 14 boots badly or not at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra emulator arguments (EMULATOR_EXTRA_ARGS)",
+      "key": "EMULATOR_EXTRA_ARGS",
+      "value": "",
+      "description": "Passed to the emulator verbatim, for the occasional one-off (-writable-system, -dns-server, -netdelay). Empty is the ordinary case.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AVD name (AVD_NAME)",
+      "key": "AVD_NAME",
+      "value": "strawdroid",
+      "description": "The name of the virtual device inside /config. Changing it creates a SECOND device rather than renaming the first, which is a way to keep two side by side.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Optional. Leave EMPTY together with the password for no login. Set both to enable login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Optional. Leave EMPTY together with the username for no login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Keyboard Layout (KEYBOARD_LAYOUT)",
+      "key": "KEYBOARD_LAYOUT",
+      "value": "us",
+      "description": "X11 keyboard layout for the streamed desktop (us, de, ...). Typing into the emulator is half of what this rig is for.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone (TZ)",
+      "key": "TZ",
+      "value": "Europe/Vienna",
+      "description": "Container timezone. It reaches the emulated Android too, which matters for anything scheduled by the clock.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID (PUID)",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the desktop and the emulator run as. Default 99 (nobody on Unraid).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID (PGID)",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group. Default 100 (users on Unraid).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

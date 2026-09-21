@@ -1,0 +1,115 @@
+{
+  "name": "Jellydash",
+  "repo": "ghcr.io/themartz90/jellydash:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/themartz90/jellydash/pkgs/container/jellydash",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]",
+  "icon": "https://raw.githubusercontent.com/themartz90/jellydash/main/public/assets/img/icon-512.png",
+  "project": "https://github.com/themartz90/jellydash",
+  "description": "A Jellyfin dashboard for current streams, play history, statistics, and optional notifications. This template runs Jellydash with SQLite. The mascot is based on an icon by Magnific from Flaticon.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/jellydash/var",
+      "container": "/var/www/html/var",
+      "mode": "rw",
+      "description": "SQLite database, logs, and runtime files. Back up this path.",
+      "required": true
+    },
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/jellydash/uploads",
+      "container": "/var/www/html/public/uploads",
+      "mode": "rw",
+      "description": "Uploaded images and other user files. Back up this path.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host port for the Jellydash web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Jellyfin address reachable from this container. Use a server IP or hostname, not localhost.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API key",
+      "key": "JELLYFIN_API_TOKEN",
+      "value": "",
+      "description": "API key from Jellyfin Dashboard, API Keys. Some statistics need an admin key.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "APP_TIMEZONE",
+      "value": "UTC",
+      "description": "IANA timezone, for example Europe/Prague. Used for History and Statistics dates.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database driver",
+      "key": "DB_DRIVER",
+      "value": "sqlite3",
+      "description": "SQLite mode for this single-container template. Leave as sqlite3.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database file",
+      "key": "DB_NAME",
+      "value": "/var/www/html/var/data/jellydash.sqlite",
+      "description": "SQLite file inside the Appdata mount. Leave at this path for a new install.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Login enabled",
+      "key": "AUTH_ENABLED",
+      "value": "false",
+      "description": "Set to true only after filling in both initial admin fields below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial admin user",
+      "key": "AUTH_ADMIN_USER",
+      "value": "",
+      "description": "Initial username if login is enabled. Existing users are not changed on restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial admin password",
+      "key": "AUTH_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Initial password if login is enabled. Change it inside Jellydash after setup.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

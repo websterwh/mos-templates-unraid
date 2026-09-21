@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:3000]",
   "icon": "https://raw.githubusercontent.com/ulsklyc/yuvomi/main/icon.svg",
   "project": "https://github.com/ulsklyc/yuvomi",
-  "description": "Yuvomi is a private, self-hosted family planner - one calm home for everything your household needs to stay organized. No cloud accounts, no subscriptions, no tracking: your data lives on your server and nowhere else. Independent modules - turn on what fits, ignore the rest: - Dashboard - today's tasks, events, meals and reminders at a glance - Tasks - shared to-dos with priorities, due dates and assignees - Shopping - collaborative grocery lists, auto-sorted by category - Meals & Recipes - weekly meal planner with a built-in recipe book - Pantry - what's actually in the house, with storage places and best-before alerts - Calendar - family calendar with recurring events and reminders - Budget - income, expenses, accounts, subscriptions and loans, with shared costs split automatically - Health - vitals, medications, lab results and activity, per household member - Rewards - points on chores, a parent-approved catalogue and an auditable ledger - Inventory - what you own, with warranties and deadlines (off by default) - Housekeeping - chores, supplies and staff/session tracking - Documents - store and find important household files - Notes, Contacts & Birthdays - everything else in one tidy place Why Yuvomi: - Mobile-first PWA - install it on any phone, works offline - Light & dark mode, fast and polished (no bloated frameworks, no build step) - Optional sync - CalDAV / CardDAV, Apple and Google Calendar - OIDC single sign-on for households that already run an identity provider - Encrypted-at-rest storage (SQLCipher) with automated, scheduled backups - Multi-language, fully self-contained and MIT-licensed - Setup - REQUIRED: Set a long random SESSION_SECRET. RECOMMENDED: Set a strong DB_ENCRYPTION_KEY to encrypt the database at rest - without it the database and any synced calendar/contact credentials are stored unencrypted. Generate either secret with: openssl rand -base64 48 After the container starts, open the WebUI - the first visit guides you through creating your admin account. (Headless setups can alternatively run node setup.js in the container console.) Then log in - pick the modules you want and invite your family.",
+  "description": "Yuvomi is a private, self-hosted family planner - one calm home for everything your household needs to stay organized. No cloud accounts, no subscriptions, no tracking: your data lives on your server and nowhere else. Independent modules - turn on what fits, ignore the rest: - Dashboard - today's tasks, events, meals and reminders at a glance - Tasks - shared to-dos with priorities, due dates and assignees - Shopping - collaborative grocery lists, auto-sorted by category - Meals & Recipes - weekly meal planner with a built-in recipe book - Pantry - what's actually in the house, with storage places and best-before alerts - Calendar - family calendar with recurring events and reminders - Budget - income, expenses, accounts, subscriptions and loans, with shared costs split automatically - Health - vitals, medications, lab results and activity, per household member - Rewards - points on chores, a parent-approved catalogue and an auditable ledger - Inventory - what you own, with warranties and deadlines (off by default) - Housekeeping - chores, supplies and staff/session tracking - Waste collection - pickup schedules per waste type, or a subscribed municipal ICS calendar (off by default) - Documents - store and find important household files - Notes, Contacts & Birthdays - everything else in one tidy place Why Yuvomi: - Mobile-first PWA - install it on any phone, works offline - Light & dark mode, fast and polished (no bloated frameworks, no build step) - Optional sync - CalDAV / CardDAV, Apple and Google Calendar - OIDC single sign-on for households that already run an identity provider - Encrypted-at-rest storage (SQLCipher) with automated, scheduled backups - Multi-language, fully self-contained and MIT-licensed - Setup - REQUIRED: Set a long random SESSION_SECRET. RECOMMENDED: Set a strong DB_ENCRYPTION_KEY to encrypt the database at rest - without it the database and any synced calendar/contact credentials are stored unencrypted. Generate either secret with: openssl rand -base64 48 After the container starts, open the WebUI - the first visit guides you through creating your admin account. (Headless setups can alternatively run node setup.js in the container console.) Then log in - pick the modules you want and invite your family.",
   "paths": [
     {
       "name": "Data",
@@ -408,16 +408,16 @@
     {
       "name": "WEBDAV_BACKUP_PATH",
       "key": "WEBDAV_BACKUP_PATH",
-      "value": "/yuvomi/backups/",
-      "description": "Optional. Remote directory path where backup files are stored (default: /yuvomi/backups/).",
+      "value": "",
+      "description": "Optional. Remote directory path where backup files are stored. Leave empty to use the value from Settings, Administration, Backup and restore (default: /yuvomi/backups/); any value here overrides that setting.",
       "required": false,
       "mask": false
     },
     {
       "name": "WEBDAV_BACKUP_KEEP",
       "key": "WEBDAV_BACKUP_KEEP",
-      "value": "7",
-      "description": "Optional. Number of remote backup files to keep (default: 7).",
+      "value": "",
+      "description": "Optional. Number of remote backup files to keep. Leave empty to use the value from Settings, Administration, Backup and restore (default: 7); any value here overrides that setting.",
       "required": false,
       "mask": false
     },
@@ -440,8 +440,8 @@
     {
       "name": "DOCUMENT_STORAGE_WEBDAV_ENABLED",
       "key": "DOCUMENT_STORAGE_WEBDAV_ENABLED",
-      "value": "false",
-      "description": "Optional. Store newly uploaded document files on WebDAV. Existing files are not migrated.",
+      "value": "",
+      "description": "Optional. Set to true to store newly uploaded document files on WebDAV. Leave empty to decide under Settings, Sync, Document storage: any value here, false included, overrides that switch and locks it in the UI. Existing files are not migrated.",
       "required": false,
       "mask": false
     },
@@ -472,8 +472,8 @@
     {
       "name": "DOCUMENT_STORAGE_WEBDAV_PATH",
       "key": "DOCUMENT_STORAGE_WEBDAV_PATH",
-      "value": "yuvomi-documents",
-      "description": "Optional. Remote base folder for document files (default: yuvomi-documents).",
+      "value": "",
+      "description": "Optional. Remote base folder for document files. Leave empty to use the value from Settings, Sync, Document storage (default: yuvomi-documents); any value here overrides it and locks the field in the UI.",
       "required": false,
       "mask": false
     },
@@ -497,7 +497,15 @@
       "name": "RECIPE_PROVIDER_ALLOW_PRIVATE_NETWORK",
       "key": "RECIPE_PROVIDER_ALLOW_PRIVATE_NETWORK",
       "value": "false",
-      "description": "Optional. Set to true to allow recipe provider (Mealie/Tandoor) mirrors on http:// and local/private network addresses (e.g. self-hosted in the same Docker network). Lifts SSRF protection for recipe provider sync. Only enable in controlled environments.",
+      "description": "Optional. Set to true to allow recipe provider (Mealie/Tandoor) mirrors on local/private network addresses, including a base URL that is itself a private IP (e.g. self-hosted in the same Docker network). Lifts SSRF protection for recipe provider sync. Only enable in controlled environments.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WASTE_SOURCE_ALLOW_PRIVATE_NETWORK",
+      "key": "WASTE_SOURCE_ALLOW_PRIVATE_NETWORK",
+      "value": "false",
+      "description": "Optional. Set to true to allow waste collection URL sources on http:// and local/private network addresses (e.g. a municipal waste calendar mirrored in the same Docker network). Lifts SSRF protection for waste collection URL sources. Only enable in controlled environments.",
       "required": false,
       "mask": false
     },
@@ -528,16 +536,16 @@
     {
       "name": "EMAIL_SMTP_PORT",
       "key": "EMAIL_SMTP_PORT",
-      "value": "587",
-      "description": "Optional. SMTP server port (default: 587).",
+      "value": "",
+      "description": "Optional. SMTP server port. Leave empty to set it under Settings, Administration, Email (the server then uses 587, or 465 with ssl); any value here locks that field in the UI.",
       "required": false,
       "mask": false
     },
     {
       "name": "EMAIL_SMTP_SECURE",
       "key": "EMAIL_SMTP_SECURE",
-      "value": "starttls",
-      "description": "Optional. SMTP connection security: ssl, starttls, or none (default: starttls).",
+      "value": "",
+      "description": "Optional. SMTP connection security: ssl, starttls, or none. Leave empty to set it under Settings, Administration, Email (the server then uses starttls); any value here locks that field in the UI.",
       "required": false,
       "mask": false
     },
@@ -568,8 +576,8 @@
     {
       "name": "EMAIL_FROM_NAME",
       "key": "EMAIL_FROM_NAME",
-      "value": "Yuvomi",
-      "description": "Optional. Sender display name for outgoing mail (default: Yuvomi).",
+      "value": "",
+      "description": "Optional. Sender display name for outgoing mail. Leave empty to set it under Settings, Administration, Email (the server then uses Yuvomi); any value here locks that field in the UI.",
       "required": false,
       "mask": false
     },

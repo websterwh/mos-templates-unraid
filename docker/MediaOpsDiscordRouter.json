@@ -14,14 +14,14 @@
   "web_ui_url": null,
   "icon": "https://raw.githubusercontent.com/miakkia/docker-icons/main/icons/ombi-discord-router.png",
   "project": "https://github.com/miakkia/MediaOps/tree/main/addons/ombi-discord-router",
-  "description": "Optional companion service for MediaOps that receives Ombi or Seerr webhook notifications and routes media-request lifecycle updates into managed Discord Forum threads. The historical image, template filename, and default appdata path are retained for upgrade compatibility.",
+  "description": "Optional hardened companion service for MediaOps that receives Ombi or Seerr webhook notifications and routes media-request lifecycle updates into managed Discord Forum threads. Historical image/path identifiers are retained for upgrade compatibility.",
   "paths": [
     {
       "name": "Router Data",
       "host": "/mnt/cache/appdata/ombi-discord-router/data",
       "container": "/data",
       "mode": "rw",
-      "description": "Persistent MediaOps Discord Router request/thread index. Historical appdata path retained for compatibility.",
+      "description": "Persistent MediaOps Discord Router request/thread index.",
       "required": true
     }
   ],
@@ -31,7 +31,7 @@
       "name": "Timezone",
       "key": "TZ",
       "value": "America/Toronto",
-      "description": "IANA timezone used by the router for log timestamps.",
+      "description": "IANA timezone used by the router.",
       "required": true,
       "mask": false
     },
@@ -39,7 +39,7 @@
       "name": "Media Requests Webhook",
       "key": "MEDIA_REQUESTS_WEBHOOK",
       "value": "",
-      "description": "Full Discord Forum webhook URL. Secret: the URL contains a Discord credential and must not be published.",
+      "description": "Full Discord Forum webhook URL. Secret: never publish or log it.",
       "required": true,
       "mask": true
     },
@@ -47,7 +47,7 @@
       "name": "Webhook Display Name",
       "key": "MEDIA_REQUESTS_WEBHOOK_NAME",
       "value": "Media Request Herald",
-      "description": "Display name used by the Discord webhook when posting request lifecycle updates.",
+      "description": "Display name used by the Discord webhook.",
       "required": false,
       "mask": false
     },
@@ -55,7 +55,7 @@
       "name": "Discord Bot Token",
       "key": "DISCORD_BOT_TOKEN",
       "value": "",
-      "description": "Optional Discord bot token used only for dynamic Forum tag updates. Secret: keep masked, never publish or log it, and grant only the permissions required for the target Forum.",
+      "description": "Optional token for dynamic Forum tag updates. Keep masked and least-privileged.",
       "required": false,
       "mask": true
     },
@@ -63,7 +63,7 @@
       "name": "Requested Status Tag ID",
       "key": "MEDIA_TAG_REQUESTED",
       "value": "",
-      "description": "Discord Forum tag ID applied to newly submitted media requests that are waiting to be processed.",
+      "description": "Forum tag ID for Requested.",
       "required": true,
       "mask": false
     },
@@ -71,7 +71,7 @@
       "name": "Processing Status Tag ID",
       "key": "MEDIA_TAG_PROCESSING",
       "value": "",
-      "description": "Discord Forum tag ID used when a media request has been approved or is currently being processed.",
+      "description": "Forum tag ID for Processing.",
       "required": true,
       "mask": false
     },
@@ -79,7 +79,7 @@
       "name": "Available Status Tag ID",
       "key": "MEDIA_TAG_AVAILABLE",
       "value": "",
-      "description": "Discord Forum tag ID used when the request provider reports the requested media as available. MediaOps may independently verify actual media-server availability for its own notifications.",
+      "description": "Forum tag ID for Available.",
       "required": true,
       "mask": false
     },
@@ -87,7 +87,7 @@
       "name": "Failed Status Tag ID",
       "key": "MEDIA_TAG_FAILED",
       "value": "",
-      "description": "Discord Forum tag ID used when processing or acquiring the requested media has failed. This is a terminal request state.",
+      "description": "Forum tag ID for Failed.",
       "required": true,
       "mask": false
     },
@@ -95,7 +95,7 @@
       "name": "Denied Status Tag ID",
       "key": "MEDIA_TAG_DENIED",
       "value": "",
-      "description": "Discord Forum tag ID used when a media request has been denied or rejected. This is a terminal request state.",
+      "description": "Forum tag ID for Denied.",
       "required": true,
       "mask": false
     },
@@ -103,7 +103,7 @@
       "name": "Movie Media Tag ID",
       "key": "MEDIA_TAG_MOVIE",
       "value": "",
-      "description": "Discord Forum tag ID identifying a request as a movie. This media-type tag is preserved throughout the request lifecycle.",
+      "description": "Forum Movie tag ID.",
       "required": true,
       "mask": false
     },
@@ -111,7 +111,7 @@
       "name": "Series Media Tag ID",
       "key": "MEDIA_TAG_SERIES",
       "value": "",
-      "description": "Discord Forum tag ID identifying a request as a TV series. This media-type tag is preserved throughout the request lifecycle.",
+      "description": "Forum Series tag ID.",
       "required": true,
       "mask": false
     },
@@ -119,15 +119,63 @@
       "name": "Test Tag ID",
       "key": "MEDIA_TAG_TEST",
       "value": "",
-      "description": "Optional Discord Forum tag ID used for provider webhook diagnostics. Ombi and Seerr test posts carry only this tag and are not indexed as media-request lifecycle entries.",
+      "description": "Optional provider webhook diagnostic tag.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "Webhook Auth Header",
+      "key": "ROUTER_AUTH_HEADER",
+      "value": "X-MediaOps-Webhook-Token",
+      "description": "HTTP header used for provider shared-secret authentication. Do not place secrets in URLs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Max Webhook Body Bytes",
+      "key": "ROUTER_MAX_BODY_BYTES",
+      "value": "262144",
+      "description": "Maximum accepted provider request body size (256 KiB default).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seerr Webhook Auth",
+      "key": "SEERR_WEBHOOK_AUTH",
+      "value": "off",
+      "description": "off, optional, or required. Configure the matching custom header in Seerr before selecting required.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seerr Webhook Token",
+      "key": "SEERR_WEBHOOK_TOKEN",
+      "value": "",
+      "description": "Shared secret expected from Seerr in the configured auth header. Generate a long random value and keep it masked.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ombi Webhook Auth",
+      "key": "OMBI_WEBHOOK_AUTH",
+      "value": "off",
+      "description": "off, optional, or required. Keep off unless Ombi traffic passes through a trusted component that adds the configured header; keep Ombi/router on a private Docker network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ombi Webhook Token",
+      "key": "OMBI_WEBHOOK_TOKEN",
+      "value": "",
+      "description": "Optional shared secret for authenticated Ombi ingress through a trusted proxy/integration. Never put it in a webhook query string.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "Router Data Directory",
       "key": "ROUTER_DATA_DIR",
       "value": "/data",
-      "description": "Container path for the persistent request/thread index. Leave at /data for the packaged deployment.",
+      "description": "Container path for persistent request/thread index.",
       "required": true,
       "mask": false
     }

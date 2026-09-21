@@ -1,0 +1,42 @@
+{
+  "name": "homelab-runbooks",
+  "repo": "squidfunk/mkdocs-material:9.5.44",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/squidfunk/mkdocs-material",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --memory=256m --cpus=0.25",
+  "post_parameters": "serve --dev-addr=0.0.0.0:8000",
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/selfhst/icons/main/png/mkdocs.png",
+  "project": "https://squidfunk.github.io/mkdocs-material/",
+  "description": "Serves any MkDocs Material docs site (runbooks, wikis, project docs - anything written in Markdown with an mkdocs.yml) as a live-rendered site. Point it at a read-only clone of your own docs git repo; edit the source on GitHub or locally, not in the container, and pull to refresh.",
+  "paths": [
+    {
+      "name": "Docs repo (read-only)",
+      "host": "/mnt/cache/appdata/homelab-runbooks/repo",
+      "container": "/docs",
+      "mode": "ro",
+      "description": "Read-only bind mount to a cloned docs git repo containing mkdocs.yml at its root.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8087",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Host port serving the rendered docs.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

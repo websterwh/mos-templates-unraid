@@ -1,0 +1,107 @@
+{
+  "name": "TasmoBackup-py",
+  "repo": "ghcr.io/blacksheep8732/tasmobackup-py:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/blacksheep8732/tasmobackup-py/pkgs/container/tasmobackup-py",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/blacksheep8732/tasmobackup-py/main/app/static/icon.png",
+  "project": "https://github.com/blacksheep8732/tasmobackup-py",
+  "description": "Backup all your Tasmota and WLED devices from one web UI - a modern Python rewrite of TasmoBackup. Scheduled and on-demand backups (Tasmota .dmp, WLED config + presets), one-click restore, device discovery via IP scan or MQTT, online status with ntfy/Gotify/webhook alerts, Tasmota time-zone check, and an optional firmware auto-update that is opt-in per device and always takes a fresh backup first. Login-protected, device passwords encrypted at rest, no tracking. German and English UI.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/tasmobackup-py",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, secret key and all device backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8259",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin user",
+      "key": "TB_ADMIN_USER",
+      "value": "admin",
+      "description": "Web UI login name. Only used on the very first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "TB_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Initial web UI password. Only used on the very first start - change it later in Settings.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Default Tasmota user",
+      "key": "TB_TASMOTA_USER",
+      "value": "admin",
+      "description": "Web login used for devices without their own credentials.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Tasmota password",
+      "key": "TB_TASMOTA_PASSWORD",
+      "value": "",
+      "description": "Web password used for devices without their own credentials. Leave empty if your devices have none.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret key",
+      "key": "TB_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Leave empty to generate one automatically (stored in appdata). If set, never change it - stored device passwords could no longer be decrypted.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Login enabled",
+      "key": "TB_AUTH_ENABLED",
+      "value": "true",
+      "description": "Set to false only if an external auth proxy protects the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as (Unraid default: 99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as (Unraid default: 100 = users).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

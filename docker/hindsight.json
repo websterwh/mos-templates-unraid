@@ -81,8 +81,8 @@
     {
       "name": "Ollama context size",
       "key": "HINDSIGHT_API_LLM_OLLAMA_NUM_CTX",
-      "value": "16384",
-      "description": "Ollama only. Prompt window in tokens. Upstream recommends setting this explicitly. Lower it if the model does not fit in memory.",
+      "value": "32768",
+      "description": "Ollama only. Prompt window in tokens. Keep it above Reflect max context or long prompts get cut. Lower both together if the model does not fit in memory. Leave blank if you do not use Ollama.",
       "required": false,
       "mask": false
     },
@@ -100,6 +100,22 @@
       "value": "false",
       "description": "Extra model calls after each save that build higher-level insights. Upstream recommends false for a local model because it is slow. Set true for a hosted API.",
       "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reflect time limit",
+      "key": "HINDSIGHT_API_REFLECT_WALL_TIMEOUT",
+      "value": "1200",
+      "description": "Seconds a single reflect or knowledge page rebuild may run before it is abandoned. Upstream uses 300, which a local model often overruns and reports as a timed out reflect. Raise it on slow hardware, lower it on a fast hosted API. Do not leave this blank.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Reflect max context",
+      "key": "HINDSIGHT_API_REFLECT_MAX_CONTEXT_TOKENS",
+      "value": "24000",
+      "description": "Most text, in tokens, a reflect may gather before it writes its answer. Keep it well below your model prompt window or the prompt gets cut and the answer suffers. Upstream uses 100000, which suits hosted models with large windows. Raise it to match a bigger model. Do not leave this blank.",
+      "required": true,
       "mask": false
     },
     {

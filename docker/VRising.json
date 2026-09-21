@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:27015]",
   "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/v-rising.png",
   "project": "https://github.com/blckassassin/unraid-game-servers",
-  "description": "V Rising dedicated server. V Rising ships no Linux server binary, so this pulls the Windows depot with SteamCMD and runs it under GE-Proton, the same way the ARK: Survival Ascended container here does. First boot downloads about 2GB and then builds a Proton prefix, which can sit quiet for several minutes before anything appears in the log. That is normal. Settings here are applied on every restart, so changing Max Players or the password and restarting takes effect. They are passed to the server as launch options rather than written into its config files, which means your own edits to ServerHostSettings.json and ServerGameSettings.json are never overwritten - the container seeds those two files once from the defaults the server ships with and then leaves them alone forever. Anything not listed as a field below is still reachable: the server reads its own VR_ environment variables, so adding a variable named VR_FPS with a value of 45 sets the server framerate, and every setting in Stunlock's documentation works the same way. See https://github.com/StunlockStudios/vrising-dedicated-server-instructions for the full list. The server saves when the container stops. Raise Unraid's own container stop timeout to at least 75 seconds so the save is not cut off.",
+  "description": "V Rising dedicated server. Windows depot via SteamCMD, run under GE-Proton. First boot downloads about 2GB and then builds a Proton prefix, which can sit quiet for several minutes before anything appears in the log. That is normal. The fields below are passed as launch options on every restart, so changing one and restarting takes effect. Your own edits to ServerHostSettings.json and ServerGameSettings.json are never overwritten - those are seeded once and then left alone. Anything without a field is still reachable: the server reads its own VR_ environment variables, so a variable named VR_FPS set to 45 sets the server framerate. See https://github.com/StunlockStudios/vrising-dedicated-server-instructions for the full list. The server saves when the container stops. Raise Unraid's container stop timeout to at least 75 seconds so the save is not cut off.",
   "paths": [
     {
       "name": "Game Files",
@@ -39,7 +39,7 @@
       "host": "27015",
       "container": "27015",
       "protocol": "udp",
-      "description": "Game traffic. UDP. This is the one to forward. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. If you also run the ARK: Survival Ascended container on this server, its Query Port defaults to 27015 as well and Docker will refuse to start the second container. Change one of them - ARK's is the safer one to move, since its 27015 is vestigial and discovery goes via EOS.",
+      "description": "Game traffic. UDP. This is the one to forward. To change it, set the Container Port, the Host Port and Server Port below all to the same number - Docker cannot tell the server what its host port is, so the three have to agree for the log to report the port players actually type. If something else on this box already listens on 27015, Docker refuses to start this container - change this port, or the other one. Unraid greys out that Container Port box for every port a template supplied, so you cannot type your number into it. To move this port, Remove this entry and add your own Port entry with the Container Port and the Host Port both set to your number - a port entry you create yourself has no container port yet, and Unraid leaves those editable. A template update can restore this entry alongside yours; remove it again. See the README.",
       "required": true,
       "mask": false
     },
@@ -48,7 +48,7 @@
       "host": "27016",
       "container": "27016",
       "protocol": "udp",
-      "description": "Steam server list traffic. Forward this too, or the server runs fine and never appears in the browser.",
+      "description": "Steam server list traffic. Forward this too, or the server runs fine and never appears in the browser. If you move it, replace this entry the same way as Game Port above - see the README.",
       "required": true,
       "mask": false
     },

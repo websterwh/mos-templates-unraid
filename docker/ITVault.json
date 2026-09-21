@@ -1,0 +1,123 @@
+{
+  "name": "IT-Vault",
+  "repo": "ghcr.io/shatheitguy/it-vault",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/shatheitguy/it-vault/pkgs/container/it-vault",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]/",
+  "icon": "https://raw.githubusercontent.com/shatheitguy/unraid-templates/main/it-vault-icon.png",
+  "project": "https://shatheitguy.github.io/it-vault/",
+  "description": "IT-Vault is a self-hosted IT asset register and helpdesk for whoever IS the IT department: assets, employees, contracts, tickets, a public request portal, LDAP/AD sync, network scanning, printable QR labels and e-signed handovers. IT-VAULT BRINGS NO DATABASE OF ITS OWN. Install MariaDB first (the MariaDB template in Community Applications is fine), then create an empty database and a user for it: CREATE DATABASE itvault CHARACTER SET utf8mb4; CREATE USER 'itvault'@'%' IDENTIFIED BY 'a-strong-password'; GRANT ALL PRIVILEGES ON itvault.* TO 'itvault'@'%'; Then either fill in the DB fields below, or leave them empty and the first-run wizard will ask. The schema builds itself on first start and migrates itself on every update -- there is nothing to run by hand. The three paths below keep your data outside the image, so updating replaces the container without touching anything: /app/data holds the session key and the database pointer, /app/invoices the attachments, /app/backups the scheduled backups. First run: open the WebUI and the setup wizard creates your admin account. There is no default password.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/it-vault/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Session key and the saved database pointer. Keep this: losing it signs everyone out and forgets which database to use.",
+      "required": true
+    },
+    {
+      "name": "Invoices",
+      "host": "/mnt/cache/appdata/it-vault/invoices",
+      "container": "/app/invoices",
+      "mode": "rw",
+      "description": "Invoices and proof-of-purchase files attached to assets.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/it-vault/backups",
+      "container": "/app/backups",
+      "mode": "rw",
+      "description": "Where scheduled backups are written. Put this on a share you actually back up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "The port you will open IT-Vault on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Your MariaDB/MySQL server. For a MariaDB container on this Unraid box, use the server's LAN IP (bridge networking cannot reach it by container name). Leave empty to be asked by the setup wizard instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database port",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "3306 unless you changed it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database name",
+      "key": "DB_NAME",
+      "value": "itvault",
+      "description": "The empty database you created for IT-Vault.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database user",
+      "key": "DB_USER",
+      "value": "",
+      "description": "A user with rights on that database -- not root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "DB_PASS",
+      "value": "",
+      "description": "That user's password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "ITVAULT_PUBLIC_URL",
+      "value": "",
+      "description": "The address people reach this on from outside, e.g. https://itvault.example.com. Used for the links in acknowledgement and portal emails, which are useless if they point at a LAN address. Leave empty if you only use it on the LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force secure cookies",
+      "key": "ITVAULT_COOKIE_SECURE",
+      "value": "",
+      "description": "Set to 1 to insist the session cookie is only ever sent over HTTPS. Leave empty and it is decided per request, which is right if you reach it both ways.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session secret",
+      "key": "ITVAULT_SECRET",
+      "value": "",
+      "description": "Leave empty. IT-Vault generates a strong one on first start and keeps it in the data path above, which beats any value typed into a template -- a known secret lets anyone forge an admin session. Set it only to share one key across several instances.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

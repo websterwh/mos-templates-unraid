@@ -1,0 +1,107 @@
+{
+  "name": "Enshrouded-broccoli",
+  "repo": "indifferentbroccoli/enshrouded-server-docker:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/indifferentbroccoli/enshrouded-server-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --stop-timeout=30",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:15637]",
+  "icon": "https://raw.githubusercontent.com/juddisjudd/unraid-templates/refs/heads/main/images/enshrouded.png",
+  "project": "https://www.enshrouded.com/",
+  "description": "A dedicated server for Enshrouded. The server is a Windows program. The default (latest) tag runs it with Proton GE. You can choose the wine tag when you install. Forward UDP port 15637 on your router. If you change the port, also change QUERY_PORT. Set GENERATE_SETTINGS to false if you edit enshrouded_server.json by hand. Otherwise the container writes over your changes on each start. Docker image by indifferentbroccoli.",
+  "paths": [
+    {
+      "name": "Server Files",
+      "host": "/mnt/cache/appdata/enshrouded",
+      "container": "/home/steam/enshrouded",
+      "mode": "rw",
+      "description": "Server files, saves, and enshrouded_server.json.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Query Port",
+      "host": "15637",
+      "container": "15637",
+      "protocol": "udp",
+      "description": "UDP query port. Forward it on your router. Must be the same as QUERY_PORT.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": "EnshroudedServer",
+      "description": "Display name of the server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Password",
+      "key": "SERVER_PASSWORD",
+      "value": "",
+      "description": "Optional password to join. Leave empty for a public server.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "12",
+      "description": "Maximum number of players at the same time.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Query Port Variable",
+      "key": "QUERY_PORT",
+      "value": "15637",
+      "description": "UDP query port the server listens on. Must be the same as the Query Port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Generate Settings",
+      "key": "GENERATE_SETTINGS",
+      "value": "true",
+      "description": "Write the settings from this template to enshrouded_server.json on each start. Set to false to use the file on disk as it is.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update On Start",
+      "key": "UPDATE_ON_START",
+      "value": "true",
+      "description": "Download and validate the server files on each start. Set to false to skip.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the server runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the server runs as.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

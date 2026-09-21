@@ -1,0 +1,123 @@
+{
+  "name": "RunescapeDragonwilds-broccoli",
+  "repo": "indifferentbroccoli/runescape-dragonwilds-server-docker:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/indifferentbroccoli/runescape-dragonwilds-server-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --stop-timeout=30",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/juddisjudd/unraid-templates/refs/heads/main/images/Dragonwilds_Logo.png",
+  "project": "https://dragonwilds.runescape.com/",
+  "description": "A dedicated server for RuneScape: DragonWilds. The server files are downloaded with DepotDownloader on first start. Before you start: set OWNER_ID to your Player ID (at the bottom of the in-game Settings menu) and set ADMIN_PASSWORD. The server does not start without OWNER_ID. Forward UDP port 7777 on your router. The host port and the container port must be the same. If you change the port, also change DEFAULT_PORT. Docker image by indifferentbroccoli.",
+  "paths": [
+    {
+      "name": "Server Files",
+      "host": "/mnt/cache/appdata/runescape-dragonwilds",
+      "container": "/home/steam/server-files",
+      "mode": "rw",
+      "description": "Server files, saves, and configuration.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": "UDP game port. Forward it on your router. The host port and the container port must be the same as DEFAULT_PORT.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Owner ID",
+      "key": "OWNER_ID",
+      "value": "",
+      "description": "Required. Your RuneScape: DragonWilds Player ID. Find it at the bottom of the in-game Settings menu.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required. Password to open Server Management in-game.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": "DragonWildsServer",
+      "description": "Display name of the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default World Name",
+      "key": "DEFAULT_WORLD_NAME",
+      "value": "MyWorld",
+      "description": "Name of the world created on first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "World Password",
+      "key": "WORLD_PASSWORD",
+      "value": "",
+      "description": "Optional password to join. Leave empty for a public server.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Max Players",
+      "key": "MAX_PLAYERS",
+      "value": "6",
+      "description": "Maximum number of players on the server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Port",
+      "key": "DEFAULT_PORT",
+      "value": "7777",
+      "description": "UDP port the server listens on. Must be the same as the Game Port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update On Start",
+      "key": "UPDATE_ON_START",
+      "value": "true",
+      "description": "Download and validate the server files on each start. Set to false to skip.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

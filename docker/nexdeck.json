@@ -1,0 +1,115 @@
+{
+  "name": "nexdeck",
+  "repo": "ghcr.io/derkezorm/nexdeck",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/DerKezorm/nexdeck/pkgs/container/nexdeck",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexdeck.png",
+  "project": "https://nexdeck.nexapps.dev",
+  "description": "nexdeck is a live dashboard for the homelab. Its cards show what the services behind it are doing right now: Unraid, Proxmox and Docker, the media and download stack, DNS filters, backups, cameras and many more. One container, a single SQLite file. Administrators can act from the cards, for example start and stop containers or pause downloads, and every action is logged. Boards can be shared with members or shown on a wall display as a kiosk, and nexdeck can send a notification when something fails. The interface is available in English and German.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexdeck",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database, uploaded pictures and the generated key. Back up this folder, and keep it on a local disk, not on a network share.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Optional. Lets nexdeck show the containers on this server, start and stop them and follow their logs. Access to the socket amounts to root on the server; inside nexdeck only administrators can act on containers. Clear this path if you do not want the Docker cards.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5175",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexdeck at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone of the server side, for example Europe/Berlin. Clocks in the browser follow the browser. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXDECK_PUBLIC_URL",
+      "value": "",
+      "description": "How browsers reach nexdeck, for example https://deck.example.com. Needed for sign-in with an identity provider and for Web Push. It can also be set later inside nexdeck.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXDECK_SECRET_KEY",
+      "value": "",
+      "description": "Encrypts the stored API keys and signs sessions. Leave blank: nexdeck creates one on first start and keeps it in /data/secret.key. Setting it here moves the key out of the data folder, so a stolen copy of that folder alone is worthless. Never change it afterwards, every stored credential is bound to it.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Docker Group ID",
+      "key": "DOCKER_GID",
+      "value": "",
+      "description": "Group that owns the Docker socket on this server. Leave blank, nexdeck reads it from the socket at start. Only set it if the Docker cards answer permission denied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXDECK_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexdeck off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "NEXDECK_LOG_LEVEL",
+      "value": "",
+      "description": "Leave blank. The level is chosen inside nexdeck, where a deep level switches itself back off. A value here fixes the level and greys that switch out. Only set it if nexdeck will not start.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

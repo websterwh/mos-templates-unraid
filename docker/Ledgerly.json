@@ -1,0 +1,83 @@
+{
+  "name": "Ledgerly",
+  "repo": "ghcr.io/007darkmatter5/ledgerly:production",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/007darkmatter5/ledgerly/pkgs/container/ledgerly",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/007darkmatter5/ledgerly/main/docs/images/icon.png",
+  "project": "https://github.com/007darkmatter5/ledgerly",
+  "description": "Ledgerly is a self-hosted personal finance app. Track bills with expected and \"up to\" amounts, due dates and the account each one is paid from; see the projected running balance of those accounts and when they would dip low or go negative; track income; and follow loan balances with full amortization tables, including extra principal payments. Manage payees (with links to their websites) and categories. Multiple people can use one install, and each user's data is private. The first account you create becomes the admin, who can close sign-ups and set up email for password resets. Sample data can be explored and deleted without touching your own. Everything is stored in the appdata folders below. Keep the keys folder with the data folder: it holds the encryption keys for sign-ins and the saved email password. To reach Ledgerly from outside your network, put it behind a reverse proxy with HTTPS and set \"Behind a reverse proxy\" to true.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/ledgerly/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database (ledgerly.db).",
+      "required": true
+    },
+    {
+      "name": "Keys",
+      "host": "/mnt/cache/appdata/ledgerly/keys",
+      "container": "/keys",
+      "mode": "rw",
+      "description": "Encryption keys for sign-ins and the saved email password. Back these up with the data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "5005",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Ledgerly web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID Ledgerly runs as. It owns the data and keys folders.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID Ledgerly runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Money and date format",
+      "key": "Ledgerly__Culture",
+      "value": "en-US",
+      "description": "Culture used to format money and dates, e.g. en-US, en-GB, de-DE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Behind a reverse proxy",
+      "key": "ASPNETCORE_FORWARDEDHEADERS_ENABLED",
+      "value": "false",
+      "description": "Set to true when a reverse proxy (SWAG, Nginx Proxy Manager, Traefik) handles HTTPS in front of Ledgerly.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

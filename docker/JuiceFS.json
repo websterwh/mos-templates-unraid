@@ -1,0 +1,179 @@
+{
+  "name": "JuiceFS",
+  "repo": "junkerderprovinz/juicefs:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/juicefs",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/juicefs/icon.png",
+  "project": "https://github.com/juicedata/juicefs",
+  "description": "JuiceFS keeps file metadata in a database and file contents in an object store. This template runs its S3 gateway, so anything on your server that speaks S3 can talk to it. The official binary, unmodified, verified against the upstream SHA256 at build time. Why this template exists: upstream publishes no image meant to be installed as a container. Their Docker volume plugin is not a container at all and cannot be installed from a template, and their juicedata/mount image expects you to write the whole command line yourself, with the file system created by hand in a console first. Here every setting is a field below, and the file system is created on first boot. No manual CLI setup: \u2022 The file system is created the first time the container starts. On every later start it finds the existing one and leaves it alone, because formatting twice would orphan every object already stored. \u2022 Leave the Secret Key empty and one is generated for you and written to /config/.s3_root_password. The container log points you at it. \u2022 Defaults are a SQLite file in /config and a plain directory in /data, so a fresh install needs no second container and no external database. READ THIS BEFORE YOU INSTALL: JuiceFS splits files into chunks, so the Data folder is NOT browsable. You will see JuiceFS's own layout there, not your file names. Everything goes in and comes out through the S3 gateway. If you want an S3 API in front of a share you can still read normally in a file browser, install VersityGW instead. BACKUP: back up the Config and Data folders together, from the same point in time if you can. The chunks in Data are unreadable without the database in Config. A backup of only Data is not a backup. First start: watch the container log for \"JUICEFS IS READY\".",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/juicefs/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds the metadata database when the default SQLite engine is used, and the generated secret key. This MUST be mapped. Lose it and the objects in Data become unreadable, because nothing says which chunks made up which file.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/juicefs/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The object store, when the default local backend is used. Not browsable: JuiceFS stores files as chunks under its own layout.",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/juicefs/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "The local read cache. Optional, but worth mapping: unmapped it lives in the container's own layer, and the cache grows to whatever free space allows.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "S3 Gateway Port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "The S3 endpoint every client (rclone, restic, aws-cli, ...) connects to.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Access Key",
+      "key": "S3_ROOT_USER",
+      "value": "juicefs",
+      "description": "The access key your S3 clients use to connect to this container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "S3_ROOT_PASSWORD",
+      "value": "",
+      "description": "The secret key your S3 clients use. At least 8 characters: anything shorter is refused at startup with one clear line in the log. Leave empty and one is generated on first boot and stored in /config/.s3_root_password. Use a real generated secret (e.g. openssl rand -hex 24), not a short password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Metadata URL",
+      "key": "META_URL",
+      "value": "sqlite3:///config/juicefs.db",
+      "description": "Where the metadata lives. The default is a SQLite file in Config: one server, no extra container, and a backup of Config captures it. For several machines writing at once, put a Redis or Postgres URL here instead, for example redis://:password@192.168.20.10:6379/1 or postgres://user:password@192.168.20.10:5432/juicefs?sslmode=disable. This is read every start, but the file system is only created once.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage Backend",
+      "key": "STORAGE",
+      "value": "file",
+      "description": "Where the file contents go. 'file' means the Data folder above. Every backend JuiceFS supports works here too, e.g. s3, minio, b2. READ ONLY WHEN THE FILE SYSTEM IS CREATED: changing it later has no effect on an existing volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bucket",
+      "key": "BUCKET",
+      "value": "/data/",
+      "description": "The path or URL of the object store. With the 'file' backend this is a path inside the container, so leave it at /data/ unless you know why you are changing it. READ ONLY WHEN THE FILE SYSTEM IS CREATED.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Volume Name",
+      "key": "VOLUME_NAME",
+      "value": "juicefs",
+      "description": "The name of the file system. Set once, when it is created; changing it later has no effect on an existing volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Several Buckets",
+      "key": "MULTI_BUCKETS",
+      "value": "true",
+      "description": "Whether S3 clients can create buckets. Leave this on unless you know why you are turning it off: with it off, the whole file system is a single bucket named after the volume and creating one is refused, which is the first thing most backup clients do.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Object Store Access Key",
+      "key": "ACCESS_KEY",
+      "value": "",
+      "description": "Only needed if Storage Backend is not 'file': the access key of the remote object store. READ ONLY WHEN THE FILE SYSTEM IS CREATED.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Object Store Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Only needed if Storage Backend is not 'file': the secret key of the remote object store. READ ONLY WHEN THE FILE SYSTEM IS CREATED.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Trash Days",
+      "key": "TRASH_DAYS",
+      "value": "",
+      "description": "How many days deleted files stay recoverable. Applied when the file system is created, so it has no effect on an existing volume. Leave empty for the JuiceFS default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Size",
+      "key": "CACHE_SIZE",
+      "value": "",
+      "description": "Local read cache limit in MiB. Leave empty for the JuiceFS default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Directory",
+      "key": "CACHE_DIR",
+      "value": "",
+      "description": "Where the local read cache goes. Leave empty to use /cache inside the container. Point it at a mapped fast disk if you want the cache on specific storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Arguments",
+      "key": "EXTRA_ARGS",
+      "value": "",
+      "description": "Passed to 'juicefs gateway' as is, for anything not covered by the fields above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the gateway runs as. Default 99 = 'nobody' on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the gateway runs as. Default 100 = 'users' on Unraid.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

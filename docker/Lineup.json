@@ -13,24 +13,32 @@
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8080]",
   "icon": "https://raw.githubusercontent.com/am385/unraid-docker-templates/main/am385/images/lineup-icon.png",
-  "project": "https://github.com/am385/lineup",
-  "description": "Lineup is an application that fetches Electronic Program Guide (EPG) data from a HDHomeRun network TV tuner and converts it into XMLTV format \u2014 the standard format used by media servers like Jellyfin and Plex for TV guide display. It includes a web-based dashboard, a terminal UI, live TV streaming with transcoding, and automatic scheduled EPG fetching with smart incremental updates.",
+  "project": "https://github.com/am385/Lineup",
+  "description": "Lineup provides a web dashboard for HDHomeRun discovery and proxying, live TV streaming, scheduled EPG collection, and XMLTV output for media servers such as Jellyfin and Plex. BREAKING 2.0 HOST LAYOUT: before starting Lineup 2.0, existing users must move or copy the contents of their prior Lineup appdata directory (whether its container target was /config or /appdata) into /mnt/user/appdata/lineup/data, or explicitly change this template's Appdata host path to retain their existing directory. Otherwise, Lineup starts as a new installation. HTTPS certificates remain separate under /mnt/user/appdata/lineup/certs and must not be moved into the data directory.",
   "paths": [
     {
       "name": "Appdata",
-      "host": "/mnt/cache/appdata/lineup",
-      "container": "/config",
+      "host": "/mnt/cache/appdata/lineup/data",
+      "container": "/appdata",
       "mode": "rw",
-      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "description": "Persistent Lineup settings, database, and other application-owned state. BREAKING 2.0 MIGRATION: before starting 2.0, move or copy the contents of your prior Lineup appdata directory (whether previously mapped to /config or /appdata) into /mnt/user/appdata/lineup/data, or explicitly retain your existing host path here. Otherwise, Lineup starts as a new installation. Keep HTTPS certificates in the separate certificate directory; do not move them into this data directory.",
       "required": true
     },
     {
-      "name": "Path: /xmltv",
+      "name": "XMLTV Output",
       "host": "",
       "container": "/xmltv",
       "mode": "rw",
-      "description": "This is the container path to where the XMLTV file will be stored.",
+      "description": "Host path where Lineup stores generated XMLTV output.",
       "required": true
+    },
+    {
+      "name": "HTTPS Certificate Directory",
+      "host": "/mnt/cache/appdata/lineup/certs",
+      "container": "/app/certs",
+      "mode": "ro",
+      "description": "Host directory containing the HTTPS certificate named lineup.pfx. The certificate is available in the container at /app/certs/lineup.pfx.",
+      "required": false
     }
   ],
   "ports": [
@@ -39,7 +47,7 @@
       "host": "8080",
       "container": "8080",
       "protocol": "tcp",
-      "description": "This is the Web UI port for the application.",
+      "description": "Host port mapped to Lineup's HTTP listener on TCP port 8080.",
       "required": true,
       "mask": false
     },
@@ -48,12 +56,54 @@
       "host": "8443",
       "container": "8443",
       "protocol": "tcp",
-      "description": "Optional - Https webUI (you need to set up your own certificate).",
+      "description": "Optional host port mapped to Lineup's HTTPS listener on TCP port 8443. HTTPS must be configured in Lineup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HDHomeRun Discovery / Proxy",
+      "host": "65001",
+      "container": "65001",
+      "protocol": "udp",
+      "description": "Optional UDP port used for HDHomeRun discovery and proxy traffic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSDP Discovery",
+      "host": "1900",
+      "container": "1900",
+      "protocol": "udp",
+      "description": "Optional UDP port used for SSDP discovery traffic.",
       "required": false,
       "mask": false
     }
   ],
   "variables": [
+    {
+      "name": "HTTPS Certificate Password",
+      "key": "Lineup__Https__CertificatePassword",
+      "value": "",
+      "description": "Optional password for lineup.pfx. Leave blank when using a passwordless PFX certificate.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenTelemetry Endpoint",
+      "key": "Lineup__Logging__OpenTelemetry__Endpoint",
+      "value": "",
+      "description": "Optional OTLP endpoint. Leave blank to disable OpenTelemetry export.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenTelemetry Protocol",
+      "key": "Lineup__Logging__OpenTelemetry__Protocol",
+      "value": "httpProtobuf",
+      "description": "OTLP transport protocol. Supported values are httpProtobuf and grpc.",
+      "required": false,
+      "mask": false
+    },
     {
       "name": "Variable: PUID",
       "key": "PUID",

@@ -1,0 +1,67 @@
+{
+  "name": "ado-exporter",
+  "repo": "louij2/ado-exporter:latest",
+  "category": [
+    "Monitoring"
+  ],
+  "registry": "https://hub.docker.com/r/louij2/ado-exporter",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --memory=256m --cpus=0.5",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9823]/metrics",
+  "icon": "https://raw.githubusercontent.com/selfhst/icons/main/png/azure-devops.png",
+  "project": "https://github.com/louij2/ado-exporter",
+  "description": "Prometheus exporter for Azure DevOps pipeline/pool metrics and (optionally) GitHub repo activity. Polls each API read-only and exposes the results in Prometheus text format. GitHub metrics are optional - leave GITHUB_OWNER blank and skip the github-token mount to run ADO-only.",
+  "paths": [
+    {
+      "name": "ado-pat",
+      "host": "/mnt/cache/appdata/ado-exporter/ado-pat",
+      "container": "/run/secrets/ado-pat",
+      "mode": "ro",
+      "description": "Read-only bind mount to a file containing your Azure DevOps PAT (do not put the PAT directly in a Variable).",
+      "required": true
+    },
+    {
+      "name": "github-token",
+      "host": "/mnt/cache/appdata/ado-exporter/github-token",
+      "container": "/run/secrets/github-token",
+      "mode": "ro",
+      "description": "Optional. Read-only bind mount to a file containing a GitHub token, only used if GITHUB_OWNER is set.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port 9823",
+      "host": "9823",
+      "container": "9823",
+      "protocol": "tcp",
+      "description": "Container Port: 9823",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ADO_ORG",
+      "key": "ADO_ORG",
+      "value": "",
+      "description": "Your Azure DevOps org URL, e.g. https://dev.azure.com/your-org",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GITHUB_OWNER",
+      "key": "GITHUB_OWNER",
+      "value": "",
+      "description": "Optional. GitHub user/org to pull repo metrics for. Leave blank to disable GitHub metrics entirely.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

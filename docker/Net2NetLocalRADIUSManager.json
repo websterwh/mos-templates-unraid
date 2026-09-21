@@ -1,0 +1,125 @@
+{
+  "name": "Net2Net-Local-RADIUS-Manager",
+  "repo": "botchris/net2netradius:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/botchris/net2netradius",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": null,
+  "project": "https://github.com/Net2NetMain/Net2NetRadius",
+  "description": "Local, per-WISP MikroTik PPPoE RADIUS manager. Stores data inside the mapped appdata folder. Exposes the web portal on 8080 and RADIUS authentication/accounting on UDP 1812/1813.",
+  "paths": [
+    {
+      "name": "Application data",
+      "host": "/mnt/cache/appdata/net2net-radius",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent database, branding, and backups. Include this folder in Unraid backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web portal",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Administrator and customer portal.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RADIUS authentication",
+      "host": "1812",
+      "container": "1812",
+      "protocol": "udp",
+      "description": "MikroTik RADIUS authentication port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RADIUS accounting",
+      "host": "1813",
+      "container": "1813",
+      "protocol": "udp",
+      "description": "MikroTik RADIUS accounting port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Application secret",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "A unique random value, at least 32 characters. Never reuse it between WISPs.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Initial Super Admin password",
+      "key": "BOOTSTRAP_SUPERADMIN_PASSWORD",
+      "value": "",
+      "description": "Used only on the first start, when the database is empty.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Initial WISP Admin password",
+      "key": "BOOTSTRAP_WISPADMIN_PASSWORD",
+      "value": "",
+      "description": "Used only on the first start, when the database is empty.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "RADIUS shared secret",
+      "key": "RADIUS_SHARED_SECRET",
+      "value": "",
+      "description": "Must match every MikroTik /radius secret. Use a unique long value per WISP.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "UISP / UNMS server URL",
+      "key": "UISP_BASE_URL",
+      "value": "",
+      "description": "Optional UISP server address, for example https://uisp.example.net.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UISP / UNMS API token",
+      "key": "UISP_API_TOKEN",
+      "value": "",
+      "description": "Optional UISP API token for CRM synchronisation. Leave blank when UISP is not used.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Private RADIUS client network",
+      "key": "RADIUS_CLIENT_NETWORK",
+      "value": "",
+      "description": "Optional private CIDR allowed to source RADIUS requests, for example 10.10.0.0/16. Leave blank to permit only registered router addresses.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hide lab records",
+      "key": "SHOW_LAB_DATA",
+      "value": "false",
+      "description": "Keep false in production.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "Scramble-Cloud-CLI-WebDAV",
+  "repo": "node:24-alpine",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/_/node",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init",
+  "post_parameters": "sh -c npm install -g @scramble-cloud/cli && while true; do scramble-cli webdav --host 0.0.0.0 --port 1900 --username ${SCRAMBLE_WEBDAV_USERNAME:-admin} ; echo Scramble WebDAV stopped; retrying in 30 seconds. Use the container Console to run: scramble-cli login -u your@email.com; sleep 30; done",
+  "web_ui_url": "http://[IP]:[PORT:1900]",
+  "icon": "https://scramble.cloud/favicon.ico",
+  "project": "https://scramble.cloud/",
+  "description": "Runs the official Scramble Cloud CLI and exposes its WebDAV server. The CLI is installed from npm each time the container is created or started. Login/session data is persisted in the mapped appdata directory.",
+  "paths": [
+    {
+      "name": "Persistent Home / Configuration",
+      "host": "/mnt/cache/appdata/scramble-cloud-cli-webdav",
+      "container": "/root",
+      "mode": "rw",
+      "description": "Persists the CLI login/session, settings, npm cache, and WebDAV password configuration.",
+      "required": true
+    },
+    {
+      "name": "Local Data",
+      "host": "/mnt/cache/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Local folder available to the CLI for uploads and downloads.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebDAV Port",
+      "host": "1900",
+      "container": "1900",
+      "protocol": "tcp",
+      "description": "Host port used to access the Scramble WebDAV service.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WebDAV Username",
+      "key": "SCRAMBLE_WEBDAV_USERNAME",
+      "value": "admin",
+      "description": "Username clients use to connect to the WebDAV server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebDAV Password",
+      "key": "SCRAMBLE_WEBDAV_PASSWORD",
+      "value": "",
+      "description": "Password clients use to connect to WebDAV. Choose a strong password.",
+      "required": true,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

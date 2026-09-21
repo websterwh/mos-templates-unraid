@@ -1,0 +1,51 @@
+{
+  "name": "hass-mcp",
+  "repo": "louij2/hass-mcp:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/voska/hass-mcp",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--memory=512m --cpus=0.5",
+  "post_parameters": "sh -c export HA_TOKEN=$(cat /run/secrets/tok); exec supergateway --stdio python -m app --port 8094",
+  "web_ui_url": "http://[IP]:[PORT:8094]",
+  "icon": "https://cdn.simpleicons.org/homeassistant/18BCF2",
+  "project": "https://github.com/voska/hass-mcp",
+  "description": "Home Assistant MCP server, bridged over HTTP with supergateway (baked into the image, on a current Node.js so supergateway's MCP SDK actually works) so any MCP client that speaks HTTP/SSE can use it.",
+  "paths": [
+    {
+      "name": "hass-token",
+      "host": "/mnt/cache/appdata/hass-mcp/hass-token",
+      "container": "/run/secrets/tok",
+      "mode": "ro",
+      "description": "Read-only bind mount to a file containing your Home Assistant long-lived access token (never put the token directly in a Variable).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Host Port 8094",
+      "host": "8094",
+      "container": "8094",
+      "protocol": "tcp",
+      "description": "HTTP port supergateway serves the bridged MCP endpoint on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HA_URL",
+      "key": "HA_URL",
+      "value": "",
+      "description": "e.g. http://10.0.0.24:8123",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

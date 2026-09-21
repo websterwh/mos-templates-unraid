@@ -1,0 +1,180 @@
+{
+  "name": "RuneScape-Dragonwilds",
+  "repo": "ferment9348/dragonwilds:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/ferment9348/dragonwilds/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7777]",
+  "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/dragonwilds.png",
+  "project": "https://github.com/blckassassin/unraid-game-servers",
+  "description": "RuneScape: Dragonwilds dedicated server. Native Linux binary via SteamCMD - no Proton or wine. First boot downloads about 1.5GB and settles at about 5GB. Owner ID is required - your in-game Player ID, from the bottom of the in-game Settings menu. Without it the server runs but turns away every player, so this container refuses to start and says so in the log. The fields below are written into DedicatedServer.ini on every start, so changing one and restarting takes effect. Anything else in that file is left alone. Stopping does not save. The server autosaves every 5 minutes, so a stop costs at most that. For a clean stop, have players quit out through the game menu first.",
+  "paths": [
+    {
+      "name": "Game Files",
+      "host": "/mnt/cache/appdata/dragonwilds",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Where the server, saves and config live. About 5GB - see Requires below. Your worlds are under RSDragonwilds/Saved/SaveGames and your config is RSDragonwilds/Saved/Config/LinuxServer/DedicatedServer.ini.",
+      "required": true
+    },
+    {
+      "name": "SteamCMD",
+      "host": "/mnt/cache/appdata/steamcmd",
+      "container": "/serverdata/steamcmd",
+      "mode": "rw",
+      "description": "SteamCMD itself. Small, and shareable with other SteamCMD containers.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game Port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "udp",
+      "description": "Game traffic, UDP, and the port to forward on your router. To move it you must set THREE things to the same number: this Host Port box, the Container Port behind the Edit button on this row, and Server Port below. That is not a Docker convention - this game advertises the port the server BINDS, so a port mapping cannot translate it. Publish 7780 against a server bound to 7777 and your world is listed, reports ready, heartbeats fine, logs no errors, and every player who clicks it is sent to 7777 instead. If something else on this box already listens on the number you pick, Docker refuses to start this container - pick another. Unraid greys out that Container Port box for every port a template supplied, so you cannot type your number into it. To move this port, Remove this entry and add your own Port entry with the Container Port and the Host Port both set to your number - a port entry you create yourself has no container port yet, and Unraid leaves those editable. A template update can restore this entry alongside yours; remove it again. See the README.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Beacon Port",
+      "host": "8888",
+      "container": "8888",
+      "protocol": "udp",
+      "description": "The world settings beacon. The server binds this on top of the game port and the number is compiled into the game, so it cannot be moved - which also means only one of these containers per box can publish it. Whether clients actually need to reach it is UNTESTED; nothing has been reported broken without it. Publishing it costs nothing if 8888 is free. The server binds a third socket too, UDP 45453 for LAN discovery, which is deliberately not here: it is broadcast-based and Docker bridge networks do not carry the host LAN broadcasts it needs, so publishing it would promise something that cannot work. See the README.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server Port",
+      "key": "GAME_PORT",
+      "value": "7777",
+      "description": "The port the server binds, and the port it advertises to other players - those are the same number and nothing can separate them. It must equal Game Port above, BOTH the Host Port and the Container Port. Under Network Type host there is no mapping and this is the only port number there is.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Owner ID",
+      "key": "OWNER_ID",
+      "value": "",
+      "description": "REQUIRED. Your in-game Player ID: open RuneScape: Dragonwilds, go to Settings, and it is at the bottom of that menu with a copy button next to it. The server will not serve anyone without this, and this container refuses to start without it rather than run something that looks healthy and turns every player away.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server Name",
+      "key": "SERVER_NAME",
+      "value": "Dragonwilds Server",
+      "description": "Name shown in the server browser. Applied on every restart.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "World Name",
+      "key": "WORLD_NAME",
+      "value": "Standard",
+      "description": "Names the world the server creates on first boot, and the save file it uses - SaveGames/name.sav. This is most likely also the name players type to find you under Worlds then Public, and it is case-sensitive, so pick something you are happy telling people. Changing it after first boot starts a NEW world; the old one stays on disk and setting this name back returns to it. It does not rename anything.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "SRV_ADMIN_PWD",
+      "value": "",
+      "description": "Anyone who enters this in the game's Pause Menu, Settings, Server Management tab becomes an admin on this server. Leave it blank and the server generates a random one on first boot and prints it in the log - so setting one here is the easier path. Changing it revokes admin from everyone who used the old one.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "World Password",
+      "key": "SRV_PWD",
+      "value": "",
+      "description": "Join password. Leave blank for a server anyone can join. This supersedes any password stored in the world itself.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "",
+      "description": "Appended to the launch line verbatim. Nothing routine needs this - every documented setting lives in DedicatedServer.ini, not on the command line. The one known use is attempting to raise the 6-player cap, which is not in that file: -ini:Game:[/Script/Engine.GameSession]:MaxPlayers=8 - though whether a value above 6 does anything is unverified.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Files",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set to true to have SteamCMD verify every file on the next start. Slow on a 5GB install. Use it after a crash or a failed update.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Timeout",
+      "key": "STOP_TIMEOUT",
+      "value": "30",
+      "description": "Seconds to wait for the engine to shut down before force killing. This is not a save window - shutdown does not save, and the 5-minute autosave is what protects the world. Measured teardown is about 2 seconds. Also raise Unraid's own container stop timeout to at least 45.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Leave blank. The Dragonwilds server downloads anonymously.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Leave blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UID",
+      "key": "UID",
+      "value": "500",
+      "description": "User ID. 99 is the Unraid default. It must not be 0 - the server refuses to run as root and aborts on startup.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GID",
+      "key": "GID",
+      "value": "500",
+      "description": "Group ID. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data Permissions",
+      "key": "DATA_PERM",
+      "value": "775",
+      "description": "Mode applied to the top of the server directory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "umask for files the server creates. 000 keeps them editable over the share.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

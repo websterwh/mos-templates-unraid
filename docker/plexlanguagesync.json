@@ -1,0 +1,137 @@
+{
+  "name": "plex-language-sync",
+  "repo": "cplieger/plex-language-sync:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/cplieger/plex-language-sync/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/cplieger/unraid-templates/main/icons/plex-language-sync.png",
+  "project": "https://github.com/cplieger/plex-language-sync",
+  "description": "Set preferred audio and subtitle languages per show; every new episode follows automatically. Watches Plex playback in real time. When you pick an audio or subtitle track on one episode, the same choice is applied to the rest of the show, for that Plex user. It also learns your audio-to-subtitle habits and applies them to brand new shows before you press play. Multi-user aware, no web UI, no open port: a single small container that talks to your Plex server.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/plex-language-sync",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent cache: learned language profiles, shared-user tokens and sync state",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Full URL of your Plex Media Server including scheme and port, e.g. http://192.0.2.100:32400",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Plex authentication token of the server administrator (Plex Web: Settings, XML view, myPlexAccessToken)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Update level",
+      "key": "UPDATE_LEVEL",
+      "value": "show",
+      "description": "Scope of language propagation: show applies to all episodes of the show, season only to the current season",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update strategy",
+      "key": "UPDATE_STRATEGY",
+      "value": "all",
+      "description": "Which episodes to update: all updates every episode in scope, next only the episodes after the one being played",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trigger on play",
+      "key": "TRIGGER_ON_PLAY",
+      "value": "true",
+      "description": "React to playback events: playing an episode propagates its language settings",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trigger on scan",
+      "key": "TRIGGER_ON_SCAN",
+      "value": "true",
+      "description": "React to library scans: newly added or updated episodes get each user's recorded selection for the show",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Learn language profiles",
+      "key": "LEARN_LANGUAGE_PROFILES",
+      "value": "true",
+      "description": "Learn audio-to-subtitle language pairs from playback and apply them to brand new shows with no watch history",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Subtitle match tier",
+      "key": "SUBTITLE_MATCH_TIER",
+      "value": "same-language",
+      "description": "How far a subtitle substitution may reach when no exact language match exists: identical, same-language, other-script, intelligible or shared-literacy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Deep scan interval",
+      "key": "DEEP_SCAN_INTERVAL",
+      "value": "24h",
+      "description": "Cadence of the deep-scan safety net as a Go duration (24h, 12h); off disables it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore labels",
+      "key": "IGNORE_LABELS",
+      "value": "PAL_IGNORE,PLS_IGNORE",
+      "description": "Comma-separated Plex labels that exclude a show from language sync (exact, case-sensitive; setting this replaces the defaults)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore libraries",
+      "key": "IGNORE_LIBRARIES",
+      "value": "",
+      "description": "Comma-separated Plex library names to exclude entirely (exact, case-sensitive)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Minimum log level: debug, info, warn or error; debug shows per-event skip reasons and stream-matching detail",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex CA certificate path",
+      "key": "PLEX_CA_CERT_PATH",
+      "value": "",
+      "description": "Only for an https Plex URL with a self-signed or private-CA certificate: in-container path of the CA PEM file (add a matching path mapping)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

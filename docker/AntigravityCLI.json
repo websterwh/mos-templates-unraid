@@ -1,0 +1,105 @@
+{
+  "name": "Antigravity-CLI",
+  "repo": "hovee/antigravity-cli:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/hovee/antigravity-cli",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--tmpfs /tmp:rw,nosuid,nodev,exec,size=4g",
+  "post_parameters": null,
+  "web_ui_url": "https://antigravity.google",
+  "icon": "https://raw.githubusercontent.com/hoveeman/antigravity-cli-docker/main/assets/icon.png",
+  "project": "https://antigravity.google",
+  "description": "Headless remote connection server for Google Antigravity. Run the autonomous DeepMind AI coding agent 24/7 on your Unraid server and seamlessly connect from your Antigravity Desktop App, IDE, or browser. Offload heavy code indexing, compiler toolchains (Python 3, Node.js, Git, build-essential, Docker CLI), and multi-agent execution directly to your server with persistent credentials and automated Google updates.",
+  "paths": [
+    {
+      "name": "Appdata / Config",
+      "host": "/mnt/cache/appdata/antigravity",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Container home directory. Stores persistent Google auth tokens (.gemini/), preferences, SSH keys, and shell history. TIP: For fastest performance and to bypass Unraid's FUSE (shfs) overhead, map directly to your cache pool (e.g. /mnt/cache/appdata/antigravity).",
+      "required": true
+    },
+    {
+      "name": "Projects / Workspaces",
+      "host": "/mnt/cache/projects",
+      "container": "/workspaces",
+      "mode": "rw",
+      "description": "Working directory where your code repositories and Unraid shares reside for the agent to access. TIP: For fastest build, git, and indexing speeds, map directly to your cache pool (e.g. /mnt/cache/projects) or use an Exclusive Share.",
+      "required": true
+    },
+    {
+      "name": "Shared Memory (RAM Buffer)",
+      "host": "/dev/shm",
+      "container": "/dev/shm",
+      "mode": "rw",
+      "description": "Mounts host shared memory to prevent Chromium, headless browser tools, and compiler workers from crashing or falling back to slow disk.",
+      "required": false
+    },
+    {
+      "name": "Docker Socket (Optional)",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Mount host docker socket if you want Antigravity to be able to inspect or run docker containers.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file ownership inside container (default 99 matches Unraid nobody user).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file ownership inside container (default 100 matches Unraid users group).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Instance Name",
+      "key": "ANTIGRAVITY_INSTANCE_NAME",
+      "value": "unraid-server",
+      "description": "Instance name displayed when connecting via Antigravity Remote.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auto Start Daemon",
+      "key": "AUTO_START_DAEMON",
+      "value": "true",
+      "description": "Automatically launch agy remote-control background daemon on container boot.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Update",
+      "key": "AUTO_UPDATE",
+      "value": "true",
+      "description": "Automatically query Google release manifests and update agy binary on container start and periodically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone for accurate log timestamps.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

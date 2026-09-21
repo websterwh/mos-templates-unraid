@@ -27,9 +27,9 @@
     {
       "name": "Brain Path",
       "host": "/mnt/cache/my-brain",
-      "container": "/my-brain",
+      "container": "/source/brain",
       "mode": "rw",
-      "description": "Host path to the brain markdown repo. This is the folder GBrain reads/writes as its knowledge base. It should be an empty folder (or a git repo) that GBrain will initialize. The folder name must match the Source Name below.",
+      "description": "Host path to the brain markdown repo. Mounted at the fixed target /source/brain; the source id is fixed to 'brain'. Should be an empty folder (or a git repo) that GBrain will initialize.",
       "required": true
     }
   ],
@@ -92,14 +92,6 @@
       "description": "First /admin login token. Must be 32+ chars, alphanumeric + _-. Secret. Generate: head -c 32 /dev/urandom | base64 | tr -d '+/=' | head -c 48",
       "required": true,
       "mask": true
-    },
-    {
-      "name": "Source Name",
-      "key": "SOURCE_NAME",
-      "value": "my-brain",
-      "description": "Name of the mounted brain source. MUST equal the basename of the Brain Path folder. Example: if Brain Path is /mnt/user/my-brain, Source Name is my-brain.",
-      "required": false,
-      "mask": false
     },
     {
       "name": "Brain UID",
@@ -210,6 +202,14 @@
       "key": "GBRAIN_EXTRA_CONFIG",
       "value": "",
       "description": "Universal escape hatch. Comma-separated key=value pairs for ANY gbrain config key (e.g. models.drift=ollama:deepseek-v4-flash:cloud, dream.triage.threshold=0.6). provider_base_urls is refused. Applied after known defaults; explicit entries win.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Runtime Env",
+      "key": "GBRAIN_EXTRA_ENV",
+      "value": "",
+      "description": "Optional. Comma-separated KEY=VALUE pairs passed to the runtime environment. Allowlist-only: GBRAIN_EMBEDDING_MULTIMODAL(_MODEL), GBRAIN_EMBEDDING_IMAGE_OCR(_MODEL), GBRAIN_SEARCH_EXCLUDE, GBRAIN_SOURCE_BOOST, GBRAIN_CHAT_FALLBACK_CHAIN, GBRAIN_BACKUP_CHECK(_DAYS), GBRAIN_AUTOPILOT_LABEL, GBRAIN_TRAJECTORY_REGRESSION_THRESHOLD, GBRAIN_EMBED_CONCURRENCY, GBRAIN_RETRIEVAL_REFLEX_*. Anything else is refused at boot.",
       "required": false,
       "mask": false
     },
