@@ -1,0 +1,275 @@
+{
+  "name": "FGC-Remaster",
+  "repo": "ghcr.io/p-adamiec/free-games-claimer-remaster:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/P-Adamiec/Free-Games-Claimer-Remaster/pkgs/container/free-games-claimer-remaster",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --memory=2048m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7080]/",
+  "icon": "https://raw.githubusercontent.com/P-Adamiec/Free-Games-Claimer-Remaster/main/logo.png",
+  "project": "https://github.com/P-Adamiec/Free-Games-Claimer-Remaster",
+  "description": "Remaster Python de free-games-claimer. Claim automatique des jeux gratuits (Epic, Prime Gaming, GOG, Steam, Ubisoft, AliExpress). Scheduler int\u00e9gr\u00e9, login initial via noVNC (port 7080), notifications Discord/Apprise.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/fgc-remaster",
+      "container": "/fgc/data",
+      "mode": "rw",
+      "description": "DB SQLite, profils Chrome par store, screenshots",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "noVNC Web UI",
+      "host": "7080",
+      "container": "7080",
+      "protocol": "tcp",
+      "description": "Port noVNC pour le login initial via navigateur",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Zurich",
+      "description": "Timezone du conteneur",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STORES",
+      "key": "STORES",
+      "value": "",
+      "description": "Stores \u00e0 activer, s\u00e9par\u00e9s par virgules (vide = tous)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC_IP",
+      "key": "VNC_IP",
+      "value": "localhost",
+      "description": "H\u00f4te utilis\u00e9 dans les liens de notification (IP Unraid ou IP Tailscale)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC_PASSWORD",
+      "key": "VNC_PASSWORD",
+      "value": "",
+      "description": "Mot de passe VNC",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SHOW",
+      "key": "SHOW",
+      "value": "1",
+      "description": "Affiche le navigateur via VNC (1/0)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULER_HOURS",
+      "key": "SCHEDULER_HOURS",
+      "value": "12",
+      "description": "Intervalle en heures entre deux runs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULER_FIXED_TIMES",
+      "key": "SCHEDULER_FIXED_TIMES",
+      "value": "",
+      "description": "Heures fixes quotidiennes HH:MM s\u00e9par\u00e9es par virgules (ex: 17:00,21:30)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCHEDULER_TIMEZONE",
+      "key": "SCHEDULER_TIMEZONE",
+      "value": "Europe/Zurich",
+      "description": "Timezone IANA pour SCHEDULER_FIXED_TIMES",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EG_EMAIL",
+      "key": "EG_EMAIL",
+      "value": "",
+      "description": "Epic Games email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EG_PASSWORD",
+      "key": "EG_PASSWORD",
+      "value": "",
+      "description": "Epic Games password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EG_OTP_KEY",
+      "key": "EG_OTP_KEY",
+      "value": "",
+      "description": "Epic Games cl\u00e9 TOTP (2FA)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PG_EMAIL",
+      "key": "PG_EMAIL",
+      "value": "",
+      "description": "Prime Gaming (Amazon) email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PG_PASSWORD",
+      "key": "PG_PASSWORD",
+      "value": "",
+      "description": "Prime Gaming (Amazon) password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PG_OTP_KEY",
+      "key": "PG_OTP_KEY",
+      "value": "",
+      "description": "Prime Gaming cl\u00e9 TOTP (2FA)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOG_EMAIL",
+      "key": "GOG_EMAIL",
+      "value": "",
+      "description": "GOG email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOG_PASSWORD",
+      "key": "GOG_PASSWORD",
+      "value": "",
+      "description": "GOG password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOG_OTP_KEY",
+      "key": "GOG_OTP_KEY",
+      "value": "",
+      "description": "GOG cl\u00e9 TOTP (2FA)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STEAM_USERNAME",
+      "key": "STEAM_USERNAME",
+      "value": "",
+      "description": "Steam username",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STEAM_PASSWORD",
+      "key": "STEAM_PASSWORD",
+      "value": "",
+      "description": "Steam password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UBI_EMAIL",
+      "key": "UBI_EMAIL",
+      "value": "",
+      "description": "Ubisoft Connect email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UBI_PASSWORD",
+      "key": "UBI_PASSWORD",
+      "value": "",
+      "description": "Ubisoft Connect password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UBI_OTP_KEY",
+      "key": "UBI_OTP_KEY",
+      "value": "",
+      "description": "Ubisoft cl\u00e9 TOTP (2FA)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AE_EMAIL",
+      "key": "AE_EMAIL",
+      "value": "",
+      "description": "AliExpress email",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AE_PASSWORD",
+      "key": "AE_PASSWORD",
+      "value": "",
+      "description": "AliExpress password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DISCORD_WEBHOOK",
+      "key": "DISCORD_WEBHOOK",
+      "value": "",
+      "description": "Webhook Discord",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NOTIFY",
+      "key": "NOTIFY",
+      "value": "",
+      "description": "URL(s) Apprise (Telegram, ntfy...), s\u00e9par\u00e9es par virgules",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NOTIFY_ALREADY_CLAIMED",
+      "key": "NOTIFY_ALREADY_CLAIMED",
+      "value": "false",
+      "description": "Inclure les jeux d\u00e9j\u00e0 claim dans le r\u00e9cap",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEBUG",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Logs verbeux",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DRYRUN",
+      "key": "DRYRUN",
+      "value": "false",
+      "description": "Simule un run sans claim r\u00e9el",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

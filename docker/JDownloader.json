@@ -14,7 +14,7 @@
   "web_ui_url": "https://[IP]:[PORT:3001]/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/jdownloader/icon.png",
   "project": "https://jdownloader.org",
-  "description": "JDownloader 2 with a sleek, modern dark mode GUI and full clipboard support out of the box \u2014 a complete dark interface where the download list, link grabber and settings are all dark, on a smooth, hardware-accelerated Selkies web desktop. No tweaking, no add-ons \u2014 it just looks great from the first start. What's pre-configured: \u2022 Full dark mode by default \u2014 JD Plain Dark (monochrome Carbon #161616) in a clean maximised kiosk window; switch to a matching Light theme, or JDownloader's own classic look, via the Theme variable. \u2022 Auto-installs and self-updates JDownloader \u2014 first-run install prompts are auto-confirmed, nothing to click. \u2022 Seamless clipboard over HTTPS: copy on your PC, paste straight into JD. \u2022 Persistent config and downloads in /config and /downloads; hidden columns / layout survive a restart. Notes: \u2022 FIRST START takes a few minutes: JDownloader installs itself and its dark theme, so the WebUI stays black until done \u2014 do NOT restart. Wait for the \"JDOWNLOADER IS READY\" banner in the container log, then open the WebUI. \u2022 WebUI opens via HTTPS (port 3001, self-signed cert \u2014 accept once); clipboard needs HTTPS. Plain HTTP (3000) is also exposed. \u2022 Map /downloads to your download share. PUID/PGID default to 99/100 (nobody/users on Unraid). \u2022 Language: English by default \u2014 change it any time in JDownloader's own language menu (Settings, the flag icon); your choice persists across restarts. \u2022 Auth: leave WebUI Username and Password EMPTY for no login. Source on GitHub: https://github.com/junkerderprovinz/jdownloader",
+  "description": "JDownloader 2 with a dark mode GUI and full clipboard support out of the box. The download list, link grabber and settings are all dark, and everything runs on a hardware-accelerated Selkies web desktop. It looks like this from the first start, without tweaking or add-ons. What's pre-configured: \u2022 Full dark mode by default: JD Plain Dark (monochrome Carbon #161616) in a maximised kiosk window. Switch to a matching Light theme, or JDownloader's own classic look, via the Theme variable. \u2022 Installs and updates JDownloader by itself. The first-run install prompts are confirmed automatically, so there is nothing to click. \u2022 Seamless clipboard over HTTPS: copy on your PC, paste straight into JD. \u2022 Persistent config and downloads in /config and /downloads; hidden columns / layout survive a restart. Notes: \u2022 The first start takes a few minutes: JDownloader installs itself and its dark theme, and the WebUI stays black until that is done. Do not restart the container in the meantime, since that interrupts the install. Wait for the \"JDOWNLOADER IS READY\" banner in the container log, then open the WebUI. \u2022 WebUI opens via HTTPS (port 3001, self-signed cert, accept it once), because the clipboard needs HTTPS. Plain HTTP (3000) is also exposed. \u2022 Map /downloads to your download share. PUID/PGID default to 99/100 (nobody/users on Unraid). \u2022 Language: English by default. Change it any time in JDownloader's own language menu (Settings, the flag icon); your choice persists across restarts. \u2022 Auth: leave WebUI Username and Password empty for no login. Source on GitHub: https://github.com/junkerderprovinz/jdownloader",
   "paths": [
     {
       "name": "AppData (/config)",
@@ -39,7 +39,7 @@
       "host": "3000",
       "container": "3000",
       "protocol": "tcp",
-      "description": "Plain HTTP WebUI. Browsers block seamless clipboard over HTTP \u2014 prefer HTTPS (3001).",
+      "description": "Plain HTTP WebUI. Browsers block seamless clipboard over HTTP, so prefer HTTPS (3001).",
       "required": false,
       "mask": false
     },
@@ -48,7 +48,7 @@
       "host": "3001",
       "container": "3001",
       "protocol": "tcp",
-      "description": "HTTPS WebUI (self-signed TLS) \u2014 the WebUI button opens this; required for seamless clipboard.",
+      "description": "HTTPS WebUI (self-signed TLS). The WebUI button opens this port, and seamless clipboard needs it.",
       "required": true,
       "mask": false
     }
@@ -74,7 +74,7 @@
       "name": "Self-Update (JD_SELFUPDATE)",
       "key": "JD_SELFUPDATE",
       "value": "true",
-      "description": "true (default) = JDownloader keeps updating itself. false = frozen appliance: disables JD's periodic self-update checks. WARNING: the same update channel delivers the hoster plugins, which go stale within weeks - downloads may start failing. The first install always uses the updater.",
+      "description": "true (default) = JDownloader keeps updating itself. false = frozen appliance: disables JD's periodic self-update checks. Keep in mind that the same update channel delivers the hoster plugins, which go stale within weeks, so downloads may start failing. The first install always uses the updater.",
       "required": false,
       "mask": false
     },
@@ -82,23 +82,7 @@
       "name": "In-container browser for captchas (JD_ENABLE_BROWSER)",
       "key": "JD_ENABLE_BROWSER",
       "value": "auto",
-      "description": "auto (default) = remembers your last choice, so an enabled browser survives container updates (recreates). Set true to enable JDownloader's 'solve captcha in browser' flow: reCAPTCHA/hCaptcha/Turnstile open in a bundled Firefox (with uBlock Origin) on the web desktop and are solved with one click, from the container's own IP (tokens are IP-bound). The Firefox profile persists in /config/.config/mozilla. Set false to force it off. Only enable it if a hoster you use needs browser captchas - classic image captchas are auto-solved either way, and enabling it runs a full browser (more resources + attack surface).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Screen Size (MAX_RES)",
-      "key": "MAX_RES",
-      "value": "15360x8640 (full, ~565 MB)",
-      "description": "Largest virtual screen the container can serve, and the single biggest factor in its memory use: the X server reserves the whole framebuffer up front, about 4 bytes per pixel, no matter how big your browser window is. The full 15360x8640 is the default and keeps every resolution available; picking a smaller one trades that headroom for RAM (the bracketed figures are the measured X server memory for each; the application itself comes on top). Your browser window can be any size up to this; above it the picture is scaled to the window rather than cut off. To enter a size that is not listed, use the field below instead.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Screen Size, custom (MAX_RES_CUSTOM)",
-      "key": "MAX_RES_CUSTOM",
-      "value": "",
-      "description": "Optional. Your own screen size as WIDTHxHEIGHT, for example 3440x1440 or 6016x3384. When this field has a value it overrides the dropdown above, so you are not limited to the presets. Leave it empty to use the dropdown. A value that is not a WIDTHxHEIGHT pair is ignored with a note in the container log, so a typo cannot stop the container from starting.",
+      "description": "auto (default) = remembers your last choice, so an enabled browser survives container updates (recreates). Set true to enable JDownloader's 'solve captcha in browser' flow: reCAPTCHA/hCaptcha/Turnstile open in a bundled Firefox (with uBlock Origin) on the web desktop and are solved with one click, from the container's own IP (tokens are IP-bound). The Firefox profile persists in /config/.config/mozilla. Set false to force it off. Only enable it if a hoster you use needs browser captchas. Classic image captchas are auto-solved either way, and enabling it runs a full browser, which costs more resources and adds attack surface.",
       "required": false,
       "mask": false
     },
@@ -106,7 +90,7 @@
       "name": "WebUI Username",
       "key": "CUSTOM_USER",
       "value": "",
-      "description": "Optional. Username for HTTP-basic-auth. Leave EMPTY with password for no login.",
+      "description": "Optional. Username for HTTP-basic-auth. Leave it empty together with the password for no login.",
       "required": false,
       "mask": false
     },

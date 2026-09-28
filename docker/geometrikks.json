@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/GilbN/geometrikks/main/resources/static/pwa-512x512.png",
   "project": "https://github.com/GilbN/geometrikks",
-  "description": "GeoMetrikks is a real-time geolocation analytics tool that tails your reverse proxy's access logs, performs GeoIP lookups, and visualizes traffic on a live interactive map. No external services required. Reads nginx, Traefik JSON and Caddy JSON access logs, detected per file. Features: - Live GeoIP map with real-time request visualization - Traffic analytics dashboard with configurable date ranges, including a Top ASNs view of the networks your traffic comes from - CrowdSec integration - Searchable access log history with filtering and sorting - WebSocket-backed live log tail - Structured application logging with a live in-UI log viewer, a fail2ban/CrowdSec-friendly login log, and downloadable rotated archives - Batch import of archived logs - Multi-source ingestion: one instance can tail several files and keep the sources apart, or headless agents can write into the same database - Requires a TimescaleDB + PostGIS database - install the companion \"geometrikks-timescaledb\" template from this same repository first, or point this container at your own TimescaleDB+PostGIS instance. - Also requires a free MaxMind GeoLite2 account for GeoIP data (https://www.maxmind.com/en/geolite2/signup). See the repository README for full setup steps.",
+  "description": "GeoMetrikks is a real-time geolocation analytics tool that tails your reverse proxy's access logs, performs GeoIP lookups, and visualizes traffic on a live interactive map. No external services required. Reads nginx, Traefik JSON and Caddy JSON access logs, detected per file. Features: - Live GeoIP map with real-time request visualization - Traffic analytics dashboard with configurable date ranges, including a Top ASNs view of the networks your traffic comes from - CrowdSec integration - OpenID Connect sign-in against Authelia, Authentik, Keycloak, Pocket ID or Google - Searchable access log history with filtering and sorting - WebSocket-backed live log tail - Structured application logging with a live in-UI log viewer, a fail2ban/CrowdSec-friendly login log, and downloadable rotated archives - Batch import of archived logs - Multi-source ingestion: one instance can tail several files and keep the sources apart, or headless agents can write into the same database - Requires a TimescaleDB + PostGIS database - install the companion \"geometrikks-timescaledb\" template from this same repository first, or point this container at your own TimescaleDB+PostGIS instance. - Also requires a free MaxMind GeoLite2 account for GeoIP data (https://www.maxmind.com/en/geolite2/signup). See the repository README for full setup steps.",
   "paths": [
     {
       "name": "GeoIP Data",
@@ -81,15 +81,15 @@
       "name": "APP_ADMIN_PASSWORD",
       "key": "APP_ADMIN_PASSWORD",
       "value": "",
-      "description": "Web UI login password. Required unless APP_AUTH_DISABLED=true.",
-      "required": true,
+      "description": "Web UI login password. Leave it blank only if you set APP_AUTH_DISABLED=true or configured OIDC_* below; otherwise the container refuses to start. With OIDC configured, a password set here keeps the password form next to the provider button, so you can still log in when the provider is down.",
+      "required": false,
       "mask": true
     },
     {
       "name": "APP_AUTH_DISABLED",
       "key": "APP_AUTH_DISABLED",
       "value": "false",
-      "description": "Set true ONLY if this container sits behind an authenticating reverse proxy (Authelia, Tailscale, etc).",
+      "description": "Set true ONLY if this container sits behind an authenticating reverse proxy (Authelia, Tailscale, etc). There is then no login and no session: anyone who can reach the container has full access. It cannot be combined with the OIDC_* settings below, and the app will not start if you set both.",
       "required": false,
       "mask": false
     },
@@ -97,7 +97,7 @@
       "name": "APP_SESSION_SECURE",
       "key": "APP_SESSION_SECURE",
       "value": "false",
-      "description": "Mark the session cookie Secure so browsers only send it over HTTPS. Set true when you reach the UI through a TLS reverse proxy; leave false if you browse to http://server-ip:8000 directly, or you will not be able to log in.",
+      "description": "Mark the session cookie Secure so browsers only send it over HTTPS. Set true when you reach the UI through a TLS reverse proxy; leave false if you browse to http://server-ip:8000 directly, or you will not be able to log in. An https OIDC_REDIRECT_URI requires true, and the app will not start otherwise.",
       "required": false,
       "mask": false
     },
@@ -618,6 +618,94 @@
       "key": "CROWDSEC_STREAM_POLL_INTERVAL",
       "value": "15.0",
       "description": "Seconds between decision-stream polls feeding live ban/unban updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ISSUER",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "Issuer URL of your identity provider, e.g. https://auth.example.com. Leave blank to keep OIDC off. GeoMetrikks reads {issuer}/.well-known/openid-configuration and the token's iss claim must match this value exactly. Must be https unless the host is localhost. Filling in this plus the client id, secret and redirect URI puts a 'Sign in with ...' button on the login page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client id of the confidential client you registered for GeoMetrikks at the provider. The authorization code flow with PKCE is used, so a public client will not work.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret for that client.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_REDIRECT_URI",
+      "key": "OIDC_REDIRECT_URI",
+      "value": "",
+      "description": "The exact callback URL registered at the provider: this container's public address plus /api/v1/auth/oidc/callback, e.g. https://geo.example.com/api/v1/auth/oidc/callback. It has to end in that path, and plain http is only accepted on localhost. With an https URL you also need APP_SESSION_SECURE=true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ALLOWED_USERS",
+      "key": "OIDC_ALLOWED_USERS",
+      "value": "",
+      "description": "Who may sign in, as verified email addresses or subject identifiers. Single value, comma-separated, or a JSON list. An email only matches when the provider marks it verified. At least one of OIDC_ALLOWED_USERS and OIDC_ALLOWED_GROUPS is required: without an allow list, everyone the provider authenticates would get in, which for Google means everyone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ALLOWED_GROUPS",
+      "key": "OIDC_ALLOWED_GROUPS",
+      "value": "",
+      "description": "Groups allowed to sign in; being in any one of them is enough. Same formats as OIDC_ALLOWED_USERS. The provider has to send the group claim, so keep the groups scope in OIDC_SCOPES.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_SCOPES",
+      "key": "OIDC_SCOPES",
+      "value": "openid profile email groups",
+      "description": "Space-separated scopes requested at login; openid is mandatory. Authelia works with the default. Google rejects the groups scope, and Authentik only sends groups if you add the mapping yourself, so use 'openid profile email' for those and allow people by email in OIDC_ALLOWED_USERS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_GROUPS_CLAIM",
+      "key": "OIDC_GROUPS_CLAIM",
+      "value": "groups",
+      "description": "Claim that carries group membership. It is read from the ID token and from the userinfo endpoint, so providers that only serve groups from userinfo (Authelia) need nothing extra.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_PROVIDER_NAME",
+      "key": "OIDC_PROVIDER_NAME",
+      "value": "SSO",
+      "description": "Label on the login button: 'Sign in with {name}'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_LOGOUT_IDP",
+      "key": "OIDC_LOGOUT_IDP",
+      "value": "false",
+      "description": "On logout, also end the session at the provider. This only works when the provider's discovery document advertises an end_session_endpoint; Authelia 4.39 and Google do not, so leave it false there. Before enabling it, register {your app URL}/signed-out as the post-logout redirect URI at the provider. Logout always clears the GeoMetrikks session either way.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CA_BUNDLE",
+      "key": "OIDC_CA_BUNDLE",
+      "value": "",
+      "description": "PEM file holding the CA that signed your provider's certificate, for a provider behind an internal CA. Give the path as the container sees it and add a path mapping for the file yourself, e.g. host /mnt/user/appdata/geometrikks/certs/ca.pem to container /app/certs/ca.pem, readable by PUID:PGID. The app refuses to start when the file is missing. There is no switch to turn certificate verification off.",
       "required": false,
       "mask": false
     },

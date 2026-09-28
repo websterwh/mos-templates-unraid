@@ -1,0 +1,123 @@
+{
+  "name": "jellyglance",
+  "repo": "ghcr.io/nerdy-technician/jellyglance:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Nerdy-Technician/JellyGlance/pkgs/container/jellyglance",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Nerdy-Technician/JellyGlance/main/.github/assets/icon-b-512.png",
+  "project": "https://github.com/Nerdy-Technician/JellyGlance",
+  "description": "JellyGlance \u2014 modern Jellyfin command center: live sessions, libraries, stats, calendars, requests, downloads, webhooks, and backups. Sits beside Jellyfin (not a Seerr/Sonarr replacement). Needs Postgres (use jellyglance-db or your own).",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/jellyglance/config",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent app config",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/jellyglance/backups",
+      "container": "/app/backups",
+      "mode": "rw",
+      "description": "Backup archive storage",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "JellyGlance web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "POSTGRES_USER",
+      "key": "POSTGRES_USER",
+      "value": "postgres",
+      "description": "Postgres username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "Postgres password (must match jellyglance-db)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "POSTGRES_IP",
+      "key": "POSTGRES_IP",
+      "value": "jellyglance-db",
+      "description": "Postgres hostname (container name or IP). Use jellyglance-db when both containers share a custom Docker network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_PORT",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "Postgres port",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "POSTGRES_DB",
+      "key": "POSTGRES_DB",
+      "value": "jellyglance",
+      "description": "Postgres database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Long random secret for session JWTs",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CONFIG_DIR",
+      "key": "CONFIG_DIR",
+      "value": "/app/config",
+      "description": "In-container config path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "/app/backups",
+      "description": "In-container backups path",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

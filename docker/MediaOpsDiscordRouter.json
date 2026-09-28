@@ -55,7 +55,7 @@
       "name": "Discord Bot Token",
       "key": "DISCORD_BOT_TOKEN",
       "value": "",
-      "description": "Optional token for dynamic Forum tag updates. Keep masked and least-privileged.",
+      "description": "Bot token for dynamic Forum tag updates and Discord thread existence checks. Required when Ombi reconciliation is enabled so deleted threads can be confirmed safely. Keep masked and least-privileged.",
       "required": false,
       "mask": true
     },
@@ -170,6 +170,46 @@
       "description": "Optional shared secret for authenticated Ombi ingress through a trusted proxy/integration. Never put it in a webhook query string.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Ombi Reconciliation",
+      "key": "OMBI_RECONCILE_ENABLED",
+      "value": "false",
+      "description": "Optional missed-webhook recovery. Periodically reads recent Ombi requests and creates/updates only requests not already tracked by the Router.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ombi Reconciliation URL",
+      "key": "OMBI_RECONCILE_URL",
+      "value": "",
+      "description": "Private Ombi base URL reachable from the Router, for example http://ombi:3579. Required only when reconciliation is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ombi Reconciliation API Key",
+      "key": "OMBI_RECONCILE_API_KEY",
+      "value": "",
+      "description": "Ombi API key used only for read-only request reconciliation. Keep masked and never place it in a URL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Ombi Reconciliation Interval",
+      "key": "OMBI_RECONCILE_INTERVAL_SECONDS",
+      "value": "900",
+      "description": "Seconds between reconciliation scans. Minimum enforced value is 300 seconds.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Ombi Reconciliation Lookback",
+      "key": "OMBI_RECONCILE_LOOKBACK_HOURS",
+      "value": "168",
+      "description": "Only Ombi requests with a known request date inside this window are considered, preventing accidental historical floods.",
+      "required": true,
+      "mask": false
     },
     {
       "name": "Router Data Directory",

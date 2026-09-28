@@ -1,0 +1,139 @@
+{
+  "name": "clockspan",
+  "repo": "ghcr.io/geransmith/clockspan:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/geransmith/clockspan/pkgs/container/clockspan",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/geransmith/clockspan/main/client/public/icons/icon-512.png",
+  "project": "https://github.com/geransmith/clockspan",
+  "description": "Clockspan is a self-hosted, single-day focus sheet for getting through a workday with ADHD. One page: a punch-style timeclock that works out when lunch is due and when the day ends, the few things that would make today a win, a focus timer that logs what you did, and a retrospective that puts the plan next to what happened. Every day is saved, and alarms fire as deadlines approach. It works on phones and installs to the Home Screen. The default sign-in mode, none, has no login: use it on a LAN or behind your reverse proxy's own authentication. Pick local or oidc before you expose Clockspan to the internet.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/clockspan",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Folder for the database (focus.db). The container takes ownership of it as PUID:PGID.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Sign-in mode",
+      "key": "AUTH_MODE",
+      "value": "none",
+      "description": "none: no sign-in (LAN, or behind your proxy's own auth). local: the first visit creates the admin account, using the setup code in the container's log, and the admin adds users in Settings. oidc: sign in with Authentik or another OpenID Connect provider; needs App URL and the OIDC fields.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "App URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Public URL of the app, e.g. https://focus.example.com. Required for oidc, and recommended whenever you reach the app through a domain. With https the session cookie is Secure and HSTS is on. Your provider's redirect URI must be this URL followed by /auth/callback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "TRUST_PROXY",
+      "value": "",
+      "description": "Behind a reverse proxy (Nginx Proxy Manager, SWAG, Traefik): the number of proxies between the internet and the container, usually 1. Blank: none. Never true, which trusts any X-Forwarded-For a client sends and defeats the login rate limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure cookie",
+      "key": "COOKIE_SECURE",
+      "value": "",
+      "description": "true or false forces the session cookie's Secure flag. Blank: Secure when App URL is https.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session days",
+      "key": "SESSION_TTL_DAYS",
+      "value": "30",
+      "description": "Sliding session lifetime in days.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep days",
+      "key": "RETENTION_DAYS",
+      "value": "",
+      "description": "Server-wide ceiling on history, in days (30 or more): every user's older days are deleted every few hours. Blank keeps everything; users can pick a shorter limit in Settings \u2192 Data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC issuer",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "For oidc. Authentik: Providers \u2192 your provider \u2192 OpenID Configuration Issuer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "For oidc: the client ID from your provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC client secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "For oidc: the client secret from your provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC scopes",
+      "key": "OIDC_SCOPES",
+      "value": "openid profile email",
+      "description": "For oidc: the scopes to request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the data folder and runs the app. 99 is Unraid's nobody; 0 keeps root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the same. 100 is Unraid's users.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

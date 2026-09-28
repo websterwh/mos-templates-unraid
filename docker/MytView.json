@@ -1,0 +1,115 @@
+{
+  "name": "MytView",
+  "repo": "fbartolini/mytview:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/fbartolini/mytview",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8700]",
+  "icon": "https://raw.githubusercontent.com/mytview/unraid-templates/main/icon.png",
+  "project": "https://github.com/mytview/mytview-server",
+  "description": "MytView is a clean, fast player for a video library you host yourself: video files plus their metadata sidecars (.info.json, or Kodi/Emby .nfo for TV series and movies). Watch in any browser, or with the native iPhone, iPad, Apple TV, Android, Google TV and Samsung TV apps. Private by design: no cloud, no analytics, no ads. Your library is mounted read-only and MytView never writes to, moves or deletes your files. Everyone in the house gets their own sign-in and watch history, and the owner decides who sees what. Files play directly when the device can decode them; anything else is transcoded live into a stream that starts in seconds (Intel VAAPI when available, CPU otherwise), with nothing converted ahead of time and nothing stored. Sidecar and embedded subtitles, audio track selection, federation between MytView households, and two-way Plex watch-state sync. First run: open the WebUI and sign up. The first account becomes the owner. Then add your libraries from the avatar menu, Server, Libraries (a folder inside /media plus a format: channels, series or movies). After that, signup needs a single-use invite unless ALLOW_SIGNUP is set to all. Install guide, getting started and the full configuration reference: https://mytview.com/docs/",
+  "paths": [
+    {
+      "name": "Video library (read-only)",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Your video library. Mounted read-only: MytView never writes to, moves or deletes anything here. Pick the folder that holds your collections; inside the app you then add each sub-folder as a library (avatar menu, Server, Libraries).",
+      "required": true
+    },
+    {
+      "name": "Data (accounts, watch state, index)",
+      "host": "/mnt/cache/appdata/mytview/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Accounts, sessions, watch progress and the library index. Back this up: the index rebuilds from disk, your users and their progress do not.",
+      "required": true
+    },
+    {
+      "name": "Transcode scratch",
+      "host": "/mnt/cache/appdata/mytview/transcodes",
+      "container": "/transcodes",
+      "mode": "rw",
+      "description": "Working space for live-transcode segments (they exist only while someone is watching) and the resized-artwork cache. Keep it on a cache pool and outside your library share. If the share this lives on has a Minimum free space larger than the pool can honour, Unraid refuses new files and transcodes fail.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8700",
+      "container": "8700",
+      "protocol": "tcp",
+      "description": "The port MytView answers on. Point the browser and the apps at http://your-server:this-port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TRANSCODE_HWACCEL",
+      "key": "TRANSCODE_HWACCEL",
+      "value": "0",
+      "description": "1 = Intel VAAPI hardware encoding for live transcodes. Also add --device=/dev/dri:/dev/dri to Extra Parameters (Advanced View). Falls back to the CPU automatically if the GPU path fails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_SIGNUP",
+      "key": "ALLOW_SIGNUP",
+      "value": "invite",
+      "description": "invite = the first account becomes the owner, then a single-use invite link is required. all = open signup. off = no new accounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_INVITES",
+      "key": "ALLOW_INVITES",
+      "value": "owner",
+      "description": "Who may create invite links: owner or all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCAN_INTERVAL",
+      "key": "SCAN_INTERVAL",
+      "value": "5",
+      "description": "Minutes between library rescans (incremental, cheap). 0 = only on start and on demand.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ORIGIN",
+      "key": "ORIGIN",
+      "value": "",
+      "description": "Only behind a reverse proxy / TLS: your real external URL, e.g. https://mytview.example.com. Leave empty for direct LAN access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADDRESS_HEADER",
+      "key": "ADDRESS_HEADER",
+      "value": "",
+      "description": "Behind a reverse proxy or CDN: the header carrying the real client address (x-forwarded-for; Cloudflare: cf-connecting-ip) so per-IP login rate limits see clients, not the proxy. Leave empty for direct LAN access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EXTERNAL_URL",
+      "key": "EXTERNAL_URL",
+      "value": "",
+      "description": "Federation only: the address other MytView servers reach you at, if it differs from what the app can derive.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,23 +1,75 @@
 {
   "name": "Angebots-tool",
-  "repo": "crazydevil66/angebots-tool:latest",
+  "repo": "crazydevil35/angebotstool:latest",
   "category": [
     "System"
   ],
-  "registry": "https://hub.docker.com/r/crazydevil66/angebots-tool",
+  "registry": "https://hub.docker.com/r/crazydevil35/angebotstool",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "bash",
+  "default_shell": "sh",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": null,
-  "icon": "https://raw.githubusercontent.com/CrazyDevil66/Angebots-tool/main/logo.png",
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/CrazyDevil66/Angebots-tool/master/public/favicon.svg",
   "project": "https://github.com/CrazyDevil66/Angebots-tool",
-  "description": "Ein praktisches Tool zur Verwaltung von Angeboten.",
-  "paths": [],
-  "ports": [],
-  "variables": [],
+  "description": "Angebots-Tool zum Erstellen und Verwalten von Angeboten. L\u00e4uft als Node.js-Server mit persistentem Datenspeicher.",
+  "paths": [
+    {
+      "name": "Daten",
+      "host": "/mnt/cache/appdata/angebots-tool",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Benutzer, Einstellungen (SMTP, Firmendaten), Angebote, Kunden und Backups. Ohne dieses Volume gehen alle Daten beim Update verloren.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Externer Port, \u00fcber den das Angebots-Tool erreichbar ist.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TRUST_PROXY",
+      "key": "TRUST_PROXY",
+      "value": "1",
+      "description": "Anzahl vertrauensw\u00fcrdiger Proxys vor der App (1 = Cloudflare) oder deren Adressen (z. B. 172.17.0.0/16). N\u00f6tig, damit die Login-Sperre die echte IP je Nutzer sieht. Leer lassen, wenn die App nur direkt ohne Proxy erreichbar ist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BASE_URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Externe URL des Servers (z. B. https://angebote.meinserver.de). Wird f\u00fcr Einladungslinks verwendet.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Sicherer Zufallswert f\u00fcr die Anmelde-Tokens. Leer lassen: Er wird beim ersten Start erzeugt und im Datenverzeichnis gespeichert.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Interner Port des Node.js-Servers. Nicht \u00e4ndern, au\u00dfer wenn n\u00f6tig.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

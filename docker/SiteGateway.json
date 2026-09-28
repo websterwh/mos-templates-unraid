@@ -1,0 +1,175 @@
+{
+  "name": "Site-Gateway",
+  "repo": "ghcr.io/mfwadejr/site-gateway:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/mfwadejr/site-gateway",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/mfwadejr/site-gateway/main/icon.svg",
+  "project": "https://github.com/mfwadejr/site-gateway",
+  "description": "Site Gateway is a self-hosted reverse proxy and site-management app built on top of Caddy. It gives you a web UI for the routing patterns most people actually need \u2014 hosted sites, proxy hosts, redirects, and streaming hosts \u2014 with automatic HTTPS certificate management, live DNS/port/TLS/upstream health checks, and detailed access and gateway-event logs. Advanced users can still drop in custom Caddy directives per route when they need something the UI doesn't cover. Data lives locally in SQLite inside your appdata folder \u2014 no external database to run. Three built-in roles (Administrator, Standard, Viewer) let you share access with a team without giving everyone full control.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/site-gateway",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where Site Gateway stores its SQLite database, hosted files, backups, and certificates (including private keys). This is real, durable data, not a cache \u2014 point it at a protected array or pool location rather than an unprotected cache-only share.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket (optional)",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Must be mounted to enable 'Pick from running containers' when configuring Proxy or Streaming host targets \u2014 without it, that feature stays unavailable and you'll enter targets by IP/hostname manually instead. Access to the Docker socket is effectively root on the host, so only mount it if you want this feature.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Admin dashboard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Plain HTTP \u2014 required for HTTP-01 ACME challenges and HTTP\u2192HTTPS redirects.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS for every hosted site and proxy host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hosted Sites range",
+      "host": "9000-9099",
+      "container": "9000-9099",
+      "protocol": "tcp",
+      "description": "Publishes the Hosted Sites port range (see SITE_PORT_MIN/SITE_PORT_MAX above) so hosted sites are reachable directly at host-ip:port on your LAN, in addition to through Caddy on 80/443.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Streaming Host Port Forward (example)",
+      "host": "25565",
+      "container": "25565",
+      "protocol": "tcp",
+      "description": "Not required \u2014 shown only as an example. Add one line like this per Streaming Host you configure in the dashboard, matching whatever port you enter there (e.g. a game server on 25565). Must be a port outside the Hosted Sites range above and not 80/443/ADMIN_PORT. Delete this example if you're not using Streaming Hosts.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ADMIN_USERNAME",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Login name for the first-run admin account. Pre-filled with admin \u2014 used the first time you log in to the dashboard; you can create additional users afterward.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "changeme",
+      "description": "Password for the first-run admin account, used the first time you log in to the dashboard. Pre-filled with changeme as a placeholder \u2014 required, and you must replace it with a real password before starting the container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "changeme-too",
+      "description": "Required. A random secret (at least 32 characters recommended) used to sign login sessions \u2014 it is not a password and is never used to log in. Changing it later signs every logged-in user out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "BACKUP_PASSWORD",
+      "key": "BACKUP_PASSWORD",
+      "value": "",
+      "description": "Encryption password used only when encrypted scheduled backups are enabled. Leave blank to disable backup encryption.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ACME_EMAIL",
+      "key": "ACME_EMAIL",
+      "value": "",
+      "description": "Optional, but recommended. Let's Encrypt uses this address to warn you if a certificate renewal is failing \u2014 without it you won't be notified until a site actually goes down.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PORT",
+      "key": "ADMIN_PORT",
+      "value": "8080",
+      "description": "Internal port the admin dashboard listens on. Must match the WebUI port mapping's target below if changed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SITE_PORT_MIN",
+      "key": "SITE_PORT_MIN",
+      "value": "9000",
+      "description": "Start of the port range Hosted Sites use internally, and are reachable on directly (host-ip:port) for LAN-only access, in addition to through Caddy on 80/443. Must not overlap ADMIN_PORT, 80, 443, or any port you use for Streaming Hosts \u2014 the app reserves this whole range and will refuse to reuse a port already claimed elsewhere.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SITE_PORT_MAX",
+      "key": "SITE_PORT_MAX",
+      "value": "9099",
+      "description": "End of the port range Hosted Sites use internally, and are reachable on directly (host-ip:port) for LAN-only access, in addition to through Caddy on 80/443. Must not overlap ADMIN_PORT, 80, 443, or any port you use for Streaming Hosts \u2014 the app reserves this whole range and will refuse to reuse a port already claimed elsewhere.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the container writes /data as. Unraid convention is 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the container writes /data as. Unraid convention is 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATA_DIR_LIMIT_GB",
+      "key": "DATA_DIR_LIMIT_GB",
+      "value": "",
+      "description": "Optional, display-only. Tells the Dashboard/Administration > System resource panel how much space is actually assigned to this app's data (useful if your appdata share doesn't use the whole array/pool), so the Disk percentage shown is meaningful instead of comparing against total array capacity. Leave blank if you don't need that panel to be precise.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Actual-Budget",
+  "repo": "actualbudget/actual-server:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/actualbudget/actual-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped --memory=512m --health-cmd=node scripts/health-check.js --health-interval=60s --health-timeout=10s --health-retries=3 --health-start-period=20s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5006]/",
+  "icon": "https://raw.githubusercontent.com/actualbudget/actual/master/packages/desktop-client/public/android-chrome-512x512.png",
+  "project": "https://actualbudget.org",
+  "description": "Actual Budget : gestion de budget local-first (envelope budgeting), sync multi-appareils, import bancaire (GoCardless / SimpleFIN). IMPORTANT : le client web exige un contexte securise (HTTPS ou localhost). En HTTP via l'IP LAN, l'app refuse de charger le budget. Passer par un reverse proxy HTTPS (Cloudflare Tunnel) ou fournir un certificat via ACTUAL_HTTPS_KEY / ACTUAL_HTTPS_CERT.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/actual-budget",
+      "container": "/data",
+      "mode": "rw",
+      "description": "server-files (account.sqlite) et user-files (budgets)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5006",
+      "container": "5006",
+      "protocol": "tcp",
+      "description": "Port hote pour l'interface web (container: 5006)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Zurich",
+      "description": "Fuseau horaire",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACTUAL_LOGIN_METHOD",
+      "key": "ACTUAL_LOGIN_METHOD",
+      "value": "password",
+      "description": "Methode d'authentification (password par defaut)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB",
+      "key": "ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB",
+      "value": "20",
+      "description": "Taille max d'un fichier de sync (MB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB",
+      "key": "ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB",
+      "value": "50",
+      "description": "Taille max d'un fichier de sync chiffre E2E (MB)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB",
+      "key": "ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB",
+      "value": "20",
+      "description": "Taille max d'import de fichier (MB)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

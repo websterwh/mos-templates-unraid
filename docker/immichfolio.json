@@ -1,0 +1,59 @@
+{
+  "name": "immich-folio",
+  "repo": "ghcr.io/ralksta/immich-folio:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/ghcr.io/ralksta/immich-folio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7211]",
+  "icon": "https://raw.githubusercontent.com/RichKidsDev/Unraid-Templates/refs/heads/main/immich-folio/immich-folio-logo.png",
+  "project": "https://github.com/ralksta/immich-folio",
+  "description": "Immich Folio is a lightweight, high-performance web application designed to present and showcase photos from an existing Immich instance in an elegant gallery view. Setup Instructions: 1. AUTH_SECRET: You MUST enter a long, random string for \"Auth Secret\". This is required for session security and encryption. 2. FIRST RUN SETUP TOKEN: When you start the container for the first time, check the Container Logs in Unraid. You will find a generated Setup Token there, which is REQUIRED to complete the initial setup wizard in your browser! 3. Setup Wizard: Open the WebUI and enter your Setup Token, Immich URL, API Key, and set your Admin Password during the first-time setup process. 4. ADMIN_PASSWORD (Optional): Leave this blank during initial setup. You can populate this variable later if you ever need to reset or override your Admin Password via container environment variables.",
+  "paths": [
+    {
+      "name": "Appdata Path",
+      "host": "/mnt/cache/appdata/immich-folio/content",
+      "container": "/app/content",
+      "mode": "rw",
+      "description": "Storage location for gallery configuration and content (where the setup wizard saves its data).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "7211",
+      "container": "7211",
+      "protocol": "tcp",
+      "description": "Port to access Immich Folio (Internal and External: 7211)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Auth Secret",
+      "key": "AUTH_SECRET",
+      "value": "PleaseEnterALongRandomStringHere12345!",
+      "description": "Required! Provide a long, random string (e.g., a 32-character secret) used for session security.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional. Leave blank on initial setup (you will create your password in the Setup Wizard). Use this variable later if you need to reset your admin password.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,113 @@
+{
+  "name": "Cerious-AASM",
+  "repo": "ghcr.io/ryoucerious/cerious-aasm:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/ryoucerious/cerious-aasm",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/ryoucerious/cerious-aasm-unraid/main/logo.png",
+  "project": "https://github.com/ryoucerious/cerious-aasm",
+  "description": "Cerious AASM is a self-hosted Ark: Survival Ascended server manager with a web interface. It manages dedicated ARK server installations using SteamCMD/Proton and provides server configuration and management from your browser. This Unraid template uses host networking so game, query, peer, and RCON ports can be managed directly on the Unraid host without maintaining large Docker port mappings.",
+  "paths": [
+    {
+      "name": "AASM Data",
+      "host": "/mnt/cache/appdata/cerious-aasm/data",
+      "container": "/home/aasm/.local/share/cerious-aasm",
+      "mode": "rw",
+      "description": "Persistent Cerious AASM application data, SteamCMD files, ARK server installations, saves, and server configuration.",
+      "required": true
+    },
+    {
+      "name": "AASM Config",
+      "host": "/mnt/cache/appdata/cerious-aasm/config",
+      "container": "/home/aasm/.config",
+      "mode": "rw",
+      "description": "Persistent Cerious AASM application configuration and logs.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the appdata folders and runs the app. 99 is Unraid's nobody user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the appdata folders and runs the app. 100 is Unraid's users group.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Permissions mask for files the app creates. 000 matches Unraid's other appdata containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI Port",
+      "key": "AASM_PORT",
+      "value": "3000",
+      "description": "Port used by the Cerious AASM web interface. Host networking exposes this port directly on the Unraid host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication Enabled",
+      "key": "AASM_AUTH_ENABLED",
+      "value": "false",
+      "description": "Enable Cerious AASM web authentication. Enter true or false.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Username",
+      "key": "AASM_USERNAME",
+      "value": "admin",
+      "description": "Username used when Cerious AASM web authentication is enabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "AASM_PASSWORD",
+      "value": "",
+      "description": "Password used when Cerious AASM web authentication is enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Network Mode Indicator",
+      "key": "AASM_NETWORK",
+      "value": "host",
+      "description": "Tells Cerious AASM that Docker is using host networking.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Node Environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node.js runtime environment.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

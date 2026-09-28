@@ -12,17 +12,33 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": null,
-  "icon": "https://raw.githubusercontent.com/coreylane/unraid-ca-templates/master/images/vector.png",
+  "icon": "https://raw.githubusercontent.com/coreylane/unraid-ca-templates/main/images/vector.png",
   "project": "https://github.com/vectordotdev/vector",
-  "description": "Vector is a high-performance, end-to-end (agent & aggregator) observability data pipeline that puts you in control of your observability data. Collect, transform, and route all your logs, metrics, and traces to any vendors you want today and any other vendors you may want tomorrow. Vector enables dramatic cost reduction, novel data enrichment, and data security where you need it, not where it is most convenient for your vendors. Additionally, it is open source and up to 10x faster than every alternative in the space.",
+  "description": "Vector is a high-performance, end-to-end (agent & aggregator) observability data pipeline that puts you in control of your observability data. Collect, transform, and route all your logs, metrics, and traces to any vendors you want today and any other vendors you may want tomorrow. Vector enables dramatic cost reduction, novel data enrichment, and data security where you need it, not where it is most convenient for your vendors. Additionally, it is open source and up to 10x faster than every alternative in the space. The image has no default configuration. Put vector.yaml in the configuration directory before the first start. To collect the logs of your other containers with the docker_logs source, keep the Docker socket path.",
   "paths": [
     {
       "name": "Configuration Directory",
-      "host": "/mnt/cache/appdata/vector",
+      "host": "/mnt/cache/appdata/vector/config",
       "container": "/etc/vector",
-      "mode": "rw",
-      "description": "Place your vector configuration file in this directory",
+      "mode": "ro",
+      "description": "Put vector.yaml in this directory. The image has no default configuration.",
       "required": true
+    },
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/vector/data",
+      "container": "/var/lib/vector",
+      "mode": "rw",
+      "description": "The data_dir of Vector: disk buffers and source checkpoints.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Needed only for the docker_logs source. Remove it if you do not collect container logs.",
+      "required": false
     }
   ],
   "ports": [],
@@ -30,9 +46,9 @@
     {
       "name": "VECTOR_CONFIG",
       "key": "VECTOR_CONFIG",
-      "value": "VECTOR_CONFIG",
-      "description": null,
-      "required": false,
+      "value": "/etc/vector/vector.yaml",
+      "description": "Path of the configuration file in the container. Separate several files with commas. For a TOML file, use /etc/vector/vector.toml.",
+      "required": true,
       "mask": false
     }
   ],

@@ -1,0 +1,91 @@
+{
+  "name": "dockdash",
+  "repo": "ghcr.io/dougmaitelli/dockdash:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/dougmaitelli/DockDash/pkgs/container/dockdash",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/MikaPST/unraid-community-apps/main/icon-dockdash.png",
+  "project": "https://github.com/dougmaitelli/DockDash",
+  "description": "DockDash is a self-hosted dashboard for visualizing Docker containers and network services. It automatically discovers Docker services, monitors their health and resources, detects available container image updates, and displays relevant GitHub release notes and changelogs. SECURITY WARNING: DockDash does not enforce authentication by default. Because it requires access to the Docker socket and provides powerful features such as container management, terminal access and filesystem access, the web interface must be protected before exposing it to any untrusted network or the Internet. DockDash supports built-in OpenID Connect (OIDC) authentication with providers such as Authentik, Authelia, Keycloak and Google. Alternatively, it can be placed behind a reverse proxy such as Traefik, Caddy or Nginx with an authentication layer such as Authentik, Authelia, oauth2-proxy or another trusted solution.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Docker socket used by DockDash to discover and manage Docker containers.",
+      "required": true
+    },
+    {
+      "name": "DockDash Data",
+      "host": "/mnt/cache/appdata/dockdash",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent directory used by DockDash to store its database and application data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "4001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Port used to access the DockDash web interface. DockDash listens on port 3001 inside the container.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "DockDash logging level. The default value is info.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Network CIDRs",
+      "key": "NETWORK_CIDRS",
+      "value": "192.168.0.1/24",
+      "description": "CIDR network ranges scanned by DockDash for network service discovery. Adjust this value to match your local network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health Check Interval",
+      "key": "HEALTH_CHECK_INTERVAL",
+      "value": "30000",
+      "description": "Interval between service health checks, in milliseconds. Default: 30000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Resource Monitor Interval",
+      "key": "RESOURCE_MONITOR_INTERVAL",
+      "value": "5000",
+      "description": "Interval between resource monitoring updates, in milliseconds. Default: 5000.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Check Interval",
+      "key": "UPDATE_CHECK_INTERVAL",
+      "value": "3600000",
+      "description": "Interval between Docker image update checks, in milliseconds. Default: 3600000 (1 hour).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

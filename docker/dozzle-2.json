@@ -1,0 +1,107 @@
+{
+  "name": "dozzle",
+  "repo": "amir20/dozzle",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/amir20/dozzle/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/malvarez00/unRAID-Docker-Templates/refs/heads/master/malvarez00/icons/dozzle.png",
+  "project": "https://github.com/amir20/dozzle",
+  "description": "Dozzle is a lightweight, real-time web-based Docker log viewer and monitor. Authentication Note: When using simple authentication, you must generate a users.yml file in your appdata folder before starting the container. Run this command in the Unraid Terminal (replace admin and mypassword with your details): mkdir -p /mnt/user/appdata/dozzle && docker run -it --rm amir20/dozzle generate admin --password mypassword --name \"Administrator\" > /mnt/user/appdata/dozzle/users.yml If you do not want authentication, change the DOZZLE_AUTH_PROVIDER variable from 'simple' to 'none'.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Path to Docker socket on the Unraid host",
+      "required": true
+    },
+    {
+      "name": "Appdata Storage",
+      "host": "/mnt/cache/appdata/dozzle",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Directory where users.yml is located",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Container WebUI Port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Auth Provider",
+      "key": "DOZZLE_AUTH_PROVIDER",
+      "value": "simple",
+      "description": "Authentication provider ('simple', 'none', 'forward-proxy', or 'oidc')",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Container Actions",
+      "key": "DOZZLE_ENABLE_ACTIONS",
+      "value": "false",
+      "description": "Allow starting, stopping, and restarting containers from the WebUI (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable Web Terminal Shell",
+      "key": "DOZZLE_ENABLE_SHELL",
+      "value": "false",
+      "description": "Allow attaching to container console/terminal from the WebUI (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Filter",
+      "key": "DOZZLE_FILTER",
+      "value": "",
+      "description": "Filter visible containers (e.g., status=running or name=app)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "DOZZLE_BASE",
+      "value": "/",
+      "description": "Base URL subpath if running behind a reverse proxy sub-folder (e.g. /dozzle)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "DOZZLE_LEVEL",
+      "value": "info",
+      "description": "Logging level (trace, debug, info, warn, error)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Analytics",
+      "key": "DOZZLE_NO_ANALYTICS",
+      "value": "true",
+      "description": "Disable anonymous telemetry",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

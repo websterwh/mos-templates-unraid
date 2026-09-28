@@ -1,0 +1,99 @@
+{
+  "name": "Unraid-Template-Sync",
+  "repo": "ghcr.io/lowess/unraid-template-sync:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/Lowess/unraid-template-sync/pkgs/container/unraid-template-sync",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]/healthz",
+  "icon": "https://raw.githubusercontent.com/Lowess/unraid-template-sync/main/assets/unraid-template-sync.png",
+  "project": "https://github.com/Lowess/unraid-template-sync",
+  "description": "Receives authenticated GitHub push webhooks and automatically refreshes this Unraid server's private Community Applications XML templates.",
+  "paths": [
+    {
+      "name": "Managed template repository",
+      "host": "/boot/config/plugins/community.applications/docker-templates-unraid",
+      "container": "/repo",
+      "mode": "rw",
+      "description": "Managed docker-templates-unraid checkout. The service clones it automatically when this directory is empty; tracked changes and, when enabled, untracked files are discarded during sync.",
+      "required": true
+    },
+    {
+      "name": "Private template destination",
+      "host": "/boot/config/plugins/community.applications/private/Lowess",
+      "container": "/templates",
+      "mode": "rw",
+      "description": "Destination for the mirrored Lowess XML templates. Stale XML files are deleted; non-XML files are left untouched.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webhook HTTP port",
+      "host": "9141",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "HTTP port consumed by Nginx Proxy Manager. Do not expose it directly to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GitHub Webhook Secret",
+      "key": "WEBHOOK_SECRET",
+      "value": "",
+      "description": "Required high-entropy secret shared with the GitHub repository webhook. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "GitHub Repository",
+      "key": "GITHUB_REPOSITORY",
+      "value": "Lowess/docker-templates-unraid",
+      "description": "Only webhook payloads for this exact owner/repository are accepted.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub Branch",
+      "key": "GITHUB_BRANCH",
+      "value": "main",
+      "description": "Only pushes to this branch start a sync.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Git HTTPS URL",
+      "key": "GIT_REMOTE_URL",
+      "value": "https://github.com/Lowess/docker-templates-unraid.git",
+      "description": "Public HTTPS Git URL used for fetches; no host SSH keys are mounted.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Clean untracked repository files",
+      "key": "GIT_CLEAN",
+      "value": "true",
+      "description": "Run git clean -fd after reset, matching the previous script. Disable only if this checkout intentionally contains untracked files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sync on container start",
+      "key": "SYNC_ON_START",
+      "value": "true",
+      "description": "Reconcile templates at startup to recover from missed webhook deliveries.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

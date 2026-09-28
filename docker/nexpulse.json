@@ -1,0 +1,91 @@
+{
+  "name": "nexpulse",
+  "repo": "ghcr.io/derkezorm/nexpulse",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/DerKezorm/nexpulse/pkgs/container/nexpulse",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexpulse.png",
+  "project": "https://github.com/DerKezorm/nexpulse",
+  "description": "nexpulse is a speed test tracker for the homelab. It measures your internet connection on a schedule, shows every test live on a gauge, keeps the history with charts and averages, and tells you over ntfy, Gotify or a webhook when the line is slower than your plan. It measures with Cloudflare out of the box, with public or your own LibreSpeed servers, and optionally with Ookla. Schedules can run every few minutes, daily, by cron, or several times a day at random times to find the busy hours. An API with read or run keys feeds dashboards like nexdeck or Home Assistant. The interface is available in English and German.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexpulse",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with all results and the key that signs sessions. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8440",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexpulse at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Schedules run at the wall clock time of this zone, for example Europe/Berlin. Leave blank to pick the zone later in the settings; until then nexpulse uses UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXPULSE_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexpulse off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXPULSE_SECRET_KEY",
+      "value": "",
+      "description": "Signs sessions and encrypts stored notification tokens. Leave blank: nexpulse creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXPULSE_COOKIE_SECURE",
+      "value": "auto",
+      "description": "Only matters with a password. auto marks the session cookie Secure when the request arrived over https. Use on only if a proxy terminates TLS and forwards plain http, and never if nexpulse should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/element/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/matrix/icon.png?v=1",
   "project": "https://matrix.org",
-  "description": "All-in-one Matrix homeserver for Unraid: Synapse + coturn + Element Web (/element/) + Ketesa admin UI (/admin/). Plug-and-play \u2014 just fill in SERVER_NAME and Postgres connection, everything else is generated automatically. OPTIONAL, OFF BY DEFAULT: delegated authentication via Matrix Authentication Service, which is what makes QR code device linking (\"Link new device\" in Element) possible. Leave the Delegated Auth field alone and the container behaves exactly as before. Enabling it needs a second empty Postgres database and a second reverse-proxy host with HTTPS, and it changes how your users sign in \u2014 read the README section \"Delegated Auth and QR Code Login\" first. PREREQUISITES (before starting the container): 1) PostgreSQL database \u2014 connect to your Postgres container and run: CREATE USER matrix WITH PASSWORD 'yourpass'; CREATE DATABASE matrix ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE template0 OWNER matrix; (UTF8 + LC_COLLATE='C' is mandatory \u2014 Synapse will refuse to start otherwise.) 2) Reverse proxy (Nginx Proxy Manager) for matrix.yourdomain.tld \u2192 Unraid-IP:8008. In the proxy host \u2192 Advanced tab, add: client_max_body_size 100m; proxy_read_timeout 600s; (Without these, media uploads fail and long-running requests time out.) 3) Federation discovery works out of the box: Synapse serves /.well-known/matrix/server and /.well-known/matrix/client itself on the API port (8008), so the proxy host from step 2 already covers them. No extra Custom Locations needed (remove any manual ones from older setups). Full step-by-step guide (NPM screenshots, well-known, first user): https://github.com/junkerderprovinz/matrix#readme",
+  "description": "All-in-one Matrix homeserver for Unraid: Synapse, coturn, Element Web (/element/) and the Ketesa admin UI (/admin/). Fill in SERVER_NAME and the Postgres connection; everything else is generated automatically. Optional and off by default: delegated authentication via Matrix Authentication Service, which is what makes QR code device linking (\"Link new device\" in Element) possible. Leave the Delegated Auth field alone and the container behaves exactly as before. Enabling it needs a second empty Postgres database and a second reverse-proxy host with HTTPS, and it changes how your users sign in. Read the README section \"Delegated Auth and QR Code Login\" first. Prerequisites (before starting the container): 1) PostgreSQL database: connect to your Postgres container and run: CREATE USER matrix WITH PASSWORD 'yourpass'; CREATE DATABASE matrix ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C' TEMPLATE template0 OWNER matrix; (UTF8 with LC_COLLATE='C' is required, otherwise Synapse refuses to start.) 2) Reverse proxy (Nginx Proxy Manager) for matrix.yourdomain.tld \u2192 Unraid-IP:8008. In the proxy host \u2192 Advanced tab, add: client_max_body_size 100m; proxy_read_timeout 600s; (Without these, media uploads fail and long-running requests time out.) 3) Federation discovery works out of the box: Synapse serves /.well-known/matrix/server and /.well-known/matrix/client itself on the API port (8008), so the proxy host from step 2 already covers them. No extra Custom Locations needed (remove any manual ones from older setups). Full step-by-step guide (NPM screenshots, well-known, first user): https://github.com/junkerderprovinz/matrix#readme",
   "paths": [
     {
       "name": "Data Directory",
       "host": "/mnt/cache/appdata/matrix/",
       "container": "/data",
       "mode": "rw",
-      "description": "Persistent data: homeserver.yaml, media, signing keys. Never delete \u2014 destroys keys and breaks federation.",
+      "description": "Persistent data: homeserver.yaml, media, signing keys. Do not delete it: that destroys the keys and breaks federation.",
       "required": true
     },
     {
@@ -39,7 +39,7 @@
       "host": "8008",
       "container": "8008",
       "protocol": "tcp",
-      "description": "Synapse HTTP API. Expose via reverse proxy with HTTPS \u2014 never directly to the internet.",
+      "description": "Synapse HTTP API. Expose it through a reverse proxy with HTTPS, not directly to the internet.",
       "required": true,
       "mask": false
     },
@@ -75,7 +75,7 @@
       "host": "5349",
       "container": "5349",
       "protocol": "tcp",
-      "description": "TURN over TLS (TCP). Optional \u2014 only if TLS certs are mounted.",
+      "description": "TURN over TLS (TCP). Optional, only used when TLS certs are mounted.",
       "required": false,
       "mask": false
     },
@@ -84,7 +84,7 @@
       "host": "5349",
       "container": "5349",
       "protocol": "udp",
-      "description": "TURN over TLS (UDP). Optional \u2014 only if TLS certs are mounted.",
+      "description": "TURN over TLS (UDP). Optional, only used when TLS certs are mounted.",
       "required": false,
       "mask": false
     },
@@ -137,7 +137,7 @@
       "name": "Enable Federation",
       "key": "ENABLE_FEDERATION",
       "value": "true",
-      "description": "true = chat with the public Matrix network. The container now serves /.well-known/matrix/* itself (serve_server_wellknown) as long as https://SERVER_NAME/ is routed to Synapse \u2014 no extra proxy rule needed. false = private island.",
+      "description": "true = chat with the public Matrix network. The container serves /.well-known/matrix/* itself (serve_server_wellknown) as long as https://SERVER_NAME/ is routed to Synapse, so no extra proxy rule is needed. false = private island.",
       "required": true,
       "mask": false
     },
@@ -145,7 +145,7 @@
       "name": "Enable Registration",
       "key": "ENABLE_REGISTRATION",
       "value": "false",
-      "description": "false = accounts created by the admin only (recommended). true = open self-service signup WITHOUT verification (shows Element's Create Account button) \u2014 only enable behind a CAPTCHA or on a trusted network, or you will get spam signups.",
+      "description": "false = accounts created by the admin only (recommended). true = open self-service signup without verification (shows Element's Create Account button). Only enable it behind a CAPTCHA or on a trusted network, or you will get spam signups.",
       "required": true,
       "mask": false
     },
@@ -161,7 +161,7 @@
       "name": "Auth Public URL",
       "key": "AUTH_PUBLIC_BASE",
       "value": "",
-      "description": "Required when Delegated Auth is true. Public https URL of the auth service, e.g. https://auth.yourdomain.tld/ \u2014 point a second reverse-proxy host at this container's port 8090. Must be https: the auth service rejects plain-http redirect URLs and Element's sign-in then fails.",
+      "description": "Required when Delegated Auth is true. Public https URL of the auth service, e.g. https://auth.yourdomain.tld/. Point a second reverse-proxy host at this container's port 8090. Must be https: the auth service rejects plain-http redirect URLs and Element's sign-in then fails.",
       "required": false,
       "mask": false
     },
@@ -169,7 +169,7 @@
       "name": "Auth Database Name",
       "key": "AUTH_POSTGRES_DB",
       "value": "",
-      "description": "Required when Delegated Auth is true. Name of a SEPARATE, EMPTY PostgreSQL database for the auth service \u2014 it cannot share Synapse's. Create it with: CREATE DATABASE mas TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C';",
+      "description": "Required when Delegated Auth is true. Name of a separate, empty PostgreSQL database for the auth service, which cannot share Synapse's. Create it with: CREATE DATABASE mas TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C';",
       "required": false,
       "mask": false
     },
@@ -209,7 +209,7 @@
       "name": "Auth: migrate accounts (ONE WAY)",
       "key": "AUTH_MIGRATE",
       "value": "false",
-      "description": "Only relevant when Delegated Auth is true, and only needed once. true = migrate your existing Synapse accounts into the auth service on the next start, before Synapse comes up. BACK UP YOUR DATABASE FIRST: this cannot be undone once anyone has signed in afterwards. Users keep their sessions and are not signed out. It refuses to run if the pre-flight check fails, and it never runs twice. You can leave it on true afterwards, it is a no-op once done.",
+      "description": "Only relevant when Delegated Auth is true, and only needed once. true = migrate your existing Synapse accounts into the auth service on the next start, before Synapse comes up. Back up your database first, because this cannot be undone once anyone has signed in afterwards. Users keep their sessions and are not signed out. It refuses to run if the pre-flight check fails, and it never runs twice. You can leave it on true afterwards, it is a no-op once done.",
       "required": false,
       "mask": false
     },
@@ -225,7 +225,7 @@
       "name": "S3 Media Storage",
       "key": "S3_MEDIA_ENABLED",
       "value": "false",
-      "description": "false = media stored on this container's own volume only (default, unchanged). true = also copy every new upload to an S3-compatible bucket (e.g. SeaweedFS, Garage) \u2014 the local copy stays as a hot cache. Existing media is not migrated retroactively. Read the README section 'S3 Media Storage' first.",
+      "description": "false = media stored on this container's own volume only (default, unchanged). true = also copy every new upload to an S3-compatible bucket (e.g. SeaweedFS, Garage). The local copy stays as a hot cache. Existing media is not migrated retroactively. Read the README section 'S3 Media Storage' first.",
       "required": false,
       "mask": false
     },
@@ -241,7 +241,7 @@
       "name": "S3 Media Endpoint",
       "key": "S3_MEDIA_ENDPOINT",
       "value": "",
-      "description": "Required when S3 Media Storage is true. Your S3-compatible endpoint URL, e.g. http://192.168.20.73:8333 for a local SeaweedFS S3 gateway. There is no default \u2014 this targets a self-hosted backend, not AWS.",
+      "description": "Required when S3 Media Storage is true. Your S3-compatible endpoint URL, e.g. http://192.168.20.73:8333 for a local SeaweedFS S3 gateway. There is no default, because this targets a self-hosted backend, not AWS.",
       "required": false,
       "mask": false
     },
@@ -297,7 +297,7 @@
       "name": "PostgreSQL Host",
       "key": "POSTGRES_HOST",
       "value": "192.168.1.10",
-      "description": "IP of your PostgreSQL server (e.g. Unraid host IP). 192.168.1.10 is a placeholder \u2014 replace it with your server's IP. IP+port is more reliable than container names.",
+      "description": "IP of your PostgreSQL server (e.g. Unraid host IP). 192.168.1.10 is a placeholder; replace it with your server's IP. An IP and port are more reliable than container names.",
       "required": true,
       "mask": false
     },
@@ -313,7 +313,7 @@
       "name": "PostgreSQL Username",
       "key": "POSTGRES_USER",
       "value": "matrix",
-      "description": "Postgres user for Synapse. Must already exist (see README \u2014 Postgres setup).",
+      "description": "Postgres user for Synapse. Must already exist (see the Postgres setup in the README).",
       "required": true,
       "mask": false
     },
@@ -329,7 +329,7 @@
       "name": "PostgreSQL Database",
       "key": "POSTGRES_DB",
       "value": "matrix",
-      "description": "Synapse database name. Must be created with ENCODING UTF8, LC_COLLATE='C', LC_CTYPE='C' \u2014 see Overview.",
+      "description": "Synapse database name. Must be created with ENCODING UTF8, LC_COLLATE='C', LC_CTYPE='C' (see Overview).",
       "required": true,
       "mask": false
     },
@@ -337,7 +337,7 @@
       "name": "Matrix Admin Username (Element / Synapse-Admin login)",
       "key": "ADMIN_USER",
       "value": "",
-      "description": "Optional. Localpart of the admin user to auto-create on first boot (e.g. 'admin' \u2192 @admin:SERVER_NAME). Logs into Element Web + Synapse-Admin. Clear after creation.",
+      "description": "Optional. Localpart of the admin user to auto-create on first boot (e.g. 'admin' \u2192 @admin:SERVER_NAME). The account logs into Element Web and Synapse-Admin. Clear after creation.",
       "required": false,
       "mask": false
     },

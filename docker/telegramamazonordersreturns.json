@@ -1,0 +1,121 @@
+{
+  "name": "telegram-amazon-orders-returns",
+  "repo": "ghcr.io/bigwebstas/telegram-amazon-orders-returns:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/bigwebstas/Telegram-Amazon-Orders-Returns/pkgs/container/telegram-amazon-orders-returns",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": null,
+  "project": "https://github.com/bigwebstas/Telegram-Amazon-Orders-Returns",
+  "description": "Polls your own Amazon account for order, delivery, return, and transaction activity (via the unofficial amazon-orders library) and pushes updates to Telegram, including return drop-off QR codes. No web UI - interact through Telegram bot commands (/orders, /delivered, /transactions, /returns, /status). Optionally publishes active-orders/returns-in-progress/recent-deliveries counts to Home Assistant via MQTT.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/telegram-amazon-orders-returns",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent Amazon session cookies and the sqlite tracking DB. Do not delete between restarts - the session is stored here.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Amazon Email",
+      "key": "AMAZON_EMAIL",
+      "value": "",
+      "description": "Amazon account email address to poll.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Amazon Password",
+      "key": "AMAZON_PASSWORD",
+      "value": "",
+      "description": "Amazon account password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Telegram Bot Token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Bot token from @BotFather on Telegram.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Telegram Chat ID",
+      "key": "TELEGRAM_CHAT_ID",
+      "value": "",
+      "description": "Your personal Telegram chat id (from @userinfobot). Only this chat is served.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Poll Interval Minutes",
+      "key": "POLL_INTERVAL_MINUTES",
+      "value": "30",
+      "description": "How often to poll Amazon for new orders/transactions, in minutes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Host",
+      "key": "MQTT_HOST",
+      "value": "",
+      "description": "Optional: MQTT broker hostname/IP, to publish order/return/delivery counts to Home Assistant. Leave blank to disable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Port",
+      "key": "MQTT_PORT",
+      "value": "1883",
+      "description": "MQTT broker port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Username",
+      "key": "MQTT_USERNAME",
+      "value": "",
+      "description": "MQTT broker username, if required.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "MQTT broker password, if required.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MQTT Topic Prefix",
+      "key": "MQTT_TOPIC_PREFIX",
+      "value": "amazon_orders_returns",
+      "description": "Topic prefix for published sensor values.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT Retain",
+      "key": "MQTT_RETAIN",
+      "value": "true",
+      "description": "Retain published sensor values so Home Assistant has them immediately on restart. Discovery configs are always retained regardless.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

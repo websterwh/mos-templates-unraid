@@ -1,0 +1,66 @@
+{
+  "name": "momentarr",
+  "repo": "ghcr.io/drumandbytes/momentarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/drumandbytes/momentarr/pkgs/container/momentarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8191]",
+  "icon": "https://raw.githubusercontent.com/drumandbytes/unraid-templates/main/icons/momentarr.png",
+  "project": "https://github.com/drumandbytes/momentarr",
+  "description": "Caching, serialising proxy for FlareSolverr-compatible Cloudflare solvers. Point Prowlarr/Jackett at momentarr instead of the solver: repeat requests to a solved site are served from the cached cf_clearance cookie over plain HTTP (~0.1s, no browser), and solves run one at a time so browsers never stack. Needs a solver alongside it: install Byparr or FlareSolverr and set Backend URL to it. Both must share the same outgoing IP (same host, or both behind the same VPN container).",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Port",
+      "host": "8191",
+      "container": "8191",
+      "protocol": "tcp",
+      "description": "FlareSolverr API port. Use http:// :8191/ as the FlareSolverr proxy host in Prowlarr.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Backend URL",
+      "key": "BACKEND_URL",
+      "value": "http://192.168.1.10:8192",
+      "description": "URL of the real solver (Byparr or FlareSolverr).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend concurrency",
+      "key": "BACKEND_CONCURRENCY",
+      "value": "1",
+      "description": "Solves in flight at once. 1 keeps a single browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie TTL (hours)",
+      "key": "COOKIE_TTL_HOURS",
+      "value": "720",
+      "description": "Upper bound for cached clearances; the cookie's own expiry wins if sooner.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warn or error.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,83 @@
+{
+  "name": "NestHealth",
+  "repo": "hansford909/nesthealth-server",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/hansford909/nesthealth-server",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/mahansford/nesthealth-server/main/.github/assets/nesthealth-icon.png",
+  "project": "https://nesthealth.soam.uk",
+  "description": "A private, self-hosted fever and medicine log for families. Every parent's phone shares the same temperatures and doses, and nothing leaves your home. Log temperatures and medicines in seconds, see at a glance when the next dose can be given (from the timings you set from each medicine's label), and get reminders and alerts. Includes a web app for any browser, and works with the NestHealth iPhone app. Accounts for each parent, passkeys over HTTPS, Web Push, and webhooks for ntfy, Home Assistant, Discord and Slack. After starting, open the WebUI and create the first account: it becomes the admin, who adds the rest of the family. NestHealth is a logbook, not medical advice, and it never calculates doses.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/nesthealth",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database and photos. Back this folder up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the web app and the iPhone app's connection.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Used for the times shown in notifications, for example Europe/London or America/New_York.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the server runs as (99 is Unraid's nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the server runs as (100 is Unraid's users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Optional. The HTTPS address your family uses (for example https://health.example.com). Set it if passkeys fail behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web Push contact",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "Optional. A contact address sent to Web Push services, for example mailto:you@example.com.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

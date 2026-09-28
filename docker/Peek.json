@@ -9,7 +9,7 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:80]",
   "icon": "https://raw.githubusercontent.com/carrotwaxr/peek-stash-browser/main/client/public/branding/logos/peek-logo.png",
@@ -41,8 +41,8 @@
       "name": "JWT Secret Key",
       "key": "JWT_SECRET",
       "value": "",
-      "description": "Secure random string for JWT authentication. Generate with: openssl rand -hex 32",
-      "required": true,
+      "description": "Optional. Leave empty and Peek generates a secret in /app/data/.jwt-secret on first start. Set it only to control the value (openssl rand -hex 32).",
+      "required": false,
       "mask": true
     },
     {
@@ -62,22 +62,6 @@
       "mask": true
     },
     {
-      "name": "Database URL",
-      "key": "DATABASE_URL",
-      "value": "file:/app/data/peek-db.db",
-      "description": "SQLite database file path. Leave as default unless you know what you're doing.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Config Directory",
-      "key": "CONFIG_DIR",
-      "value": "/app/data",
-      "description": "Directory for config and database. Should match App Data Directory container path.",
-      "required": false,
-      "mask": false
-    },
-    {
       "name": "Node Environment",
       "key": "NODE_ENV",
       "value": "production",
@@ -90,6 +74,38 @@
       "key": "SECURE_COOKIES",
       "value": "false",
       "description": "Enable secure cookies (HTTPS only). Set to 'true' only if you use HTTPS with a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the App Data Directory (99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the App Data Directory (100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reverse proxies in front of Peek",
+      "key": "TRUST_PROXY",
+      "value": "",
+      "description": "Number of reverse proxies (SWAG, Nginx Proxy Manager, Traefik) between browsers and Peek. Leave empty if none. Too high lets anyone fake their address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy auth trusted addresses",
+      "key": "PROXY_AUTH_TRUSTED_IPS",
+      "value": "",
+      "description": "Only with PROXY_AUTH_HEADER: comma-separated IPs or CIDR ranges of your auth proxy as Peek sees it. The username header is honoured only from these; the log names the address to add. Leave empty if you do not use proxy authentication.",
       "required": false,
       "mask": false
     }

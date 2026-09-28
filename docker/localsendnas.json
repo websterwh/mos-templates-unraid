@@ -1,0 +1,109 @@
+{
+  "name": "localsend-nas",
+  "repo": "alexindigo/localsend-nas",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/alexindigo/localsend-nas",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/alexindigo/unraid-templates/main/img/localsend-nas.png",
+  "project": "https://github.com/alexindigo/localsend-nas",
+  "description": "Unofficial LocalSend node for NAS (not an official LocalSend project). Send files from your Unraid shares to any LocalSend device, and receive files into shares via the web UI \u2014 files never round-trip through your laptop. Speaks LocalSend Protocol v2.2. Clients can never browse the NAS: the web UI picks what gets sent, and received files land only in the share you choose. IMPORTANT: THIS TEMPLATE USES HOST NETWORKING ON PURPOSE \u2014 LocalSend discovers devices via multicast UDP 53317, which Docker bridge/NAT breaks. Do NOT switch to bridge: devices will stop finding each other automatically.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/localsend-nas",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Device identity, settings.json and saved targets.",
+      "required": true
+    },
+    {
+      "name": "User Shares",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "Your Unraid shares, mounted 1:1 (host path = container path). rw so received files can be written. All entries in the Shares variable live under this mount.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI port. Host networking: no mapping, container port = host port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LocalSend",
+      "host": "53317",
+      "container": "53317",
+      "protocol": "tcp",
+      "description": "LocalSend protocol port (HTTPS). Must be reachable by other devices.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LocalSend discovery",
+      "host": "53317",
+      "container": "53317",
+      "protocol": "udp",
+      "description": "LocalSend discovery (multicast UDP). Required for auto-discovery.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Shares",
+      "key": "LOCALSEND_NAS_SHARES",
+      "value": "media=/mnt/user/media",
+      "description": "Comma-separated name=path pairs shown as shares in the web UI. Because /mnt/user is mounted 1:1, paths match Unraid share paths \u2014 e.g. media=/mnt/user/media,photos=/mnt/user/photos. Edit this list to add or rename shares; no extra Path mappings needed.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Listen",
+      "key": "LOCALSEND_NAS_LISTEN",
+      "value": ":8080",
+      "description": "Web UI listen address. Change the port if 8080 clashes with another app on the host; keep the WebUI Port entry in sync.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alias",
+      "key": "LOCALSEND_NAS_ALIAS",
+      "value": "Unraid NAS",
+      "description": "Name this NAS shows as in other devices' LocalSend lists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the app runs as (Unraid default 99 = nobody). Must have read access to your shares, and write access wherever you receive files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the app runs as (Unraid default 100 = users).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

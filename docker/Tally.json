@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8091]",
   "icon": "https://raw.githubusercontent.com/jaydenroberts/tally/main/frontend/public/android-chrome-512x512.png",
   "project": "https://github.com/jaydenroberts/tally",
-  "description": "Self-hosted personal finance for households. Track accounts, transactions, budgets, savings goals, and debt. Link transactions to savings goals and debts. Record transfers between accounts. CSV and PDF bank statement import with reconciliation. AI chat interface (Anthropic, OpenAI, or Ollama). Dracula theme. Single Docker container. Runs as a non-root user; the appdata data path must remain writable by the container (default on Unraid). If you reach Tally through a reverse proxy, tunnel, or custom domain, set ALLOWED_ORIGINS.",
+  "description": "Self-hosted personal finance for households. Track accounts, transactions, budgets, savings goals, and debt. Link transactions to savings goals and debts. Record transfers between accounts. CSV and PDF bank statement import with reconciliation. AI chat interface (Anthropic, OpenAI, or Ollama). One-click backup, full JSON export, and CSV export from Settings, plus an automatic verified snapshot before any upgrade that changes the database. Dracula theme. Single Docker container. Runs as a non-root user; the appdata data path must remain writable by the container (default on Unraid). Single-tenant design: any authenticated user (owner or viewer) can see all financial data \u2014 roles limit actions, not data visibility. Do not expose to untrusted users or the public internet. If you reach Tally through a reverse proxy, tunnel, or custom domain, set ALLOWED_ORIGINS.",
   "paths": [
     {
       "name": "Data Volume",
@@ -23,23 +23,15 @@
       "mode": "rw",
       "description": "SQLite database storage. Must be a persistent path on the host. The container runs as a non-root user, so this path must be writable by the container (the default /mnt/user/appdata location on Unraid already is). Tally fails to create its database on first start if it is not writable.",
       "required": true
-    },
-    {
-      "name": "Financial Data Volume",
-      "host": "/mnt/cache/appdata/tally/financial-data",
-      "container": "/financial-data",
-      "mode": "ro",
-      "description": "Read-only directory for bank statement files (CSV/PDF) available for import.",
-      "required": false
     }
   ],
   "ports": [
     {
       "name": "Web UI Port",
-      "host": "8091",
+      "host": "8092",
       "container": "8091",
       "protocol": "tcp",
-      "description": "Port Tally listens on. Access the app at http://[serverIP]:[this port].",
+      "description": "Host port Tally is reached on. Access the app at http://[serverIP]:[this port]. Tally listens on 8091 inside the container; only change the host side unless you know why.",
       "required": true,
       "mask": false
     }
@@ -102,10 +94,34 @@
       "mask": true
     },
     {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "",
+      "description": "Directory where automatic pre-upgrade database snapshots are written. Leave blank to use a backups folder beside the database \u2014 /data/backups with the shipped Data Volume path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_KEEP",
+      "key": "BACKUP_KEEP",
+      "value": "5",
+      "description": "How many automatic pre-upgrade snapshots to keep. Older snapshots are deleted after a new one is written. Minimum 1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRE_MIGRATION_BACKUP",
+      "key": "PRE_MIGRATION_BACKUP",
+      "value": "on",
+      "description": "Set to off to skip the automatic verified snapshot Tally takes before an upgrade changes the database. Leave on unless you run your own backup process and want faster upgrades.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "AI_PROVIDER",
       "key": "AI_PROVIDER",
-      "value": "",
-      "description": "AI provider for the chat feature: anthropic, openai, or ollama (any OpenAI-compatible endpoint). Leave unset to disable the chat page.",
+      "value": "anthropic",
+      "description": "AI provider for the chat feature: anthropic, openai, or ollama (any OpenAI-compatible endpoint). AI is entirely optional \u2014 the rest of Tally works fully without it, and with no API key set no request is ever made. Note that clearing this field does NOT turn the feature off and does NOT hide the AI Coach page: the page stays visible in the sidebar and opens normally, but shows an error if you try to send a message without an API key. Leave this set to a real provider name; control whether AI is active with AI_API_KEY.",
       "required": false,
       "mask": false
     },
@@ -130,6 +146,22 @@
       "key": "AI_BASE_URL",
       "value": "",
       "description": "Base URL for OpenAI-compatible endpoints (e.g. http://ollama:11434/v1). Required for Ollama; leave blank for Anthropic or OpenAI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CHAT_HISTORY_TURNS",
+      "key": "CHAT_HISTORY_TURNS",
+      "value": "",
+      "description": "How many prior chat turns are replayed as context in the AI Coach. Defaults to 30 for hosted providers (Anthropic/OpenAI) or 10 for Ollama. Does not limit what is stored \u2014 the full conversation is always kept in the database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TALLY_LOCAL_PROVIDER_WRITE_TOOLS",
+      "key": "TALLY_LOCAL_PROVIDER_WRITE_TOOLS",
+      "value": "deny",
+      "description": "Only applies when AI_PROVIDER=ollama. Set to allow to let a local model use write tools; the default (deny) strips them.",
       "required": false,
       "mask": false
     }

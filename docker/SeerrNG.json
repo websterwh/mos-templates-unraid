@@ -1,0 +1,140 @@
+{
+  "name": "SeerrNG",
+  "repo": "ghcr.io/snapetech/seerrng:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/snapetech/seerrng",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--init --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5055]/",
+  "icon": "https://raw.githubusercontent.com/snapetech/seerrng/main/public/android-chrome-512x512.png",
+  "project": "https://github.com/snapetech/seerrng",
+  "description": "Self-hosted requests and discovery for movies, TV, music, books, comics, magazines, ROMs, and PC games, with optional integrations including BookshelfNG, Mylar3, Kapowarr, LazyLibrarian, ROMarrNG, and QuestarrNG.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/seerrng",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Persistent database, settings, logs, image cache, and TLS material. Make this host directory writable by UID 1000 and GID 1000.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5055",
+      "container": "5055",
+      "protocol": "tcp",
+      "description": "HTTP port for the SeerrNG web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "5056",
+      "container": "5056",
+      "protocol": "tcp",
+      "description": "HTTPS listener port when built-in TLS is enabled in Settings &gt; Network.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDB API Key Override",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional override. SeerrNG includes a default TMDB key; leave blank unless you need to use your own v3 API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB Read Access Token Override",
+      "key": "TMDB_READ_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional v4 bearer-token override. SeerrNG includes a default TMDB key; leave blank unless you need to use your own token. This takes precedence over the v3 API key override.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Application log level.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics Enabled",
+      "key": "METRICS_ENABLED",
+      "value": "false",
+      "description": "Set to true to enable the Prometheus /metrics endpoint.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics Auth Token",
+      "key": "METRICS_AUTH_TOKEN",
+      "value": "",
+      "description": "Optional bearer token required by /metrics when metrics are enabled.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Require Public Setup Hosts",
+      "key": "SEERR_REQUIRE_PUBLIC_SETUP_HOSTS",
+      "value": "false",
+      "description": "Set to true to reject private or LAN Jellyfin and Emby hostnames during first-run setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Private Notification URLs",
+      "key": "SEERR_ALLOW_PRIVATE_NOTIFICATION_URLS",
+      "value": "false",
+      "description": "Set to true only when notification receivers such as Discord, Slack, webhooks, ntfy, or Gotify are intentionally hosted on the LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Private Push Endpoints",
+      "key": "SEERR_ALLOW_PRIVATE_PUSH_ENDPOINTS",
+      "value": "false",
+      "description": "Set to true only when browser push subscription endpoints are intentionally private or internal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External Services Read Only",
+      "key": "SEERR_EXTERNAL_READ_ONLY",
+      "value": "false",
+      "description": "Set to true to block mutating requests to external automation services. Production also requires the explicit production override below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Production Read Only",
+      "key": "SEERR_ALLOW_PRODUCTION_EXTERNAL_READ_ONLY",
+      "value": "false",
+      "description": "Explicitly allows read-only external-service mode in production when SEERR_EXTERNAL_READ_ONLY is true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Database Migrations",
+      "key": "SEERR_SKIP_DB_MIGRATIONS",
+      "value": "false",
+      "description": "Set to true only when database migrations are run out of band.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

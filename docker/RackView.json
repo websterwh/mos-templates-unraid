@@ -1,0 +1,179 @@
+{
+  "name": "RackView",
+  "repo": "ghcr.io/alexanderschubert/rackview:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/alexanderschubert/rackview/pkgs/container/rackview",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/alexanderschubert/rackview/main/unraid/rackview-icon.png",
+  "project": "https://github.com/alexanderschubert/rackview",
+  "description": "RackView documents server racks and home networks: devices in rack units with front and rear view, devices outside the rack, port-to-port connections, network map, IP and VLAN overview, power strips and UPS outlets, warranty dates and printable QR labels. Everything runs in this single container - web UI, API and a built-in PostgreSQL database. The user interface is in German. RackView dokumentiert Serverschraenke und Heimnetz: Geraete in Hoeheneinheiten, Vorder- und Rueckansicht, Geraete ausserhalb der Racks, Netzwerkverbindungen zwischen Ports, IP- und VLAN-Uebersicht, Steckdosenleisten, Garantiedaten sowie QR-Etiketten zum Ausdrucken. Alles steckt in diesem einen Container - Oberflaeche, Schnittstelle und die PostgreSQL-Datenbank. Es muss nichts weiter installiert werden. Beim ersten Aufruf legt man sich ein Konto an; jedes Konto hat seinen eigenen, getrennten Bereich. Wer moechte, schaltet dort auch die Zwei-Faktor-Anmeldung ein. Alle Daten liegen im Datenpfad (/config): Datenbank, Geraetebilder, naechtliche Sicherungen und der Anwendungsschluessel.",
+  "paths": [
+    {
+      "name": "Datenpfad",
+      "host": "/mnt/cache/appdata/rackview-app",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Hier liegen Datenbank, Geraetebilder, Sicherungen und der Anwendungsschluessel. Dieser Pfad muss erhalten bleiben - und er darf nicht auf den Projektordner mit dem Quelltext zeigen.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Weboberflaeche",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port, unter dem RackView im Browser erreichbar ist.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Zeitzone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Zeitzone fuer die Protokolle und den Zeitpunkt der naechtlichen Sicherung.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Selbstregistrierung",
+      "key": "RACKVIEW_REGISTRATION",
+      "value": "true",
+      "description": "true = auf der Anmeldeseite kann sich jeder ein Konto anlegen. Nach dem Anlegen des eigenen Kontos besser auf false setzen, vor allem wenn RackView aus dem Internet erreichbar ist. Weitere Konten legt dann der Admin in den Einstellungen an.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sicherung: Zeitplan",
+      "key": "BACKUP_SCHEDULE",
+      "value": "0 3 * * *",
+      "description": "Cron-Ausdruck fuer die Sicherung der Datenbank nach /config/backups. Leer lassen schaltet die Sicherung ab.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sicherung: Aufbewahrung (Tage)",
+      "key": "RETENTION_DAYS",
+      "value": "14",
+      "description": "Aeltere Sicherungen werden geloescht.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Adresse der Anwendung",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Nur noetig, wenn RackView hinter einem Reverse-Proxy unter einem festen Namen laeuft, z.B. https://rack.example.de",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anwendungsschluessel",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "Leer lassen. Beim ersten Start wird ein Schluessel erzeugt und in /config/app.key abgelegt. Nur setzen, wenn ein vorhandener Stand uebernommen wird - der Schluessel muss dann genau der alte sein.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Migrationen automatisch",
+      "key": "AUTO_MIGRATE",
+      "value": "true",
+      "description": "true = nach einem Update wird die Datenbank automatisch angepasst. Nur zur Fehlersuche abschalten.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anmeldedienst (OIDC): aktiv",
+      "key": "OIDC_ENABLED",
+      "value": "false",
+      "description": "true schaltet die Anmeldung \u00fcber einen OIDC-Anbieter frei, z.B. Authentik. Die Anmeldung mit Passwort bleibt daneben bestehen. Im Anbieter als Redirect URI eintragen: http://adresse/api/auth/oidc/callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anmeldedienst: Issuer",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "Adresse des Anbieters, z.B. https://auth.example.de/application/o/rackview/ - dort liegt auch /.well-known/openid-configuration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anmeldedienst: Client-ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client-ID der Application im Anbieter.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anmeldedienst: Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client-Secret der Application im Anbieter.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anmeldedienst: Aufschrift",
+      "key": "OIDC_LABEL",
+      "value": "Mit Authentik anmelden",
+      "description": "Beschriftung des Knopfes auf der Anmeldeseite.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Externe Datenbank: Host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Leer lassen, dann laeuft PostgreSQL im Container. Nur ausfuellen, wenn eine eigene PostgreSQL-Datenbank benutzt werden soll - dann sind auch Name, Benutzer und Passwort noetig.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Externe Datenbank: Port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Port der externen Datenbank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Externe Datenbank: Name",
+      "key": "DB_DATABASE",
+      "value": "rackview",
+      "description": "Name der Datenbank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Externe Datenbank: Benutzer",
+      "key": "DB_USERNAME",
+      "value": "rackview",
+      "description": "Benutzer der Datenbank.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Externe Datenbank: Passwort",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Nur bei externer Datenbank noetig. Die eingebaute Datenbank vergibt sich ihr Passwort selbst (/config/db-passwort).",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

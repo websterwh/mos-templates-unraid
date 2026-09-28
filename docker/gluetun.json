@@ -1,0 +1,1505 @@
+{
+  "name": "gluetun",
+  "repo": "qmcgaw/gluetun:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/qmcgaw/gluetun",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device /dev/net/tun:/dev/net/tun",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/gluetun.png",
+  "project": "https://github.com/passteque/gluetun",
+  "description": "VPN swiss-knife like client to tunnel to multiple VPN servers. VPN client in a thin Docker container for multiple VPN providers, written in Go, and using OpenVPN or Wireguard, DNS over TLS, with a few proxy servers built-in.",
+  "paths": [
+    {
+      "name": "Appdata Directory",
+      "host": "/mnt/cache/appdata/gluetun",
+      "container": "/gluetun",
+      "mode": "rw",
+      "description": "Where Gluetun stores its configuration.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Control Server Port",
+      "host": "8015",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "WebUI / Control Server",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Proxy Port",
+      "host": "8885",
+      "container": "8888",
+      "protocol": "tcp",
+      "description": "HTTP proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks Port (TCP)",
+      "host": "8388",
+      "container": "8388",
+      "protocol": "tcp",
+      "description": "Shadowsocks TCP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shadowsocks Port (UDP)",
+      "host": "8388",
+      "container": "8388",
+      "protocol": "udp",
+      "description": "Shadowsocks UDP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Socks5 Port (TCP)",
+      "host": "1085",
+      "container": "1080",
+      "protocol": "tcp",
+      "description": "Socks5 TCP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Socks5 Port (UDP)",
+      "host": "1085",
+      "container": "1080",
+      "protocol": "udp",
+      "description": "Socks5 UDP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transmission WebUI",
+      "host": "9091",
+      "container": "9091",
+      "protocol": "tcp",
+      "description": "Transmission WebUI",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transmission Port TCP",
+      "host": "51413",
+      "container": "51413",
+      "protocol": "tcp",
+      "description": "Transmission Port TCP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Transmission Port UDP",
+      "host": "51413",
+      "container": "51413",
+      "protocol": "udp",
+      "description": "Transmission Port UDP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brave HTTP",
+      "host": "6000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Brave desktop GUI HTTP must be proxied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Brave HTTPS",
+      "host": "6001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Brave HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firefox HTTP",
+      "host": "6002",
+      "container": "4000",
+      "protocol": "tcp",
+      "description": "Firefox desktop GUI HTTP must be proxied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Firefox HTTPS",
+      "host": "6003",
+      "container": "4001",
+      "protocol": "tcp",
+      "description": "Firefox HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chrome HTTP",
+      "host": "6004",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Firefox desktop GUI HTTP must be proxied.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chrome HTTPS",
+      "host": "6005",
+      "container": "5001",
+      "protocol": "tcp",
+      "description": "Chrome HTTPS.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "VPN_SERVICE_PROVIDER",
+      "key": "VPN_SERVICE_PROVIDER",
+      "value": "nordvpn",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VPN_TYPE",
+      "key": "VPN_TYPE",
+      "value": "wireguard",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SERVER_COUNTRIES",
+      "key": "SERVER_COUNTRIES",
+      "value": "United States",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PATH",
+      "key": "PATH",
+      "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_INTERFACE",
+      "key": "VPN_INTERFACE",
+      "value": "tun0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_ENDPOINT_IP",
+      "key": "OPENVPN_ENDPOINT_IP",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_ENDPOINT_PORT",
+      "key": "OPENVPN_ENDPOINT_PORT",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PROTOCOL",
+      "key": "OPENVPN_PROTOCOL",
+      "value": "udp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_USER",
+      "key": "OPENVPN_USER",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_PASSWORD",
+      "key": "OPENVPN_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_USER_SECRETFILE",
+      "key": "OPENVPN_USER_SECRETFILE",
+      "value": "/run/secrets/openvpn_user",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PASSWORD_SECRETFILE",
+      "key": "OPENVPN_PASSWORD_SECRETFILE",
+      "value": "/run/secrets/openvpn_password",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_VERSION",
+      "key": "OPENVPN_VERSION",
+      "value": "2.6",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_VERBOSITY",
+      "key": "OPENVPN_VERBOSITY",
+      "value": "1",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_FLAGS",
+      "key": "OPENVPN_FLAGS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CIPHERS",
+      "key": "OPENVPN_CIPHERS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_AUTH",
+      "key": "OPENVPN_AUTH",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_PROCESS_USER",
+      "key": "OPENVPN_PROCESS_USER",
+      "value": "root",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_MSSFIX",
+      "key": "OPENVPN_MSSFIX",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CUSTOM_CONFIG",
+      "key": "OPENVPN_CUSTOM_CONFIG",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ENDPOINT_IP",
+      "key": "WIREGUARD_ENDPOINT_IP",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PRIVATE_KEY",
+      "key": "WIREGUARD_PRIVATE_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WIREGUARD_ENDPOINT_PORT",
+      "key": "WIREGUARD_ENDPOINT_PORT",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_CONF_SECRETFILE",
+      "key": "WIREGUARD_CONF_SECRETFILE",
+      "value": "/run/secrets/wg0.conf",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PRIVATE_KEY_SECRETFILE",
+      "key": "WIREGUARD_PRIVATE_KEY_SECRETFILE",
+      "value": "/run/secrets/wireguard_private_key",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PRESHARED_KEY",
+      "key": "WIREGUARD_PRESHARED_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WIREGUARD_PRESHARED_KEY_SECRETFILE",
+      "key": "WIREGUARD_PRESHARED_KEY_SECRETFILE",
+      "value": "/run/secrets/wireguard_preshared_key",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PUBLIC_KEY",
+      "key": "WIREGUARD_PUBLIC_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ALLOWED_IPS",
+      "key": "WIREGUARD_ALLOWED_IPS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "key": "WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ADDRESSES",
+      "key": "WIREGUARD_ADDRESSES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_ADDRESSES_SECRETFILE",
+      "key": "WIREGUARD_ADDRESSES_SECRETFILE",
+      "value": "/run/secrets/wireguard_addresses",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_MTU",
+      "key": "WIREGUARD_MTU",
+      "value": "1320",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WIREGUARD_IMPLEMENTATION",
+      "key": "WIREGUARD_IMPLEMENTATION",
+      "value": "auto",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_ENDPOINT_IP",
+      "key": "AMNEZIAWG_ENDPOINT_IP",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_ENDPOINT_PORT",
+      "key": "AMNEZIAWG_ENDPOINT_PORT",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_CONF_SECRETFILE",
+      "key": "AMNEZIAWG_CONF_SECRETFILE",
+      "value": "/run/secrets/wg0.conf",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_PRIVATE_KEY",
+      "key": "AMNEZIAWG_PRIVATE_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AMNEZIAWG_PRIVATE_KEY_SECRETFILE",
+      "key": "AMNEZIAWG_PRIVATE_KEY_SECRETFILE",
+      "value": "/run/secrets/wireguard_private_key",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_PRESHARED_KEY",
+      "key": "AMNEZIAWG_PRESHARED_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AMNEZIAWG_PRESHARED_KEY_SECRETFILE",
+      "key": "AMNEZIAWG_PRESHARED_KEY_SECRETFILE",
+      "value": "/run/secrets/wireguard_preshared_key",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_PUBLIC_KEY",
+      "key": "AMNEZIAWG_PUBLIC_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_ALLOWED_IPS",
+      "key": "AMNEZIAWG_ALLOWED_IPS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_PERSISTENT_KEEPALIVE_INTERVAL",
+      "key": "AMNEZIAWG_PERSISTENT_KEEPALIVE_INTERVAL",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_ADDRESSES",
+      "key": "AMNEZIAWG_ADDRESSES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_ADDRESSES_SECRETFILE",
+      "key": "AMNEZIAWG_ADDRESSES_SECRETFILE",
+      "value": "/run/secrets/wireguard_addresses",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_MTU",
+      "key": "AMNEZIAWG_MTU",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_JC",
+      "key": "AMNEZIAWG_JC",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_JMIN",
+      "key": "AMNEZIAWG_JMIN",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_JMAX",
+      "key": "AMNEZIAWG_JMAX",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_S1",
+      "key": "AMNEZIAWG_S1",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_S2",
+      "key": "AMNEZIAWG_S2",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_S3",
+      "key": "AMNEZIAWG_S3",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_S4",
+      "key": "AMNEZIAWG_S4",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_H1",
+      "key": "AMNEZIAWG_H1",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_H2",
+      "key": "AMNEZIAWG_H2",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_H3",
+      "key": "AMNEZIAWG_H3",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_H4",
+      "key": "AMNEZIAWG_H4",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_I1",
+      "key": "AMNEZIAWG_I1",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_I2",
+      "key": "AMNEZIAWG_I2",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_I3",
+      "key": "AMNEZIAWG_I3",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_I4",
+      "key": "AMNEZIAWG_I4",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMNEZIAWG_I5",
+      "key": "AMNEZIAWG_I5",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING",
+      "key": "VPN_PORT_FORWARDING",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_PROVIDER",
+      "key": "VPN_PORT_FORWARDING_PROVIDER",
+      "value": "private internet access",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_UP_COMMAND",
+      "key": "VPN_PORT_FORWARDING_UP_COMMAND",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_DOWN_COMMAND",
+      "key": "VPN_PORT_FORWARDING_DOWN_COMMAND",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_LISTENING_PORTS",
+      "key": "VPN_PORT_FORWARDING_LISTENING_PORTS",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_PORTS_COUNT",
+      "key": "VPN_PORT_FORWARDING_PORTS_COUNT",
+      "value": "1",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "key": "VPN_PORT_FORWARDING_STATUS_FILE",
+      "value": "/tmp/gluetun/forwarded_port",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PMTUD_ICMP_ADDRESSES",
+      "key": "PMTUD_ICMP_ADDRESSES",
+      "value": "1.1.1.1,8.8.8.8",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PMTUD_TCP_ADDRESSES",
+      "key": "PMTUD_TCP_ADDRESSES",
+      "value": "1.1.1.1:443,8.8.8.8:443,1.1.1.1:53,8.8.8.8:53,[2606:4700:4700::1111]:53,[2001:4860:4860::8888]:53,[2606:4700:4700::1111]:443,[2001:4860:4860::8888]:443",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_REGIONS",
+      "key": "SERVER_REGIONS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_CITIES",
+      "key": "SERVER_CITIES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_HOSTNAMES",
+      "key": "SERVER_HOSTNAMES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_CATEGORIES",
+      "key": "SERVER_CATEGORIES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ISP",
+      "key": "ISP",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OWNED_ONLY",
+      "key": "OWNED_ONLY",
+      "value": "no",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET",
+      "key": "PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET",
+      "value": "strong",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_USERNAME",
+      "key": "VPN_PORT_FORWARDING_USERNAME",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "VPN_PORT_FORWARDING_PASSWORD",
+      "key": "VPN_PORT_FORWARDING_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_CERT",
+      "key": "OPENVPN_CERT",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_KEY",
+      "key": "OPENVPN_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CLIENTCRT_SECRETFILE",
+      "key": "OPENVPN_CLIENTCRT_SECRETFILE",
+      "value": "/run/secrets/openvpn_clientcrt",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_CLIENTKEY_SECRETFILE",
+      "key": "OPENVPN_CLIENTKEY_SECRETFILE",
+      "value": "/run/secrets/openvpn_clientkey",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_ENCRYPTED_KEY",
+      "key": "OPENVPN_ENCRYPTED_KEY",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_ENCRYPTED_KEY_SECRETFILE",
+      "key": "OPENVPN_ENCRYPTED_KEY_SECRETFILE",
+      "value": "/run/secrets/openvpn_encrypted_key",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OPENVPN_KEY_PASSPHRASE",
+      "key": "OPENVPN_KEY_PASSPHRASE",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OPENVPN_KEY_PASSPHRASE_SECRETFILE",
+      "key": "OPENVPN_KEY_PASSPHRASE_SECRETFILE",
+      "value": "/run/secrets/openvpn_key_passphrase",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_NUMBER",
+      "key": "SERVER_NUMBER",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SERVER_NAMES",
+      "key": "SERVER_NAMES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STREAM_ONLY",
+      "key": "STREAM_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FREE_ONLY",
+      "key": "FREE_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SECURE_CORE_ONLY",
+      "key": "SECURE_CORE_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TOR_ONLY",
+      "key": "TOR_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MULTIHOP_ONLY",
+      "key": "MULTIHOP_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PREMIUM_ONLY",
+      "key": "PREMIUM_ONLY",
+      "value": "no",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT_FORWARD_ONLY",
+      "key": "PORT_FORWARD_ONLY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_ENABLED_DISABLING_IT_SHOOTS_YOU_IN_YOUR_FOOT",
+      "key": "FIREWALL_ENABLED_DISABLING_IT_SHOOTS_YOU_IN_YOUR_FOOT",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_VPN_INPUT_PORTS",
+      "key": "FIREWALL_VPN_INPUT_PORTS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_INPUT_PORTS",
+      "key": "FIREWALL_INPUT_PORTS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_OUTBOUND_SUBNETS",
+      "key": "FIREWALL_OUTBOUND_SUBNETS",
+      "value": "192.168.10.0/24",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FIREWALL_IPTABLES_LOG_LEVEL",
+      "key": "FIREWALL_IPTABLES_LOG_LEVEL",
+      "value": "info",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IPV6_CHECK_ADDRESSES",
+      "key": "IPV6_CHECK_ADDRESSES",
+      "value": "[2001:4860:4860::8888]:53,[2606:4700:4700::1111]:53",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_SERVER_ADDRESS",
+      "key": "HEALTH_SERVER_ADDRESS",
+      "value": "127.0.0.1:9999",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_TARGET_ADDRESSES",
+      "key": "HEALTH_TARGET_ADDRESSES",
+      "value": "cloudflare.com:443,github.com:443",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_ICMP_TARGET_IPS",
+      "key": "HEALTH_ICMP_TARGET_IPS",
+      "value": "1.1.1.1,8.8.8.8",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_SMALL_CHECK_TYPE",
+      "key": "HEALTH_SMALL_CHECK_TYPE",
+      "value": "icmp",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HEALTH_RESTART_VPN",
+      "key": "HEALTH_RESTART_VPN",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_SERVER",
+      "key": "DNS_SERVER",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_RESOLVER_TYPE",
+      "key": "DNS_UPSTREAM_RESOLVER_TYPE",
+      "value": "dot",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DOT",
+      "key": "DOT",
+      "value": "on",
+      "description": "DNS over TLS Configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_RESOLVERS",
+      "key": "DNS_UPSTREAM_RESOLVERS",
+      "value": "cloudflare",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_BLOCK_IPS",
+      "key": "DNS_BLOCK_IPS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_BLOCK_IP_PREFIXES",
+      "key": "DNS_BLOCK_IP_PREFIXES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_CACHING",
+      "key": "DNS_CACHING",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_IPV6",
+      "key": "DNS_UPSTREAM_IPV6",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_MALICIOUS",
+      "key": "BLOCK_MALICIOUS",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_SURVEILLANCE",
+      "key": "BLOCK_SURVEILLANCE",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BLOCK_ADS",
+      "key": "BLOCK_ADS",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UNBLOCK_HOSTNAMES",
+      "key": "DNS_UNBLOCK_HOSTNAMES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES",
+      "key": "DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPDATE_PERIOD",
+      "key": "DNS_UPDATE_PERIOD",
+      "value": "24h",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DNS_UPSTREAM_PLAIN_ADDRESSES",
+      "key": "DNS_UPSTREAM_PLAIN_ADDRESSES",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY",
+      "key": "HTTPPROXY",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_LOG",
+      "key": "HTTPPROXY_LOG",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_LISTENING_ADDRESS",
+      "key": "HTTPPROXY_LISTENING_ADDRESS",
+      "value": ":8888",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_STEALTH",
+      "key": "HTTPPROXY_STEALTH",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_USER",
+      "key": "HTTPPROXY_USER",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTPPROXY_PASSWORD",
+      "key": "HTTPPROXY_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTPPROXY_USER_SECRETFILE",
+      "key": "HTTPPROXY_USER_SECRETFILE",
+      "value": "/run/secrets/httpproxy_user",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPPROXY_PASSWORD_SECRETFILE",
+      "key": "HTTPPROXY_PASSWORD_SECRETFILE",
+      "value": "/run/secrets/httpproxy_password",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS",
+      "key": "SHADOWSOCKS",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_LOG",
+      "key": "SHADOWSOCKS_LOG",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_LISTENING_ADDRESS",
+      "key": "SHADOWSOCKS_LISTENING_ADDRESS",
+      "value": ":8388",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_PASSWORD",
+      "key": "SHADOWSOCKS_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SHADOWSOCKS_PASSWORD_SECRETFILE",
+      "key": "SHADOWSOCKS_PASSWORD_SECRETFILE",
+      "value": "/run/secrets/shadowsocks_password",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SHADOWSOCKS_CIPHER",
+      "key": "SHADOWSOCKS_CIPHER",
+      "value": "chacha20-ietf-poly1305",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS5_ENABLED",
+      "key": "SOCKS5_ENABLED",
+      "value": "off",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS5_LISTENING_ADDRESS",
+      "key": "SOCKS5_LISTENING_ADDRESS",
+      "value": ":1080",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SOCKS5_USER",
+      "key": "SOCKS5_USER",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SOCKS5_PASSWORD",
+      "key": "SOCKS5_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_LOG",
+      "key": "HTTP_CONTROL_SERVER_LOG",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_ADDRESS",
+      "key": "HTTP_CONTROL_SERVER_ADDRESS",
+      "value": ":8000",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH",
+      "key": "HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH",
+      "value": "/gluetun/auth/config.toml",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE",
+      "key": "HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE",
+      "value": "{}",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_PERIOD",
+      "key": "UPDATER_PERIOD",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_MIN_RATIO",
+      "key": "UPDATER_MIN_RATIO",
+      "value": "0.8",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_VPN_SERVICE_PROVIDERS",
+      "key": "UPDATER_VPN_SERVICE_PROVIDERS",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_PREFER_DIRECT_DOWNLOAD",
+      "key": "UPDATER_PREFER_DIRECT_DOWNLOAD",
+      "value": "no",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UPDATER_PROTONVPN_EMAIL",
+      "key": "UPDATER_PROTONVPN_EMAIL",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "UPDATER_PROTONVPN_PASSWORD",
+      "key": "UPDATER_PROTONVPN_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUBLICIP_FILE",
+      "key": "PUBLICIP_FILE",
+      "value": "/tmp/gluetun/ip",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUBLICIP_ENABLED",
+      "key": "PUBLICIP_ENABLED",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUBLICIP_API",
+      "key": "PUBLICIP_API",
+      "value": "ipinfo,ifconfigco,ip2location,cloudflare",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUBLICIP_API_TOKEN",
+      "key": "PUBLICIP_API_TOKEN",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STORAGE_SERVERS_ENABLED",
+      "key": "STORAGE_SERVERS_ENABLED",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STORAGE_SERVERS_DIRECTORY_PATH",
+      "key": "STORAGE_SERVERS_DIRECTORY_PATH",
+      "value": "/gluetun/servers/",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PPROF_ENABLED",
+      "key": "PPROF_ENABLED",
+      "value": "no",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PPROF_BLOCK_PROFILE_RATE",
+      "key": "PPROF_BLOCK_PROFILE_RATE",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PPROF_MUTEX_PROFILE_RATE",
+      "key": "PPROF_MUTEX_PROFILE_RATE",
+      "value": "0",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PPROF_HTTP_SERVER_ADDRESS",
+      "key": "PPROF_HTTP_SERVER_ADDRESS",
+      "value": ":6060",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VERSION_INFORMATION",
+      "key": "VERSION_INFORMATION",
+      "value": "on",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

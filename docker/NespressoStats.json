@@ -1,0 +1,83 @@
+{
+  "name": "Nespresso-Stats",
+  "repo": "ghcr.io/avpnusr/nespresso-stats:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/avpnusr/nespresso-stats/pkgs/container/nespresso-stats",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8787]",
+  "icon": "https://raw.githubusercontent.com/avpnusr/nespresso-stats/master/static/favicon-180.png",
+  "project": "https://github.com/avpnusr/nespresso-stats",
+  "description": "Self-hosted dashboard for your Nespresso Vertuo capsule inventory: what you have, how many of each, brew history, coffee stats and optional auto-decrement when the machine brews a coffee. No login is built in - it is made for a trusted home network. Expose it to the internet only behind an authenticating reverse proxy.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/nespresso-stats",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database (nespresso.db). Delete it to re-seed the starter capsule catalogue.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8787",
+      "container": "8787",
+      "protocol": "tcp",
+      "description": "Port for the Nespresso Stats web dashboard.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. Default 99 = nobody.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. Default 100 = users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VISION_BASE_URL",
+      "key": "VISION_BASE_URL",
+      "value": "http://127.0.0.1:11434/v1",
+      "description": "OpenAI-compatible vision endpoint for photo identify. 127.0.0.1 is the container itself, so point this at your Ollama host, e.g. http://192.168.1.10:11434/v1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VISION_MODEL",
+      "key": "VISION_MODEL",
+      "value": "qwen3.5:4b",
+      "description": "Vision model name. Leave empty to turn vision off and identify capsules by colour alone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VISION_API_KEY",
+      "key": "VISION_API_KEY",
+      "value": "ollama",
+      "description": "API key for the vision endpoint. Ignored by a local Ollama; set your Ollama Cloud key when using https://ollama.com/v1.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

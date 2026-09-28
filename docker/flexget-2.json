@@ -1,69 +1,45 @@
 {
   "name": "flexget",
-  "repo": "wiserain/flexget:latest",
+  "repo": "flexget/flexget",
   "category": [
     "Downloader"
   ],
-  "registry": "https://hub.docker.com/r/wiserain/flexget:latest",
-  "network": "none",
+  "registry": "https://hub.docker.com/r/flexget/flexget",
+  "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
-  "privileged": true,
-  "extra_parameters": "--net=container:binhex-delugevpn",
-  "post_parameters": null,
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": "daemon start",
   "web_ui_url": null,
-  "icon": "https://github.com/paulpoco/docker-templates/raw/master/paulpoco/images/Deluge-Flexget-icon-small.png",
-  "project": "http://flexget.com/",
-  "description": "FlexGet is a multipurpose automation tool for all of your media. REQUIRES binhex-delugevpn to be installed 1st. Then follow instructions at Binhex's VPN FAQ Q24.",
+  "icon": "https://raw.githubusercontent.com/logandwaters/unraid-docker-templates/main/flexget/icon.png",
+  "project": "https://github.com/Flexget/Flexget",
+  "description": "FlexGet is a multipurpose automation tool for automating content from sources such as RSS feeds, HTML pages, CSV files, search engines, and other sources. It can be used with torrents, NZBs, podcasts, comics, series, movies, and more. This template uses the official FlexGet Docker image and runs without the Web UI, making it suitable for command-line or externally managed configurations. Install Instructions: 1. Run the commands outlined under \"Additional Requirements\". 2. Place your config.yml file under /mnt/user/appdata/flexget/config or use the example file from https://github.com/logandwaters/Unraid-docker-templates/blob/main/flexget/example-config.yml 3. Set the download directory path, configure any other settings as needed, then pull and deploy the container. 4. Enter the container's shell by running \"docker exec -it flexget /bin/sh\" in the Unraid terminal. 5. Validate your configuration by running \"flexget check\" in the container shell. Helpful links: GitHub Repo: https://github.com/Flexget/Flexget Docker Registry: https://hub.docker.com/r/flexget/flexget Documentation: https://flexget.com Report Software Issues: https://github.com/Flexget/Flexget/issues Report Container Template Issue: https://github.com/logandwaters/Unraid-docker-templates/issues",
   "paths": [
     {
-      "name": "Host Path 2",
-      "host": "/mnt/cache/Media",
-      "container": "/data",
+      "name": "Path to Config",
+      "host": "/mnt/cache/appdata/flexget/config",
+      "container": "/config",
       "mode": "rw",
-      "description": "Container Path: /data",
+      "description": "Directory where configuration and settings are stored.",
       "required": true
     },
     {
-      "name": "AppData Config Path",
-      "host": "/mnt/cache/appdata/flexget",
-      "container": "/config",
+      "name": "Path to Download Directory",
+      "host": "/mnt/cache/appdata/flexget/downloads",
+      "container": "/downloads",
       "mode": "rw",
-      "description": "Container Path: /config",
+      "description": "Directory where downloaded files are stored.",
       "required": true
     }
   ],
   "ports": [],
   "variables": [
     {
-      "name": "Key 1",
-      "key": "FG_WEBUI_PASSWD",
-      "value": "16 charactor password",
-      "description": "Container Variable: FG_WEBUI_PASSWD",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Key 2",
-      "key": "UMASK",
-      "value": "000",
-      "description": "Container Variable: UMASK",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Key 3",
-      "key": "PUID",
-      "value": "500",
-      "description": "Container Variable: PUID",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Key 4",
-      "key": "PGID",
-      "value": "500",
-      "description": "Container Variable: PGID",
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Container timezone (e.g., America/New_York, Europe/London)",
       "required": false,
       "mask": false
     }

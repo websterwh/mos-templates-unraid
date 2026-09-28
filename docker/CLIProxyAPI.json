@@ -1,0 +1,76 @@
+{
+  "name": "CLIProxyAPI",
+  "repo": "ghcr.io/ozoneh3/cliproxyapi-unraid",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8318]/",
+  "icon": "https://raw.githubusercontent.com/OzoneH3/CLIProxyAPI_unraid/main/assets/cliproxyapi.png",
+  "project": "https://github.com/router-for-me/CLIProxyAPI",
+  "description": "CLIProxyAPI exposes an OpenAI-compatible API for supported CLI/OAuth providers. Choose a WebUI password (12-72 bytes), click Apply, then open WebUI to connect your accounts and copy your generated API key. Configuration and credentials are initialized automatically in appdata. For browser OAuth on another computer, paste the completed localhost callback URL into the WebUI when prompted; no SSH or terminal login is needed. API: http://Unraid-IP:8317/v1. Dashboard: port 8318. CLIProxyAPI is a third-party project. Provider availability and authentication methods are controlled by their respective services. Use a trusted LAN or VPN; do not expose either port directly to the internet. Existing appdata is backed up before necessary configuration migration.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/cliproxyapi",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent configuration, provider credentials, logs, plugins, and wrapper state. Existing data is reused. No manual config file creation is needed.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "8317",
+      "container": "8317",
+      "protocol": "tcp",
+      "description": "OpenAI-compatible API. If changing this host port, also update API Public Port under advanced settings so the dashboard displays the correct URL.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI Port",
+      "host": "8318",
+      "container": "8318",
+      "protocol": "tcp",
+      "description": "Authenticated setup dashboard and provider connections. Use a trusted LAN or VPN.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WebUI Password",
+      "key": "WEBUI_PASSWORD",
+      "value": "",
+      "description": "Choose a unique password of 12-72 bytes. Changing this value and applying the template rotates the login password and invalidates sessions. No default password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "API Public Port",
+      "key": "API_PUBLIC_PORT",
+      "value": "8317",
+      "description": "Set to the API host port above. Used only for the dashboard copyable URL; container API port stays 8317.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS-only Session Cookie",
+      "key": "WEBUI_SECURE_COOKIE",
+      "value": "false",
+      "description": "Set true only when accessing the WebUI through HTTPS. HTTP installations must remain false. Never trust unconfigured forwarded headers.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

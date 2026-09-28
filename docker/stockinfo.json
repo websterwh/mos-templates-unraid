@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/MikeMitterer/stockinfo/master/dashboard/public/stockinfo-icon.png",
   "project": "https://github.com/MikeMitterer/stockinfo",
-  "description": "StockInfo provides stock and ETF quotes via a REST API (JSON), caches them in a SQLite database and refreshes them periodically. Backend (FastAPI) and dashboard (Vue) run in a single image on one port \u2014 the dashboard is served at the root URL, the API under /quote, /instruments, etc. Data sources: yfinance (Yahoo), justETF, OpenFIGI. Timezone: the \"Timezone\" setting (TZ) defaults to UTC \u2014 set it to your local zone for correct log timestamps. Valid values (TZ identifier column): https://en.wikipedia.org/wiki/List_of_tz_database_time_zones OpenFIGI (optional): resolves an ISIN to the ticker at your preferred exchange (see \"Default exchange\"). It works without an API key, but only within OpenFIGI&apos;s low anonymous rate limit \u2014 once exceeded, resolution falls back to Yahoo search, which may return a different exchange or currency. A free key raises the limit and makes resolution reliable; enter it under \"OpenFIGI API key\". Register and create a key: https://www.openfigi.com/api",
+  "description": "StockInfo provides stock and ETF quotes via a REST API (JSON), caches them in a SQLite database and refreshes them periodically. Backend (FastAPI) and dashboard (Vue) run in a single image on one port \u2014 the dashboard is served at the root URL, the API under /quote, /instruments, etc. Data sources: yfinance (Yahoo), justETF, OpenFIGI. Whatever the sources do not deliver can be entered by hand in the expandable detail area of a row \u2014 provider, replication, fund size, domicile, currency, TER, volatility and accumulating/distributing. The source always wins: a manual value fills a gap, it never overwrites, and it applies again as soon as the source goes quiet. Timezone: the \"Timezone\" setting (TZ) defaults to UTC \u2014 set it to your local zone for correct log timestamps. Valid values (TZ identifier column): https://en.wikipedia.org/wiki/List_of_tz_database_time_zones OpenFIGI (optional): resolves an ISIN to the ticker at your preferred exchange (see \"Default exchange\"). It works without an API key, but only within OpenFIGI&apos;s low anonymous rate limit \u2014 once exceeded, resolution falls back to Yahoo search, which may return a different exchange or currency. A free key raises the limit and makes resolution reliable; enter it under \"OpenFIGI API key\". Register and create a key: https://www.openfigi.com/api",
   "paths": [
     {
       "name": "Data (Cache DB)",
@@ -65,7 +65,23 @@
       "name": "Default exchange (MIC)",
       "key": "DEFAULT_EXCHANGE",
       "value": "XETR",
-      "description": "Preferred exchange for ISIN lookups, e.g. XETR (Xetra).",
+      "description": "Preferred exchange (MIC) for ISIN lookups \u2014 worldwide. Examples: XETR (Xetra/EUR), XNAS (Nasdaq/USD), XNYS (NYSE/USD), XTSE (Toronto/CAD), XLON (London/GBp), XTKS (Tokyo/JPY), XASX (Sydney/AUD). The quote currency follows from the chosen exchange.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Strict exchange",
+      "key": "STRICT_EXCHANGE",
+      "value": "false",
+      "description": "If true, only the Default exchange is used \u2014 no Yahoo fallback. An ISIN with no listing there returns 404 instead of a substitute exchange/currency. Recommended for non-EUR instances that want honest &quot;not available&quot; over a wrong currency.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FX rate TTL (hours)",
+      "key": "FX_TTL_HOURS",
+      "value": "1",
+      "description": "Age at which a foreign-exchange rate (GET /fx, used to convert mixed-currency portfolios) is re-fetched. FX moves continuously \u2014 keep this short.",
       "required": false,
       "mask": false
     },

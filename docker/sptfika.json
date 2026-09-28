@@ -1,119 +1,79 @@
 {
   "name": "spt-fika",
-  "repo": "ghcr.io/zhliau/fika-spt-server-docker:3.11.3",
+  "repo": "ghcr.io/sp-tushonka/server-csharp:4.1.6",
   "category": [
     "Game Server"
   ],
-  "registry": "https://github.com/zhliau?tab=repositories",
+  "registry": "https://github.com/SP-Tushonka/server-csharp",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:6969]",
-  "icon": "https://raw.githubusercontent.com/apfaffman/spt-fika/refs/heads/main/pika.png",
-  "project": "https://github.com/apfaffman/spt-fika",
-  "description": "SPT AKI server backend with optional Fika mod (can be disabled on first run). Uses zedramus's docker image: https://github.com/zhliau/fika-spt-server-docker. Current SPT version: 3.11.3 Current Fika server version: v2.4.6 This is a barebones template to get your SPT/Fika server running quickly on Unraid.",
+  "web_ui_url": "https://[IP]:[PORT:6969]",
+  "icon": "https://raw.githubusercontent.com/apfaffman/spt-fika/refs/heads/master/pika.png",
+  "project": "https://github.com/SP-Tushonka/server-csharp",
+  "description": "SPT server backend. Fika-compatible, but must be installed and configured. This is a barebones template to get your SPT/Fika server running quickly on Unraid.",
   "paths": [
     {
-      "name": "Server Files",
-      "host": "/mnt/cache/appdata/spt-fika",
-      "container": "/opt/server",
+      "name": "Server User Directory",
+      "host": "/mnt/cache/appdata/spt-fika/user",
+      "container": "/opt/spt/user",
       "mode": "rw",
-      "description": "Location of required server files, user profiles, server (user/mod) mods, etc.",
+      "description": "Location of user profiles, server mods (user/mods), and logs.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Listening Port",
+      "name": "Web / Client Port",
       "host": "6969",
       "container": "6969",
       "protocol": "tcp",
-      "description": "Leave this alone unless you know what you're doing.",
+      "description": "Host port for client HTTP traffic (used when running on bridge network).",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Install Fika Mod",
-      "key": "INSTALL_FIKA",
-      "value": "true",
-      "description": "Installs Fika to user/mods folder.",
+      "name": "Bind IP",
+      "key": "SPT_IP",
+      "value": "0.0.0.0",
+      "description": "Internal bind address inside the container.",
       "required": true,
       "mask": false
     },
     {
-      "name": "Listen on All Interfaces",
-      "key": "LISTEN_ALL_NETWORKS",
-      "value": "false",
-      "description": "Sets http.json 'backendIp' value to 0.0.0.0, telling SPT to listen on all interfaces.",
+      "name": "SPT Port",
+      "key": "SPT_PORT",
+      "value": "6969",
+      "description": "Internal listening port for the SPT server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend Advertised IP",
+      "key": "SPT_BACKEND_IP",
+      "value": "192.168.1.69",
+      "description": "Advertised LAN/remote IP address that game clients use to connect to this server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 is Unraid 'nobody', 1000 for standard Linux user).",
       "required": false,
       "mask": false
     },
     {
-      "name": "Enable Profile Backup",
-      "key": "ENABLE_PROFILE_BACKUP",
-      "value": "true",
-      "description": "Creates a cron job that handles profile backups.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Fika Version",
-      "key": "FIKA_VERSION",
-      "value": "v2.3.6",
-      "description": "Override the Fika version string to grab the server release from. The release URL is formatted as https://github.com/project-fika/Fika-Server/releases/download/$FIKA_VERSION/fika-server.zip",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Auto Update SPT",
-      "key": "AUTO_UPDATE_SPT",
-      "value": "false",
-      "description": "Container to handle updating SPT in your existing serverfiles.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Auto Update Fika",
-      "key": "AUTO_UPDATE_FIKA",
-      "value": "false",
-      "description": "Container to handle updating Fika server mod in your existing serverfiles.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Container takes ownership of server files",
-      "key": "TAKE_OWNERSHIP",
-      "value": "true",
-      "description": "If this is set to false, the container will not change file ownership of the server files. Make sure the running user has permissions to access these files.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Container changes permissions of server files",
-      "key": "CHANGE_PERMISSIONS",
-      "value": "true",
-      "description": "If this is set to false, the container will not change file permissions of the server files. Make sure the running user has permissions to access these files.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Install Other Mods",
-      "key": "INSTALL_OTHER_MODS",
-      "value": "false",
-      "description": "Automatically download and install any other mods as specified in MOD_URLS_TO_DOWNLOAD.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Mod Download URLS",
-      "key": "MOD_URLS_TO_DOWNLOAD",
-      "value": "false",
-      "description": "Space-separated list of URLs you want the server to automatically download and install. Requires INSTALL_OTHER_MODS to be 'true.'",
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 is Unraid 'users', 1000 for standard Linux group).",
       "required": false,
       "mask": false
     }

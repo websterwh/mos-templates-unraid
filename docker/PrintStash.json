@@ -1,0 +1,99 @@
+{
+  "name": "PrintStash",
+  "repo": "ghcr.io/xiao-villamor/printstash:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/xiao-villamor/PrintStash/pkgs/container/printstash",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/xiao-villamor/PrintStash/main/icon.svg",
+  "project": "https://www.printstash.org",
+  "description": "PrintStash is a self-hosted 3D print library and G-code vault. This image runs the web UI and API together. Create the first account in the browser from your local network, or set First-run setup to environment and fill in the administrator fields to create it at first start. The one appdata path stores everything PrintStash keeps: the database, uploaded files, thumbnails, staging files, backups, and caches. Add existing model folders as separate Library sources after setup; do not use an existing library as the appdata path.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/printstash",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Dedicated persistent folder for everything PrintStash keeps: database, managed files, thumbnails, staging, backups, and caches. Keep it on one pool and add no second mapping for a subfolder of /data; imports then copy each file instead of using a hard-link. Do not map an existing model library here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port to open PrintStash in your browser.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "First-run setup",
+      "key": "VAULT_SETUP_MODE",
+      "value": "trusted_network",
+      "description": "How the first administrator is created. trusted_network: in the browser, only from your local network (for example http://tower.local:3000 or the server's LAN IP); leave the administrator fields blank. environment: at first start from the administrator fields below, which are then required; choose this if you will first open PrintStash through Tailscale, a VPN, a reverse proxy or Unraid Connect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Administrator username",
+      "key": "VAULT_SETUP_ADMIN_USERNAME",
+      "value": "",
+      "description": "Only with First-run setup set to environment: creates this administrator at first start; sign in with it and choose where files are stored. Leave blank with trusted_network, which creates the first administrator in the browser from your local network instead. Used once: it never changes an existing account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Administrator password",
+      "key": "VAULT_SETUP_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Only with First-run setup set to environment: 8 to 256 characters. Used once: editing it later does not change the account; reset it under Settings, Users instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Administrator email",
+      "key": "VAULT_SETUP_ADMIN_EMAIL",
+      "value": "",
+      "description": "Optional, only with First-run setup set to environment: email for that administrator.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Numeric owner for appdata and mounted Library sources. Default is Unraid's nobody user. On upgrade, use the old API data owner's UID to keep existing Library sources readable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Numeric group for appdata and mounted Library sources. Default is Unraid's users group. On upgrade, use the old API data owner's GID to keep existing Library sources readable.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Settings restart",
+      "key": "VAULT_RESTART_ENABLED",
+      "value": "true",
+      "description": "Allows Settings to restart the supervised application container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

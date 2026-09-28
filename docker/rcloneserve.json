@@ -1,0 +1,108 @@
+{
+  "name": "rclone-serve",
+  "repo": "mcjoppy/rclone-serve",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/repository/docker/mcjoppy/rclone-serve",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5572]",
+  "icon": null,
+  "project": "https://git.home.hudsonstreet.co.nz/mcjoppy/rclone-serve",
+  "description": "A fully self-contained rclone appliance: rclone's own official web GUI for guided remote setup (OAuth flows for OneDrive/Google Drive/Dropbox/etc. included) plus `rclone serve` to expose a configured remote over a protocol other tools already speak - most usefully restic's own REST backend - so restic can talk to a cloud provider it has no native driver for directly, without a separate scheduled sync job in between. Owns its own config entirely; no dependency on any other rclone install.",
+  "paths": [
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/rclone-serve",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where this container's own rclone.conf and settings are stored - independent of any other rclone install",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "GUI Port",
+      "host": "5572",
+      "container": "5572",
+      "protocol": "tcp",
+      "description": "Port for rclone's own web GUI (guided remote setup)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Serve Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port rclone serve listens on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "GUI User",
+      "key": "RCLONE_GUI_USER",
+      "value": "",
+      "description": "Basic auth username for the config GUI - this is full control over your remotes' credentials",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GUI Password",
+      "key": "RCLONE_GUI_PASS",
+      "value": "",
+      "description": "Basic auth password for the config GUI",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Remote",
+      "key": "RCLONE_REMOTE",
+      "value": "",
+      "description": "The remote:path to serve, e.g. onedrive:backups - doesn't need to exist yet, just needs to be created eventually via the GUI",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Serve User",
+      "key": "RCLONE_SERVE_USER",
+      "value": "",
+      "description": "Basic auth username for the serve endpoint",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Serve Password",
+      "key": "RCLONE_SERVE_PASS",
+      "value": "",
+      "description": "Basic auth password for the serve endpoint",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Serve Protocol",
+      "key": "RCLONE_SERVE_PROTOCOL",
+      "value": "restic",
+      "description": "restic, http, webdav, or sftp only - other rclone serve modes lack a compatible auth model and are rejected",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Args",
+      "key": "RCLONE_SERVE_EXTRA_ARGS",
+      "value": "",
+      "description": "Extra flags passed straight through to rclone serve",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

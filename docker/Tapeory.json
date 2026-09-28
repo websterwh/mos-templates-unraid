@@ -1,0 +1,75 @@
+{
+  "name": "Tapeory",
+  "repo": "tunefish92/tapeory:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/tunefish92/tapeory",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Tunefish92/Tapeory/main/unraid/tapeory.png",
+  "project": "https://github.com/Tunefish92/Tapeory",
+  "description": "Design, store, and print Brother P-touch labels from your browser. Tapeory is a self-hosted web app for label templates: design a label in the browser editor, add named fields like \"Name\" or \"Room\", and fill them in when you print. You can also import existing P-touch Editor .lbx files. Requires a MySQL 8 or MariaDB database, for example Unraid's \"mariadb\" template. Create an empty database and a user, then enter the connection in the web UI on first start. Printing supports 34 Brother P-touch (PT) and QL label printers, from the PT-P750W and PT-P900 series to the QL-500 through QL-1115NWB. After the database setup you create the first account, the administrator; more accounts can be added as administrators or users.",
+  "paths": [
+    {
+      "name": "Storage Path",
+      "host": "/mnt/cache/appdata/tapeory",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Templates, uploads, rendered labels, backups, and the saved database connection. Back this up regularly.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port the Tapeory web UI and API are served on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Connection String",
+      "key": "ConnectionStrings__Default",
+      "value": "",
+      "description": "Optional. Leave empty to enter the database connection in the web UI on first start (it's saved to the storage path). If set, e.g. server=192.168.1.10;port=3306;database=tapeory;user=tapeory;password=CHANGE_ME; it overrides that and the setup screen is skipped.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the storage path; the app runs as this user. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the storage path. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto Migrate Database",
+      "key": "TAPEORY_AUTO_MIGRATE",
+      "value": "true",
+      "description": "Automatically apply pending database migrations on container start.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

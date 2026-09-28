@@ -1,0 +1,91 @@
+{
+  "name": "dupearr",
+  "repo": "ghcr.io/sl0wz3r/dupearr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/sl0wz3r/dupearr/pkgs/container/dupearr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=KILL --cap-add=SETGID --cap-add=SETUID",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3873]/",
+  "icon": "https://raw.githubusercontent.com/sl0wz3r/dupearr/main/unraid/icon.png",
+  "project": "https://github.com/sl0wz3r/dupearr",
+  "description": "Dupearr finds duplicate movies and TV episodes in your Plex libraries, keeps the best copy according to your own rules and removes the others. It adds what Radarr and Sonarr know about every copy (quality, source, custom-format score, release group, which instance tracks it), ranks the copies with an ordered decision profile (for example: highest resolution, then HDR, then remux) and explains every decision before anything happens. **This app deletes media files.** It starts in its safest state: dry run is ON, so approved removals are only simulated and logged, and manual approval is ON, so nothing is queued until you approve a duplicate group yourself. Files are only removed after you turn dry run off (Settings - Media Management) AND approve a group. More guards: files younger than 7 days are never removed, each run stops at 25 files or 500 GB, the kept copy is re-verified right before every removal, a group always keeps at least one copy, suspicious matches are held for review and never auto-approved, and every action is logged and marked permanent or restorable. Turn on the recycle bin in Radarr/Sonarr and in Dupearr before you switch dry run off, and keep backups of anything you cannot replace. What sets it apart: removals go through the Radarr or Sonarr instance that owns the file (so it is not downloaded again), through Plex, or into Dupearr's own recycle bin with one-click restore. Hardlinked copies that are still seeding are recognised and count as 0 bytes reclaimable, a 4K and a 1080p copy managed by separate Radarr/Sonarr instances are kept on purpose, Plex optimized versions are never touched, editions (Director's Cut, Extended), 3D and different-language copies are kept apart, and full Blu-ray/DVD disc backups count as one copy and are kept by default. Arr-style web UI and API on port 3873: login, API key, scheduled scans, backups, notifications and webhooks. The first login asks for a one-time setup code printed in the container log. Map /data to the same host folder your Plex and Radarr/Sonarr containers use (TRaSH layout: /mnt/user/data) for filesystem removals, the recycle bin and hardlink detection. Beta: pre-1.0 software.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/dupearr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "config.xml, the SQLite database, logs and backups (it also holds your Plex token and arr API keys). Keep it on a pool/cache disk, never on a network share.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Mount the SAME host path your Plex/Radarr/Sonarr containers use (TRaSH layout: /mnt/user/data to /data) so file paths match, then add a Plex path mapping in Dupearr (identical paths: map the folder to itself). Needed only for the filesystem deletion method, the recycle bin and hardlink detection; Radarr/Sonarr and Plex removals work without it. Unraid creates this folder if it does not exist, so change it to your media share (e.g. /mnt/user/media) or clear it if you do not need it.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3873",
+      "container": "3873",
+      "protocol": "tcp",
+      "description": "Port of the Dupearr web UI and API. Change only the host port if 3873 is taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id Dupearr runs as. It must be allowed to delete your media files (Unraid default 99 = nobody).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id Dupearr runs as (Unraid default 100 = users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "umask for files Dupearr creates in shared folders (recycle bin, restored files). 022 is the Unraid default; 002 keeps them group-writable. Dupearr's own config, database, backups and logs are always private.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "DUPEARR__AUTH__TRUSTEDPROXIES",
+      "value": "",
+      "description": "Only behind a reverse proxy (SWAG, Nginx Proxy Manager, ...): its IP address as Dupearr sees it (the proxy container's IP on a custom Docker network, not the gateway), comma-separated IPs or CIDR ranges. Dupearr then believes the client address the proxy reports and, with External authentication, trusts only requests the proxy relays. A value here overrides Trusted Proxies in Settings - General (read-only there); leave empty to set it there instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed hosts",
+      "key": "DUPEARR__AUTH__ALLOWEDHOSTS",
+      "value": "",
+      "description": "Optional, with a reverse proxy: the host names Dupearr is reached by (e.g. dupearr.example.com; *.example.com for sub-domains), comma-separated. A value here overrides Allowed Hosts in Settings - General (read-only there); leave empty to set it there instead.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

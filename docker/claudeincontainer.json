@@ -1,0 +1,113 @@
+{
+  "name": "claude-in-container",
+  "repo": "ghcr.io/ganesh35/claude-in-container:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/ganesh35/claude-in-container/pkgs/container/claude-in-container",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --hostname claude-in-container --restart unless-stopped --cap-drop ALL --security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/ganesh35/claude-in-container/main/unraid/icon.png",
+  "project": "https://github.com/ganesh35/claude-in-container",
+  "description": "Always-on Claude Code in tmux, reachable from phone or browser via Remote Control. Claude sees only the Data folder, which holds your projects and, in .home, its login, settings and runtime-installed tools. Before installing: create the Data folder owned by the user in Extra Parameters (default --user 99:100), e.g. mkdir -p DIR && chown 99:100 DIR. To build the image yourself instead of pulling it, see the project README. Tools with a version set below install into the Data folder on first start. Several containers can share one Data folder: give each its own name and set Continue to false on all but one. First start: open the console (or: docker exec -it claude-in-container tmux new -A -s main) and log in with your Claude subscription.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The only host folder Claude sees: your projects, plus .home with login, settings and tools. Must be writable by the --user in Extra Parameters",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Remote Control name",
+      "key": "REMOTE_CONTROL_NAME",
+      "value": "",
+      "description": "Session name shown in the Claude app; empty = container hostname",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Continue",
+      "key": "CONTINUE",
+      "value": "true",
+      "description": "Resume the last conversation on start; false when another container shares this Data folder",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional; use instead of the subscription login. Disables Remote Control (subscription-only)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "gh version",
+      "key": "GH_VERSION",
+      "value": "2.101.0",
+      "description": "GitHub CLI version installed on start; empty = not installed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "yq version",
+      "key": "YQ_VERSION",
+      "value": "4.53.6",
+      "description": "yq version installed on start; empty = not installed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "jq version",
+      "key": "JQ_VERSION",
+      "value": "1.8.2",
+      "description": "jq version installed on start; empty = not installed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Terraform version",
+      "key": "TERRAFORM_VERSION",
+      "value": "1.16.4",
+      "description": "Terraform version installed on start; empty = not installed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AWS CLI version",
+      "key": "AWSCLI_VERSION",
+      "value": "2.37.4",
+      "description": "AWS CLI v2 version installed on start; empty = not installed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "npm tools",
+      "key": "NPM_TOOLS",
+      "value": "pnpm@12.6.0 @usebruno/cli@4.2.0",
+      "description": "Space-separated name@version list installed on start",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "uv tools",
+      "key": "UV_TOOLS",
+      "value": "",
+      "description": "Space-separated name==version list of Python CLIs installed on start",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

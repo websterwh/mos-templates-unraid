@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8477]/dashboard",
   "icon": "https://raw.githubusercontent.com/CasaVargas/beltr-unraid/main/icon.png",
   "project": "https://beltr.app",
-  "description": "CPU BUILD: runs on any server, no GPU needed. If your box has an NVIDIA card or Intel graphics, install Beltr-NVIDIA or Beltr-Intel instead: same app, much faster song processing. Beltr turns any song in your music library into a karaoke track. It separates the vocals out with a local AI model, finds synced lyrics online (or drafts them locally when no provider has the song), force-aligns them to the vocal word by word, and displays them on a TV while everyone's phone acts as a remote \u2014 scan the QR code on screen, no app to install. Everything runs on your server. Nothing about your library is uploaded. FIRST RUN: Beltr downloads about 2 GB of model weights into /cache the first time it needs them. That happens once and survives container updates as long as /cache stays mapped. Watch the container log if a first song seems to sit still \u2014 the download is what it's doing. SPEED: this is the CPU image. On a modern multi-core server, separating a 3-4 minute song takes a few minutes; most songs then get their lyrics instantly from an online lyrics database. The slow case is a song no lyrics provider knows, which falls back to local transcription and can take a couple of minutes. If your server has an NVIDIA GPU, install \"Beltr-NVIDIA\" instead; it is dramatically faster. An Intel processor with integrated graphics (6th gen Core onward, N100 included) or an Arc A-series card can use \"Beltr-Intel\". AMD GPUs are not supported in the container. LICENSE: Beltr is a one-time purchase (no subscription). Run it free for five songs, then enter your key from beltr.app in the License key field below \u2014 or drop it in a file at /config/license.key. It activates once and then works offline. Container updates and restarts do not re-activate, as long as you keep the Config path mapped; a key covers two installs. AFTER INSTALL: open the WebUI, go to Settings, and add /media as a music folder. Then open http://your-server:8477/tv on whatever screen you're singing at, and scan the QR with a phone. MICROPHONES NEED HTTPS: browsers only allow microphone access on a secure page, so singing scores and the phone-as-mic feature need Beltr behind a reverse proxy with a certificate. Everything else \u2014 queueing, playback, lyrics, stem mixing \u2014 works normally over plain http. NOTE: Beltr assumes everyone who can reach it is trusted. Set AUTH_PASSWORD to put a password on the TV and dashboard screens, but do not expose this container to the internet without a reverse proxy doing real authentication in front of it.",
+  "description": "CPU BUILD: runs on any server, no GPU needed. If your box has an NVIDIA card or Intel graphics, install Beltr-NVIDIA or Beltr-Intel instead: same app, much faster song processing. Beltr turns any song in your music library into a karaoke track. It separates the vocals out with a local AI model, finds synced lyrics online (or drafts them locally when no provider has the song), force-aligns them to the vocal word by word, and displays them on a TV while everyone's phone acts as a remote \u2014 scan the QR code on screen, no app to install. Everything runs on your server. Nothing about your library is uploaded. FIRST RUN: Beltr downloads about 2 GB of model weights into /cache the first time it needs them. That happens once and survives container updates as long as /cache stays mapped. Watch the container log if a first song seems to sit still \u2014 the download is what it's doing. SPEED: this is the CPU image. On a modern multi-core server, separating a 3-4 minute song takes a few minutes; most songs then get their lyrics instantly from an online lyrics database. The slow case is a song no lyrics provider knows, which falls back to local transcription and can take a couple of minutes. If your server has an NVIDIA GPU, install \"Beltr-NVIDIA\" instead; it is dramatically faster. An Intel processor with integrated graphics (6th gen Core onward, N100 included) or an Arc A-series card can use \"Beltr-Intel\". AMD GPUs are not supported in the container. LICENSE: Beltr is a one-time purchase (no subscription). Run it free for five songs, then enter your key from beltr.app in the License key field below \u2014 or drop it in a file at /config/license.key. It activates once and then works offline. Container updates and restarts do not re-activate, as long as you keep the Config path mapped; a key covers two installs. AFTER INSTALL: open the WebUI, go to Settings, and add /media as a music folder. Then open http://your-server:8477/tv on whatever screen you're singing at, and scan the QR with a phone. MICROPHONES NEED HTTPS: browsers only allow microphone access on a secure page. Beltr serves one itself on port 8478 with a self-signed certificate: open https://your-server:8478/tv on the laptop or phone that has the microphone and accept the browser's warning once. Everything else \u2014 queueing, playback, lyrics, stem mixing, the QR the TV shows \u2014 works over plain http on 8477. A reverse proxy with a real certificate is only needed if you want no warning at all. NOTE: Beltr assumes everyone who can reach it is trusted. Set AUTH_PASSWORD to put a password on the TV and dashboard screens, but do not expose this container to the internet without a reverse proxy doing real authentication in front of it.",
   "paths": [
     {
       "name": "Config",
@@ -58,9 +58,26 @@
       "description": "Port for the web interface, the TV screen and the phone remotes. Change the host side only if 8477 is already taken.",
       "required": true,
       "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "8478",
+      "container": "8478",
+      "protocol": "tcp",
+      "description": "Self-signed HTTPS for microphones (browsers only allow the mic on a secure page). Open https://your-server:8478/tv on the device with the mic and accept the warning once. Keep host and container sides equal: Beltr builds the address it shows from this number.",
+      "required": false,
+      "mask": false
     }
   ],
   "variables": [
+    {
+      "name": "HTTPS",
+      "key": "BELTR_TLS",
+      "value": "on",
+      "description": "on = also serve https on the HTTPS Port with a self-signed certificate Beltr generates and keeps in /config/tls. off = plain http only (microphones then need a reverse proxy with a certificate).",
+      "required": false,
+      "mask": false
+    },
     {
       "name": "PUID",
       "key": "PUID",

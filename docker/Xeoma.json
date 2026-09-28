@@ -9,15 +9,100 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--cap-add=NET_ADMIN",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:10090]/",
   "icon": "https://raw.githubusercontent.com/coppit/docker-xeoma/master/xeoma.png",
-  "project": "http://felenasoft.com/xeoma/",
-  "description": "Xeoma is surveillance software. Connect your cameras and record any detected movement.",
-  "paths": [],
-  "ports": [],
-  "variables": [],
+  "project": "https://felenasoft.com/xeoma/",
+  "description": "Xeoma is video surveillance software for connecting security cameras and recording detected movement. Connect with the Xeoma desktop client on port 8090. The optional Xeoma web interface uses port 10090. On first start without a password, the container creates xeoma.conf and an empty xeoma_password in the config directory, then exits. Put only your password in xeoma_password, without quotes or escaping, then restart. Trailing newlines are ignored. Startup is prevented if no password is supplied. Alternatively, select an existing host file under Password File to mount it read-only at /config/xeoma_password. Create that file before installing the container; leave the field blank to use the file in the config directory. A valid password file overrides legacy PASSWORD settings. The legacy password environment variable remains supported but logs a warning; add a Variable named PASSWORD if needed. A password file is recommended because its contents are not stored in the template. Environment variables override matching config-file settings. On bridged networking, the container saves its detected MAC in xeoma.conf when MAC_ADDRESS is empty and uses it for later starts. Extra Parameters includes --cap-add=NET_ADMIN by default to allow the MAC to be set. This helps preserve Xeoma's licensing identity across container recreation, but does not guarantee license stability. When migrating a licensed installation, set MAC_ADDRESS to the old container's MAC before starting. Alternatively, set the saved MAC using Unraid's MAC address field, then remove --cap-add=NET_ADMIN from Extra Parameters in Advanced View. Keep MAC_ADDRESS in xeoma.conf for comparison: matching addresses require no capability. If the address changes and cannot be restored, startup continues with a licensing warning. Only veth interfaces (Docker bridge networking) are changed automatically. For host networking, remove --cap-add=NET_ADMIN and clear MAC_ADDRESS; for other network types, manage the MAC through Docker/Unraid. PUID and PGID default to Unraid's nobody/users IDs (99/100). On migration from the older image, storage ownership is updated once; this can take time for large archives. Choose IDs before starting and preserve existing storage mappings and MAC settings when upgrading. See the linked README for configuration and migration details.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/xeoma",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent configuration and downloads. On first start, fill the generated xeoma_password file here and restart. No edits to xeoma.conf are required for the default settings.",
+      "required": true
+    },
+    {
+      "name": "Archive Directory",
+      "host": "",
+      "container": "/archive",
+      "mode": "rw",
+      "description": "Host directory for saved camera recordings. Preserve your existing archive path when upgrading.",
+      "required": true
+    },
+    {
+      "name": "Password File",
+      "host": "",
+      "container": "/config/xeoma_password",
+      "mode": "ro",
+      "description": "Optional existing host FILE containing only the password, without quotes or escaping. Create it before mapping; a missing path may become a directory. Leave blank to use xeoma_password inside Config Directory. A valid file overrides legacy PASSWORD settings.",
+      "required": false
+    },
+    {
+      "name": "Archive Cache Directory",
+      "host": "",
+      "container": "/archive-cache",
+      "mode": "rw",
+      "description": "Optional host directory for Xeoma's archive cache. Leave blank to disable archive caching.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Xeoma Client Port",
+      "host": "8090",
+      "container": "8090",
+      "protocol": "tcp",
+      "description": "Port used by the Xeoma client to connect to this server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web Interface Port",
+      "host": "10090",
+      "container": "10090",
+      "protocol": "tcp",
+      "description": "Port for Xeoma's web interface, when enabled in Xeoma.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for configuration and recordings. Unraid nobody is 99. Changing this ID triggers storage ownership migration.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for configuration and recordings. Unraid users is 100. Changing this ID triggers storage ownership migration.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permission mask for new files: 022 allows others to read; 002 also allows group writes; 007 restricts access to owner and group. Does not change existing file permissions.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Xeoma Version",
+      "key": "VERSION",
+      "value": "latest",
+      "description": "latest or latest_beta enables hourly updates. A fixed version (for example 25.8.22) or download URL disables automatic updates. This value overrides VERSION in xeoma.conf.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

@@ -1,0 +1,91 @@
+{
+  "name": "nexbeat",
+  "repo": "ghcr.io/derkezorm/nexbeat",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/DerKezorm/nexbeat/pkgs/container/nexbeat",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexbeat.png",
+  "project": "https://github.com/DerKezorm/nexbeat",
+  "description": "nexbeat finds music and requests it from Lidarr. A discover page recommends artists from what your library and each user already have, twenty main genres can be browsed, and every artist page shows the discography, the most played albums, similar artists and thirty second previews. A request adds the album to Lidarr and monitors just that one; a whole artist adds the studio albums and future releases. Everyone gets an account with a quota counted per request, optional approval, and invitations by email or as a link to pass on. The interface is available in English and German. nexbeat downloads nothing itself and never changes Lidarr settings. It needs a Lidarr you already run.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexbeat",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts, requests and settings, and the key that signs sessions. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8030",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexbeat at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "The zone the container runs in, for example Europe/Berlin. Quotas count in calendar days, weeks and months of this zone. Leave blank to use UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXBEAT_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexbeat off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXBEAT_SECRET_KEY",
+      "value": "",
+      "description": "Signs sessions and encrypts the stored credentials, such as the Lidarr API key and the password of the mail server. Leave blank: nexbeat creates one on first start and keeps it in /data/secret.key. Back it up together with the data directory.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXBEAT_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https. Use on only if a proxy terminates TLS and forwards plain http, and never if nexbeat should also be reachable over http, or nobody stays signed in. off never marks it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

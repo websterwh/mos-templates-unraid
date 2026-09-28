@@ -8,25 +8,42 @@
   "network": "host",
   "custom_ip": null,
   "default_shell": "bash",
-  "privileged": true,
+  "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8095]/",
   "icon": "https://raw.githubusercontent.com/alex3305/unraid-docker-templates/master/images/music-assistant.png",
-  "project": "https://dexidp.io/",
-  "description": "Turn your Home Assistant instance into a jukebox, hassle free streaming of your favourite media to Home Assistant media players.",
+  "project": "https://github.com/music-assistant/server",
+  "description": "Music Assistant is a free, open source music library manager. It brings your streaming services and your own files together into one library, and plays them on almost any speaker in the house. IMPORTANT - Network mode: This container requires Host networking. MA discovers and streams to players over mDNS/uPnP, and protocols like AirPlay open random TCP/UDP ports, so it must sit on the same flat (layer 2) network as your players with no VLANs or firewall between them. Bridge networking only works if you exclusively use software-only players and is not supported by the MA team. Local music files / Privileged Mode: to let MA see your own files, bind-mount your music folder rather than granting the container SMB/NFS mount privileges. Mounting the share on the host and passing it through is the more secure, recommended option. Only enable Privileged Mode if MA needs to mount a remote share itself from inside the container - most users don't need this, and it reduces container isolation.",
   "paths": [
     {
       "name": "App data",
       "host": "/mnt/cache/appdata/music-assistant",
       "container": "/data",
       "mode": "rw",
-      "description": null,
+      "description": "Persistent storage for the MA library database and settings",
       "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/Music",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Optional: mount your local music share here (read-only) so MA can index it. Only needed if you use the Local Files provider.",
+      "required": false
     }
   ],
   "ports": [],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity level. One of: critical, error, warning, info, debug.",
+      "required": true,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

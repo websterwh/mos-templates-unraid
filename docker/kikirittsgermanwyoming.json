@@ -1,0 +1,115 @@
+{
+  "name": "kikiri-tts-german-wyoming",
+  "repo": "ghcr.io/marco-taylor/kikiri-tts-german-wyoming:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io/marco-taylor/kikiri-tts-german-wyoming",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:10203]",
+  "icon": "https://raw.githubusercontent.com/marco-taylor/kikiri-tts-german-wyoming/main/icons/kikiri-tts.png",
+  "project": "https://github.com/marco-taylor/kikiri-tts-german-wyoming",
+  "description": "Lokaler deutscher Text-to-Speech-Server f\u00fcr Home Assistant auf Basis von Kikiri/Kokoro mit Wyoming-Unterst\u00fctzung. Funktionen: \u2022 Deutsche Text-to-Speech-Ausgabe \u2022 Wyoming-Protokoll f\u00fcr Home Assistant \u2022 Stimmen Martin und Victoria \u2022 Automatischer Download fehlender Sprachmodelle \u2022 Persistente Speicherung der Modelle au\u00dferhalb des Containers \u2022 Unterst\u00fctzung zus\u00e4tzlicher Stimmen \u2022 Einstellbare CPU-Thread-Anzahl \u2022 OpenAI-kompatible TTS-API Fehlende Modelle werden beim Start automatisch heruntergeladen. Die Modelle werden persistent unter /app/models gespeichert und bleiben bei Container-Updates erhalten. Weitere Informationen und die Anleitung zum Hinzuf\u00fcgen zus\u00e4tzlicher Stimmen befinden sich in der README auf GitHub.",
+  "paths": [
+    {
+      "name": "Kikiri-Modelle",
+      "host": "/mnt/cache/appdata/kikiri-tts-german-wyoming/models",
+      "container": "/app/models",
+      "mode": "rw",
+      "description": "Persistenter Speicher f\u00fcr heruntergeladene Kikiri-Sprachmodelle",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Wyoming-Port",
+      "host": "10203",
+      "container": "10203",
+      "protocol": "tcp",
+      "description": "Wyoming-Protokoll-Port f\u00fcr Home Assistant",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "CPU-Threads",
+      "key": "KOKORO_THREADS",
+      "value": "4",
+      "description": "Anzahl der von Kokoro verwendeten CPU-Threads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Installierte Stimmen",
+      "key": "KOKORO_VOICES",
+      "value": "martin,victoria",
+      "description": "Verf\u00fcgbare Stimmen. Fehlende Modelle werden automatisch heruntergeladen.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Vorgeladene Stimmen",
+      "key": "KOKORO_PRELOAD",
+      "value": "martin,victoria",
+      "description": "Stimmen, die beim Start des TTS-Servers direkt in den Speicher geladen werden",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Zus\u00e4tzliche Stimmen",
+      "key": "KOKORO_EXTRA_VOICES",
+      "value": "",
+      "description": "Zus\u00e4tzliche Stimmdefinitionen im Format name|repository|model|voice. Mehrere Stimmen werden durch Semikolon getrennt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Gleichzeitige TTS-Anfragen",
+      "key": "WYOMING_TTS_CONCURRENT_REQUESTS",
+      "value": "1",
+      "description": "Maximale Anzahl gleichzeitig verarbeiteter Wyoming-TTS-Anfragen",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenMP-Threads",
+      "key": "OMP_NUM_THREADS",
+      "value": "4",
+      "description": "Anzahl der OpenMP-CPU-Threads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MKL-Threads",
+      "key": "MKL_NUM_THREADS",
+      "value": "4",
+      "description": "Anzahl der MKL-CPU-Threads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OpenBLAS-Threads",
+      "key": "OPENBLAS_NUM_THREADS",
+      "value": "4",
+      "description": "Anzahl der OpenBLAS-CPU-Threads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NumExpr-Threads",
+      "key": "NUMEXPR_NUM_THREADS",
+      "value": "4",
+      "description": "Anzahl der NumExpr-CPU-Threads",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

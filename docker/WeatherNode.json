@@ -1,0 +1,139 @@
+{
+  "name": "WeatherNode",
+  "repo": "ghcr.io/centauri/weathernode:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/centauri/WeatherNode/pkgs/container/weathernode",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/centauri/unraid-templates/main/icons/weathernode.png",
+  "project": "https://github.com/centauri/WeatherNode",
+  "description": "WeatherNode is a self-hosted website for your personal weather station. It shows live readings, forecasts, rain radar, history, records and statistics, and it can add air quality, pollen, tides, rivers, astronomy and more from free public sources. It reads data from Ecowitt, Davis WeatherLink, Weather Underground, Ambient Weather, WeatherFlow Tempest and several other stations and upload formats. You do not need a station to try it: forecasts and the other public data work on their own. Everything runs in this one container, including the background tasks that fetch new data every minute. On first start it creates its database and a secret key in the folders below. Open the WebUI to create your admin account, then follow the short setup.",
+  "paths": [
+    {
+      "name": "Storage",
+      "host": "/mnt/cache/appdata/weathernode/storage",
+      "container": "/var/www/html/storage",
+      "mode": "rw",
+      "description": "Logs, caches, uploads and the saved secret key (.app-key). Keep this folder in your backups: without the key, saved API keys and passwords cannot be read.",
+      "required": true
+    },
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/weathernode/database",
+      "container": "/var/lib/weathernode",
+      "mode": "rw",
+      "description": "The SQLite database with all readings and settings.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "10130",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port for the website. 10130 is unused by other apps in Community Applications (and a nod to 1013 hPa, normal air pressure at sea level).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Site address (APP_URL)",
+      "key": "APP_URL",
+      "value": "",
+      "description": "The address you open WeatherNode on, for example http://192.168.1.10:10130 or https://weather.example.com. Used for links in e-mails and share images.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin e-mail (optional)",
+      "key": "ADMIN_EMAIL",
+      "value": "",
+      "description": "Creates the first admin account on first start. Leave empty to create it in the browser instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin password (optional)",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the admin account above. Only used on first start.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "APP_KEY",
+      "key": "APP_KEY",
+      "value": "",
+      "description": "Leave empty. A key is generated on first start and saved in the Storage folder. Only set this to move an existing install; changing it later makes saved API keys and passwords unreadable.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Run scheduler in this container",
+      "key": "DOCKER_RUN_SCHEDULER",
+      "value": "true",
+      "description": "Runs the background tasks that fetch weather data every minute. Leave this on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_CONNECTION",
+      "key": "DB_CONNECTION",
+      "value": "sqlite",
+      "description": "Database type. Leave on sqlite unless you run MySQL yourself (then also set DB_HOST, DB_PORT, DB_USERNAME and DB_PASSWORD).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_DATABASE",
+      "key": "DB_DATABASE",
+      "value": "/var/lib/weathernode/database.sqlite",
+      "description": "Location of the SQLite file inside the container. It must stay inside the Database folder above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CACHE_STORE",
+      "key": "CACHE_STORE",
+      "value": "file",
+      "description": "Where the cache is kept. Leave on file.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CONTAINERIZED",
+      "key": "CONTAINERIZED",
+      "value": "true",
+      "description": "Tells WeatherNode it runs in a container, so the Updates page tells you to update the container instead of using the in-app updater.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_ENV",
+      "key": "APP_ENV",
+      "value": "production",
+      "description": "Leave on production.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APP_DEBUG",
+      "key": "APP_DEBUG",
+      "value": "false",
+      "description": "Shows detailed error pages. Only turn on briefly while troubleshooting, as it can reveal settings.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

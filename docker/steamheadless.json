@@ -1,6 +1,6 @@
 {
   "name": "steam-headless",
-  "repo": "josh5/steam-headless:latest",
+  "repo": "josh5/steam-headless:2",
   "category": [
     "Game Server"
   ],
@@ -9,129 +9,158 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--hostname=SteamHeadless --add-host=SteamHeadless:127.0.0.1 --restart=unless-stopped --shm-size=2G --ipc=host -v /tmp/.X11-unix/:/tmp/.X11-unix/:rw -v /tmp/pulse/:/tmp/pulse/:rw --ulimit=nofile=1024:524288 --device=/dev/fuse --device=/dev/uinput --device-cgroup-rule=c 13:* rmw --cap-add=NET_ADMIN --cap-add=SYS_ADMIN --cap-add=SYS_NICE --security-opt=seccomp=unconfined",
+  "extra_parameters": "--hostname=steam-headless --security-opt writable-cgroups=true\n        --security-opt seccomp=unconfined --security-opt systempaths=unconfined --cgroupns private\n        --cap-add SYS_ADMIN --cap-add SYS_PTRACE --cap-add NET_ADMIN --cap-add DAC_READ_SEARCH\n        --cap-add SYS_NICE --device-cgroup-rule c 13:* rwm --stop-signal SIGRTMIN+3\n        --stop-timeout 30 --pids-limit 8192 --shm-size 2g -t\n        --tmpfs /run --tmpfs /run/lock --tmpfs /tmp --tmpfs /dev/input:rw,dev,mode=0755",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:8083]/",
-  "icon": "https://raw.githubusercontent.com/Josh5/docker-steam-headless/master/images/steam-icon.png",
-  "project": "https://github.com/Steam-Headless/",
-  "description": "Headless Steam Service Remote Game Streaming Server. Play your games either in the browser with audio or via Steam Link or Moonlight. Play from another Steam Client with Steam Remote Play. ## Features: - Steam Client configured for running on Linux with Proton - Moonlight compatible server for easy remote desktop streaming - Easily install additional launchers like EmulationStation, Heroic and Lutris - Full video/audio noVNC web access to a Xfce4 Desktop - NVIDIA, AMD and Intel GPU support - Full controller support - Support for Flatpak and Appimage installation - Root access - Based on Debian Bookworm --- ## Notes: ### ADDITIONAL SOFTWARE: If you wish to install additional applications, you can generate a script inside the `~/init.d` directory ending with \".sh\". This will be executed on the container startup. ### STORAGE PATHS: Everything that you wish to save in this container should be stored in the home directory or a docker container mount that you have specified. All files that are store outside your home directory are not persistent and will be wiped if there is an update of the container or you change something in the template. ### GAMES LIBRARY: It is recommended that you mount your games library to `/mnt/games/GameLibrary/SteamLibrary` and configure Steam to add that path. ### AUTO START APPLICATIONS: In this container, Steam is configured to automatically start. If you wish to add additional services to automatically start, add them under **Applications > Settings > Session and Startup** in the Web UI. ### NETWORK MODE: If you want to use the container as a Steam Remote Play (previously \"In Home Streaming\") host device you should set the **\"Network Type:\"** to *\"Host\"*. This is a requirement for controller hardware to work and to prevent traffic being routed through the internet since Steam thinks you are on a different network. ### NVIDIA GPU: To enable NVIDIA GPU support, ensure that you have installed the **Nvidia-Driver** plugin and add the *\"--runtime='nvidia'\"* parameter added to **\"Extra Parameters:\"** ### AMD GPU: To enable AMD GPU support, ensure that you have installed the **Radeon-TOP** plugin. ### AMD OR INTEL HW ACCELERATED VIDEO ENCODING: To enable support for VAAPI HW Accelerated Video Encoding, add the *\"--device='/dev/dri'\"* parameter added to **\"Extra Parameters:\"** ### USING HOST INPUT DEVICES: If you wish to connect a keyboard/mouse to this container, you should run it with the **\"Privileged:\"** flag \"On\". Likewise if you have issues with remote controllers, try toggling this on. ### USING HOST X SERVER: If your host is already running X, you can just use that. To do this, be sure to configure: - DISPLAY=:0 **(Variable)** - *Configures the sceen to use the primary display. Set this to whatever your host is using* - MODE=secondary **(Variable)** - *Configures the container to not start an X server of its own* - HOST_DBUS=true **(Variable)** - *Optional - Configures the container to use the host dbus process* - /run/dbus:/run/dbus:ro **(Mount)** - *Optional - Configures the container to use the host dbus process*",
+  "web_ui_url": "https://[IP]:8483/",
+  "icon": "https://steamheadless.com/img/steam-headless-unraid-template-icon.png",
+  "project": "https://steamheadless.com/",
+  "description": "Steam Headless is a containerised gaming desktop with Steam and Sunshine pre-installed. See the Steam Headless documentation for setup, GPU configuration and troubleshooting: https://steamheadless.com/docs/installation/host-preparation/Unraid WARNING: Host networking supports one Steam Headless container only. To run more than one, use macvlan networking and configure unique hostname values and appdata paths for every container.",
   "paths": [
     {
-      "name": "Appdata",
-      "host": "/mnt/cache/appdata/steam-headless",
-      "container": "/home/default",
+      "name": "User Profile",
+      "host": "/mnt/cache/appdata/steam-headless/home",
+      "container": "/home/steamheadless",
       "mode": "rw",
-      "description": "Default user home directory. All application software and configuration will be saved into this directory. Any files saved outside of this path will be cleared if the container image this templated is updated.",
-      "required": false
+      "description": "Persistent Steam profile, Proton prefixes, desktop settings and browser state. Keep on a direct cache-pool or disk path, never a /mnt/user FUSE share, and private to this container.",
+      "required": true
     },
     {
-      "name": "Games",
+      "name": "Steam Headless State",
+      "host": "/mnt/cache/appdata/steam-headless/state",
+      "container": "/var/lib/steam-headless",
+      "mode": "rw",
+      "description": "Persistent settings, TLS certificates and Sunshine pairing keys. Use the direct cache-pool default, not a /mnt/user FUSE share. Set this alongside User Profile when changing the appdata location.",
+      "required": true
+    },
+    {
+      "name": "System Journal",
+      "host": "/mnt/cache/appdata/steam-headless/journal",
+      "container": "/var/log/journal",
+      "mode": "rw",
+      "description": "Persistent system and service logs. Use the direct cache-pool default, not a /mnt/user FUSE share, or SHUI may be unable to read logs. Set this alongside User Profile when changing the appdata location.",
+      "required": true
+    },
+    {
+      "name": "Game Library",
       "host": "/mnt/cache/Games",
       "container": "/mnt/games",
       "mode": "rw",
-      "description": "Option path to your games. This path will need to also be configured in Steam after the first boot.",
+      "description": "Steam library path. Use a direct disk or Unassigned Devices path, not a /mnt/user share.",
+      "required": true
+    },
+    {
+      "name": "Local Time",
+      "host": "/etc/localtime",
+      "container": "/run/host-localtime",
+      "mode": "ro",
+      "description": "Provides the host timezone to the container.",
       "required": false
+    },
+    {
+      "name": "Input Discovery",
+      "host": "/sys/devices/virtual/input",
+      "container": "/sys/devices/virtual/input",
+      "mode": "ro",
+      "description": "Read-only virtual-input sysfs required by the container's virtual-input service.",
+      "required": true
     }
   ],
   "ports": [],
   "variables": [
     {
-      "name": "User password",
-      "key": "USER_PASSWORD",
-      "value": "password",
-      "description": "The password for this container. Note: This password will also be used for the root user. However, the default user has sudo access.",
-      "required": false,
-      "mask": true
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Numeric host user ID that should own the persistent profile and games files.",
+      "required": true,
+      "mask": false
     },
     {
-      "name": "Timezone",
-      "key": "TZ",
-      "value": "Pacific/Auckland",
-      "description": "Enter your local timezone. You can find a full list of supported timezones in: '/usr/share/zoneinfo' (eg: 'Etc/UTC' or 'Australia/Melbourne',...)",
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Numeric host group ID that should own the persistent profile and games files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session Mode",
+      "key": "STEAM_HEADLESS_SESSION_MODE",
+      "value": "desktop",
+      "description": "Initial frontend mode. Use 'desktop' for KDE Plasma or 'gaming' for nested Gamescope and Steam Gamepad UI.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Locales",
-      "key": "USER_LOCALES",
-      "value": "en_US.UTF-8 UTF-8",
-      "description": "Enter your prefered locales. You can find a full list of supported languages in: '/usr/share/i18n/SUPPORTED' (eg: 'en_US.UTF-8 UTF8' or 'de_DE.UTF-8 UTF-8',...)",
+      "name": "Desktop Steam Autostart",
+      "key": "ENABLE_STEAM_SYSTEMD_SERVICE",
+      "value": "true",
+      "description": "When set to 'true' (default), the background systemd service starts Steam automatically with the desktop and restarts it after it closes. Set to 'false' to disable the autostart service while leaving Steam installed for manual launch.",
       "required": false,
       "mask": false
     },
     {
-      "name": "NVIDIA_PATCH_VERSION",
-      "key": "NVIDIA_PATCH_VERSION",
+      "name": "Compositor Render Device",
+      "key": "COMPOSITOR_RENDER_DEVICE",
       "value": "",
-      "description": "Set with a commit sha or branch name from the https://github.com/keylase/nvidia-patch project. This will download the patch and apply it to the NVIDIA drivers. Leave blank to disable this feature and not patch the drivers.",
+      "description": "[OPTIONAL] DRM render device used by the desktop compositor. Leave blank to select the first available render node.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Web UI Mode",
-      "key": "WEB_UI_MODE",
-      "value": "vnc",
-      "description": "Options: ['vnc', 'neko', 'none']. Select a Web UI to run. Each has their own pros/cons. Set to 'none' to disable the Web UI. Note: The Web UI is disabled if the container is run in 'secondary' mode.",
+      "name": "Encoder Render Device",
+      "key": "ENCODER_RENDER_DEVICE",
+      "value": "",
+      "description": "[OPTIONAL] DRM render device used by SHUI and Sunshine for hardware video encoding. Leave blank to use the compositor render device.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Nvidia GPU UUID",
+      "name": "NVIDIA Visible Devices",
       "key": "NVIDIA_VISIBLE_DEVICES",
       "value": "all",
-      "description": "For users with multiple GPUs, add the ID found under the",
+      "description": "NVIDIA runtime selection. Defaults to all NVIDIA GPUs; set a specific NVIDIA device ID when the host has multiple NVIDIA GPUs and only one should be passed into the container.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Driver Capabilities",
+      "name": "NVIDIA Driver Capabilities",
       "key": "NVIDIA_DRIVER_CAPABILITIES",
       "value": "all",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Display ID",
-      "key": "DISPLAY",
-      "value": ":55",
-      "description": "Set the X display. To use the host X server, set this to :0 (or whatever your host is currently running in /tmp/.X11-unix/X*)",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Mode",
-      "key": "MODE",
-      "value": "primary",
-      "description": "Options: ['primary', 'secondary']. Most of the time this should be set to 'primary' on a headless server. If your server is already running an X server that you wish to use, set this to 'secondary'.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Web UI Port",
-      "key": "PORT_NOVNC_WEB",
-      "value": "8083",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Enable Web UI Audio",
-      "key": "ENABLE_VNC_AUDIO",
-      "value": "false",
-      "description": "Enable Web UI Audio. This creats a opus encoded audio websocket that will tie into the VNC Web UI. Disable this if your browser is incompatible or you do not wish for this additional process overhead.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Enable Keyboard &amp; Mouse Passthrough",
-      "key": "ENABLE_EVDEV_INPUTS",
-      "value": "true",
-      "description": "Options: ['true', 'false']. Enable Keyboard and Mouse Support (Including Passthrough). This will configure the X server to catch all evdev events for Keyboard, Mouse, etc.",
+      "description": "NVIDIA runtime capabilities. All provides graphics, compute and NVENC video libraries.",
       "required": false,
       "mask": false
     }
   ],
-  "devices": [],
+  "devices": [
+    {
+      "name": "GPU Render Node",
+      "host": "/dev/dri/renderD128",
+      "container": "/dev/dri/renderD128",
+      "description": "GPU rendering and hardware encoding device. Run 'for node in /sys/class/drm/renderD*; do pci=$(basename $(readlink -f $node/device)); echo /dev/dri/$(basename $node) - $(lspci -s $pci); done' to list render nodes with their GPU vendor and model.",
+      "required": true
+    },
+    {
+      "name": "FUSE Filesystem",
+      "host": "/dev/fuse",
+      "container": "/dev/fuse",
+      "description": "Required by Flatpak and AppImage sandboxing.",
+      "required": true
+    },
+    {
+      "name": "Virtual Input",
+      "host": "/dev/uinput",
+      "container": "/dev/uinput",
+      "description": "Required for virtual keyboard, mouse and controller input.",
+      "required": true
+    },
+    {
+      "name": "Virtual HID",
+      "host": "/dev/uhid",
+      "container": "/dev/uhid",
+      "description": "Required for virtual HID controller emulation.",
+      "required": true
+    }
+  ],
   "labels": []
 }

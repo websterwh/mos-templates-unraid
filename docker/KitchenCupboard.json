@@ -1,0 +1,83 @@
+{
+  "name": "KitchenCupboard",
+  "repo": "finalbillybong/kitchen-cupboard:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/finalbillybong/kitchen-cupboard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/finalbillybong/Kitchen-cupboard/main/frontend/public/icon-512.png",
+  "project": "https://github.com/finalbillybong/Kitchen-cupboard",
+  "description": "Kitchen Cupboard is a self-hosted recipe library, weekly meal planner and collaborative shopping list for households. Share recipes, ratings, a regular-purchase Basics checklist and pantry flags; plan batch cooking and leftovers, then review combined ingredients before adding them to shopping. Includes real-time list updates, recipe website imports, text/PDF/CSV exports and a mobile-friendly PWA with offline shopping-item edits. Photo extraction through a configured vision provider and one-way Nextcloud calendar sync are optional. Recipes and planning are shared across all active accounts; shopping lists have separate sharing permissions. This is a beta, and the latest image follows main. Set a random SECRET_KEY before starting, then create the first admin account locally; later registrations require invitations by default. HTTPS is needed for browser PWA/offline support except on localhost.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/kitchen-cupboard",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent SQLite database, recipe uploads and integration encryption key. Back up the entire directory before updating. The app runs as UID/GID 1001 after the entrypoint adjusts permissions.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8111",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "REQUIRED: Enter a random JWT signing key of at least 32 characters. Generate with: python3 -c 'import secrets; print(secrets.token_urlsafe(64))'. Keep it stable across updates. The app refuses to start with a missing or short key.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Registration Enabled",
+      "key": "REGISTRATION_ENABLED",
+      "value": "false",
+      "description": "Leave false to require invitations after initial setup. The first registered user becomes admin without an invite, even when this is false; create that account before public exposure. Set true only for open registration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "http://localhost:8111",
+      "description": "Set to the full URL users open, including http:// or https:// and any non-default port. Used for recipe links in Nextcloud calendar events. Replace localhost with your server address or public hostname.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Integration LAN Hosts",
+      "key": "INTEGRATION_LAN_HOSTS",
+      "value": "",
+      "description": "Optional comma-separated hostnames of internal HTTPS Nextcloud or vision servers. Use hostnames only, without schemes or paths. TLS certificates are still verified. Leave empty for public endpoints only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "CORS_ORIGINS",
+      "value": "",
+      "description": "Optional comma-separated browser origins allowed to call the API. Leave empty for same-origin only; command-line and server-side agents do not require this.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

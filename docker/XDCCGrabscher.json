@@ -1,0 +1,128 @@
+{
+  "name": "XDCC-Grabscher",
+  "repo": "ghcr.io/captainepix/xdcc-grabscher:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/CaptainEpix/xdcc-grabscher/pkgs/container/xdcc-grabscher",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5556]",
+  "icon": "https://raw.githubusercontent.com/CaptainEpix/xdcc-grabscher-unraid/main/xg-icon.png",
+  "project": "https://github.com/CaptainEpix/xdcc-grabscher",
+  "description": "XG (XDCC Grabscher) is a web-based IRC/XDCC download manager. This container packages the maintained Mono/Docker compatibility fork, including native IRC TLS support, NickServ authentication fixes, and modern browser/dashboard compatibility improvements. XG can also act as a Newznab indexer and a SABnzbd download client, so Prowlarr, Sonarr and Radarr can search XDCC bots and send grabs to XG. Optional passive (reverse) DCC support lets XG download from bots that cannot connect out, and downloads grabbed by Sonarr/Radarr can go into a folder per category. See the ReadMe for the setup steps.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/xdcc-grabscher",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent XG configuration, database, and application state.",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads/xdcc-grabscher",
+      "container": "/config/.config/XG/dl",
+      "mode": "rw",
+      "description": "Directory where completed and in-progress XDCC downloads are stored. With XG_CATEGORY_FOLDERS set, Sonarr/Radarr grabs go into subfolders such as tv and movies.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "5556",
+      "container": "5556",
+      "protocol": "tcp",
+      "description": "HTTP port used by the XG WebUI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC port 1",
+      "host": "50000",
+      "container": "50000",
+      "protocol": "tcp",
+      "description": "Optional. Host port for passive DCC; set it to 50000 when XG_PASSIVE_DCC_PORTS includes 50000. Leave empty when passive DCC is off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC port 2",
+      "host": "50001",
+      "container": "50001",
+      "protocol": "tcp",
+      "description": "Optional. Host port for passive DCC; set it to 50001 when XG_PASSIVE_DCC_PORTS includes 50001. Leave empty when passive DCC is off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC port 3",
+      "host": "50002",
+      "container": "50002",
+      "protocol": "tcp",
+      "description": "Optional. Host port for passive DCC; set it to 50002 when XG_PASSIVE_DCC_PORTS includes 50002. Leave empty when passive DCC is off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC port 4",
+      "host": "50003",
+      "container": "50003",
+      "protocol": "tcp",
+      "description": "Optional. Host port for passive DCC; set it to 50003 when XG_PASSIVE_DCC_PORTS includes 50003. Leave empty when passive DCC is off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC port 5",
+      "host": "50004",
+      "container": "50004",
+      "protocol": "tcp",
+      "description": "Optional. Host port for passive DCC; set it to 50004 when XG_PASSIVE_DCC_PORTS includes 50004. Leave empty when passive DCC is off.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Category folders",
+      "key": "XG_CATEGORY_FOLDERS",
+      "value": "",
+      "description": "Optional. Put downloads grabbed by Sonarr/Radarr into a subfolder named after their category. Use all (every category) or a list such as tv,movies. Leave empty to keep everything in the download folder.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC ports",
+      "key": "XG_PASSIVE_DCC_PORTS",
+      "value": "",
+      "description": "Optional. Ports XG listens on for passive (reverse) DCC, for example 50000-50004. Also fill in the matching Passive DCC port entries below and forward the same ports on your router. Leave empty to disable passive DCC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passive DCC public IP",
+      "key": "XG_PASSIVE_DCC_IP",
+      "value": "",
+      "description": "Optional. Your public IPv4 address for passive DCC. Leave empty to detect it automatically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Silent bot timeout",
+      "key": "XG_COMPAT_SILENT_BOT_SECONDS",
+      "value": "",
+      "description": "Optional. Seconds before a Sonarr/Radarr grab fails when the bot does not answer at all. Leave empty for the default of 900 (15 minutes).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

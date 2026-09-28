@@ -1,0 +1,171 @@
+{
+  "name": "tpdb-jellyfin-poster-manager",
+  "repo": "tpdb-jellyfin-poster-manager:docker",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/_/tpdb-jellyfin-poster-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5001]/",
+  "icon": "https://raw.githubusercontent.com/Soitora/TPDB_JellyfinPosterManager/docker/static/images/favicon.ico",
+  "project": "https://github.com/Soitora/TPDB_JellyfinPosterManager/tree/docker",
+  "description": "Jellyfin Poster Manager finds and uploads posters from ThePosterDB to Jellyfin. This temporary template uses the locally built image tag tpdb-jellyfin-poster-manager:docker, sourced from the project's docker branch. Build the image before installing or updating this container: docker build --pull --tag tpdb-jellyfin-poster-manager:docker https://github.com/Soitora/TPDB_JellyfinPosterManager.git#docker The app has no authentication. Do not expose its web interface to the public internet. The container runs as UID 10001, so its data, cache, and logs directories must be writable by that user.",
+  "paths": [
+    {
+      "name": "Application data",
+      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Durable SQLite state, jobs, selections, and settings. Must be writable by UID 10001.",
+      "required": true
+    },
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/cache",
+      "container": "/app/cache",
+      "mode": "rw",
+      "description": "Disposable poster-picker cache and temporary images. Must be writable by UID 10001.",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Application logs and optional ThePosterDB debug snapshots. Must be writable by UID 10001.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "5001",
+      "container": "5001",
+      "protocol": "tcp",
+      "description": "The browser-accessible port for the application.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "A URL reachable from this container, such as http://192.168.1.10:8096. Do not use localhost for Jellyfin running on the Unraid host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "Create an API key in Jellyfin Dashboard &gt; API Keys.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ThePosterDB email",
+      "key": "TPDB_EMAIL",
+      "value": "",
+      "description": "The email address for the ThePosterDB account used to search for posters.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ThePosterDB password",
+      "key": "TPDB_PASSWORD",
+      "value": "",
+      "description": "The password for the ThePosterDB account.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TMDB API key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional, but improves title and year matching.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "A long, randomly generated value used for Flask sessions. Set this before use and retain it across updates.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web host",
+      "key": "WEB_HOST",
+      "value": "0.0.0.0",
+      "description": "Leave at 0.0.0.0 so Unraid's port mapping can reach the application.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web port",
+      "key": "WEB_PORT",
+      "value": "5001",
+      "description": "Must match the container port in the Web UI port setting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Debug mode",
+      "key": "DEBUG",
+      "value": "false",
+      "description": "Enables detailed application logging and debug routes. Keep disabled during normal use.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum posters per item",
+      "key": "MAX_POSTERS_PER_ITEM",
+      "value": "18",
+      "description": "Maximum individual poster choices returned for one media item.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum ThePosterDB sets per item",
+      "key": "MAX_TPDB_SETS_PER_ITEM",
+      "value": "30",
+      "description": "Maximum poster sets returned for one media item.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ThePosterDB batch delay (seconds)",
+      "key": "TPDB_BATCH_DELAY_SEC",
+      "value": "1.5",
+      "description": "Delay between ThePosterDB batch requests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Picker cache maximum age (days)",
+      "key": "TPDB_PICKER_CACHE_MAX_AGE_DAYS",
+      "value": "7",
+      "description": "How long disposable picker metadata remains cached.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ThePosterDB debug snapshots",
+      "key": "TPDB_DEBUG_SNAPSHOTS",
+      "value": "false",
+      "description": "Save ThePosterDB challenge pages to the logs directory. Enable only while troubleshooting.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

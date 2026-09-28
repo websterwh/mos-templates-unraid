@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]/",
   "icon": "https://raw.githubusercontent.com/joszz/garagestack/main/frontend/public/pwa-192x192.png",
   "project": "https://github.com/joszz/garagestack",
-  "description": "GarageStack is an open-source vehicle monitoring dashboard for MG / SAIC electric and plug-in hybrid vehicles. It connects to the MG iSmart cloud via the SAIC MQTT Gateway and stores all data locally in an embedded PostgreSQL database. Features include a live dashboard, charging and efficiency statistics, trip history with heatmap visualisation, and Web Push notifications. Everything runs in a single container -- no external database or MQTT broker required.",
+  "description": "GarageStack is an open-source vehicle monitoring dashboard for MG / SAIC electric, plug-in hybrid, and hybrid vehicles. It connects to the MG iSmart cloud via the SAIC MQTT Gateway and stores all data locally in an embedded PostgreSQL database. Features include: live dashboard, energy and efficiency statistics, trip history with heatmap visualisation, EV charging station overlay (requires free OCM API key), fuel station and motorway service area overlays (OpenStreetMap, no key required), Web Push notifications, and a Homepage dashboard widget. Everything runs in a single container -- no external database or MQTT broker required.",
   "paths": [
     {
       "name": "Data Directory",
@@ -40,7 +40,7 @@
       "host": "1883",
       "container": "1883",
       "protocol": "tcp",
-      "description": "Host port for the internal Mosquitto MQTT broker. Only expose if you need direct MQTT access from other devices.",
+      "description": "Host port for the internal Mosquitto MQTT broker. Leave blank (default) to keep the broker LAN-private. Only set if you need direct MQTT access from other devices, such as Home Assistant (see documentation/HOME_ASSISTANT.md).",
       "required": false,
       "mask": false
     }
@@ -66,7 +66,7 @@
       "name": "MG Region",
       "key": "SAIC_REGION",
       "value": "eu",
-      "description": "Region your vehicle is registered in: eu (Europe), cn (China), or row (Rest of World).",
+      "description": "Region your vehicle is registered in: eu (Europe, default), au (Australia/New Zealand), or tr (Turkiye). Automatically mapped to the right API endpoint.",
       "required": true,
       "mask": false
     },
@@ -74,16 +74,8 @@
       "name": "Database Password",
       "key": "POSTGRES_PASSWORD",
       "value": "",
-      "description": "Password for the embedded PostgreSQL database. Set a strong random value -- you will not need to enter this again. Generate one with: openssl rand -base64 24",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "JWT Secret",
-      "key": "JWT_SECRET",
-      "value": "",
-      "description": "Secret used to sign login tokens. Must be at least 32 characters. Generate with: openssl rand -base64 32",
-      "required": true,
+      "description": "Password for the embedded PostgreSQL database. If left empty a strong random password is auto-generated on first start and saved to /data/.postgres_password inside the data directory. Set explicitly only if you need to connect to the database directly with external tools. Generate with: openssl rand -base64 24",
+      "required": false,
       "mask": true
     },
     {
@@ -92,6 +84,174 @@
       "value": "http://localhost:8080",
       "description": "The exact URL you use to open GarageStack in your browser, e.g. http://192.168.1.100:8080. Must match exactly -- wrong value causes login to fail.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "OIDC Issuer URL",
+      "key": "OIDC_AUTHORITY",
+      "value": "",
+      "description": "Optional. Issuer URL of your identity provider (Authentik, Authelia, Keycloak, Pocket ID, ...) -- the URL its /.well-known/openid-configuration sits under. Setting this switches GarageStack to single sign-on and disables the built-in password login. Register the redirect URI App URL/api/auth/oidc/callback at your provider. See documentation/AUTHENTICATION.md.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client ID issued by your identity provider for GarageStack. Required when OIDC Issuer URL is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret issued by your identity provider. Leave empty for a public client that uses PKCE only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Allowed Groups",
+      "key": "OIDC_ALLOWED_GROUPS",
+      "value": "",
+      "description": "Comma-separated groups allowed to sign in, e.g. garagestack-users. Leave empty only if your provider already restricts who can use this application -- otherwise every account it accepts can sign in and control your car.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Allowed Emails",
+      "key": "OIDC_ALLOWED_EMAILS",
+      "value": "",
+      "description": "Comma-separated email addresses allowed to sign in. Useful with providers that have no groups. Works alongside OIDC Allowed Groups -- a match on either list grants access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Provider Name",
+      "key": "OIDC_PROVIDER_NAME",
+      "value": "SSO",
+      "description": "Name shown on the sign-in button, e.g. Authentik.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep Password Login With OIDC",
+      "key": "AUTH_PASSWORD_LOGIN_ENABLED",
+      "value": "",
+      "description": "Set to true to keep the built-in username/password login available alongside single sign-on, e.g. as break-glass access for when your identity provider is down. Leave empty to switch it off automatically once OIDC is configured. Set AUTH_USERNAME and AUTH_PASSWORD to a strong dedicated password if you enable this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Username",
+      "key": "AUTH_USERNAME",
+      "value": "",
+      "description": "Username for the built-in web login. Leave empty to sign in with the MG iSmart email above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Password",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Password for the built-in web login. Leave empty to sign in with the MG iSmart password above. Set a strong dedicated password when the login stays enabled alongside single sign-on.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Session Cookie",
+      "key": "AUTH_COOKIE_SECURE",
+      "value": "false",
+      "description": "Set to true when GarageStack is served over HTTPS (behind a TLS-terminating reverse proxy) so the session cookie is never sent over plain HTTP. Leave false for a plain-HTTP LAN install, or you will not be able to log in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session Lifetime (hours)",
+      "key": "AUTH_SESSION_LIFETIME_HOURS",
+      "value": "168",
+      "description": "How long a single sign-on session lasts before the identity provider is consulted again. Signing in again is usually invisible while the provider's own session is still valid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Auto Login",
+      "key": "OIDC_AUTO_LOGIN",
+      "value": "false",
+      "description": "Set to true to skip the GarageStack login page and go straight to your identity provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Scopes",
+      "key": "OIDC_SCOPES",
+      "value": "openid profile email",
+      "description": "Scopes requested from the identity provider. Add the scope that carries group membership if your provider needs one for OIDC Allowed Groups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Groups Claim",
+      "key": "OIDC_GROUPS_CLAIM",
+      "value": "groups",
+      "description": "Name of the token claim that OIDC Allowed Groups is matched against. Provider-specific; groups covers most.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Redirect URI",
+      "key": "OIDC_REDIRECT_URI",
+      "value": "",
+      "description": "Only needed when GarageStack cannot work out its own public URL, e.g. behind several chained reverse proxies. Must be App URL/api/auth/oidc/callback. Leave empty otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Require HTTPS Metadata",
+      "key": "OIDC_REQUIRE_HTTPS_METADATA",
+      "value": "true",
+      "description": "Set to false only for an identity provider served over plain HTTP on your LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home Assistant MQTT Username",
+      "key": "HA_MQTT_USERNAME",
+      "value": "",
+      "description": "Optional. Creates a broker login for the Home Assistant MQTT integration, limited to the car's topics. The car then appears in Home Assistant automatically. Also set the MQTT Port above so Home Assistant can reach the broker. See documentation/HOME_ASSISTANT.md.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home Assistant MQTT Password",
+      "key": "HA_MQTT_PASSWORD",
+      "value": "",
+      "description": "Password for the Home Assistant MQTT login. Required when Home Assistant MQTT Username is set. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Internal MQTT Username",
+      "key": "MQTT_BROKER_USERNAME",
+      "value": "garagestack",
+      "description": "Login the SAIC gateway, API and Worker use on the bundled Mosquitto broker. Only relevant if you connect other MQTT clients to the exposed MQTT port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal MQTT Password",
+      "key": "MQTT_BROKER_PASSWORD",
+      "value": "",
+      "description": "Password for the internal broker login. Leave empty to have a random one generated at every start (fine unless external MQTT clients need a stable password). Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MG API Endpoint Override",
+      "key": "SAIC_REST_URI",
+      "value": "",
+      "description": "Optional. Only needed if your region isn't eu, au, or tr -- set directly to your gateway's endpoint.",
+      "required": false,
       "mask": false
     },
     {
@@ -109,6 +269,110 @@
       "description": "VAPID private key for Web Push notifications. Keep this secret.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Notification Language",
+      "key": "NOTIFICATION_LANGUAGE",
+      "value": "en",
+      "description": "Language of the push notification texts (Engine started, Door left open, ...): en or nl. Notifications are written by the background worker, which has no browser to take a language from, so this is set per deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Homepage Widget API Key",
+      "key": "WIDGET_API_KEY",
+      "value": "",
+      "description": "Static API key for the read-only /api/widget/{vin}/status endpoint used by the gethomepage.dev Custom API widget. Leave empty to keep the endpoint disabled. Generate with: openssl rand -base64 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Open Charge Map API Key",
+      "key": "OPENCHARGEMAP_API_KEY",
+      "value": "",
+      "description": "API key for the EV charging station overlay on the map. Free to obtain at https://openchargemap.org/site/develop -- create an account and generate a key. Leave empty to disable the charging station feature.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Overpass API Base URL",
+      "key": "OVERPASS__BASEURL",
+      "value": "https://overpass-api.de/api/interpreter",
+      "description": "Overpass API endpoint used for fuel station and motorway service area overlays. Defaults to the public endpoint -- no API key required. Change this only if you self-host an Overpass instance.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Speed Camera Layer Enabled",
+      "key": "SPEEDCAMERAS__ENABLED",
+      "value": "true",
+      "description": "Offers a map layer of the speed cameras mapped in OpenStreetMap. No API key required, and the layer stays off until you switch it on in the map's layer panel. Set to false to remove it from the deployment entirely -- do that where showing a driver where the cameras are is restricted, France and Germany among others.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Reverse Geocoding Enabled",
+      "key": "GEOCODING__ENABLED",
+      "value": "true",
+      "description": "Turns coordinates into place names via OpenStreetMap Nominatim: city names in the trip list and the street the car is parked in. No API key required, and answers are cached for 90 days. Set to false to keep coordinates off a third-party service -- the trip list then shows dates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Nominatim Base URL",
+      "key": "GEOCODING__BASEURL",
+      "value": "https://nominatim.openstreetmap.org",
+      "description": "Nominatim endpoint used for those place names. Defaults to the public instance -- no API key required. Change this only if you self-host Nominatim.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Map Matching Enabled",
+      "key": "MAPMATCHING__ENABLED",
+      "value": "true",
+      "description": "Draws a selected trip along the roads it was driven on, snapped onto OpenStreetMap by Valhalla, instead of in straight lines between GPS fixes. No API key required, and snapped trips are cached for 30 days. Set to false to keep trip geometry off a third-party service -- trips are then drawn from their raw fixes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Valhalla Base URL",
+      "key": "MAPMATCHING__BASEURL",
+      "value": "https://valhalla1.openstreetmap.de",
+      "description": "Valhalla endpoint used for that snapping. Defaults to the public instance -- no API key required. Change this only if you self-host Valhalla.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tyre Pressure - Low (bar)",
+      "key": "TYRE_PRESSURE_LOW_BAR",
+      "value": "2.2",
+      "description": "Tyre pressure (bar) below which a tyre is shown red / triggers a low-pressure alert. Override to match your vehicle's placarded pressure.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tyre Pressure - Good (bar)",
+      "key": "TYRE_PRESSURE_GOOD_BAR",
+      "value": "2.6",
+      "description": "Tyre pressure (bar) at and above which a tyre is shown green (healthy). Below this and above the low threshold, it is shown orange.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tyre Pressure - High (bar)",
+      "key": "TYRE_PRESSURE_HIGH_BAR",
+      "value": "3.2",
+      "description": "Tyre pressure (bar) above which a tyre is shown red / triggers an over-inflation alert.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HV Battery Capacity (kWh)",
+      "key": "HV_BATTERY_CAPACITY_KWH",
+      "value": "",
+      "description": "Usable capacity of the traction battery, in kWh. The MQTT gateway assumes an EV-sized pack rather than reading the real one, so the kWh it reports are far too large on a plain hybrid (an MG HS Hybrid+ carries 1.83 kWh and is reported as 72.5). Leave empty to keep the gateway's figure on a BEV or PHEV and show charge as a percentage only on a hybrid.",
+      "required": false,
+      "mask": false
     },
     {
       "name": "Database Name",

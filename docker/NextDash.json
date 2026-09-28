@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8080]",
   "icon": "https://github.com/jordibrouwer/nextdash/blob/main/static/nextdash-logo.png?raw=true",
   "project": "https://www.nextdash.cc",
-  "description": "NextDash is a lightweight, self-hosted bookmark dashboard that features a minimalist, keyboard-driven interface with extensive customization options, making it the perfect personal dashboard for power users. Based on the excellent ThinkDashboard. Key features: \u2022 Keyboard-driven navigation for fast access to all your bookmarks \u2022 Extensive theme and layout customization \u2022 Inbox feature to quickly collect new links and organize them later \u2022 Lightweight and fast, no heavy dependencies \u2022 Actively maintained with regular releases Links: \u2022 Website: https://www.nextdash.cc \u2022 Source code and releases: https://github.com/jordibrouwer/nextdash \u2022 Changelog: https://github.com/jordibrouwer/nextdash/releases \u2022 Devlog / release updates: https://www.nextdash.cc/news \u2022 Also available on GHCR: ghcr.io/jordibrouwer/nextdash:latest Support: open an issue on GitHub via the Support link above. Bug reports and feature requests are welcome.",
+  "description": "NextDash is a lightweight, self-hosted bookmark dashboard that features a minimalist, keyboard-driven interface with extensive customization options, making it the perfect personal dashboard for power users. Based on the excellent ThinkDashboard. Key features: \u2022 Keyboard-driven navigation for fast access to all your bookmarks \u2022 Extensive theme and layout customization \u2022 Inbox to collect new links fast: triage them, or keep them on a Kept tab and file whole groups later \u2022 Health view that finds broken, stale and duplicate links, with uptime monitoring and downtime alerts \u2022 Video bookmarks marked in the list, and played in the hover card without leaving the dashboard \u2022 Widgets beside your bookmarks: 21 built-in kinds (uptime, feeds, weather, calendar, disks, containers and more) plus a Custom widget for any JSON API \u2022 Six interface languages: English, Dutch, German, French, Spanish and Chinese \u2022 Lightweight and fast, no heavy dependencies \u2022 Actively maintained with regular releases Links: \u2022 Website: https://www.nextdash.cc \u2022 Source code and releases: https://github.com/jordibrouwer/nextdash \u2022 Changelog: https://github.com/jordibrouwer/nextdash/releases \u2022 Devlog / release updates: https://www.nextdash.cc/news \u2022 Also available on GHCR: ghcr.io/jordibrouwer/nextdash:latest \u2022 User manual: https://github.com/jordibrouwer/nextdash/blob/main/MANUAL.md The host widgets (Processor, Memory, Disks, Containers) are off until you fill in the optional paths and variables below \u2014 they are hidden under Show more settings. Section 11.4 of the manual explains what each one reads. Support: open an issue on GitHub via the Support link above. Bug reports and feature requests are welcome.",
   "paths": [
     {
       "name": "AppData",
@@ -23,6 +23,30 @@
       "mode": "rw",
       "description": "Persistent storage path for NextDash data (bookmarks, settings)",
       "required": true
+    },
+    {
+      "name": "Host proc",
+      "host": "",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "Optional. Mount the host /proc here for the Processor and Memory widgets. Host path: /proc",
+      "required": false
+    },
+    {
+      "name": "Host disks",
+      "host": "",
+      "container": "/host/root/mnt",
+      "mode": "ro,rslave",
+      "description": "Optional. Mount the array here for the Disks widget. Host path: /mnt \u2014 then name /mnt/user or /mnt/cache in the widget.",
+      "required": false
+    },
+    {
+      "name": "Docker socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Optional. Mount the Docker socket here for the Containers widget. Host path: /var/run/docker.sock \u2014 read-only still exposes the daemon's whole read API, so use a socket proxy if that is too much.",
+      "required": false
     }
   ],
   "ports": [
@@ -36,7 +60,48 @@
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Write token",
+      "key": "NEXTDASH_WRITE_TOKEN",
+      "value": "",
+      "description": "Optional. Require this token in the X-NextDash-Token header on every write. Leave empty for an open instance on a trusted network.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "NEXTDASH_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Optional. Addresses and CIDR ranges whose X-Forwarded-For header is believed, comma-separated \u2014 set this if nextDash sits behind a reverse proxy, so rate limits count per visitor instead of per proxy. Left empty the header is ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host proc variable",
+      "key": "NEXTDASH_HOST_PROC",
+      "value": "",
+      "description": "Optional. Set to /host/proc once the mount above is filled in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host root variable",
+      "key": "NEXTDASH_HOST_ROOT",
+      "value": "",
+      "description": "Optional. Set to /host/root once the disks mount above is filled in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Docker socket variable",
+      "key": "NEXTDASH_DOCKER_SOCKET",
+      "value": "",
+      "description": "Optional. Set to /var/run/docker.sock once the socket mount above is filled in. Unset, the Containers widget is hidden.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

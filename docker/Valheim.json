@@ -1,95 +1,81 @@
 {
   "name": "Valheim",
-  "repo": "ghcr.io/ich777/steamcmd:valheim",
+  "repo": "ferment9348/valheim:latest",
   "category": [
     "Game Server"
   ],
-  "registry": "https://hub.docker.com/r/ich777/steamcmd/",
+  "registry": "https://hub.docker.com/r/ferment9348/valheim/",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
   "extra_parameters": "--restart=unless-stopped",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:2456-2458]",
-  "icon": "https://raw.githubusercontent.com/ich777/docker-templates/master/ich777/images/valheim.png",
-  "project": "https://www.valheimgame.com/",
-  "description": "This Docker will download and install SteamCMD. It will also install Valheim and run it. ATTENTION: First Startup can take very long since it downloads the gameserver files! SERVER BROWSER: It could take really long that the server shows up in the in game server list, if you want to connect directly simply go to the Steam Server Browser - View -> Servers -> Favourites -> Add Server -> SERVERIP:SERVERPORT+1 (eg: if the server port is 2456 then you have to enter something like: 192.168.0.1:2457) -> click on Add -> click on more time on Refresh, after that you can connect to the server with a double click. Update Notice: Simply restart the container if a newer version of the game is available. You can also run multiple servers with only one SteamCMD directory!",
+  "web_ui_url": "http://[IP]:[PORT:2456]",
+  "icon": "https://raw.githubusercontent.com/blckassassin/unraid-game-servers/main/valheim.png",
+  "project": "https://github.com/blckassassin/unraid-game-servers",
+  "description": "Valheim dedicated server. Native Linux binary via SteamCMD - no Proton or wine. First boot downloads about 2GB and settles at about 2.1GB. A password is required unless you set Public to 0. It must be at least 5 characters and it must not appear anywhere inside the server name. There is no config file. Every setting here is passed to the server as a launch flag, so changing a field and restarting takes effect immediately, and nothing you edit by hand is ever overwritten. Stopping saves the world, but only if the container is given time. Valheim saves on shutdown and has no other way to be told to save, so raise Unraid's container stop timeout to at least 150 seconds.",
   "paths": [
+    {
+      "name": "Game Files",
+      "host": "/mnt/cache/appdata/valheim",
+      "container": "/serverdata/serverfiles",
+      "mode": "rw",
+      "description": "Where the server, worlds and permission lists live. About 2.1GB - see Requires below. Your worlds are under savedir/worlds_local, and adminlist.txt, bannedlist.txt and permittedlist.txt sit beside that folder in savedir.",
+      "required": true
+    },
     {
       "name": "SteamCMD",
       "host": "/mnt/cache/appdata/steamcmd",
       "container": "/serverdata/steamcmd",
       "mode": "rw",
-      "description": "Container Path: /serverdata/steamcmd",
-      "required": true
-    },
-    {
-      "name": "ServerFiles",
-      "host": "/mnt/cache/appdata/valheim",
-      "container": "/serverdata/serverfiles",
-      "mode": "rw",
-      "description": "Container Path: /serverdata/serverfiles",
+      "description": "SteamCMD itself. Small, and shareable with other SteamCMD containers.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "UDP - Game Port Range",
-      "host": "2456-2458",
-      "container": "2456-2458",
+      "name": "Game Port",
+      "host": "2456",
+      "container": "2456",
       "protocol": "udp",
-      "description": "UDP Game Ports (If you need another port delete this Entry and create a new UDP port mapping with the corresponding port range | GAME_PORT +2 | also don't forget to click on show more and change the GAME_PORT)",
+      "description": "Game traffic, UDP, and the port to forward on your router. To move it you must set THREE things to the same number: this Host Port box, the Container Port behind the Edit button on this row, and Server Port below. Unraid greys out that Container Port box for every port a template supplied, so you cannot type your number into it. To move this port, Remove this entry and add your own Port entry with the Container Port and the Host Port both set to your number - a port entry you create yourself has no container port yet, and Unraid leaves those editable. Then move the Query and Crossplay rows to your number plus 1 and plus 2 the same way. A template update can restore these entries alongside yours; remove them again. See the README.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query Port",
+      "host": "2457",
+      "container": "2457",
+      "protocol": "udp",
+      "description": "Steam's server query port, always Game Port plus 1. This is the port you type into Steam's View, Servers, Favourites, Add a server box - NOT the game port. Getting that wrong is the single most common reason people cannot find their own server. Forward it alongside the game port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Crossplay Port",
+      "host": "2458",
+      "container": "2458",
+      "protocol": "udp",
+      "description": "Always Game Port plus 2. The comment block in the server's own start script tells you to forward 2456-2458, so this row exists to match that advice - but the server was never actually seen listening on it, with crossplay on or off, when the ports were read straight out of the running container. Publishing it costs nothing if 2458 is free. Remove the row if you would rather not publish a port nothing has been observed binding.",
       "required": false,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "GAME_ID",
-      "key": "GAME_ID",
-      "value": "896660",
-      "description": "The GAME_ID that the container downloads at startup. If you want to install a static or beta version of the game change the value to: '896660 -beta YOURBRANCH' (without quotes, replace YOURBRANCH with the branch or version you want to install).",
+      "name": "Server Port",
+      "key": "GAME_PORT",
+      "value": "2456",
+      "description": "The port the server binds. It must equal Game Port above, BOTH the Host Port and the Container Port. The query and crossplay ports are derived from it by the game and cannot be set separately. Under Network Type host there is no mapping and this is the only port number there is.",
       "required": true,
       "mask": false
     },
     {
-      "name": "GAME_PARAMS",
-      "key": "GAME_PARAMS",
-      "value": "",
-      "description": "Enter your extra start up commands for the server here otherwise leave empty.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Steam-Username",
-      "key": "USERNAME",
-      "value": "",
-      "description": "Your Steam username goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Validate Installation",
-      "key": "VALIDATE",
-      "value": "",
-      "description": "Set the Variable to 'true' if you want to validate the installation otherwise leave it blank.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Steam-Password",
-      "key": "PASSWRD",
-      "value": "",
-      "description": "Your Steam password goes here if you want to install a game that needs a valid account, otherwise leave it blank (ATTENTION: You have to disable Steam Guard).",
-      "required": false,
-      "mask": true
-    },
-    {
       "name": "Server Name",
-      "key": "SRV_NAME",
-      "value": "Valheim Docker",
-      "description": "Name of the Server",
+      "key": "SERVER_NAME",
+      "value": "Valheim Server",
+      "description": "Name shown in the server list. Applied on every restart. Note that the password below must not appear anywhere inside this name, or the server refuses to start.",
       "required": true,
       "mask": false
     },
@@ -97,79 +83,135 @@
       "name": "World Name",
       "key": "WORLD_NAME",
       "value": "Dedicated",
-      "description": "Name of the Server World",
+      "description": "Names the world the server creates on first boot, and the save it uses - savedir/worlds_local/name. Changing it after first boot starts a NEW world; the old one stays on disk and setting this name back returns to it. It does not rename anything.",
       "required": true,
       "mask": false
     },
     {
       "name": "Server Password",
       "key": "SRV_PWD",
-      "value": "Docker",
-      "description": "Server Password - ATTENTION: the minimum length is 6 characters!",
-      "required": true,
-      "mask": false
+      "value": "",
+      "description": "REQUIRED unless Public is 0. Three rules, all enforced by the server by refusing to start: at least 5 characters; it must not appear anywhere inside the Server Name above; and a server listed in the browser must have one. This container checks all three before launching and tells you which one failed. Leave blank only with Public set to 0, which gives an unlisted server anyone who can reach the port may join.",
+      "required": false,
+      "mask": true
     },
     {
-      "name": "Public Server",
+      "name": "Public",
       "key": "PUBLIC",
       "value": "1",
-      "description": "List Server as Public (set to '0' to disable or set to '1' to enable).",
+      "description": "1 lists the server so players can find it by name; 0 hides it, and players join with the Join IP button instead. This is the only way to run without a password.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Crossplay",
+      "key": "CROSSPLAY",
+      "value": "false",
+      "description": "Set to true to run on the crossplay (PlayFab) backend instead of Steam. Crossplay is what lets Xbox, PlayStation and Switch players join at all, and it removes the need to forward any port because traffic is relayed. The costs: your server disappears from the Steam server browser and appears in the in-game Community servers list instead, players join with a code rather than by address, and BepInEx mods are reported not to load. A crossplay server also stops listening on the game port entirely - only the query port stays bound - which is the flip side of not needing to forward anything. Iron Gate's own shipped start_server.sh now passes this flag by default, so this setting is worth revisiting rather than assuming.",
       "required": false,
       "mask": false
     },
     {
-      "name": "ValheimPlus",
-      "key": "ENABLE_VALHEIMPLUS",
+      "name": "World Preset",
+      "key": "PRESET",
       "value": "",
-      "description": "If you want to enable ValheimPlus set this variable to 'true' (without quotes). For more help please refer to this site: https://github.com/nxPublic/ValheimPlus",
+      "description": "World modifier preset, new in Valheim 1.0. One of: normal, casual, easy, hard, hardcore, immersive, hammer. Leave blank for a normal world. A preset resets every individual modifier it covers, and this container always applies it before the fields below so they win.",
       "required": false,
       "mask": false
     },
     {
-      "name": "BepInEx for Valheim",
-      "key": "ENABLE_BEPINEX",
+      "name": "World Modifiers",
+      "key": "MODIFIERS",
       "value": "",
-      "description": "If you want to enable BepInEx for Valheim set this variable to 'true' (without quotes). For more help please refer to this site: https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/",
+      "description": "Individual world modifiers as a comma separated list of name=value, for example: combat=hard,raids=none,portals=casual. Valid names and values - combat: veryeasy easy hard veryhard | deathpenalty: casual veryeasy easy hard hardcore | resources: muchless less more muchmore most | raids: none muchless less more muchmore | portals: casual hard veryhard. Each list leaves out its own normal setting on purpose: you name a modifier only to move it away from normal. A name or value that is not in these lists stops the container with a message, because the server would otherwise ignore it silently and hand you a normal world.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Backup",
-      "key": "BACKUP_FILES",
-      "value": "true",
-      "description": "Set this value to 'true' (without quotes) to enable the automated backup function from the container, you find the Backups in '.../valheim/Backups/'. Set to 'false' (without quotes) to disable the backup function.",
-      "required": true,
+      "name": "World Toggles",
+      "key": "SETKEYS",
+      "value": "",
+      "description": "World modifier switches, as a comma separated list. Any of: nobuildcost, playerevents, passivemobs, nomap. Leave blank for all off. For example nomap,passivemobs.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "Backup Interval (in minutes)",
-      "key": "BACKUP_INTERVAL",
-      "value": "62",
-      "description": "The backup interval in minutes (set to 62 minutes because the game automatically saves the database every 30 minutes) ATTENTION: The first backup will be triggered after the set interval in this variable after the start/restart of the container).",
-      "required": true,
+      "name": "Save Interval",
+      "key": "SAVE_INTERVAL",
+      "value": "",
+      "description": "Seconds between automatic world saves. Blank uses the game's default of 1800, which is 30 minutes. Lowering it costs a brief pause more often and loses less when something goes wrong.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "Backups to keep",
-      "key": "BACKUP_TO_KEEP",
-      "value": "24",
-      "description": "Number of backups to keep (by default set to 24 to keep the last backups of the last 24 hours).",
-      "required": true,
+      "name": "Backups to Keep",
+      "key": "BACKUP_COUNT",
+      "value": "",
+      "description": "How many of the server's own automatic backups to keep. Blank uses the game's default of 4, which the manual describes as one backup at the short interval and the rest at the long one - so by default one that is 2 hours old and three spaced 12 hours apart. These are the server's built-in backups and they live beside the world in savedir/worlds_local, so they are not protection against losing that disk - copy them elsewhere for that.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "GAME_PORT",
-      "key": "GAME_PORT",
-      "value": "2456",
-      "description": "Only change if you know what you are doing (intital GAME_PORT | Dont forget to create create a new UDP port mapping with the corresponding port range and delete the default port range | GAME_PORT +2)",
-      "required": true,
+      "name": "First Backup Interval",
+      "key": "BACKUP_SHORT",
+      "value": "",
+      "description": "Seconds before the first automatic backup after a start. Blank uses the game's default of 7200, which is 2 hours.",
+      "required": false,
       "mask": false
+    },
+    {
+      "name": "Later Backup Interval",
+      "key": "BACKUP_LONG",
+      "value": "",
+      "description": "Seconds between automatic backups after the first one. Blank uses the game's default of 43200, which is 12 hours.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra Game Parameters",
+      "key": "GAME_PARAMS_EXTRA",
+      "value": "",
+      "description": "Appended to the launch line verbatim. Nothing routine needs this, since every documented setting already has a field above. Uses: -instanceid something, if you run several servers on one public address, and -logFile /path if you want the server's log written to a file as well.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Validate Files",
+      "key": "VALIDATE",
+      "value": "",
+      "description": "Set to true to have SteamCMD verify every file on the next start. Slow on a 2.1GB install. Use it after a crash or a failed update.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop Timeout",
+      "key": "STOP_TIMEOUT",
+      "value": "120",
+      "description": "Seconds to wait for the server to save and exit before force killing it. This IS a save window, unlike some servers: Valheim saves when it is told to stop and has no RCON, no console and no remote save command, so this is the only save there is. Also raise Unraid's own container stop timeout to at least 150, or Docker kills the server partway through the save regardless of what you put here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Username",
+      "key": "USERNAME",
+      "value": "",
+      "description": "Leave blank. The Valheim server downloads anonymously.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam Password",
+      "key": "PASSWRD",
+      "value": "",
+      "description": "Leave blank.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "UID",
       "key": "UID",
       "value": "500",
-      "description": "Only change if you know what you are doing!",
+      "description": "User ID. 99 is the Unraid default.",
       "required": true,
       "mask": false
     },
@@ -177,23 +219,23 @@
       "name": "GID",
       "key": "GID",
       "value": "500",
-      "description": "Only change if you know what you are doing!",
+      "description": "Group ID. 100 is the Unraid default.",
       "required": true,
       "mask": false
     },
     {
-      "name": "Debug Log Output",
-      "key": "DEBUG_OUTPUT",
-      "value": "false",
-      "description": "Only change if you know what you are doing!",
+      "name": "Data Permissions",
+      "key": "DATA_PERM",
+      "value": "775",
+      "description": "Mode applied to the top of the server directory.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Write Log to File",
-      "key": "LOG_OUTPUT",
-      "value": "false",
-      "description": "This will write the log output to a file, by default to 'valheim.log' to the main directory.br/ ATTENTION: Keep in mind this option will force Debug Log Output no matter what you choose in the above variable.",
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "umask for files the server creates. 000 keeps them editable over the share.",
       "required": false,
       "mask": false
     }
