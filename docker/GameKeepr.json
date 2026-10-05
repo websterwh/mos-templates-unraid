@@ -1,0 +1,147 @@
+{
+  "name": "GameKeepr",
+  "repo": "ghcr.io/kengoossens/gamekeep:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io/kengoossens/gamekeep",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/KenGoossens/Gamekeep/main/unraid/icon.png",
+  "project": "https://kengoossens.github.io/Gamekeep/",
+  "description": "Your game servers, your friends' hands. GameKeepr is a self-hosted portal that lets friends see which game servers are up, who is playing, and restart a server when a game update lands - without giving anyone access to Unraid itself. WHAT IT DOES - Restarts verified in two stages: the container came back, then the game itself answered. Per-game startup times and a cooldown that stops restart-hammering. - Deploy new servers from Community Applications, or any of ~580 dedicated servers on Steam - GameKeepr composes the container itself on Valve's official steamcmd image. - Schedules (nightly restart that skips when players are online), world backups with safe restores, live logs with a console that types at the game, mod installs with archive-safety checks and optional malware scanning, Steam Workshop support for Project Zomboid and ARK. - Three roles (member / operator / owner) with per-server exceptions, an activity log everyone can read, Discord notifications, and a built-in wiki that documents all of it. IMPORTANT - read before installing: This container mounts the Docker socket, which is root-equivalent on your server. It never lets a request name a container directly and never deploys privileged containers, but treat the owner password like your Unraid root password, and put Cloudflare Access or similar in front if you expose it to the internet. The built-in wiki's \"Security model\" page explains the full posture. FIRST RUN: On first start the log prints a one-time SETUP TOKEN - open the WebUI, paste it, and create the owner account. Nobody can claim that account without reading your container log. A fresh install starts with zero servers; add them from the portal's own catalogue.",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "How the portal manages your game servers. Required.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/gamekeep/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Accounts, audit log, metrics, world backups and cached artwork. Use a POOL path (/mnt/cache/...) and not /mnt/user - SQLite and the FUSE layer do not get along. Set the appdata share's mover action to Array-to-Cache so the mover never migrates this off the pool.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/gamekeep/config",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Optionally holds servers.json for hand-managed containers. A fresh install needs nothing here - servers deployed through the portal register themselves.",
+      "required": true
+    },
+    {
+      "name": "Game server data",
+      "host": "/mnt/cache/Game Servers",
+      "container": "/gameservers",
+      "mode": "rw",
+      "description": "Where servers deployed through the portal keep their files. Must match APPDATA_HOST_ROOT below.",
+      "required": true
+    },
+    {
+      "name": "Unraid templates",
+      "host": "/boot/config/plugins/dockerMan/templates-user",
+      "container": "/unraid-templates",
+      "mode": "rw",
+      "description": "Optional. Lets servers deployed through the portal show up properly in your Docker tab instead of as orphan images.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8088",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the portal. Not needed if you put a reverse proxy or Cloudflare Tunnel on the same Docker network.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUBLIC_URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "The address people will type, e.g. https://portal.example.com or http://192.168.1.10:8088. Decides whether session cookies are marked Secure, so get it right once you are on HTTPS.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "At least 32 characters. Generate with: openssl rand -hex 32 - changing it signs everyone out and re-keys stored integration secrets.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "APPDATA_HOST_ROOT",
+      "key": "APPDATA_HOST_ROOT",
+      "value": "/mnt/cache/Game Servers",
+      "description": "The SAME directory as the Game server data path above, but as the HOST sees it. Docker resolves bind mounts against the host, so a mismatch here silently writes game data to the wrong place.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "APPDATA_ROOT",
+      "key": "APPDATA_ROOT",
+      "value": "/gameservers",
+      "description": "The same directory as the container sees it. Leave as-is unless you changed the mount above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Brussels",
+      "description": "Timezone. Schedules run on this clock, so a nightly restart at 05:00 means YOUR 05:00.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LAN_ADDRESS",
+      "key": "LAN_ADDRESS",
+      "value": "",
+      "description": "Optional. Your Unraid server's address on the LAN, e.g. 192.168.1.10. Used to tell you which port forwards a new game server needs, and to create them if you connect a router.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "127.0.0.1,::1,172.16.0.0/12",
+      "description": "Which sources may set X-Forwarded-For. This decides what the audit log records as a visitor's IP address. The default trusts the Docker bridge range, where a reverse proxy or cloudflared lives. Widen deliberately or not at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PUBLISHERS",
+      "key": "TRUSTED_PUBLISHERS",
+      "value": "",
+      "description": "Optional. Whose game servers may be installed from Community Applications, comma separated. Deploying a container is root-equivalent, so this is a trust list. Leave empty for the built-in default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GAME_NETWORK",
+      "key": "GAME_NETWORK",
+      "value": "gamekeep-servers",
+      "description": "The Docker network servers deployed through the portal join, so the portal can reach them by name. Created automatically.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

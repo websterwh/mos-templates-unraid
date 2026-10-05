@@ -1,0 +1,108 @@
+{
+  "name": "video2x-webgui",
+  "repo": "ghcr.io/sognix/video2x-webgui:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/sognix/video2x-webgui/pkgs/container/video2x-webgui",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/sognix/video2x-webgui/main/unraid/video2x-webgui.png",
+  "project": "https://github.com/sognix/video2x-webgui",
+  "description": "Web interface for Video2X: AI upscaling (Real-ESRGAN, Real-CUGAN, Anime4K/libplacebo) and frame interpolation (RIFE) of videos on your GPUs. Every Video2X option in the browser, batch processing of whole folders, one queue per GPU (a free GPU takes the next batch file), preview clips, live progress and per-job logs. GPU setup (without it, Video2X falls back to the CPU and is extremely slow): - NVIDIA: install the Nvidia-Driver plugin, then add \"--gpus all\" to Extra Parameters (advanced view). - Intel/AMD: set the \"Intel/AMD GPU\" device to /dev/dri. Both can be used together. Tested on RTX 3090 and RTX 5060 Ti. The web UI has no login: anyone who can reach the port can upload, start jobs and delete logs. Keep it on your LAN or behind a reverse proxy with authentication. Unofficial, not affiliated with the Video2X project.",
+  "paths": [
+    {
+      "name": "Videos",
+      "host": "/mnt/cache/video2x/videos/",
+      "container": "/videos",
+      "mode": "rw",
+      "description": "Single files: uploads land in input/, all results (single and batch) go to output/",
+      "required": true
+    },
+    {
+      "name": "Batch",
+      "host": "/mnt/cache/video2x/batch/",
+      "container": "/batch",
+      "mode": "rw",
+      "description": "Folders to process in batch mode. Finished inputs are moved to folder/done/",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/video2x-webgui/logs/",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "One log file per job",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/video2x-webgui/config/",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent settings (self-signed HTTPS certificate)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI (HTTP)",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web interface",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI (HTTPS)",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Web interface with a self-signed certificate. Needed for browser notifications unless you use a reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the app runs as (99 = nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the app runs as (100 = users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "Permissions of created files. 000 lets SMB users move and delete the results",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel/AMD GPU",
+      "host": "/dev/dri",
+      "container": "/dev/dri",
+      "description": "Only needed for Intel/AMD GPUs: set to /dev/dri. Leave empty if the server has none, otherwise the container won't start. NVIDIA GPUs instead need --gpus all in Extra Parameters; both can be combined.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

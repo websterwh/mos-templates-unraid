@@ -1,0 +1,115 @@
+{
+  "name": "tdld",
+  "repo": "ghcr.io/tom-joad/tdld:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8083]/",
+  "icon": "https://raw.githubusercontent.com/Tom-Joad/unraid-templates/main/icons/tdld.png",
+  "project": "https://github.com/Tom-Joad/TDLD",
+  "description": "yt-dlp on a timer: polls three link lists (audio only, channels, playlists) and downloads new videos with yt-dlp and ffmpeg. A small web UI edits the lists, starts single downloads and shows the logs. A hotfolder converts dropped video files to mp3. For YouTube, put exported browser cookies into /config/ytdlpconfig/cookies.txt (see the project README).",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/tdld",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Lists, yt-dlp configs, cookies.txt, download archives, logs and the download script",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/media/youtube",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Downloaded media, in audioonly/, channels/ and playlists/",
+      "required": true
+    },
+    {
+      "name": "Hotfolder",
+      "host": "/mnt/cache/media/hotfolder",
+      "container": "/hotfolder",
+      "mode": "rw",
+      "description": "Optional: video files dropped into input/ are converted to mp3 in output/",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8083",
+      "container": "8083",
+      "protocol": "tcp",
+      "description": "Web UI for the download lists and logs. No login: don't expose it to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that owns new files (nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group for new files (users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "002: new files are writable for the users group, e.g. over SMB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SLEEP_INTERVAL",
+      "key": "SLEEP_INTERVAL",
+      "value": "3600",
+      "description": "Seconds between download-list runs",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTO_UPDATE_YTDLP",
+      "key": "AUTO_UPDATE_YTDLP",
+      "value": "false",
+      "description": "true: update yt-dlp once at every container start instead of waiting for a new image",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HOTFOLDER_INTERVAL",
+      "key": "HOTFOLDER_INTERVAL",
+      "value": "300",
+      "description": "Seconds between hotfolder checks",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -29,7 +29,7 @@
       "host": "/mnt/cache/appdata/nfsen-ng-data",
       "container": "/var/lib/nfsen-ng",
       "mode": "rw",
-      "description": "nfsen-ng's own data: RRD database (rrd/) plus saved preferences and alert rules/state/log (state/). Keep this on a persistent path so it survives image updates.",
+      "description": "nfsen-ng's own data: the RRD database (rrd/), plus preferences, alert rule state and the SQLite store nfsen-ng.sqlite with saved filters, alert history and top-N data (state/). Keep this on a persistent path so it survives image updates.",
       "required": true
     }
   ],
@@ -57,7 +57,7 @@
       "name": "Sources",
       "key": "NFSEN_SOURCES",
       "value": "flows",
-      "description": "Comma-separated source names. Each must exist as live/name under the data directory \u2014 i.e. match the collector's output sub-directory.",
+      "description": "Comma-separated source names. Each must exist as live/name under the data directory, so it has to match the collector's output sub-directory.",
       "required": true,
       "mask": false
     },
@@ -98,6 +98,22 @@
       "key": "NFSEN_IMPORT_YEARS",
       "value": "3",
       "description": "Backfill window (years) processed on first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Top-N retention (days)",
+      "key": "NFSEN_TOPN_RETENTION_DAYS",
+      "value": "31",
+      "description": "Days of per-interval top-N data kept in SQLite for the Overview tables. 0 turns collection off. Budget about 12 MB per source and day under App data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GeoIP database",
+      "key": "NFSEN_GEOIP_DB",
+      "value": "",
+      "description": "Optional path to a MaxMind GeoLite2/GeoIP2 City or Country .mmdb. Copy the file into the App data share and enter its container path, e.g. /var/lib/nfsen-ng/GeoLite2-City.mmdb. When set, IP lookups use it instead of the web service.",
       "required": false,
       "mask": false
     }

@@ -1,0 +1,112 @@
+{
+  "name": "wol-relay-container",
+  "repo": "ghcr.io/tom-joad/wol-relay-container:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --cap-drop ALL --cap-add SETUID --cap-add SETGID --security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Tom-Joad/unraid-templates/main/icons/wol-relay-container.png",
+  "project": "https://github.com/Tom-Joad/wol-relay-container",
+  "description": "Small HTTP relay that sends a Wake-on-LAN magic packet when it receives an authenticated POST, for example from Home Assistant. Runs with host networking so the broadcast reaches the target's network segment. No web UI and no stored data; activity is in the container log.",
+  "paths": [],
+  "ports": [],
+  "variables": [
+    {
+      "name": "WOL_AUTH_TOKEN",
+      "key": "WOL_AUTH_TOKEN",
+      "value": "",
+      "description": "Shared secret expected in the X-Auth-Token header. Generate one with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "WOL_TARGET_MAC",
+      "key": "WOL_TARGET_MAC",
+      "value": "",
+      "description": "Default target MAC address, e.g. aa:bb:cc:dd:ee:ff. Optional if callers send a mac in the request body.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_LISTEN_PORT",
+      "key": "WOL_LISTEN_PORT",
+      "value": "8099",
+      "description": "HTTP port. The container uses host networking: this port opens on the Unraid host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the relay runs as (nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the relay runs as (users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Time zone for log time stamps, e.g. Europe/Berlin",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_ALLOW_BODY_MAC",
+      "key": "WOL_ALLOW_BODY_MAC",
+      "value": "true",
+      "description": "false: refuse a mac in the request body and wake only WOL_TARGET_MAC",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_BROADCAST_ADDRESS",
+      "key": "WOL_BROADCAST_ADDRESS",
+      "value": "255.255.255.255",
+      "description": "Broadcast destination; a subnet broadcast such as 192.168.1.255 also works",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_PORT",
+      "key": "WOL_PORT",
+      "value": "9",
+      "description": "UDP port of the magic packet (typically 9 or 7)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_LISTEN_HOST",
+      "key": "WOL_LISTEN_HOST",
+      "value": "0.0.0.0",
+      "description": "HTTP bind address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WOL_LOG_LEVEL",
+      "key": "WOL_LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

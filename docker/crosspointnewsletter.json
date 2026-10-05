@@ -1,0 +1,139 @@
+{
+  "name": "crosspoint-newsletter",
+  "repo": "ghcr.io/tisanina/crosspoint-newsletter:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/tisanina/crosspoint-newsletter/pkgs/container/crosspoint-newsletter",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8400]/ui/",
+  "icon": "https://raw.githubusercontent.com/tisanina/unraid-templates/main/icons/crosspoint-newsletter.png",
+  "project": "https://github.com/tisanina/crosspoint-newsletter",
+  "description": "CrossPoint Newsletter Server \u2014 Autonomous OPDS 1.2 catalog and pipeline converting email newsletters to formatted EPUB ebooks optimized for e-ink displays (Waveshare ESP32-S3, Kobo, Kindle).",
+  "paths": [
+    {
+      "name": "Volume Config &amp; DB (Cache SSD)",
+      "host": "/mnt/cache/appdata/crosspoint-newsletter",
+      "container": "/app/conf",
+      "mode": "rw",
+      "description": "Volume su Cache SSD: database SQLite newsletter.db, credenziali e configurazione",
+      "required": true
+    },
+    {
+      "name": "Volume Data (RAID Array)",
+      "host": "/mnt/cache/data/crosspoint-newsletter",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Volume su Array RAID: archivio libri EPUB, raw email (.eml) e copertine",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI &amp; OPDS Port",
+      "host": "8400",
+      "container": "8400",
+      "protocol": "tcp",
+      "description": "Porta principale per la WebUI di gestione e il catalogo OPDS",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "IMAP Host",
+      "key": "CN_IMAP_HOST",
+      "value": "imap.gmail.com",
+      "description": "Server IMAP della casella di posta (es. imap.gmail.com)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "IMAP Port",
+      "key": "CN_IMAP_PORT",
+      "value": "993",
+      "description": "Porta SSL IMAP (default: 993)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "IMAP User",
+      "key": "CN_IMAP_USER",
+      "value": "",
+      "description": "Indirizzo email su cui ricevi le newsletter",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "IMAP Password",
+      "key": "CN_IMAP_PASSWORD",
+      "value": "",
+      "description": "Password per le app di Gmail (16 caratteri)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "IMAP Folder",
+      "key": "CN_IMAP_FOLDER",
+      "value": "INBOX",
+      "description": "Cartella da monitorare (default: INBOX)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto-Polling Abilitato",
+      "key": "CN_ENABLE_AUTO_POLL",
+      "value": "true",
+      "description": "Esegue il controllo periodico della posta in background",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Intervallo Polling (minuti)",
+      "key": "CN_POLL_INTERVAL_MINUTES",
+      "value": "15",
+      "description": "Intervallo in minuti tra un controllo e l'altro (default: 15)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Salva Email Originali (Raw)",
+      "key": "CN_KEEP_RAW",
+      "value": "true",
+      "description": "Conserva i file originali .eml su RAID per triage o rielaborazione",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Rome",
+      "description": "Fuso orario del container (default: Europe/Rome)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID Unraid (default: 99 nobody)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID Unraid (default: 100 users)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

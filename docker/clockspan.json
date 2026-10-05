@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/",
   "icon": "https://raw.githubusercontent.com/geransmith/clockspan/main/client/public/icons/icon-512.png",
   "project": "https://github.com/geransmith/clockspan",
-  "description": "Clockspan is a self-hosted, single-day focus sheet for getting through a workday with ADHD. One page: a punch-style timeclock that works out when lunch is due and when the day ends, the few things that would make today a win, a focus timer that logs what you did, and a retrospective that puts the plan next to what happened. Every day is saved, and alarms fire as deadlines approach. It works on phones and installs to the Home Screen. The default sign-in mode, none, has no login: use it on a LAN or behind your reverse proxy's own authentication. Pick local or oidc before you expose Clockspan to the internet.",
+  "description": "Clockspan is a self-hosted, single-day focus sheet for getting through a workday with ADHD. One page: a punch-style timeclock that works out when lunch is due and when the day ends, a short list of the day's priorities, a focus timer that logs what you did, and a retrospective that puts the plan next to what happened. Every day is saved, and alarms fire as deadlines approach. It works on phones and installs to the Home Screen. The default sign-in mode, none, has no login: anyone who can reach the port can use it. Keep it for a LAN you trust, or behind a reverse proxy that signs people in itself, with the port reachable from the internet only through that proxy; set App URL when the proxy serves it on a domain. Otherwise pick local or oidc before you expose Clockspan to the internet.",
   "paths": [
     {
       "name": "Data",
@@ -49,7 +49,15 @@
       "name": "App URL",
       "key": "APP_URL",
       "value": "",
-      "description": "Public URL of the app, e.g. https://focus.example.com. Required for oidc, and recommended whenever you reach the app through a domain. With https the session cookie is Secure and HSTS is on. Your provider's redirect URI must be this URL followed by /auth/callback.",
+      "description": "Public URL of the app, scheme and host only, e.g. https://focus.example.com (a path is ignored with a warning). Required for oidc, and recommended whenever you reach the app through a domain. With https the session cookie is Secure and HSTS is on. Your provider's redirect URI must be this URL followed by /auth/callback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed host names",
+      "key": "ALLOWED_HOSTS",
+      "value": "",
+      "description": "With sign-in mode none: other names the app answers to, comma-separated (focus.example.com, or .lan for every name under it). IP addresses, localhost, one-word names like tower, .local, .home.arpa and .internal names and App URL's always work. Any other name is refused, which keeps a web page from reaching the app through DNS rebinding.",
       "required": false,
       "mask": false
     },
@@ -65,7 +73,7 @@
       "name": "Secure cookie",
       "key": "COOKIE_SECURE",
       "value": "",
-      "description": "true or false forces the session cookie's Secure flag. Blank: Secure when App URL is https.",
+      "description": "true or false forces the session cookie's Secure flag and HSTS. Blank: both on when App URL is https.",
       "required": false,
       "mask": false
     },
@@ -81,7 +89,7 @@
       "name": "Keep days",
       "key": "RETENTION_DAYS",
       "value": "",
-      "description": "Server-wide ceiling on history, in days (30 or more): every user's older days are deleted every few hours. Blank keeps everything; users can pick a shorter limit in Settings \u2192 Data.",
+      "description": "Server-wide ceiling on history, in days (30 to 3650; any other value stops the app with a message in the log): every user's older days are deleted every few hours. Blank keeps everything; users can pick a shorter limit in Settings \u2192 Data.",
       "required": false,
       "mask": false
     },
@@ -89,7 +97,7 @@
       "name": "OIDC issuer",
       "key": "OIDC_ISSUER",
       "value": "",
-      "description": "For oidc. Authentik: Providers \u2192 your provider \u2192 OpenID Configuration Issuer.",
+      "description": "For oidc, an https:// URL. Authentik: Providers \u2192 your provider \u2192 OpenID Configuration Issuer.",
       "required": false,
       "mask": false
     },

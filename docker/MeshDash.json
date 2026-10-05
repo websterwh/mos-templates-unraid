@@ -1,0 +1,59 @@
+{
+  "name": "MeshDash",
+  "repo": "rusjpmd/meshdash-runner:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/rusjpmd/meshdash-runner",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/Poag/docker-xml/refs/heads/master/images/meshdash.png",
+  "project": "https://github.com/ruspea/MeshDash",
+  "description": "Self-hosted Meshtastic mesh radio dashboard (GPL-3.0, Beta) -- this runner re-downloads and installs the latest MeshDash on every start so it needs internet access, runs standalone with no account by default (finish setup at /setup), and only contacts meshdash.co.uk's optional remote-access service if you set MD_SETUP_KEY below (off by default); defaults assume a TCP/Wi-Fi radio, add --privileged and a /dev mapping yourself for USB/Serial.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/meshdash",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database (SQLite), logs, plugin data, and the settings file written by the /setup wizard -- persists across the runner's automatic MeshDash version updates. Mounted as a folder, not a file mapping. The image always runs as root with no PUID/PGID support (verified in docker/runner/Dockerfile), so no ownership fix-up is needed or possible.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "MeshDash's web dashboard and /setup wizard. Verified against the runner's entrypoint.sh (28 Sep 2026): defaults to port 8000 unless WEBSERVER_PORT is set. Note: rusjpmd/meshdash-runner's own Docker Hub description claims R3.1+ moved the default to 8181, which contradicts the entrypoint script actually shipped in the current :latest image -- if the WebUI doesn't respond after first boot, check docker logs for the 'Starting MeshDash on port' line and adjust this mapping (and WEBSERVER_PORT below) to match.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WEBSERVER_PORT",
+      "key": "WEBSERVER_PORT",
+      "value": "8000",
+      "description": "Overrides the port MeshDash listens on inside the container -- see the WebUI port note above about the 8000 vs 8181 discrepancy. Change this and the WebUI port mapping together.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MD_SETUP_KEY",
+      "key": "MD_SETUP_KEY",
+      "value": "",
+      "description": "Only needed to opt into meshdash.co.uk's cloud C2 setup/remote-management service. Leave blank (default) to run fully standalone with no account -- everything is configured locally via the /setup wizard instead. Setting this alone does nothing: the runner also requires an MD_SETUP_URL variable (deliberately not included in this template) before it will contact meshdash.co.uk for C2 provisioning -- add both yourself via 'Add another Path, Port, Variable...' if you want that feature.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

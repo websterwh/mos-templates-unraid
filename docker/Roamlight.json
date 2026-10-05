@@ -1,0 +1,147 @@
+{
+  "name": "Roamlight",
+  "repo": "ghcr.io/racoon80/roamlight:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Racoon80/roamlight/pkgs/container/roamlight",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Racoon80/unraid-templates/main/icons/roamlight.png",
+  "project": "https://github.com/Racoon80/roamlight",
+  "description": "Your family's photo album, on your own server, for your own people. Point Roamlight at the share where your photographs already live. It makes a web copy of each one, reads the date, the camera and the place out of the file, sorts everything into albums and puts the albums on a map. You decide, album by album, who in the family may see it, and nothing leaves the house unless you hand somebody a share link with a password and an end date. It understands JPEG, HEIC, RAW (CR3, ARW, NEF, DNG and more) and phone videos, never writes into your originals, and plays albums as a slideshow. Sign in with passwords or with your own single sign-on (Authentik, Keycloak and other OpenID Connect providers). There is a free iPhone app on the App Store, and an Android app that your own Roamlight hands out. Install it, open the web page and create the administrator account. To connect a phone, open \"Phone & tablet\" on the site.",
+  "paths": [
+    {
+      "name": "Photos",
+      "host": "/mnt/cache/photos",
+      "container": "/originals",
+      "mode": "rw",
+      "description": "Your photographs, as they came off the camera. Read, and never changed; new uploads are added here.",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/cache/appdata/roamlight/library",
+      "container": "/library",
+      "mode": "rw",
+      "description": "The web copies Roamlight makes: one JPEG per photograph, in the same folders. They can be rebuilt from the photographs, but that takes a while.",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/roamlight/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database (albums, who sees what, accounts) and the smaller web sizes. Back this folder up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "The web page.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Site address",
+      "key": "FAMILY_SITE_URL",
+      "value": "",
+      "description": "The address people type to reach Roamlight: http://your-server-ip:8080 at home, or https://photos.example.com behind a reverse proxy. Share links and the phone apps use it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Site title",
+      "key": "FAMILY_SITE_TITLE",
+      "value": "Roamlight",
+      "description": "The name at the top of every page and on the home screen.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup token",
+      "key": "FAMILY_SETUP_TOKEN",
+      "value": "",
+      "description": "Optional. A word of your own: the first-start page then only opens with ?t=that-word. Recommended if other people are on your network. Can be removed once the administrator account exists.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The user the files are written as. 99 is Unraid's 'nobody'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The group the files are written as. 100 is Unraid's 'users'.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sign-in",
+      "key": "FAMILY_AUTH",
+      "value": "local",
+      "description": "local (passwords), oidc (your own single sign-on) or local+oidc (both). Single sign-on can also be set up later on the Settings page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "FAMILY_TRUSTED_PROXIES",
+      "value": "",
+      "description": "If a reverse proxy (SWAG, Nginx Proxy Manager, Traefik...) is in front: its IP address, so the sign-in throttle can tell visitors apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home",
+      "key": "FAMILY_HOME_NAME",
+      "value": "Luxembourg",
+      "description": "Where your journeys start when an album has no departure of its own (the name shown on the map).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home latitude",
+      "key": "FAMILY_HOME_LAT",
+      "value": "49.6117",
+      "description": "Latitude of your home, for the journey map.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Home longitude",
+      "key": "FAMILY_HOME_LON",
+      "value": "6.1319",
+      "description": "Longitude of your home, for the journey map.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Conversions at once",
+      "key": "FAMILY_WORKERS",
+      "value": "2",
+      "description": "How many photographs are converted at the same time. Each takes about three quarters of a CPU core.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

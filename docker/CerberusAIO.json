@@ -1,0 +1,67 @@
+{
+  "name": "Cerberus-AIO",
+  "repo": "romanvaxman/cerberus-aio:0.2.2",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://hub.docker.com/r/romanvaxman/cerberus-aio",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8099]",
+  "icon": "https://raw.githubusercontent.com/vaxman14/cerberus-selfhost/main/console/cerberus-emblem.png",
+  "project": "https://github.com/vaxman14/cerberus-selfhost",
+  "description": "Cerberus is a self-hosted website security and quality scanner with local Lighthouse, Nuclei, OWASP ZAP, sqlmap, local users, history, PDF-ready reports, and optional AI analysis. This AIO master launches the isolated child stack. It requires the Docker socket, which grants control of the Docker host; install only the official image and review release notes before updating.",
+  "paths": [
+    {
+      "name": "AIO configuration",
+      "host": "cerberus-aio-config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Named Docker volume holding generated AIO secrets. Keep this exact named-volume style so child containers can mount it.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required to create and update child containers. This grants Docker-host control.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8099",
+      "container": "8099",
+      "protocol": "tcp",
+      "description": "Cerberus web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Config volume name",
+      "key": "CERBERUS_AIO_CONFIG_VOLUME",
+      "value": "cerberus-aio-config",
+      "description": "Must exactly match the named volume mounted at /config.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enable active scans",
+      "key": "CERBERUS_ENABLE_ACTIVE_SCANS",
+      "value": "false",
+      "description": "Enables owner-confirmed Nuclei, ZAP, and sqlmap scans. Leave false unless needed.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

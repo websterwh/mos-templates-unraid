@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8787]/",
   "icon": "https://raw.githubusercontent.com/Jellman86/optimisarr/main/web/public/favicon-192.png",
   "project": "https://github.com/Jellman86/optimisarr",
-  "description": "Optimisarr is a safe media-library optimiser: it transcodes your movies and TV to save space and never deletes or replaces an original until the converted file has passed explicit verification gates. It probes each file, decides whether re-encoding is worthwhile, transcodes to a work directory, verifies the output (decodes cleanly, duration/stream policy match, size actually reduced), then atomically replaces the original and keeps the untouched original in quarantine so any replacement can be rolled back. Supports CPU, Intel QSV/VA-API and NVIDIA NVENC hardware transcoding, integrates with a Sonarr/Radarr media stack, and shows a real-time dashboard with a live queue, per-job logs, and savings stats. Set the media library you want it to watch under /data.",
+  "description": "Optimisarr optimises video, audio and image libraries with FFmpeg and verifies candidates before replacing originals. Configured checks cover decoding, timing, retained streams, metadata, size savings and media quality, including VMAF for video. Originals are quarantined for rollback until approved or purged by the configured retention policy. Run CPU, Intel QSV/VA-API or NVIDIA NVENC jobs in the container, or pair Windows, macOS and Linux sidecars for distributed video encoding and verification. Integrates with Plex, Jellyfin, Emby, Sonarr and Radarr. The web UI shows libraries, queued work, quality reports and savings. Mount one read-write storage root at /data for media, work and quarantine. Review a small test set before enabling automatic replacement.",
   "paths": [
     {
       "name": "Config",
@@ -68,6 +68,14 @@
       "description": "Optional. When set, the administrative API and UI require this bearer token. Leave blank to rely on your network/reverse-proxy for access control.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "Remote workers",
+      "key": "OPTIMISARR_EXPERIMENTAL_REMOTE_WORKERS",
+      "value": "true",
+      "description": "Remote workers are available by default. Set false to disable the worker service for this deployment. Existing saved settings are preserved; pair trusted sidecars in Settings \u2192 Remote workers and choose work placement per library.",
+      "required": false,
+      "mask": false
     },
     {
       "name": "Timezone (TZ)",

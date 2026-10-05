@@ -1,0 +1,155 @@
+{
+  "name": "atrium",
+  "repo": "vibralabs/atrium:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/vibralabs/atrium",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Vibra-Labs/unraid-templates/main/images/atrium-icon.png",
+  "project": "https://github.com/Vibra-Labs/Atrium",
+  "description": "Atrium is a self-hosted client portal for agencies and freelancers. Share project progress, files, and updates with your clients through a beautiful branded portal. Features: - Project management with status tracking - File sharing with S3/MinIO/R2 or local storage - Branded client portal - Email notifications via Resend - Multi-user with role-based access Database: Includes a built-in PostgreSQL database by default. To use an existing external database, set \"Use Built-in DB\" to false and provide your DATABASE_URL.",
+  "paths": [
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/atrium/uploads",
+      "container": "/app/uploads",
+      "mode": "rw",
+      "description": "Path to store uploaded files",
+      "required": true
+    },
+    {
+      "name": "Database Storage",
+      "host": "/mnt/cache/appdata/atrium/db",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Path to store built-in PostgreSQL data (only used when built-in DB is enabled)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Atrium web interface",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Auth Secret",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Random string (min 32 chars) for signing auth tokens. Generate at: https://generate-secret.vercel.app/32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Use Built-in DB",
+      "key": "USE_BUILT_IN_DB",
+      "value": "true",
+      "description": "Use the built-in PostgreSQL. Set to false and provide DATABASE_URL to use an external database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "",
+      "description": "External PostgreSQL connection string. Only needed if built-in DB is disabled. Example: postgresql://user:pass@host:5432/atrium",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Storage Provider",
+      "key": "STORAGE_PROVIDER",
+      "value": "local",
+      "description": "Storage backend: local, s3, minio, or r2",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Endpoint",
+      "key": "S3_ENDPOINT",
+      "value": "",
+      "description": "S3-compatible endpoint URL (for MinIO, R2, etc.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Region",
+      "key": "S3_REGION",
+      "value": "us-east-1",
+      "description": "S3 region",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Bucket",
+      "key": "S3_BUCKET",
+      "value": "atrium",
+      "description": "S3 bucket name",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Access Key",
+      "key": "S3_ACCESS_KEY",
+      "value": "",
+      "description": "S3 access key",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "S3 Secret Key",
+      "key": "S3_SECRET_KEY",
+      "value": "",
+      "description": "S3 secret key",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Resend API Key",
+      "key": "RESEND_API_KEY",
+      "value": "",
+      "description": "Resend API key for sending emails (optional)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email From Address",
+      "key": "EMAIL_FROM",
+      "value": "noreply@yourdomain.com",
+      "description": "From address for outgoing emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max File Size (MB)",
+      "key": "MAX_FILE_SIZE_MB",
+      "value": "50",
+      "description": "Maximum file upload size in megabytes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip DB Push",
+      "key": "SKIP_DB_PUSH",
+      "value": "false",
+      "description": "Skip automatic database schema sync on startup (for pooled connections)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

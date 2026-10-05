@@ -1,0 +1,76 @@
+{
+  "name": "MailFlow-frontend",
+  "repo": "ghcr.io/maathimself/mailflow-frontend:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/maathimself/mailflow/pkgs/container/mailflow-frontend",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:443]",
+  "icon": "https://raw.githubusercontent.com/harikiran-lab/unraid-templates/main/icons/mailflow.png",
+  "project": "https://github.com/maathimself/mailflow",
+  "description": "Browser interface for MailFlow, a self-hosted webmail client for existing IMAP/SMTP accounts. Serves the React application through nginx and proxies API/WebSocket requests to the configured backend address and port. HTTPS uses a generated self-signed certificate unless you provide cert.pem and key.pem. HTTP is intended for a trusted TLS-terminating reverse proxy.",
+  "paths": [
+    {
+      "name": "TLS certificate storage",
+      "host": "/mnt/cache/appdata/mailflow/certs",
+      "container": "/etc/nginx/ssl",
+      "mode": "rw",
+      "description": "Persistent writable certificate directory. Supply cert.pem and key.pem, or the container generates a self-signed pair at startup.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPS web interface",
+      "host": "50443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Host HTTPS port. Change if occupied; the WebUI link follows this mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP reverse-proxy port",
+      "host": "5080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Host HTTP port for a TLS-terminating reverse proxy. Forward X-Forwarded-Proto: https. Restrict access appropriately.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Backend host address",
+      "key": "BACKEND_HOST",
+      "value": "",
+      "description": "Required: Unraid host IPv4 address or resolvable hostname where the backend port is published. Do not use localhost or the backend container name with default bridge networking.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend port",
+      "key": "BACKEND_PORT",
+      "value": "3220",
+      "description": "Required: backend mapped host port, default 3220. Must match Backend API host port in the backend template, not its internal port 3000.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Application URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Optional frontend compatibility setting: use the same browser-facing URL as backend APP_URL. Frontend consumption is not yet verified; this does not replace the required backend URL settings.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

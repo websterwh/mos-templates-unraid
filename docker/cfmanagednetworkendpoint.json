@@ -1,0 +1,73 @@
+{
+  "name": "cf-managed-network-endpoint",
+  "repo": "ghcr.io/tom-joad/cf-managed-network-endpoint:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Tom-Joad/unraid-templates/main/icons/cf-managed-network-endpoint.png",
+  "project": "https://github.com/Tom-Joad/cf-managed-network-endpoint",
+  "description": "TLS endpoint for Cloudflare Zero Trust \"Managed Networks\". Serves a self-signed certificate on port 6443; the Cloudflare WARP client compares its SHA-256 fingerprint to tell whether a device is on the home network. No application logic. The certificate is created once, on the very first start, and kept in the Config folder (keys/). As long as that folder survives, the fingerprint stays the same across restarts and image updates. NEVER delete it: a new certificate means a new fingerprint, and network detection breaks silently. Include the appdata folder in your backups. The fingerprint is printed in the container log on every start (Unraid: container icon -> Logs). Upgrading from a version before 1.0.0: keep the old /certs path below for the first start, so the existing certificate is taken over. Then remove it. Network: a custom VLAN interface (e.g. br0.10) must exist on the machine; set a static IP outside the DHCP pool in this container's \"Fixed IP address\" setting.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/cf-managed-network-endpoint",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds the key pair (keys/) and the nginx config. NEVER delete it: a new certificate means a new fingerprint and Cloudflare network detection breaks.",
+      "required": true
+    },
+    {
+      "name": "Old certificate volume (upgrade only)",
+      "host": "",
+      "container": "/certs",
+      "mode": "ro",
+      "description": "Only when upgrading from a version before 1.0.0: your old .../certs folder, read once to take over the certificate. Remove afterwards.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that owns the key pair (nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group for the key pair (users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Permissions mask for new files",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Time zone for the log, e.g. Europe/Berlin",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

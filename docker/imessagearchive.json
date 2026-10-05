@@ -1,0 +1,171 @@
+{
+  "name": "imessage-archive",
+  "repo": "ghcr.io/crywolf203/imessage-archive:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/crywolf203/imessage-archive/pkgs/container/imessage-archive",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/crywolf203/imessage-archive/main/assets/icon.svg",
+  "project": "https://github.com/crywolf203/imessage-archive",
+  "description": "Back up a trusted, unlocked iPhone with libimobiledevice and browse Messages using imessage-exporter. Includes indexed search, scrollable conversation parts, HTML/text/CSV/ZIP exports, and resumable PDF rendering with image quality controls and progress. Requires a Linux amd64 host and USB pairing before backup. Privileged mode grants broad host access for USB hotplug: install only on a trusted private server. Encrypted backups are supported, but generated exports are not encrypted. Set a unique administrator password and session secret before use. Scheduled Wi-Fi backup requires an already paired, network-visible device.",
+  "paths": [
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/imessage-archive/backups",
+      "container": "/data/backups",
+      "mode": "rw",
+      "description": "iPhone backups",
+      "required": true
+    },
+    {
+      "name": "Exports",
+      "host": "/mnt/cache/iphone-message-archive/exports",
+      "container": "/data/exports",
+      "mode": "rw",
+      "description": "HTML, text, media and portable ZIP files. Keep this share private.",
+      "required": true
+    },
+    {
+      "name": "PDFs",
+      "host": "/mnt/cache/iphone-message-archive/pdfs",
+      "container": "/data/pdfs",
+      "mode": "rw",
+      "description": "Generated PDFs",
+      "required": true
+    },
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/imessage-archive/config",
+      "container": "/data/config",
+      "mode": "rw",
+      "description": "Search index, history, and schedules",
+      "required": true
+    },
+    {
+      "name": "Pairing Records",
+      "host": "/mnt/cache/appdata/imessage-archive/lockdown",
+      "container": "/var/lib/lockdown",
+      "mode": "rw",
+      "description": "Persisted iPhone trust records",
+      "required": true
+    },
+    {
+      "name": "USB Bus",
+      "host": "/dev/bus/usb",
+      "container": "/dev/bus/usb",
+      "mode": "rw",
+      "description": "USB bus bind mount for device hotplug; privileged mode grants device access.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8087",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container time zone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Administrator",
+      "key": "APP_USER",
+      "value": "admin",
+      "description": "Administrator username",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Administrator password",
+      "key": "APP_PASSWORD",
+      "value": "",
+      "description": "Use a long unique password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Read-only username",
+      "key": "VIEWER_USER",
+      "value": "viewer",
+      "description": "Optional account that can browse and download only",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Read-only password",
+      "key": "VIEWER_PASSWORD",
+      "value": "",
+      "description": "Leave blank to disable the read-only account",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Session secret",
+      "key": "FLASK_SECRET_KEY",
+      "value": "",
+      "description": "Private login-session signing key, NOT a login or iPhone backup password. Generate once in the Unraid terminal with openssl rand -hex 32; paste the 64-character output and retain it across upgrades. See the README configuration guide.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Secure cookies",
+      "key": "COOKIE_SECURE",
+      "value": "0",
+      "description": "Use 1 only when the Web UI is served through HTTPS",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USB multiplexer",
+      "key": "START_USBMUXD",
+      "value": "1",
+      "description": "Start the container USB service. Only one usbmuxd should own the phone; do not run competing backup containers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Conversation part size",
+      "key": "LIBRARY_CHUNK_MESSAGES",
+      "value": "300",
+      "description": "Messages per viewer/PDF part; smaller parts reduce browser and PDF memory use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image workers",
+      "key": "PDF_IMAGE_WORKERS",
+      "value": "2",
+      "description": "Concurrent PDF image conversions. Higher values need more RAM.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PDF part timeout",
+      "key": "PDF_TIMEOUT_SECONDS",
+      "value": "900",
+      "description": "Maximum seconds per Chromium render; successful parts are resumable.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

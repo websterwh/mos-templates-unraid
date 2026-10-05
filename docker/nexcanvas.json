@@ -1,0 +1,123 @@
+{
+  "name": "nexcanvas",
+  "repo": "ghcr.io/derkezorm/nexcanvas",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/DerKezorm/nexcanvas/pkgs/container/nexcanvas",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexcanvas.png",
+  "project": "https://www.nexcanvas.de",
+  "description": "nexcanvas is a whiteboard for your own server, in the spirit of Apple Freeform: sticky notes, shapes, text, lines, pen and highlighter, photos and PDFs on an endless board, edited by several people at the same time. Everybody sees each change at once, with the pointers and names of the others. Frames and scenes to present from, a shape library with over 350 shapes of its own (flowchart, BPMN, UML, floor plan to scale, network, house and electrics) plus the Lucide icons, over thirty templates and your own, backgrounds like grid, blueprint or chalkboard. Export as PNG and PDF, exchange with nexlore and Obsidian as JSON Canvas. Spaces with read, write and manage rights, accounts by invitation or OpenID Connect (one-button setup for authentik), an optional second factor, public pages, backups and a log. English and German, light and dark, works on the phone.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexcanvas",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts, spaces and boards, the photos and files on the boards, the key secret.key, backups and logs. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8500",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexcanvas at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone for timestamps in the log and the versions of a board, for example Europe/Berlin. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Code",
+      "key": "NEXCANVAS_SETUP_TOKEN",
+      "value": "",
+      "description": "The code the first account needs to become the operator. Leave blank: nexcanvas makes a new one at every start until it is set up and writes it to the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXCANVAS_PUBLIC_URL",
+      "value": "",
+      "description": "The address people use to reach nexcanvas, for example https://boards.example.com when it sits behind a reverse proxy. Used for invitation links, public pages and the return address of OpenID Connect. Leave blank to take the address of the request; the same can be set later in the settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "NEXCANVAS_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Addresses or networks of your reverse proxies, comma separated, for example 172.16.0.0/12. Only their X-Forwarded-For is believed; without it every sign-in seems to come from the proxy and the brake against password guessing cannot tell people apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXCANVAS_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexcanvas off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXCANVAS_SECRET_KEY",
+      "value": "",
+      "description": "Protects the server-side secrets (the OpenID Connect client secret, the mail password, second-factor seeds). Leave blank: nexcanvas creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXCANVAS_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https, also behind a proxy that sends X-Forwarded-Proto. Use on only if a proxy terminates TLS and forwards plain http without that header, and never if nexcanvas should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Largest Upload (MB)",
+      "key": "NEXCANVAS_UPLOAD_MAX_MB",
+      "value": "50",
+      "description": "The largest photo or file in megabytes that can be put on a board. The operator can lower it in the settings.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

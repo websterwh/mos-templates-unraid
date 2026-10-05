@@ -1,0 +1,67 @@
+{
+  "name": "Cens-Arr",
+  "repo": "ghcr.io/geoguy89/censarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/geoguy89/censarr/pkgs/container/censarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8477]/",
+  "icon": "https://raw.githubusercontent.com/geoguy89/censarr/main/web/icon.png",
+  "project": "https://github.com/geoguy89/censarr",
+  "description": "Censarr is an *arr-inspired, vibe-coded application that mutes profanity in your media. It adds a second audio track, \"Censored - English\" by default, with the swearing silenced. The original is untouched and stays the default \u2014 in Plex or Jellyfin you pick the clean one from the audio menu. One file, two tracks, not two copies. Built for a household with a small child in the room, so when anything is uncertain the word gets muted.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/censarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings, the job database and the cached transcripts.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The CONTAINER PATH must be what your library reports. Sonarr, Radarr and Plex in containers usually report /data/media/..., so /data is right for them. Censarr opens those paths unchanged - there is no path rewriting.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8477",
+      "container": "8477",
+      "protocol": "tcp",
+      "description": "The Censarr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NVIDIA_VISIBLE_DEVICES",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "NVIDIA only: the GPU used to transcribe. 'all', or a GPU UUID from nvidia-smi -L. Needs --runtime=nvidia in Extra Parameters.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA_DRIVER_CAPABILITIES",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility",
+      "description": "NVIDIA only: what the container may use the driver for.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -12,17 +12,26 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8080]/",
-  "icon": "https://raw.githubusercontent.com/MikeMitterer/stockportfolio/master/public/stockportfolio-icon.png",
+  "icon": "https://raw.githubusercontent.com/MikeMitterer/stockportfolio/master/frontend/public/stockportfolio-icon.png",
   "project": "https://github.com/MikeMitterer/stockportfolio",
-  "description": "Portfolio management with market data, valuation, charts and tolerance-band rebalancing in your browser. Quotes, asset types and price history come from a separate StockInfo API. Trade plans are simulations; no orders are placed. Portfolio data and settings are stored only in the browser, not on Unraid. No appdata volume is needed. Export backups under Settings - Backup; server backups do not include browser data. Keep the web address and host port stable when updating. Set STOCKINFO_API_URL to an address reachable from your browser. StockInfo must allow the web app origin through CORS. HTTPS pages require an HTTPS API. The container serves the web app on port 8080 without root privileges. Older images used port 80: update existing port mappings when upgrading.",
-  "paths": [],
+  "description": "Portfolio management with market data, valuation, charts and tolerance-band rebalancing in your browser. Quotes, asset types and price history come from a separate StockInfo API. Trade plans are simulations; no orders are placed. Network access: Do not put StockPortfolio or StockInfo on the internet. Use both only in your home network. From outside, connect to your home network with a VPN, for example WireGuard or Tailscale. StockPortfolio forwards StockInfo requests only for signed-in users, but its login does not protect StockInfo's own address: anyone who reaches that address can use StockInfo. The StockPortfolio API keeps accounts, sessions and private portfolios in the persistent /data directory. On first start, read the one-time setup code from the container log and create the first admin in the browser. Each account, including another admin, has its own portfolios; the same account loads them in another browser. Export individual backups under Settings - Backup and back up /data. Old browser portfolios require an explicit one-time import by the setup account. Keep the /data mapping stable when updating. Set STOCKINFO_API_URL to an address reachable from this container, such as the server LAN address or the StockInfo container name on a shared custom network. The browser only talks to StockPortfolio; StockInfo needs no CORS setting for it. If a reverse proxy in your home network serves the app over HTTPS, set the exact public origin and enable secure cookies. Behind a reverse proxy, pass the live update stream /api/data/events without buffering and keep its idle timeout above the 15-second keep-alive interval. The container serves the web app and account API on port 8080 without root privileges. Older images used port 80: update existing port mappings when upgrading. Support: StockPortfolio is built for its author&apos;s own use and shared free of charge. Issues are read, but there is no promise of a reply, a fix or a new feature.",
+  "paths": [
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/stockportfolio",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent SQLite data for StockPortfolio accounts, sessions and private portfolios. Back up this directory and keep the mapping during updates.",
+      "required": true
+    }
+  ],
   "ports": [
     {
       "name": "WebUI Port",
       "host": "8088",
       "container": "8080",
       "protocol": "tcp",
-      "description": "Host port for the web app. The container listens on 8080. Keep the host address and port stable to retain the browser storage origin.",
+      "description": "Host port for the web app. The container listens on 8080. Keep the host address and port stable to retain the browser storage origin. Never open this port on your router; use it in your home network or via VPN.",
       "required": true,
       "mask": false
     }
@@ -32,8 +41,24 @@
       "name": "StockInfo API",
       "key": "STOCKINFO_API_URL",
       "value": "",
-      "description": "URL of your StockInfo API, reachable from the browser (for example https://stockinfo.example.com). Required; no built-in public API. Restart the container after changing it.",
+      "description": "URL of your StockInfo API, reachable from this container (for example http://192.168.1.10:8000 or https://stockinfo.example.com). Required; no built-in public API. Restart the container after changing it.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public origin",
+      "key": "STOCKPORTFOLIO_PUBLIC_ORIGIN",
+      "value": "",
+      "description": "Exact browser origin, including scheme and port, when using a reverse proxy (for example https://portfolio.example.com). No path; a trailing slash is ignored.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure cookies",
+      "key": "STOCKPORTFOLIO_SECURE_COOKIES",
+      "value": "false",
+      "description": "Set true when the app is served over HTTPS; required behind an HTTPS reverse proxy.",
+      "required": false,
       "mask": false
     },
     {

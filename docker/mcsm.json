@@ -1,0 +1,147 @@
+{
+  "name": "mcsm",
+  "repo": "ghcr.io/niki2k1/mcsm:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/Niki2k1/mcsm/pkgs/container/mcsm",
+  "network": "infrarust",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/Niki2k1/mcsm/main/public/favicon.png",
+  "project": "https://github.com/Niki2k1/mcsm",
+  "description": "Minecraft Server Manager: a web dashboard that provisions and manages Minecraft servers (Vanilla, Paper, Fabric, Forge, FTB and CurseForge modpacks) as Docker containers on your Unraid box. Guided create wizard, live console, player management, mod/plugin browser with Modrinth updates, backups, world pre-generation, BlueMap and per-server analytics. Before installing: create the shared network once with `docker network create infrarust` and enable \"Preserve user defined networks\" under Settings > Docker, otherwise Unraid removes it on the next Docker restart. Then set NUXT_SESSION_PASSWORD (any string of 32+ characters) and check the server data root (worlds and backups are stored there, not in the Docker vDisk), open the WebUI and run the first-launch wizard. Install the companion \"infrarust\" template to route several servers by domain on port 25565; without it, publish a host port per server in the create wizard. Turn on Autostart for mcsm (and infrarust) in the Docker tab. Unraid stops containers with docker stop, so the restart policy alone does not bring them back after a reboot or Docker restart.",
+  "paths": [
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/mcsm",
+      "container": "/app/.data",
+      "mode": "rw",
+      "description": "SQLite database, uploaded icons and settings.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "MCSM creates, starts and stops the Minecraft server containers through the Docker API.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Dashboard and API port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server data root",
+      "key": "NUXT_DOCKER_DATA_ROOT",
+      "value": "/mnt/user/appdata/mcsm-data",
+      "description": "Host folder where worlds (servers/NAME) and backups (backups/) are stored. Keeps them out of the Docker vDisk, which worlds would quickly fill, and makes them visible to appdata backups. Leave empty to use Docker named volumes. Changing it later does not move existing worlds or backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session password",
+      "key": "NUXT_SESSION_PASSWORD",
+      "value": "",
+      "description": "Encrypts login cookies. Use at least 32 characters (e.g. openssl rand -base64 32). Keep it stable: changing it logs every user out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "RCON password",
+      "key": "NUXT_RCON_PASSWORD",
+      "value": "minecraft",
+      "description": "Password MCSM sets on every server it creates and uses for the console. The RCON port is never published. Change the default.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Secure session cookie",
+      "key": "NUXT_SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "Browsers only store a Secure cookie over HTTPS, so this is off for plain http:// :3000 access. Set to true if you reach MCSM through a TLS-terminating reverse proxy (SWAG, NPM, Traefik).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Shared Docker network",
+      "key": "NUXT_DOCKER_NETWORK",
+      "value": "infrarust",
+      "description": "Network new Minecraft containers join. Must match the network this container and Infrarust run on.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal URL",
+      "key": "NUXT_INTERNAL_URL",
+      "value": "http://mcsm:3000",
+      "description": "How Minecraft containers reach MCSM on the shared network (server icon downloads). Hostname is this container's name; change it if you rename the container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minecraft server image",
+      "key": "NUXT_DOCKER_IMAGE",
+      "value": "itzg/minecraft-server",
+      "description": "Image used for every server MCSM creates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "RCON port",
+      "key": "NUXT_RCON_PORT",
+      "value": "25575",
+      "description": "RCON port inside each server container (not published).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session lifetime (seconds)",
+      "key": "NUXT_SESSION_MAX_AGE",
+      "value": "604800",
+      "description": "How long a login stays valid. Default one week.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Microsoft OAuth client ID",
+      "key": "NUXT_OAUTH_MICROSOFT_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Enables 'Sign in with Microsoft' (Entra ID app registration). Redirect URI: https://your-domain/auth/microsoft",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Microsoft OAuth client secret",
+      "key": "NUXT_OAUTH_MICROSOFT_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Secret of the Entra ID app registration.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Microsoft OAuth tenant",
+      "key": "NUXT_OAUTH_MICROSOFT_TENANT",
+      "value": "common",
+      "description": "Optional. 'common' allows personal and work accounts; otherwise your tenant ID.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

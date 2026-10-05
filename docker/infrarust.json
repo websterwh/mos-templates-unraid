@@ -1,0 +1,58 @@
+{
+  "name": "infrarust",
+  "repo": "ghcr.io/shadowner/infrarust:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/Shadowner/Infrarust/pkgs/container/infrarust",
+  "network": "infrarust",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --user 0",
+  "post_parameters": "--config /app/config/config.toml --plugins-dir /app/config/plugins",
+  "web_ui_url": "http://[IP]:[PORT:25565]",
+  "icon": "https://raw.githubusercontent.com/Niki2k1/mcsm/main/unraid/infrarust.png",
+  "project": "https://github.com/Shadowner/Infrarust",
+  "description": "Infrarust Minecraft proxy, preconfigured for MCSM. Listens on 25565 and routes players to the right server container by the domain they connect with, discovering servers from the Docker labels MCSM sets. No per-server config files. Setup: install the \"mcsm\" template first (it explains the shared \"infrarust\" network). Copy config.toml from https://github.com/Niki2k1/mcsm/tree/main/Unraid/infrarust into the config folder mapped below before starting. Point a DNS wildcard such as *.mc.example.com at your Unraid IP and forward port 25565. Turn on Autostart for this container in the Docker tab. Unraid stops containers with docker stop, so the restart policy alone does not bring it back after a reboot or Docker restart.",
+  "paths": [
+    {
+      "name": "Config folder",
+      "host": "/mnt/cache/appdata/infrarust",
+      "container": "/app/config",
+      "mode": "rw",
+      "description": "Must contain config.toml (see the MCSM repo, unraid/infrarust/config.toml). Infrarust creates plugins/ here on first start.",
+      "required": true
+    },
+    {
+      "name": "Servers folder",
+      "host": "/mnt/cache/appdata/infrarust/servers",
+      "container": "/app/config/servers",
+      "mode": "rw",
+      "description": "Infrarust refuses to start without this folder, even though MCSM servers are discovered through Docker labels. Mapping it makes Unraid create it. Usually stays empty.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Infrarust watches container events to discover MCSM servers. Mounting it read-only does not limit what the Docker API allows.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Minecraft port",
+      "host": "25565",
+      "container": "25565",
+      "protocol": "tcp",
+      "description": "Port players connect to. Forward it on your router.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,281 @@
+{
+  "name": "scanbutler",
+  "repo": "ghcr.io/tom-joad/scanbutler:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--security-opt no-new-privileges --memory=4g",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Tom-Joad/unraid-templates/main/icons/scanbutler.png",
+  "project": "https://github.com/Tom-Joad/scanbutler",
+  "description": "Turns scanned paper into searchable PDFs, one per document, named by topic and date. The Stacks input splits large scans (hundreds of pages, no separator sheets) into documents by content. The Scanner input takes files from a document scanner, one document per file, and gives them the same OCR and naming. Uses Mistral OCR (batch API) and a Mistral chat model; the text layer comes from a fresh Tesseract pass. No web UI: progress is in the container log, and a review.md per stack in the Work folder lists uncertain splits. An optional third input only adds the text layer and uploads to Paperless-ngx. Optionally reports the queue to a webhook such as Home Assistant. Needs a Mistral API key.",
+  "paths": [
+    {
+      "name": "Stacks",
+      "host": "/mnt/cache/Documents/scanbutler/stacks",
+      "container": "/data/stacks",
+      "mode": "rw",
+      "description": "Large scans to split. inbox/, output/, archive/ and failed/ are created here.",
+      "required": true
+    },
+    {
+      "name": "Scanner",
+      "host": "/mnt/cache/Documents/scanbutler/scanner",
+      "container": "/data/scanner",
+      "mode": "rw",
+      "description": "Scanner input, one document per file. Point the scanner's network-folder target at inbox/ below this path.",
+      "required": true
+    },
+    {
+      "name": "Paperless",
+      "host": "/mnt/cache/Documents/scanbutler/paperless",
+      "container": "/data/paperless",
+      "mode": "rw",
+      "description": "Optional Paperless-ngx input (needs PAPERLESS_URL): files get the text layer and are uploaded to Paperless.",
+      "required": false
+    },
+    {
+      "name": "Paperless 2",
+      "host": "",
+      "container": "/data/paperless-2",
+      "mode": "rw",
+      "description": "Optional second Paperless input (needs PAPERLESS_2_TOKEN): uploads as another Paperless user, so its documents belong to that user.",
+      "required": false
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/scanbutler",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Per-stack OCR text, plan.json, review.md and temporary page images (several GB while a large stack is processed). Holds full document text: delete stacks you no longer need.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that owns new files (nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group for new files (users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "002: new files are writable for the users group, e.g. over SMB",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MISTRAL_API_KEY",
+      "key": "MISTRAL_API_KEY",
+      "value": "",
+      "description": "Mistral API key",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "MISTRAL_LLM_MODEL",
+      "key": "MISTRAL_LLM_MODEL",
+      "value": "mistral-large-latest",
+      "description": "Model for splitting and naming",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MISTRAL_MAX_RPS",
+      "key": "MISTRAL_MAX_RPS",
+      "value": "1",
+      "description": "Requests per second, slightly below your account's limit for MISTRAL_LLM_MODEL (Mistral console: API &gt; Limits)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TITLE_LANGUAGE",
+      "key": "TITLE_LANGUAGE",
+      "value": "",
+      "description": "Language for document titles, e.g. German. Empty: the language of each document.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NO_DATE_LABEL",
+      "key": "NO_DATE_LABEL",
+      "value": "undated",
+      "description": "Used in the file name when a document has no date",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCRMYPDF_LANGUAGES",
+      "key": "OCRMYPDF_LANGUAGES",
+      "value": "deu+eng",
+      "description": "Tesseract languages joined with +, e.g. deu+eng+fra. deu and eng are built in; others are downloaded once into the Config folder",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCRMYPDF_JOBS",
+      "key": "OCRMYPDF_JOBS",
+      "value": "auto",
+      "description": "Parallel OCR pages. auto: as many as the container's memory allows (--memory in Extra Parameters), at most one per CPU the container may use. Scanner and Paperless files go ahead of stacks",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_URL",
+      "key": "PAPERLESS_URL",
+      "value": "",
+      "description": "Optional: Paperless-ngx base URL, e.g. http://NAS-IP:8000. Enables the Paperless input.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_TOKEN",
+      "key": "PAPERLESS_TOKEN",
+      "value": "",
+      "description": "API token of the Paperless user that should own the uploaded documents",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PAPERLESS_TEXT_SOURCE",
+      "key": "PAPERLESS_TEXT_SOURCE",
+      "value": "tesseract",
+      "description": "tesseract: Paperless content from the text layer (free). mistral: content replaced with Mistral OCR text, tables kept (about $1 per 500 pages).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_TAGS",
+      "key": "PAPERLESS_TAGS",
+      "value": "",
+      "description": "Optional: comma-separated Paperless tag ids to add on upload, e.g. 3,7",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_2_TOKEN",
+      "key": "PAPERLESS_2_TOKEN",
+      "value": "",
+      "description": "Optional: API token of a second Paperless user. Enables the second input (Paperless 2 path); its uploads belong to that user",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PAPERLESS_2_URL",
+      "key": "PAPERLESS_2_URL",
+      "value": "",
+      "description": "Optional: Paperless URL for the second input. Empty: same as PAPERLESS_URL",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_2_TAGS",
+      "key": "PAPERLESS_2_TAGS",
+      "value": "",
+      "description": "Optional: comma-separated tag ids to add on upload through the second input",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_SHARE_TAGS",
+      "key": "PAPERLESS_SHARE_TAGS",
+      "value": "false",
+      "description": "true: remove the owner from every Paperless tag, every minute, so all users see the same tags. Needs a superuser token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_SHARE_CORRESPONDENTS",
+      "key": "PAPERLESS_SHARE_CORRESPONDENTS",
+      "value": "false",
+      "description": "true: remove the owner from every Paperless correspondent, so all users see them (also who writes to whom). Needs a superuser token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_SHARE_DOCUMENT_TYPES",
+      "key": "PAPERLESS_SHARE_DOCUMENT_TYPES",
+      "value": "false",
+      "description": "true: remove the owner from every Paperless document type, so all users see them. Needs a superuser token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PAPERLESS_SHARE_TAGS_READONLY",
+      "key": "PAPERLESS_SHARE_TAGS_READONLY",
+      "value": "",
+      "description": "Optional: comma-separated tag names that keep their owner and are only visible to other users, e.g. ai-processed",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "QUEUE_WEBHOOK_URL",
+      "key": "QUEUE_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional: POST queue counts here on every change and every 5 minutes, e.g. a Home Assistant webhook (http://HA:8123/api/webhook/ID). See the project README for the sensor config.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STACKS_TEXT_SOURCE",
+      "key": "STACKS_TEXT_SOURCE",
+      "value": "mistral",
+      "description": "Text for splitting and naming stacks: mistral (Mistral OCR, paid) or tesseract (free, from the text layer)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SCANNER_TEXT_SOURCE",
+      "key": "SCANNER_TEXT_SOURCE",
+      "value": "tesseract",
+      "description": "Text for naming scanner files: tesseract (free, from the text layer) or mistral (Mistral OCR, paid; worth it for handwriting or poor scans)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OCR_MODE",
+      "key": "OCR_MODE",
+      "value": "batch",
+      "description": "batch: half price, minutes per job. direct: immediate, full price.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WORK_RETENTION_DAYS",
+      "key": "WORK_RETENTION_DAYS",
+      "value": "30",
+      "description": "Days after which a processed file's work folder in Config is deleted (rebuild works until then). 0 keeps everything",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FILENAME_PATTERN",
+      "key": "FILENAME_PATTERN",
+      "value": "{title} {date}",
+      "description": "{title} is required, {date} is YYYY-MM-DD",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

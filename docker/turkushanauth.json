@@ -1,0 +1,115 @@
+{
+  "name": "turkushan-auth",
+  "repo": "ghcr.io/turkushan490/turkushan-auth:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/turkushan490/turkushan-auth/pkgs/container/turkushan-auth",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3010]/",
+  "icon": "https://raw.githubusercontent.com/turkushan490/turkushan-auth/main/icon.svg",
+  "project": "https://github.com/turkushan490/turkushan-auth",
+  "description": "Self-hosted login portal (forward auth) for your subdomains behind Nginx Proxy Manager. People register their own account, you approve who may open which site in the admin panel, and one login works on all subdomains (SSO cookie). Per site you choose: approval required or open to any logged-in user, and whether a verified email is required. Single container, SQLite database in /data, no extra services. Includes an admin panel with a ready-to-paste NPM config per site, email verification and password reset via any SMTP provider (Resend recommended), and Discord notifications. Guide: https://github.com/turkushan490/turkushan-auth/blob/main/docs/GUIDE.md",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/turkushan-auth",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database and generated secret.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "3010",
+      "container": "3010",
+      "protocol": "tcp",
+      "description": "Port Nginx Proxy Manager uses to reach the portal.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "APP_URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Public URL of the portal, e.g. https://auth.example.com",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_USER",
+      "key": "ADMIN_USER",
+      "value": "",
+      "description": "Admin account created on first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Admin password: at least 6 characters, with 1 capital letter and 1 symbol (e.g. ! @ # ?).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "COOKIE_DOMAIN",
+      "key": "COOKIE_DOMAIN",
+      "value": "",
+      "description": "Optional. Cookie domain shared by all protected subdomains. Empty = derived from APP_URL (auth.example.com gives .example.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORTAL_INTERNAL_URL",
+      "key": "PORTAL_INTERNAL_URL",
+      "value": "",
+      "description": "Optional. How Nginx Proxy Manager reaches this container, e.g. http://192.168.1.10:3010. Filled into the nginx snippets the admin panel generates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "172.16.0.0/12",
+      "description": "IPs/CIDRs of your proxy. Client IP headers are only trusted from these. Default covers Docker networks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the app runs as (99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the app runs as (100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Optional (min 32 characters). Empty = generated once and stored in /data/secret.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

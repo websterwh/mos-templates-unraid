@@ -1,0 +1,209 @@
+{
+  "name": "feedbard",
+  "repo": "ghcr.io/theviki20110/feedbard:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Theviki20110/feedbard/pkgs/container/feedbard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Theviki20110/unraid-community-template/main/icon.png",
+  "project": "https://github.com/Theviki20110/feedbard",
+  "description": "feedbard turns the blogs you follow into an audiobook library. It polls a list of RSS/Atom feeds, fetches each new post's full article (Substack API, the feed's own content, or Readability over the page, whichever works), translates it into the language you pick, describes the figures and charts so they are narrated instead of skipped, renders the result to speech, and publishes it as an Audiobookshelf *book* library: one folder per article, per-article cover art, ID3-tagged MP3. There is no WebUI. The container runs the pipeline every CRON_INTERVAL_SECONDS (default 3 hours) and logs what it did. Posts already processed are recorded in a SQLite database under the data path, so a restart never re-narrates the same article. Two paths, kept apart on purpose: /app/data the pipeline's own state - database, rendered episodes, covers, and resumable per-block scratch files. /app/library the published tree. Point Audiobookshelf at this one as a Book library; it never sees scratch files. You supply the model backends. LLM: Anthropic API, AWS Bedrock, or a local Ollama server. Text-to-speech: an HTTP TTS service or Amazon Polly. The feed list is a newline-separated text file you mount in.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/feedbard",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Pipeline state: processed-posts database, rendered episodes, cover art, and resumable scratch shards. The database here is the only state that cannot be rebuilt.",
+      "required": true
+    },
+    {
+      "name": "Library",
+      "host": "/mnt/cache/media/audiobooks/feedbard",
+      "container": "/app/library",
+      "mode": "rw",
+      "description": "Published Audiobookshelf book library ({Author}/{Title}/). Add this folder in Audiobookshelf as a library of type Book.",
+      "required": true
+    },
+    {
+      "name": "Feeds list",
+      "host": "/mnt/cache/appdata/feedbard/feeds_list.txt",
+      "container": "/app/assets/feeds_list.txt",
+      "mode": "rw",
+      "description": "Newline-separated list of RSS/Atom feed URLs. Create this file before the first start - an empty or missing file means nothing is processed.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "CRON_INTERVAL_SECONDS",
+      "key": "CRON_INTERVAL_SECONDS",
+      "value": "10800",
+      "description": "Seconds to sleep between runs. Default 10800 (3 hours).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TARGET_LANGUAGE",
+      "key": "TARGET_LANGUAGE",
+      "value": "Italian",
+      "description": "Language articles are translated into and narrated in. Must match a lexicon file shipped in assets/lexicons/ (english, italian), otherwise symbol pronunciation falls back to English. Pair it with a matching TTS voice.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLM_PROVIDER",
+      "key": "LLM_PROVIDER",
+      "value": "anthropic",
+      "description": "One of: anthropic, bedrock, ollama.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MODEL_ID",
+      "key": "MODEL_ID",
+      "value": "claude-sonnet-4-5-20250929",
+      "description": "Model id for the chosen provider: an Anthropic model name, a Bedrock model id / inference-profile ARN, or an Ollama tag.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Anthropic API key. Required only when LLM_PROVIDER=anthropic.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OLLAMA_BASE_URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "http://localhost:11434",
+      "description": "Ollama server URL. Used only when LLM_PROVIDER=ollama - point it at your Ollama container, not localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TTS_PROVIDER",
+      "key": "TTS_PROVIDER",
+      "value": "http",
+      "description": "Text-to-speech backend. One of: http, sagemaker, polly.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TTS_BASE_URL",
+      "key": "TTS_BASE_URL",
+      "value": "",
+      "description": "Base URL of the TTS service. Used when TTS_PROVIDER=http.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SAGEMAKER_TTS_ENDPOINT_NAME",
+      "key": "SAGEMAKER_TTS_ENDPOINT_NAME",
+      "value": "",
+      "description": "SageMaker endpoint name. Used when TTS_PROVIDER=sagemaker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POLLY_VOICE_ID",
+      "key": "POLLY_VOICE_ID",
+      "value": "Bianca",
+      "description": "Amazon Polly voice id. Used when TTS_PROVIDER=polly. Must speak TARGET_LANGUAGE.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POLLY_ENGINE",
+      "key": "POLLY_ENGINE",
+      "value": "generative",
+      "description": "Polly engine: standard, neural, generative, or long-form. Used when TTS_PROVIDER=polly.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ASR_PROVIDER",
+      "key": "ASR_PROVIDER",
+      "value": "http",
+      "description": "Speech recognition backend used to quality-check rendered audio. One of: http, sagemaker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ASR_BASE_URL",
+      "key": "ASR_BASE_URL",
+      "value": "",
+      "description": "Base URL of a Whisper-compatible ASR service. Used when ASR_PROVIDER=http.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SAGEMAKER_ASR_ENDPOINT_NAME",
+      "key": "SAGEMAKER_ASR_ENDPOINT_NAME",
+      "value": "",
+      "description": "SageMaker endpoint name. Used when ASR_PROVIDER=sagemaker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AWS_REGION",
+      "key": "AWS_REGION",
+      "value": "us-east-1",
+      "description": "AWS region for Bedrock, SageMaker, and Polly calls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AWS_ACCESS_KEY_ID",
+      "key": "AWS_ACCESS_KEY_ID",
+      "value": "",
+      "description": "AWS access key. Needed when any provider above is bedrock, sagemaker, or polly.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AWS_SECRET_ACCESS_KEY",
+      "key": "AWS_SECRET_ACCESS_KEY",
+      "value": "",
+      "description": "AWS secret key. Needed when any provider above is bedrock, sagemaker, or polly.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "FEEDS_LIST_PATH",
+      "key": "FEEDS_LIST_PATH",
+      "value": "assets/feeds_list.txt",
+      "description": "Path inside the container to the feed list. Leave as-is unless you changed the Feeds list mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ONLY_FIRST_FEED",
+      "key": "ONLY_FIRST_FEED",
+      "value": "false",
+      "description": "true = process only the first feed in the list. Useful for a first test run.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Log verbosity: DEBUG, INFO, WARNING, ERROR.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

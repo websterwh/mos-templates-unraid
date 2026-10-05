@@ -1,0 +1,131 @@
+{
+  "name": "nexlore",
+  "repo": "ghcr.io/derkezorm/nexlore",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/DerKezorm/nexlore/pkgs/container/nexlore",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexlore.png",
+  "project": "https://www.nexlore.de",
+  "description": "nexlore is a notes app for your own server, in the browser: Markdown files on your disk, written in a real editor (WYSIWYG, slash menu, tables, callouts, properties), linked with [[wiki links]] and backlinks, and laid out as a map you zoom into, from all your spaces down to a single note. The files stay plain Markdown, so Obsidian, Syncthing or any editor can work on the same folder at the same time. Daily notes with a calendar, tasks with due dates and repeats, templates, table and board views, canvases in the open JSON Canvas format, full text search with operators, versions and a trash. Spaces with read, write and manage rights, accounts by invitation or OpenID Connect (one-button setup for authentik), an optional second factor, comments, public pages, MCP for AI helpers, an API, backups and a log. English and German, light and dark, installable on the phone.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexlore",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts, spaces, versions and the search index, the trash, the key secret.key, backups and logs, and the notes in /data/vault unless Notes Folder points elsewhere. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8470",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexlore at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone for daily notes, tasks due today and timestamps in the log, for example Europe/Berlin. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Code",
+      "key": "NEXLORE_SETUP_TOKEN",
+      "value": "",
+      "description": "The code the first account needs to become the operator. Leave blank: nexlore makes a new one at every start until it is set up and writes it to the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXLORE_PUBLIC_URL",
+      "value": "",
+      "description": "The address people use to reach nexlore, for example https://notes.example.com when it sits behind a reverse proxy. Used for invitation links, public pages and the return address of OpenID Connect. Leave blank to take the address of the request; the same can be set later in the settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "NEXLORE_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Addresses or networks of your reverse proxies, comma separated, for example 172.16.0.0/12. Only their X-Forwarded-For is believed; without it every sign-in seems to come from the proxy and the brake against password guessing cannot tell people apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notes Folder",
+      "key": "NEXLORE_VAULT_DIR",
+      "value": "",
+      "description": "Container path of the folder with the notes, if they should not live in /data/vault: add a path mapping for that folder first (for example to /vault) and enter the container path here. Other programs may work on the same folder; nexlore notices their changes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watch by Polling",
+      "key": "NEXLORE_WATCH_POLLING",
+      "value": "false",
+      "description": "true if the notes folder delivers no change notifications (some network mounts): nexlore then looks for changes by polling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXLORE_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexlore off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXLORE_SECRET_KEY",
+      "value": "",
+      "description": "Protects the server-side secrets (the OpenID Connect client secret, the mail password, AI keys, second-factor seeds). Leave blank: nexlore creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXLORE_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https, also behind a proxy that sends X-Forwarded-Proto. Use on only if a proxy terminates TLS and forwards plain http without that header, and never if nexlore should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

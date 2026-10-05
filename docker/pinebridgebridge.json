@@ -1,0 +1,125 @@
+{
+  "name": "pinebridge-bridge",
+  "repo": "ghcr.io/jakeshake/pinebridge-bridge:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/jakeshake/pinebridge/pkgs/container/pinebridge-bridge",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8081]/",
+  "icon": "https://raw.githubusercontent.com/jakeshake/pinebridge/main/docs/icons/pinebridge-bridge.png",
+  "project": "https://github.com/jakeshake/pinebridge",
+  "description": "Pinebridge: TradingView alerts to MetaTrader 5. Send TradingView alerts straight to MetaTrader 5 on your own Unraid server. No paid signal-relay service, no VPS. This container receives the TradingView webhook alerts and passes them over ZeroMQ to the Expert Advisor in pinebridge-mt5. Needs pinebridge-mt5 running alongside it; the webhook secret is generated for you. Places real trades automatically: read the risk notice (https://github.com/jakeshake/pinebridge/blob/main/DISCLAIMER.md) and test on a demo account first.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/pinebridge-bridge/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Keeps the generated webhook secret and the dashboard database (pinebridge.db) across restarts and updates",
+      "required": true
+    },
+    {
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/pinebridge-bridge/logs",
+      "container": "/logs",
+      "mode": "rw",
+      "description": "Webhook log storage",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5080",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Host port for the webhook. Point your Cloudflare tunnel at http://[your Unraid IP]:[this port].",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dashboard Port",
+      "host": "8081",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "Pinebridge Dashboard (opens from WebUI). Shows account data: keep it on your LAN and never add it to your Cloudflare tunnel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "EA Report Port",
+      "host": "5556",
+      "container": "5556",
+      "protocol": "tcp",
+      "description": "The EA sends execution reports here (its ReportAddress input, default tcp://172.17.0.1:5556). LAN only.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DASHBOARD_PASSWORD",
+      "key": "DASHBOARD_PASSWORD",
+      "value": "",
+      "description": "Optional: password for the dashboard (any username). Recommended if others use your LAN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "RETENTION_DAYS",
+      "key": "RETENTION_DAYS",
+      "value": "90",
+      "description": "Days of equity-chart heartbeats to keep (0 = forever). Signals and trades are never deleted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ZMQ_HOST",
+      "key": "ZMQ_HOST",
+      "value": "172.17.0.1",
+      "description": "Where the EA's ZeroMQ port is reachable. 172.17.0.1 (the Docker host on the default bridge network) works when pinebridge-mt5 runs on this server; otherwise use that server's LAN IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ZMQ_PORT",
+      "key": "ZMQ_PORT",
+      "value": "5555",
+      "description": "ZeroMQ PULL port the EA listens on",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WEBHOOK_SECRET",
+      "key": "WEBHOOK_SECRET",
+      "value": "",
+      "description": "Leave blank to generate one on first start (saved in the Config path as webhook_secret, and the full webhook URL is printed in the log). Or set your own long random string.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUBLIC_URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Optional: your tunnel's https address (e.g. https://tv-webhook.example.com), so the log prints the exact TradingView webhook URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REQUIRE_WEBHOOK_SECRET",
+      "key": "REQUIRE_WEBHOOK_SECRET",
+      "value": "true",
+      "description": "Leave true for anything reachable from the internet. Only set false for local-only testing.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

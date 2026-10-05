@@ -1,0 +1,83 @@
+{
+  "name": "ArrowLoop",
+  "repo": "junkerderprovinz/arrowloop:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/arrowloop",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --hostname=arrowloop",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8422]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/arrowloop/icon.png",
+  "project": "https://github.com/junkerderprovinz/arrowloop",
+  "description": "Two-way file synchronisation that shows you the plan before it moves anything. Every other sync tool's main screen is a progress bar, which is a report on a decision somebody already made for you. Here you get the decision: every proposed change listed with its direction and the reason for it, each row unticked if you disagree, and nothing touched until you press the button. It keeps a per-file record of what both sides looked like the last time they agreed, which is what lets it tell \"created over here\" apart from \"deleted over there\" instead of guessing. Deletions go to a trash rather than away. A run that would delete an implausible share of your files stops and says so. A side that lists nothing at all is never believed, because a disk that failed to mount looks exactly like a folder somebody emptied. Local folders, Unraid shares, SMB, SFTP, S3-compatible storage, WebDAV clouds such as Nextcloud and OpenCloud, and the rest of what rclone speaks, compiled in rather than shelled out to. Set a password for the WebUI under Settings, Security, where two-factor authentication and passkeys live too. Until then anyone who can reach it can drive it, so keep it on your LAN.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/arrowloop",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds arrowloop.json, one state database per job and the run log. This is the directory that must survive the container: without the state databases every job forgets what the two sides agreed on and treats every file as new.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/user",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The shares you want to synchronise. Point job paths at subfolders of this, for example /data/Photos. Mount it read-write: a two-way job writes to both sides by definition.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8422",
+      "container": "8422",
+      "protocol": "tcp",
+      "description": "The port the interface listens on. Until a password is set under Settings, Security, anyone who can reach it can start a sync that deletes files, so do not forward it from the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Password hash",
+      "key": "ARROWLOOP_PASSWORD_HASH",
+      "value": "",
+      "description": "Optional. The password is normally set in the interface, under Settings, Security, which also offers two-factor authentication and passkeys. A hash here wins over that password and cannot be changed from the interface, which makes it the way back in after a forgotten one: open this container's console, run: arrowloop hash-password, type the password twice and paste the line it prints here. Neither lives in arrowloop.json, because that file can be downloaded and restored from inside the interface.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Used for the schedules. A cron expression means nothing until the container agrees with you about what time it is.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen address",
+      "key": "ARROWLOOP_ADDR",
+      "value": "0.0.0.0:8422",
+      "description": "Where the interface binds inside the container. Leave this alone unless you know why you are changing it: outside a container the program defaults to loopback, and the container overrides that because loopback inside a container means nobody can reach it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File permission mask",
+      "key": "ARROWLOOP_UMASK",
+      "value": "000",
+      "description": "The umask for everything this container writes. It runs as root, so with the usual 022 every copied file would land as 0644 root:root and every folder as 0755 root:root, which you can read over SMB and not change. An Unraid share is 0777 nobody:users, and 000 makes what ArrowLoop writes match it. The field must not be left empty: a blank template field overrides the image default rather than falling back to it. Set 022 to get restrictive permissions back.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

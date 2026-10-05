@@ -1,0 +1,107 @@
+{
+  "name": "Oneirodex",
+  "repo": "cephyrixzyth/oneirodex:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/cephyrixzyth/oneirodex",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--health-start-period=60s",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5006]/",
+  "icon": "https://raw.githubusercontent.com/cephyrixzyth/unraid-templates/main/icon.png",
+  "project": "https://github.com/cephyrixzyth/Oneirodex",
+  "description": "The self-hosted game library for a household. Scan folders of DRM-free games and ROMs, identify them against IGDB / Steam / GOG, invite the family, download, play in the browser where a system supports it, and chat. Everything runs in this one container, PostgreSQL included: no second database container to set up. Point \"Games\" at your games share (read-only), keep \"Appdata\" on the cache, and open the WebUI. The first visit runs the setup wizard. Use Oneirodex only with software you are authorised to share. It ships no BIOS or firmware and no pirate tooling.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/oneirodex",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, generated secrets, logs, themes, covers and uploads. Keep this on the cache / an SSD and include it in your appdata backup.",
+      "required": true
+    },
+    {
+      "name": "Games",
+      "host": "/mnt/cache/games",
+      "container": "/storage",
+      "mode": "ro",
+      "description": "Your games / ROMs share. Mounted read-only: Oneirodex only scans it.",
+      "required": true
+    },
+    {
+      "name": "Extra scan location 2",
+      "host": "",
+      "container": "/storage2",
+      "mode": "ro",
+      "description": "Optional second read-only scan location. Also add it to ONEIRODEX_LIBRARY_ROOTS, e.g. NAS ROMs=/storage2",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5006",
+      "container": "5006",
+      "protocol": "tcp",
+      "description": "Web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ONEIRODEX_LIBRARY_ROOTS",
+      "key": "ONEIRODEX_LIBRARY_ROOTS",
+      "value": "",
+      "description": "Extra scan locations as the container sees them: Name=/storage2|Other=/storage3",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the embedded database runs as (Unraid: 99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the embedded database runs as (Unraid: 100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SECRET_KEY",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Leave empty: a strong key is generated on first start and kept in Appdata/secrets. Set it only if you already have one.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Time zone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure cookies",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "Leave false for plain http on your LAN. Set true when you reach Oneirodex through an HTTPS reverse proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

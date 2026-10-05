@@ -1,0 +1,139 @@
+{
+  "name": "ChatGPT-Community",
+  "repo": "ghcr.io/jeffreymooiweer/chatgpt-community-docker:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/jeffreymooiweer/ChatGPT-Community-Docker/pkgs/container/chatgpt-community-docker",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1g --hostname=ChatGPT-Community",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/ilysenko/codex-desktop-linux/main/assets/codex-linux.png",
+  "project": "https://github.com/jeffreymooiweer/ChatGPT-Community-Docker",
+  "description": "Docker packaging for the upstream ChatGPT Community app. Standard: just the app, with persistent appdata. Optional: map selected folders or enable GPU acceleration. Advanced: optional SSH access for server administration; follow the setup steps under Additional Requirements below. WebUI login is optional; keep access on a trusted LAN/VPN.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/chatgpt-community",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Keep the existing path to preserve login, pairing and SSH keys",
+      "required": true
+    },
+    {
+      "name": "Optional: shared folder",
+      "host": "",
+      "container": "/workspace/files",
+      "mode": "ro",
+      "description": "Leave blank for app-only mode. Select one folder to make it available at /workspace/files (read-only by default). Change Access Mode to Read/Write only if the app may edit/delete files.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI HTTPS",
+      "host": "33443",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "ChatGPT application over HTTPS",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "WebUI username (optional)",
+      "key": "CUSTOM_USER",
+      "value": "abc",
+      "description": "Only used when a WebUI password is set; unrelated to your ChatGPT account",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WebUI password (optional)",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Leave blank for no WebUI login (trusted LAN/VPN only). Set a strong unique password to enable login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Wayland",
+      "key": "PIXELFLUX_WAYLAND",
+      "value": "true",
+      "description": "Use Wayland/labwc; false selects the single-app X11 fallback",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Stream FPS",
+      "key": "SELKIES_FRAMERATE",
+      "value": "30",
+      "description": "Fixed stream frame-rate cap",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Container user ID; retain the existing value on upgrade",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Container group ID; retain the existing value on upgrade",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Amsterdam",
+      "description": "Container timezone",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Advanced: provision host SSH",
+      "key": "ENABLE_HOST_SSH",
+      "value": "false",
+      "description": "Optional. See Additional Requirements above for setup. true creates missing keys/config only; authorize the public key separately. false does not revoke existing access.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Advanced: SSH host",
+      "key": "SSH_HOST",
+      "value": "",
+      "description": "For new SSH setup only: enter the reachable server LAN IP/hostname, not localhost. Existing SSH config is preserved. Not needed for normal app use.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Advanced: SSH user",
+      "key": "SSH_USER",
+      "value": "root",
+      "description": "Account on the target server; only used for a new SSH config. Root grants full host control once authorized; choose a restricted account where supported.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Advanced: SSH port",
+      "key": "SSH_PORT",
+      "value": "22",
+      "description": "Target SSH port; only used for a new SSH config.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

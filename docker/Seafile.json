@@ -1,0 +1,219 @@
+{
+  "name": "Seafile",
+  "repo": "junkerderprovinz/seafile:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/junkerderprovinz/seafile",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/seafile/icon.png",
+  "project": "https://www.seafile.com",
+  "description": "Seafile is a file sync and share server with desktop and mobile clients, libraries you can encrypt on the client, and built-in wikis. This is the official Seafile image, installable from this one template. The official image expects MariaDB, Redis and the notification server as separate containers on a shared Docker network, plus a JWT key you generate by hand. Here the JWT key, the database password and, if you leave it empty, the admin password are generated on the first start and kept in secrets.env in the Data folder. MariaDB, Redis and the notification server can each run inside this container when you switch them on below. Getting started: \u2022 Set the Server hostname to the address your clients will use, such as 192.168.1.10:8000 or seafile.example.com. \u2022 Already running MariaDB? Enter its host and root password. The root password is only used once, to create the Seafile databases. \u2022 No MariaDB or Redis? Set Built-in MariaDB and Built-in Redis to true and leave their host fields empty. \u2022 The first start takes about a minute. Seafile is ready when the log says \"Seahub is started\". A generated admin password is printed in the log. This image runs Seafile 14, which upstream still calls testing, and Seafile cannot be downgraded. Back up the Data folder and the database before every update. Coming from another Seafile template? The Data folder has the same layout, so point Data at your old folder and copy over the database settings and the JWT key. The README explains each step. Source on GitHub: https://github.com/junkerderprovinz/seafile This is an independent packaging of Seafile and is not affiliated with Seafile Ltd.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/seafile",
+      "container": "/shared",
+      "mode": "rw",
+      "description": "All of Seafile: configuration, logs, your libraries, secrets.env and, with Built-in MariaDB, the database. Libraries can grow large, so pick a share with room for your files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port of the Seafile web interface and of the sync clients. The Server hostname below has to name this port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server hostname",
+      "key": "SEAFILE_SERVER_HOSTNAME",
+      "value": "",
+      "description": "The address clients use to reach Seafile, without http://. For example 192.168.1.10:8000, or seafile.example.com behind a reverse proxy. Desktop clients cannot sync when this is wrong.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Protocol",
+      "key": "SEAFILE_SERVER_PROTOCOL",
+      "value": "http",
+      "description": "https when a reverse proxy in front of Seafile serves TLS, http otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin email",
+      "key": "INIT_SEAFILE_ADMIN_EMAIL",
+      "value": "",
+      "description": "Sign-in of the admin account created on the first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "INIT_SEAFILE_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Only read on the first start. Leave it empty to get a generated one, which the log prints and secrets.env keeps.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Built-in MariaDB",
+      "key": "BUILTIN_MARIADB",
+      "value": "false",
+      "description": "true runs MariaDB inside this container, with its data in the Data folder. Use it only on a new installation: an existing Seafile keeps its data in the database it already has.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database host",
+      "key": "SEAFILE_MYSQL_DB_HOST",
+      "value": "",
+      "description": "IP or name of your MariaDB or MySQL server. Leave it empty with Built-in MariaDB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database root password",
+      "key": "INIT_SEAFILE_MYSQL_ROOT_PASSWORD",
+      "value": "",
+      "description": "Root password of your MariaDB, used once on the first start to create the three Seafile databases and the database user. You can clear it afterwards. Not needed with Built-in MariaDB.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Built-in Redis",
+      "key": "BUILTIN_REDIS",
+      "value": "false",
+      "description": "true runs Redis inside this container. Seafile only keeps a cache there, nothing is written to disk.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis host",
+      "key": "REDIS_HOST",
+      "value": "",
+      "description": "IP or name of your Redis server. Leave it empty with Built-in Redis.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification server",
+      "key": "ENABLE_NOTIFICATION_SERVER",
+      "value": "false",
+      "description": "true starts the notification server in this container, so the desktop and mobile clients see changes when they happen. A reverse proxy has to pass WebSocket connections for /notification.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database port",
+      "key": "SEAFILE_MYSQL_DB_PORT",
+      "value": "3306",
+      "description": "Port of your MariaDB or MySQL server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database user",
+      "key": "SEAFILE_MYSQL_DB_USER",
+      "value": "seafile",
+      "description": "The user Seafile connects as. The first start creates it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "SEAFILE_MYSQL_DB_PASSWORD",
+      "value": "",
+      "description": "Password of the database user. Leave it empty on a new installation to get a generated one. When switching from another Seafile template, enter the password you used there.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ccnet database",
+      "key": "SEAFILE_MYSQL_DB_CCNET_DB_NAME",
+      "value": "ccnet_db",
+      "description": "Name of the database for users and groups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "seafile database",
+      "key": "SEAFILE_MYSQL_DB_SEAFILE_DB_NAME",
+      "value": "seafile_db",
+      "description": "Name of the database for libraries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "seahub database",
+      "key": "SEAFILE_MYSQL_DB_SEAHUB_DB_NAME",
+      "value": "seahub_db",
+      "description": "Name of the database for the web interface.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis port",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Port of your Redis server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis password",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Only when your Redis server asks for one.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JWT key",
+      "key": "JWT_PRIVATE_KEY",
+      "value": "",
+      "description": "Shared by Seafile and its add-ons. Leave it empty to get a generated one. When switching from another Seafile template, enter the key you used there.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notification server URL",
+      "key": "NOTIFICATION_SERVER_URL",
+      "value": "",
+      "description": "Only needed when clients reach the notification server under another address than Protocol://Server hostname/notification.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SeaDoc",
+      "key": "ENABLE_SEADOC",
+      "value": "false",
+      "description": "true turns on the SeaDoc document editor. SeaDoc runs as a separate container (seafileltd/sdoc-server) and needs the same JWT key as Seafile.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SeaDoc URL",
+      "key": "SEADOC_SERVER_URL",
+      "value": "",
+      "description": "Address of the SeaDoc container as the browser reaches it, for example http://192.168.1.10:7070.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

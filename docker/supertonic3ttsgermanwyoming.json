@@ -1,0 +1,236 @@
+{
+  "name": "supertonic3-tts-german-wyoming",
+  "repo": "ghcr.io/marco-taylor/supertonic3-tts-german-wyoming:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/marco-taylor/supertonic3-tts-german-wyoming/pkgs/container/supertonic3-tts-german-wyoming",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --stop-timeout=35 --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8881]/health",
+  "icon": "https://raw.githubusercontent.com/marco-taylor/supertonic3-tts-german-wyoming/main/icons/supertonic3-tts-german-wyoming.png",
+  "project": "https://github.com/marco-taylor/supertonic3-tts-german-wyoming",
+  "description": "Local German text-to-speech for Home Assistant using Supertonic 3, native Wyoming integration and an optimized Rust/ONNX Runtime backend. Optimized and tested on Intel N100. Includes 10 voices, custom voice support, German text normalization and low-latency phrase streaming. First start downloads missing models and voices into the persistent folders. Existing files remain available after updates. Streaming is optional; turn it off for full-text synthesis. Audio is 44100 Hz, mono PCM16. Connect Home Assistant to the Wyoming port; HTTP provides health and voice information. Before installation, choose unused host ports and ensure both folders are writable by UID/GID 99:100.",
+  "paths": [
+    {
+      "name": "Models",
+      "host": "/mnt/cache/appdata/supertonic3-tts-german-wyoming/models",
+      "container": "/app/models",
+      "mode": "rw",
+      "description": "Persistent model storage. Only missing files download. Folder must be writable by UID/GID 99:100.",
+      "required": true
+    },
+    {
+      "name": "Voices",
+      "host": "/mnt/cache/appdata/supertonic3-tts-german-wyoming/voices",
+      "container": "/app/voices",
+      "mode": "rw",
+      "description": "Persistent standard and custom voices. Add compatible JSON files here and restart. Folder must be writable by UID/GID 99:100.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Wyoming Port",
+      "host": "10200",
+      "container": "10200",
+      "protocol": "tcp",
+      "description": "Free host TCP port for the Home Assistant Wyoming integration. Container port normally stays 10200.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP Port",
+      "host": "8881",
+      "container": "8881",
+      "protocol": "tcp",
+      "description": "Free host TCP port for health and voice information. This is not the Home Assistant Wyoming port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Default Voice",
+      "key": "TTS_VOICE",
+      "value": "F1",
+      "description": "Choose F1\u2013F5, M1\u2013M5, or the filename of an installed custom JSON voice without .json.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Language",
+      "key": "TTS_LANGUAGE",
+      "value": "de",
+      "description": "Language code for synthesis. German (de) is the default; Supertonic 3 supports 31 languages. See the README for all supported language codes. For non-German input, disable German Normalization.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Speed",
+      "key": "TTS_SPEED",
+      "value": "1.0",
+      "description": "Speaking speed: 1.0 is normal; smaller values are slower. Allowed range 0.25\u20134.0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Steps",
+      "key": "TTS_STEPS",
+      "value": "6",
+      "description": "Speech generation steps, 5\u201312. Recommended Intel N100 setting: 6. More steps require more time.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Threads",
+      "key": "TTS_THREADS",
+      "value": "4",
+      "description": "CPU threads used for speech generation. Recommended for Intel N100: 4.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "German Normalization",
+      "key": "TTS_GERMAN_NORMALIZATION",
+      "value": "true",
+      "description": "Read German numbers, temperatures, times and units naturally. Set false to disable.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Streaming",
+      "key": "TTS_STREAMING",
+      "value": "true",
+      "description": "Start sending completed phrases early. Set false for complete-text synthesis. Actual playback timing also depends on Home Assistant.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Streaming Prefill (ms)",
+      "key": "TTS_STREAM_PREFILL_MS",
+      "value": "3500",
+      "description": "Audio to prepare before sending the first block. Recommended: 3500 milliseconds. Allowed: 0\u20135000.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Concurrent Requests",
+      "key": "TTS_CONCURRENT_REQUESTS",
+      "value": "1",
+      "description": "Simultaneous speech requests. Recommended: 1. Larger values use more memory.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Model Directory",
+      "key": "MODEL_DIR",
+      "value": "/app/models",
+      "description": "Keep aligned with persistent container model path",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Voice Directory",
+      "key": "VOICE_DIR",
+      "value": "/app/voices",
+      "description": "Keep aligned with persistent container voice path",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORT Configured",
+      "key": "ORT_CONFIGURED",
+      "value": "false",
+      "description": "Preserve upstream engine unless deliberately tuning",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORT Thread Pool",
+      "key": "ORT_THREAD_POOL",
+      "value": "global",
+      "description": "global or session; legacy wrapper requires global",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORT Inter-op Threads",
+      "key": "ORT_INTER_THREADS",
+      "value": "1",
+      "description": "ONNX inter-op threads",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORT Spinning",
+      "key": "ORT_SPINNING",
+      "value": "false",
+      "description": "Keep disabled for tested N100 configuration",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ORT Execution Mode",
+      "key": "ORT_EXECUTION_MODE",
+      "value": "sequential",
+      "description": "parallel requires ORT_CONFIGURED=true",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Optimized Datapath",
+      "key": "TTS_OPTIMIZED_DATAPATH",
+      "value": "true",
+      "description": "Bounded audio conversion and output",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Buffered TCP",
+      "key": "WYOMING_BUFFERED_TCP",
+      "value": "true",
+      "description": "Buffered writes and TCP_NODELAY",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "AudioChunk Bytes",
+      "key": "WYOMING_CHUNK_BYTES",
+      "value": "16384",
+      "description": "Even value from 512 to 262144",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "RUST_LOG",
+      "value": "info",
+      "description": "Rust tracing filter",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container Wyoming Port",
+      "key": "WYOMING_PORT",
+      "value": "10200",
+      "description": "Match internal target of the Wyoming port mapping",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Container HTTP Port",
+      "key": "HTTP_PORT",
+      "value": "8881",
+      "description": "Match internal target of the HTTP port mapping",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

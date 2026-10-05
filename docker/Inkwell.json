@@ -1,0 +1,195 @@
+{
+  "name": "Inkwell",
+  "repo": "ghcr.io/whoiscalebbrown/inkwell:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/WhoIsCalebBrown/inkwell/pkgs/container/inkwell",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--read-only --restart=unless-stopped --security-opt=no-new-privileges:true",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/WhoIsCalebBrown/inkwell/main/public/inkwell-unraid.png",
+  "project": "https://github.com/WhoIsCalebBrown/inkwell",
+  "description": "Inkwell is a comic request front end for Mylar3. Browse by publisher, character, creator, team, or event; choose books and follow requests until they reach an optional Komga library. Fresh installs create an administrator in the browser, then add local users and approve requests. Existing installs keep their saved access mode. It stores state under /config and reads Mylar appdata read-only. Read the self-hosting guide before enabling remote access.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/inkwell",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Required Inkwell application data: SQLite, setup state, covers, and migration backups. Kept on the host, so it survives container updates and replacement. Use local Unraid appdata, never an SMB/NFS share. If your appdata lives on a pool, prefer the direct pool path (/mnt/cache/appdata/inkwell) over /mnt/user: the user share goes through shfs, and SQLite and FUSE are a poor combination.",
+      "required": true
+    },
+    {
+      "name": "Mylar AppData",
+      "host": "/mnt/cache/appdata/mylar3",
+      "container": "/run/mylar",
+      "mode": "ro",
+      "description": "Required Mylar appdata directory containing config.ini and mylar.db. Read-only; this is not your comics/media folder.",
+      "required": true
+    },
+    {
+      "name": "Komf config",
+      "host": "",
+      "container": "/run/komf/application.yml",
+      "mode": "ro",
+      "description": "Optional read-only path to Komf's application.yml. If you already run Komf, Inkwell reads the Komga login from it instead of asking for one above. Leave empty if you do not run Komf.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3013",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Trusted-LAN HTTP port. For remote access, put Inkwell behind HTTPS and authentication.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Mylar API URL",
+      "key": "MYLAR_URL",
+      "value": "http://[IP]:8090/api",
+      "description": "Required address Inkwell can use to reach Mylar, including /api. Use a LAN address or Docker service name, not 127.0.0.1 unless both share a network namespace.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns Inkwell /config. Unraid default is 99.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns Inkwell /config. Unraid default is 100.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "Permissions mask for files created in /config.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Shared username",
+      "key": "INKWELL_USER",
+      "value": "",
+      "description": "Optional shared HTTP Basic username. Recommended with remote/proxy access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shared password",
+      "key": "INKWELL_PASSWORD",
+      "value": "",
+      "description": "Optional shared HTTP Basic password. In multi-user mode this is an extra outer gate and never grants an Inkwell role.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Access mode",
+      "key": "INKWELL_ACCESS_MODE",
+      "value": "auto",
+      "description": "auto opens browser administrator setup on a fresh install and preserves existing access. Settings \u2192 Access enables accounts in the app. multi opens account setup; single applies only until accounts exist. Personal/Friends choices are saved in /config.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow account login over HTTP",
+      "key": "INKWELL_ALLOW_HTTP",
+      "value": "",
+      "description": "Only set to 1 on a private LAN if you deliberately accept unencrypted passwords. Use HTTPS for remote friends.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mylar web URL",
+      "key": "MYLAR_WEB_URL",
+      "value": "",
+      "description": "Optional address for Mylar's web interface when it differs from the API URL without /api. Used for the download queue, its controls, and administrator request settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Komga URL",
+      "key": "KOMGA_URL",
+      "value": "",
+      "description": "Optional. Lets Inkwell show when a requested title arrived in your reading library.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Komga username",
+      "key": "KOMGA_USER",
+      "value": "",
+      "description": "Optional direct Komga login when no read-only Komf config is mounted.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Komga password",
+      "key": "KOMGA_PASSWORD",
+      "value": "",
+      "description": "Optional direct Komga password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Komf config path",
+      "key": "KOMGA_CONFIG",
+      "value": "/run/komf/application.yml",
+      "description": "Where Inkwell looks inside the container for the Komf config mapped below. Leave at the default. If nothing is mapped there, Inkwell falls back to the Komga username and password above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Komga browser URL",
+      "key": "KOMGA_PUBLIC_URL",
+      "value": "",
+      "description": "Optional. Where your own browser reaches Komga, if that differs from the address above. The Read links point here.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification URL",
+      "key": "INKWELL_NOTIFY_URL",
+      "value": "",
+      "description": "Optional secret URL for arrival and stalled-download notifications. Supports ntfy topics, Discord webhooks, and generic POST receivers.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notification format",
+      "key": "INKWELL_NOTIFY_FORMAT",
+      "value": "auto",
+      "description": "Payload format: auto detects Discord and otherwise uses ntfy; choose ntfy, discord, or json to override.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "INKWELL_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Optional. Comma-separated IPs/CIDRs of a reverse proxy that connects directly to Inkwell. Leave empty unless you run one: forwarded headers are never trusted by default.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,50 +1,91 @@
 {
   "name": "Pullarr",
-  "repo": "kirantheram/pullarr:latest",
+  "repo": "ghcr.io/fenrisskoll/pullarr:latest",
   "category": [
-    "Downloader"
+    "Media"
   ],
-  "registry": "https://hub.docker.com/r/kirantheram/pullarr",
+  "registry": "https://github.com/FenrisSkoll/Pullarr/pkgs/container/pullarr",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
   "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:6997]/",
-  "icon": "https://raw.githubusercontent.com/KiranTheRam/Pullarr/main/frontend/public/pullarr-icon.png",
-  "project": "https://github.com/KiranTheRam/Pullarr",
-  "description": "Monitor western comic series, download missing issues, and organize CBZ/CBR files for Komga or Kavita.",
+  "web_ui_url": "http://[IP]:[PORT:5656]",
+  "icon": "https://raw.githubusercontent.com/FenrisSkoll/Pullarr/main/docs/assets/pullarr-ca.png",
+  "project": "https://github.com/FenrisSkoll/Pullarr",
+  "description": "Manage comic metadata, monitoring and Wanted acquisition, Reading Orders, quality profiles and verified upgrades. Browse GetComics Discover; use SABnzbd, NZBGet or qBittorrent with Prowlarr or Torznab. Reviewed archive maintenance preserves page bytes. Configure authentication before exposing beyond your trusted network.",
   "paths": [
     {
-      "name": "Appdata",
-      "host": "/mnt/cache/appdata/pullarr",
-      "container": "/config",
+      "name": "Database",
+      "host": "/mnt/cache/appdata/pullarr/db",
+      "container": "/app/db",
       "mode": "rw",
-      "description": "Persistent database, API key, and settings.",
+      "description": "Persistent database and settings. Back up before upgrades.",
       "required": true
     },
     {
-      "name": "Comics",
-      "host": "/mnt/cache/media/comics",
-      "container": "/comics",
+      "name": "Logs",
+      "host": "/mnt/cache/appdata/pullarr/logs",
+      "container": "/app/logs",
       "mode": "rw",
-      "description": "Comic library folder. Add /comics as a root folder in Pullarr after installation.",
+      "description": "Persistent application logs; treat as private.",
+      "required": true
+    },
+    {
+      "name": "Pullarr temporary downloads",
+      "host": "/mnt/cache/appdata/pullarr/temp_downloads",
+      "container": "/app/temp_downloads",
+      "mode": "rw",
+      "description": "Pullarr-controlled acquisition workspace. Not the external download client's completed-data path.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Common parent containing library and client downloads, e.g. media/comics and downloads/torrents. Use the same /data layout in clients; hardlinks also require compatible underlying storage.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "WebUI Port",
-      "host": "6997",
-      "container": "6997",
+      "name": "WebUI",
+      "host": "5656",
+      "container": "5656",
       "protocol": "tcp",
-      "description": "Pullarr web interface port.",
+      "description": "Pullarr WebUI. Enable authentication before LAN access; never expose directly to the Internet.",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID controlling container-created file ownership. Pre-authorize this UID on your data share.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID controlling container-created file ownership.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Timezone used by container processes, e.g. Etc/UTC.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

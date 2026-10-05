@@ -1,0 +1,186 @@
+{
+  "name": "MailFlow-backend",
+  "repo": "ghcr.io/maathimself/mailflow-backend:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/maathimself/mailflow/pkgs/container/mailflow-backend",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3220]",
+  "icon": "https://raw.githubusercontent.com/harikiran-lab/unraid-templates/main/icons/mailflow.png",
+  "project": "https://github.com/maathimself/mailflow",
+  "description": "API service for MailFlow, a self-hosted webmail client for existing IMAP/SMTP accounts. Install with MailFlow-frontend. PostgreSQL and Redis are separate prerequisites. Container API port 3000 is mapped to a host port you choose. Configure your own application URL and secrets before starting.",
+  "paths": [],
+  "ports": [
+    {
+      "name": "Backend API host port",
+      "host": "3220",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Required host port mapped to container API port 3000. Choose an unused port and set frontend BACKEND_PORT to the same number.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Session secret",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Generate a unique secret with openssl rand -hex 32. Do not reuse an example secret.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Application URL",
+      "key": "APP_URL",
+      "value": "",
+      "description": "Full browser-facing URL, including HTTPS and any nonstandard port. Example: https://mail.example.com. Must match Frontend origin.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frontend origin",
+      "key": "FRONTEND_URL",
+      "value": "",
+      "description": "Set to the same browser-facing origin as APP_URL, including scheme and port, without a trailing slash.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Reachable database hostname or IPv4 address. For a database published on Unraid, use the Unraid host address, not localhost or a container name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "Database port reachable at DB_HOST. For a database container published on Unraid, use its mapped host port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database name",
+      "key": "DB_NAME",
+      "value": "mailflow",
+      "description": "Create this dedicated database before starting MailFlow.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database user",
+      "key": "DB_USER",
+      "value": "mailflow",
+      "description": "Existing database role owning the MailFlow database and allowed to create/migrate its tables.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Password for the configured PostgreSQL role. No password is supplied by this template.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redis connection URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Redis connection URL using a reachable server address and port. For Redis on Unraid, use the host address and mapped Redis port. Include URL-encoded credentials if authentication is enabled.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Credential encryption key",
+      "key": "ENCRYPTION_KEY",
+      "value": "",
+      "description": "Generate with openssl rand -hex 32 (64 hexadecimal characters). Back up securely; changing or losing it makes stored credentials unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Node environment",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Production runtime setting.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internal API port",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Keep at 3000 to match the container port mapping. Choose the external port in Backend API host port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Google OAuth client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Optional Google OAuth application client ID. Configure all Google OAuth fields together.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google OAuth client secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional Google OAuth application secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Google OAuth redirect URI",
+      "key": "GOOGLE_REDIRECT_URI",
+      "value": "",
+      "description": "Optional exact registered callback URL: your application origin followed by /oauth/google/callback.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web push public key",
+      "key": "VAPID_PUBLIC_KEY",
+      "value": "",
+      "description": "Optional. Generate a matching public/private pair with npx web-push generate-vapid-keys.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web push private key",
+      "key": "VAPID_PRIVATE_KEY",
+      "value": "",
+      "description": "Optional private key matching VAPID_PUBLIC_KEY. Keep private and persistent.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Web push contact",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "Optional. Set with both VAPID keys: your mailto contact address or application URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxy hops",
+      "key": "TRUST_PROXY_HOPS",
+      "value": "",
+      "description": "Leave blank for default behavior. Use 2 only when all frontend access is restricted to your additional trusted reverse proxy; consult upstream guidance.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

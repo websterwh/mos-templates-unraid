@@ -1,0 +1,129 @@
+{
+  "name": "gangway",
+  "repo": "ghcr.io/charlesabarnes/gangway:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/charlesabarnes/gangway/pkgs/container/gangway",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout 15",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/charlesabarnes/unraid-templates/main/icons/gangway.png",
+  "project": "https://github.com/charlesabarnes/gangway",
+  "description": "gangway gives decks, dashboards and small apps their own HTTPS URL on your domain, from an agent (MCP), a pull request, or a folder dropped in the browser. Previews run as containers on this server's Docker. To keep them in a VM instead, install gangway-inabox. The defaults put gangway behind a reverse proxy on this server (Nginx Proxy Manager, SWAG): proxy *.your-domain and your-domain to https://172.17.0.1:8443 with websockets on, and use a wildcard certificate. Without a domain, set Base domain to [server IP with dashes].sslip.io (e.g. 192-168-1-10.sslip.io), Listen address to ::, Public port to 8443 and Share to true, then open https://app.192-168-1-10.sslip.io:8443. The one-time link that creates the first admin is in this container's log.",
+  "paths": [
+    {
+      "name": "State",
+      "host": "/mnt/cache/appdata/gangway",
+      "container": "/state",
+      "mode": "rw",
+      "description": "Database, logs, uploads and backups.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "gangway runs previews as containers on this server.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Base domain",
+      "key": "GANGWAY_BASE_DOMAIN",
+      "value": "",
+      "description": "e.g. preview.example.com; the dashboard is app.preview.example.com and previews get their own names under it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Listen address",
+      "key": "GANGWAY_LISTEN_ADDRESS",
+      "value": "172.17.0.1",
+      "description": "172.17.0.1 (docker0) is where a proxy container in bridge mode reaches gangway. Use :: to answer on every address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Listen port",
+      "key": "GANGWAY_LISTEN_PORT",
+      "value": "8443",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP redirect port",
+      "key": "GANGWAY_LISTEN_HTTP_PORT",
+      "value": "",
+      "description": "A plain-HTTP listener that redirects to HTTPS. Empty behind a proxy, which redirects itself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public port",
+      "key": "GANGWAY_PUBLIC_PORT",
+      "value": "443",
+      "description": "The port browsers use: 443 behind a proxy, 8443 with no proxy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "GANGWAY_TRUSTED_PROXIES",
+      "value": "172.17.0.0/16",
+      "description": "Where the proxy connects from; its forwarded headers are believed. Empty with no proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Share links",
+      "key": "GANGWAY_SHARE",
+      "value": "",
+      "description": "true turns on public Share links (Cloudflare quick tunnels); empty leaves it to Admin > Server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin token",
+      "key": "GANGWAY_ADMIN_TOKEN",
+      "value": "",
+      "description": "Optional API token with every permission. Empty: create an account from the first-admin link in the log, and tokens under Account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TLS mode",
+      "key": "GANGWAY_TLS_MODE",
+      "value": "selfsigned",
+      "description": "selfsigned: the proxy holds the real certificate. acme needs the Cloudflare settings in compose.yaml's notes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Instance",
+      "key": "GANGWAY_INSTANCE",
+      "value": "main",
+      "description": "Prefix of the containers gangway makes; unique per gangway on a host.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Orphans",
+      "key": "GANGWAY_RECONCILE_ORPHANS",
+      "value": "report",
+      "description": "report only logs containers that look like gangway's but that it does not know; stop stops them.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
