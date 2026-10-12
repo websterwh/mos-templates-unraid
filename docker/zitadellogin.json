@@ -1,0 +1,75 @@
+{
+  "name": "zitadel-login",
+  "repo": "ghcr.io/zitadel/zitadel-login:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/zitadel/zitadel/pkgs/container/zitadel-login",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/ui/v2/login/",
+  "icon": "https://raw.githubusercontent.com/Nebur692/unraid-community-apps/main/icons/zitadel-icon.png",
+  "project": "https://github.com/zitadel/zitadel",
+  "description": "ZITADEL v4 Login UI \u2014 the interactive sign-in pages (username/password, MFA, WebAuthn, etc.) for a ZITADEL v4 core instance. Since v4, ZITADEL split its interactive login pages out of the main API container into this separate service. Without it, every login attempt against a v4 \"zitadel\" container fails with a 404 on /ui/v2/login/login \u2014 this template exists to fix exactly that. REQUIRES the companion \"zitadel\" template from the same repository to already be running, using the exact same Bootstrap Volume path, since this container reads the login-client.pat token that ZITADEL writes there on its first start. Your reverse proxy needs a path-based rule so that requests to \"/\" and \"/ui/v2/login/*\" reach this container's port 3000, while everything else keeps going to the \"zitadel\" container's port 8080. See the setup guide below for an Nginx Proxy Manager example. Full setup guide: https://github.com/Nebur692/Unraid-sso-templates",
+  "paths": [
+    {
+      "name": "Bootstrap Volume (shared with zitadel)",
+      "host": "/mnt/cache/appdata/zitadel/bootstrap",
+      "container": "/zitadel/bootstrap",
+      "mode": "ro",
+      "description": "Must be the EXACT same host path used as the Bootstrap Volume in the companion 'zitadel' template, mounted read-only here.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Login UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Internal port. Route your reverse proxy's '/' and '/ui/v2/login/*' paths here \u2014 do not expose directly to the internet.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ZITADEL API URL",
+      "key": "ZITADEL_API_URL",
+      "value": "",
+      "description": "REQUIRED. Internal address of your 'zitadel' core container's API, e.g. http://192.168.1.50:8080 (its LAN/container IP and port, not the public domain).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public Base Path",
+      "key": "NEXT_PUBLIC_BASE_PATH",
+      "value": "/ui/v2/login",
+      "description": "Do not change unless you know why \u2014 must match the path your reverse proxy routes to this container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Service User Token File",
+      "key": "ZITADEL_SERVICE_USER_TOKEN_FILE",
+      "value": "/zitadel/bootstrap/login-client.pat",
+      "description": "CRITICAL, do not change. Path inside this container where the login-client.pat token (written by the 'zitadel' core container on its first start) will be read from. Must match the Bootstrap Volume mount below.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Custom Request Headers",
+      "key": "CUSTOM_REQUEST_HEADERS",
+      "value": "",
+      "description": "REQUIRED behind a reverse proxy. Format: Host:your-domain,X-Forwarded-Proto:https \u2014 e.g. Host:sso.example.com,X-Forwarded-Proto:https",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

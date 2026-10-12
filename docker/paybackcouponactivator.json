@@ -1,0 +1,97 @@
+{
+  "name": "payback-coupon-activator",
+  "repo": "ghcr.io/mygrexit/payback-coupon-activator:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/mygrexit/payback-coupon-activator/pkgs/container/payback-coupon-activator",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true --user 99:100",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/mygrexit/unraid-templates/main/images/payback-coupon-activator.png",
+  "project": "https://github.com/mygrexit/payback-coupon-activator",
+  "description": "Activates every pending coupon in your PAYBACK account once or several times a day, using headless Chromium and the cookies of a browser session you export yourself. It never types your password and never solves or bypasses bot checks. When a person is needed, it stops and notifies you (Pushover, Telegram, ntfy, Gotify, ... via shoutrrr). **Setup** 1. Log in at payback.de in your desktop browser. 2. Export the cookies with the \"Cookie-Editor\" extension (Export - JSON). 3. Save them as cookies.json in the data folder of this container. The cookie file grants full access to your PAYBACK account. Treat it like a password. Without it the container keeps running and reports \"session expired\". **Notifications** There is no web interface; the status is in the container log. You get a notification when the session expires, a bot check appears, the page layout changed or coupons could not be activated. **Disclaimer** Unofficial project, not affiliated with PAYBACK GmbH. It drives the payback.de website, which can change at any time. Use at your own risk and check PAYBACK's terms of use.",
+  "paths": [
+    {
+      "name": "Data folder (cookies.json)",
+      "host": "/mnt/cache/appdata/payback-coupon-activator",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds cookies.json. Refreshed cookies are written back to this file after successful runs.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Run time(s) (RUN_AT)",
+      "key": "RUN_AT",
+      "value": "04:00",
+      "description": "Daily run time as HH:MM (24h). Several times separated by commas, e.g. 04:00,12:00,19:00. DST-aware.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notification URL (NOTIFY_URL)",
+      "key": "NOTIFY_URL",
+      "value": "",
+      "description": "shoutrrr URL, e.g. ntfy://ntfy.sh/YOUR_TOPIC, pushover://shoutrrr:APP_TOKEN@USER_KEY or telegram://BOT_TOKEN@telegram?chats=CHAT_ID. Empty disables notifications.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify on success too",
+      "key": "NOTIFY_ON_SUCCESS",
+      "value": "false",
+      "description": "true also notifies after successful runs; default reports problems only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Run once on start",
+      "key": "RUN_ON_START",
+      "value": "true",
+      "description": "true runs one cycle right after the container starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone used for the run times.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Browser user agent",
+      "key": "BROWSER_USER_AGENT",
+      "value": "",
+      "description": "User-Agent of the browser the cookies came from (Firefox: about:support, Chrome: chrome://version). Helps when the session is bound to that browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warn or error.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie file inside container",
+      "key": "COOKIES_FILE",
+      "value": "/data/cookies.json",
+      "description": "Path of the cookie file inside the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

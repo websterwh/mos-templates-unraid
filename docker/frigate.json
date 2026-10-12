@@ -7,29 +7,29 @@
   "registry": "https://github.com/blakeblackshear/frigate/pkgs/container/frigate",
   "network": "bridge",
   "custom_ip": null,
-  "default_shell": "sh",
+  "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--shm-size=256m --mount type=tmpfs,target=/tmp/cache,tmpfs-size=1000000000 --restart unless-stopped",
+  "extra_parameters": "--shm-size=512m --mount type=tmpfs,target=/tmp/cache,tmpfs-size=1000000000 --stop-timeout 30 --restart unless-stopped",
   "post_parameters": null,
   "web_ui_url": "https://[IP]:[PORT:8971]",
-  "icon": "https://raw.githubusercontent.com/yayitazale/unraid-templates/main/frigate.png",
+  "icon": "https://gitlab.com/yayitazale/unraid-templates/-/raw/main/frigate.png",
   "project": "https://frigate.video/",
-  "description": "A complete and local NVR designed for Home Assistant with AI object detection. Uses OpenCV and Tensorflow to perform realtime object detection locally for IP cameras. You cas use a integrated or dedicated GPU (Intel/AMD/Nvidia) to perform the image decoding of the input streams of your cameras. Optionally (but highly recommended), you can use multiple devices to perform the object detetion, such as a Google Coral Accelerator, Nvidia GPU, OpenVINO (Intel GPU)... See the documentation for more details about your specific hardware and needs (https://docs.frigate.video/). This is a general templeate that aims to give a fast deoplyment for every user so check all the options carefully and remove all the configurations that you are not going to use.",
+  "description": "A complete and local NVR designed for Home Assistant with AI object detection. Uses OpenCV and Tensorflow to perform realtime object detection locally for IP cameras. You can use an integrated or dedicated GPU (Intel/AMD/Nvidia) to decode your cameras' streams, and a detector such as a Google Coral, Hailo, OpenVINO (Intel GPU/NPU), an Nvidia GPU (TensorRT) or an AMD GPU (ROCm) for object detection. This is a general template: check every option and remove the devices and variables you are not going to use. Frigate creates a default config file in the config folder on first start. The WebUI uses https with a self-signed certificate; the admin password is printed in the container log on first start. Documentation: https://docs.frigate.video/",
   "paths": [
     {
       "name": "Config Path",
       "host": "/mnt/cache/appdata/frigate",
       "container": "/config",
       "mode": "rw",
-      "description": null,
+      "description": "Config file and database.",
       "required": true
     },
     {
-      "name": "Media path",
+      "name": "Media Path",
       "host": "/mnt/cache/Media/frigate",
       "container": "/media/frigate",
       "mode": "rw",
-      "description": null,
+      "description": "Recordings, snapshots and exports.",
       "required": true
     },
     {
@@ -37,45 +37,45 @@
       "host": "/etc/localtime",
       "container": "/etc/localtime",
       "mode": "ro",
-      "description": null,
+      "description": "Host time zone.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Authenticated UI and API access without TLS. Reverse proxies should use this port",
+      "name": "WebUI Port",
       "host": "8971",
       "container": "8971",
       "protocol": "tcp",
-      "description": null,
+      "description": "Authenticated UI and API (https, self-signed certificate by default). Reverse proxies should use this port.",
       "required": true,
       "mask": false
     },
     {
-      "name": "RTSP restreaming port",
+      "name": "RTSP Restreaming Port",
       "host": "8554",
       "container": "8554",
       "protocol": "tcp",
-      "description": "By default, these streams are unauthenticated. Authentication can be configured in go2rtc section of config",
-      "required": true,
+      "description": "Unauthenticated by default; authentication can be set in the go2rtc section of the config.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "WebRTC connection TCP port",
+      "name": "WebRTC TCP Port",
       "host": "8555",
       "container": "8555",
       "protocol": "tcp",
-      "description": "For low latency live views",
-      "required": true,
+      "description": "Low latency live views and two-way talk.",
+      "required": false,
       "mask": false
     },
     {
-      "name": "WebRTC connection UDP port",
+      "name": "WebRTC UDP Port",
       "host": "8555",
       "container": "8555",
       "protocol": "udp",
-      "description": "For low latency live views",
-      "required": true,
+      "description": "Low latency live views and two-way talk.",
+      "required": false,
       "mask": false
     }
   ],
@@ -83,24 +83,24 @@
     {
       "name": "Frigate RTSP Password",
       "key": "FRIGATE_RTSP_PASSWORD",
-      "value": "enterpassword",
-      "description": null,
-      "required": true,
-      "mask": false
+      "value": "",
+      "description": "Optional: use it in your config as {FRIGATE_RTSP_PASSWORD} to keep camera passwords out of the file.",
+      "required": false,
+      "mask": true
     },
     {
-      "name": "Frigate+ API key",
+      "name": "Frigate+ API Key",
       "key": "PLUS_API_KEY",
       "value": "",
-      "description": "Optional: Enter the frigate+ API key or remove this if you are not using it",
+      "description": "Optional: your Frigate+ API key.",
       "required": false,
-      "mask": false
+      "mask": true
     },
     {
-      "name": "Driver for Intel/AMD GPUs",
+      "name": "Intel/AMD GPU Driver",
       "key": "LIBVA_DRIVER_NAME",
       "value": "iHD",
-      "description": "(Intel = iHD or i965 and AMD = radeonsi). Remove this if you are not using it",
+      "description": "iHD for recent Intel, i965 for older Intel, radeonsi for AMD. Remove this if you are not using it.",
       "required": false,
       "mask": false
     },
@@ -108,7 +108,7 @@
       "name": "Nvidia Visible Devices",
       "key": "NVIDIA_VISIBLE_DEVICES",
       "value": "YOURGPUUUID",
-      "description": "This info can be found in the NVidia driver plugin.. Only for Nvidia GPU decoding and/or detection. Remove this if you are not using it",
+      "description": "Only for Nvidia: your GPU UUID, shown in the Nvidia Driver plugin. Remove this if you are not using it.",
       "required": false,
       "mask": false
     },
@@ -116,24 +116,24 @@
       "name": "Nvidia Driver Capabilities",
       "key": "NVIDIA_DRIVER_CAPABILITIES",
       "value": "compute,utility,video",
-      "description": "Only for Nvidia GPU decoding and/or detection. Remove this if you are not using it",
+      "description": "Only for Nvidia. Remove this if you are not using it.",
       "required": false,
       "mask": false
     }
   ],
   "devices": [
     {
-      "name": "Coral TPU/NCS2 Mapping",
+      "name": "Coral / Hailo Mapping",
       "host": "/dev/bus/usb",
       "container": "/dev/bus/usb",
-      "description": "Use /dev/bus/usb for USB devices and /dev/apex_0 for PCIe devices (you must install the drivers first for PCIe devices). Remove this if you are not using it",
+      "description": "/dev/bus/usb for a USB Coral, /dev/apex_0 for a PCIe Coral (drivers first), /dev/hailo0 for Hailo. Remove this if you are not using it.",
       "required": false
     },
     {
-      "name": "Intel/AMD GPU mapping",
+      "name": "Intel/AMD GPU Mapping",
       "host": "/dev/dri/renderD128",
-      "container": "",
-      "description": "Intel/AMD GPU mapping for image decode (and detection with Intel OpenVINO). Remove this if you are not using it",
+      "container": "/dev/dri/renderD128",
+      "description": "Intel/AMD GPU for decoding (and OpenVINO detection on Intel). Remove this if you are not using it.",
       "required": false
     }
   ],

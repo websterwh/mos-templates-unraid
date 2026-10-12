@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/seafile/icon.png",
   "project": "https://www.seafile.com",
-  "description": "Seafile is a file sync and share server with desktop and mobile clients, libraries you can encrypt on the client, and built-in wikis. This is the official Seafile image, installable from this one template. The official image expects MariaDB, Redis and the notification server as separate containers on a shared Docker network, plus a JWT key you generate by hand. Here the JWT key, the database password and, if you leave it empty, the admin password are generated on the first start and kept in secrets.env in the Data folder. MariaDB, Redis and the notification server can each run inside this container when you switch them on below. Getting started: \u2022 Set the Server hostname to the address your clients will use, such as 192.168.1.10:8000 or seafile.example.com. \u2022 Already running MariaDB? Enter its host and root password. The root password is only used once, to create the Seafile databases. \u2022 No MariaDB or Redis? Set Built-in MariaDB and Built-in Redis to true and leave their host fields empty. \u2022 The first start takes about a minute. Seafile is ready when the log says \"Seahub is started\". A generated admin password is printed in the log. This image runs Seafile 14, which upstream still calls testing, and Seafile cannot be downgraded. Back up the Data folder and the database before every update. Coming from another Seafile template? The Data folder has the same layout, so point Data at your old folder and copy over the database settings and the JWT key. The README explains each step. Source on GitHub: https://github.com/junkerderprovinz/seafile This is an independent packaging of Seafile and is not affiliated with Seafile Ltd.",
+  "description": "Seafile is a file sync and share server with desktop and mobile clients, libraries you can encrypt on the client, and built-in wikis. This is the official Seafile image, installable from this one template. The official image expects MariaDB, Redis and the notification server as separate containers on a shared Docker network, plus a JWT key you generate by hand. Here the JWT key, the database password and, if you leave it empty, the admin password are generated on the first start and kept in secrets.env in the Data folder. MariaDB, Redis and the notification server can each run inside this container when you switch them on below. Getting started: \u2022 Set the Server hostname to the address your clients will use, such as 192.168.1.10:8000 or seafile.example.com. \u2022 Already running MariaDB? Enter its host and root password. The root password is only used once, to create the Seafile databases. \u2022 No MariaDB or Redis? Set Built-in MariaDB and Built-in Redis to true and leave their host fields empty. \u2022 The first start takes about a minute. Seafile is ready when the log says \"Seahub is started\". A generated admin password is printed in the log. Office files in the browser: \u2022 Install Euro-Office, Collabora or OnlyOffice as its own container, then set \"Web office suite\", \"Office document server URL\" and, for Euro-Office and OnlyOffice, \"Office JWT secret\" below. Documents then open and save inside Seafile. \u2022 Collabora also needs Seafile's address in its aliasgroup1 variable. The README has a table with the values for all three. This image runs Seafile 14, which upstream still calls testing, and Seafile cannot be downgraded. Back up the Data folder and the database before every update. Coming from another Seafile template? The Data folder has the same layout, so point Data at your old folder and copy over the database settings and the JWT key. The README explains each step. Source on GitHub: https://github.com/junkerderprovinz/seafile This is an independent packaging of Seafile and is not affiliated with Seafile Ltd.",
   "paths": [
     {
       "name": "Data",
@@ -196,6 +196,30 @@
       "description": "Only needed when clients reach the notification server under another address than Protocol://Server hostname/notification.",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "Web office suite",
+      "key": "OFFICE",
+      "value": "off",
+      "description": "Opens Word, Excel and PowerPoint files in the browser. The editor runs as its own container, for example the Euro-Office template. Choices: off, euro-office, collabora, onlyoffice. See the README section 'Web office'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Office document server URL",
+      "key": "OFFICE_SERVER_URL",
+      "value": "",
+      "description": "Address of the editor as the browser reaches it, for Euro-Office the one its WebUI button opens, such as http://192.168.1.10:9900. If you open Seafile over https, this has to be https too, or the browser blocks the editor.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Office JWT secret",
+      "key": "OFFICE_JWT_SECRET",
+      "value": "",
+      "description": "The same text as the JWT secret in the Euro-Office or OnlyOffice container. Collabora does not need it.",
+      "required": false,
+      "mask": true
     },
     {
       "name": "SeaDoc",

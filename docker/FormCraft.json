@@ -1,0 +1,83 @@
+{
+  "name": "FormCraft",
+  "repo": "ghcr.io/shatheitguy/formcraft",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/shatheitguy/formcraft/pkgs/container/formcraft",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/shatheitguy/unraid-templates/main/formcraft-icon.png",
+  "project": "https://shatheitguy.github.io/formcraft/",
+  "description": "FormCraft is a self-hosted form builder: a drag-and-drop builder with 10 field types and templates, quizzes with scoring, a submissions table with filters, charts and CSV export, users and roles, email and Telegram alerts, multilingual forms (English, Arabic, Tamil) with right-to-left support, light and dark themes, and full system backups. DATABASE: this template uses the built-in SQLite database, stored in the Data folder below. Nothing else to install. To use PostgreSQL instead, set Database URL to postgresql://USER:PASSWORD@HOST:5432/DBNAME?schema=public (create the empty database first; the tables build themselves on first start). First run: open the WebUI and create your admin account. There is no default password.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/formcraft",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "SQLite database, uploaded logos and cover images, and restore snapshots. Keep this folder in your backups.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The port you open FormCraft on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database URL",
+      "key": "DATABASE_URL",
+      "value": "file:/app/data/formcraft.db",
+      "description": "Leave as is for SQLite. For PostgreSQL use postgresql://user:pass@host:5432/formcraft?schema=public",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Demo data",
+      "key": "SEED_DEMO_DATA",
+      "value": "true",
+      "description": "Load 4 demo forms with sample responses into an empty database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Per-form port range",
+      "key": "FORM_PORT_RANGE",
+      "value": "",
+      "description": "Optional, e.g. 4001-4010: every form gets its own port that serves only that form. Also add each port to the container (or use Host networking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the Data folder (99 = nobody on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the Data folder (100 = users on Unraid).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

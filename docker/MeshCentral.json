@@ -1,0 +1,300 @@
+{
+  "name": "MeshCentral",
+  "repo": "ghcr.io/ylianst/meshcentral:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/Ylianst/MeshCentral/pkgs/container/meshcentral",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:8443]/",
+  "icon": "https://raw.githubusercontent.com/hoody424/unraid-templates/main/meshcentral/meshcentral.png",
+  "project": "https://meshcentral.com",
+  "description": "MeshCentral is a free, open-source, self-hosted remote management server. Through a small agent you get remote desktop, terminal, file transfer and power control for Windows, Linux and macOS devices, all in the browser. Uses the official image ghcr.io/ylianst/meshcentral. Before the first start: set Server name (HOSTNAME) to the DNS name or IP that agents and browsers use. Keep the HTTPS host port, its container port and PORT the same number: MeshCentral tells the agents to connect to the port it listens on. Then open https://[Server name]:8443, using exactly the Server name: MeshCentral refuses other names and the bare IP with \"Invalid origin\" after login. The WebUI button uses the IP, so it only works when HOSTNAME is the IP. The first account you create becomes the administrator. DYNAMIC_CONFIG=true writes the values of this template into config.json at every start. Set it to false if you prefer to edit appdata/meshcentral/data/config.json by hand.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/meshcentral/data",
+      "container": "/opt/meshcentral/meshcentral-data",
+      "mode": "rw",
+      "description": "config.json, certificates and the built-in database. Back this up.",
+      "required": true
+    },
+    {
+      "name": "Files",
+      "host": "/mnt/cache/appdata/meshcentral/files",
+      "container": "/opt/meshcentral/meshcentral-files",
+      "mode": "rw",
+      "description": "Files stored on the server through the web UI.",
+      "required": true
+    },
+    {
+      "name": "Backups",
+      "host": "/mnt/cache/appdata/meshcentral/backups",
+      "container": "/opt/meshcentral/meshcentral-backups",
+      "mode": "rw",
+      "description": "Server backups (when autoBackup is enabled in config.json).",
+      "required": true
+    },
+    {
+      "name": "Web",
+      "host": "/mnt/cache/appdata/meshcentral/web",
+      "container": "/opt/meshcentral/meshcentral-web",
+      "mode": "rw",
+      "description": "Custom web pages and themes. Can stay empty.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPS port",
+      "host": "8443",
+      "container": "8443",
+      "protocol": "tcp",
+      "description": "Web UI and agent connections. Host port, container port and PORT must be the same number.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP port",
+      "host": "8080",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Plain HTTP, redirects to HTTPS. Any free host port.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server name (HOSTNAME)",
+      "key": "HOSTNAME",
+      "value": "",
+      "description": "DNS name or IP that agents and browsers use to reach this server, e.g. mesh.example.com. Used for the server certificate and built into every agent installer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "8443",
+      "description": "Port MeshCentral listens on and tells the agents. Must match the HTTPS port above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DYNAMIC_CONFIG",
+      "key": "DYNAMIC_CONFIG",
+      "value": "true",
+      "description": "true: write the values of this template into config.json at every start. false: config.json is only created once and then left alone.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_NEW_ACCOUNTS",
+      "key": "ALLOW_NEW_ACCOUNTS",
+      "value": "false",
+      "description": "Let anyone create an account on the login page. The first account is always allowed and becomes the administrator.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBRTC",
+      "key": "WEBRTC",
+      "value": "false",
+      "description": "Use WebRTC for direct connections between browser and agent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ALLOW_PLUGINS",
+      "key": "ALLOW_PLUGINS",
+      "value": "false",
+      "description": "Enable MeshCentral plugins.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IFRAME",
+      "key": "IFRAME",
+      "value": "false",
+      "description": "Allow the web UI to be embedded in an iframe.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MINIFY",
+      "key": "MINIFY",
+      "value": "true",
+      "description": "Serve minified web pages.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCAL_SESSION_RECORDING",
+      "key": "LOCAL_SESSION_RECORDING",
+      "value": "true",
+      "description": "Allow recording of remote sessions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REVERSE_PROXY",
+      "key": "REVERSE_PROXY",
+      "value": "",
+      "description": "Public name of a reverse proxy in front of MeshCentral, e.g. mesh.example.com. MeshCentral loads the proxy certificate from there so agents trust it. See the README.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REVERSE_PROXY_TLS_PORT",
+      "key": "REVERSE_PROXY_TLS_PORT",
+      "value": "443",
+      "description": "HTTPS port of the reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TLS_OFFLOAD",
+      "key": "TLS_OFFLOAD",
+      "value": "",
+      "description": "IP of the reverse proxy when it terminates TLS and talks plain HTTP to MeshCentral. Leave EMPTY otherwise: any value, even false, switches TLS off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXY",
+      "key": "TRUSTED_PROXY",
+      "value": "",
+      "description": "Trust X-Forwarded-For from: all, or one IP in double quotes, e.g. &quot;172.17.0.1&quot;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "INSTALL_STYLISHUI",
+      "key": "INSTALL_STYLISHUI",
+      "value": "false",
+      "description": "Download and install the third-party Stylish UI theme at every start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_MONGODB",
+      "key": "USE_MONGODB",
+      "value": "false",
+      "description": "Use MongoDB instead of the built-in database (recommended for many devices).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MONGO_URL",
+      "key": "MONGO_URL",
+      "value": "",
+      "description": "e.g. mongodb://user:password@192.168.1.10:27017/meshcentral",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "USE_MARIADB",
+      "key": "USE_MARIADB",
+      "value": "false",
+      "description": "Use MariaDB/MySQL instead of the built-in database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MARIADB_HOST",
+      "key": "MARIADB_HOST",
+      "value": "",
+      "description": "MariaDB server name or IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MARIADB_PORT",
+      "key": "MARIADB_PORT",
+      "value": "3306",
+      "description": "MariaDB port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MARIADB_USER",
+      "key": "MARIADB_USER",
+      "value": "",
+      "description": "MariaDB user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MARIADB_PASS",
+      "key": "MARIADB_PASS",
+      "value": "",
+      "description": "MariaDB password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MARIADB_DATABASE",
+      "key": "MARIADB_DATABASE",
+      "value": "meshcentral",
+      "description": "MariaDB database name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "USE_POSTGRESQL",
+      "key": "USE_POSTGRESQL",
+      "value": "false",
+      "description": "Use PostgreSQL instead of the built-in database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PSQL_HOST",
+      "key": "PSQL_HOST",
+      "value": "",
+      "description": "PostgreSQL server name or IP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PSQL_PORT",
+      "key": "PSQL_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PSQL_USER",
+      "key": "PSQL_USER",
+      "value": "",
+      "description": "PostgreSQL user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PSQL_PASS",
+      "key": "PSQL_PASS",
+      "value": "",
+      "description": "PostgreSQL password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PSQL_DATABASE",
+      "key": "PSQL_DATABASE",
+      "value": "meshcentral",
+      "description": "PostgreSQL database name.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

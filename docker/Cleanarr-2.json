@@ -1,97 +1,73 @@
 {
   "name": "Cleanarr",
-  "repo": "ghcr.io/michaelmurfy/cleanarr:latest",
+  "repo": "ghcr.io/daneng66/cleanarr:latest",
   "category": [
     "Media"
   ],
-  "registry": "https://github.com/michaelmurfy/cleanarr/pkgs/container/cleanarr",
+  "registry": "https://github.com/Daneng66/Cleanarr/pkgs/container/cleanarr",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--user 99:100 --health-start-period=10s",
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:7585]/",
-  "icon": "https://raw.githubusercontent.com/michaelmurfy/cleanarr/main/frontend/public/icon-512.png",
-  "project": "https://github.com/michaelmurfy/cleanarr",
-  "description": "Cleanarr is a web app for getting disk back from your Radarr and Sonarr library. It shows every title you have, who watched it, and who requested it, using Tautulli, Tracearr, or Jellystat for play history and Seerr for requests. Sort by size, age, rating, or last watch, protect the ones you want to keep, and delete the ones nobody is watching, files included. The same screens work on a desktop browser and on a phone.",
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Daneng66/Cleanarr/main/unraid/icon.png",
+  "project": "https://github.com/Daneng66/Cleanarr",
+  "description": "Smart media library cleanup and storage optimization for the *Arr ecosystem. Cleanarr connects to Sonarr and Radarr, reads watch history from Plex and requests from Seerr (Overseerr/Jellyseerr), evaluates your rules against your library, and removes, unmonitors, or deletes the files of items that match. Safe by default: dry-run, approval queue, live revalidation before every write, fail-closed rules and a full audit trail.",
   "paths": [
     {
-      "name": "Appdata",
+      "name": "AppData",
       "host": "/mnt/cache/appdata/cleanarr",
       "container": "/data",
       "mode": "rw",
-      "description": "Database, poster cache, and the generated session secret.",
+      "description": "Database, encryption key and logs.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Web UI",
-      "host": "7585",
-      "container": "7585",
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
       "protocol": "tcp",
-      "description": "Container port for the Cleanarr web UI.",
+      "description": "Port for the Cleanarr web UI and API.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "User ID that owns /data. Unraid nobody is 99.",
+      "name": "API Key",
+      "key": "CLEANARR_API_KEY",
+      "value": "",
+      "description": "Protects the UI and API. Strongly recommended: set a long random value.",
       "required": false,
-      "mask": false
+      "mask": true
     },
     {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Group ID that owns /data. Unraid users is 100.",
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Encrypts stored Sonarr/Radarr/Plex/Seerr API keys. If empty, one is generated in /data/secret.key.",
       "required": false,
-      "mask": false
+      "mask": true
     },
     {
       "name": "Timezone",
       "key": "TZ",
-      "value": "Etc/UTC",
-      "description": "Timezone used for log timestamps.",
+      "value": "UTC",
+      "description": "IANA timezone (e.g. Europe/London) used for the scheduled run time. Defaults to UTC if empty.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Hide service settings",
-      "key": "CLEANARR_HIDE_SETTINGS",
-      "value": "0",
-      "description": "Set to 1 to hide service URLs, API keys, and login from Settings. Leave at 0 to configure everything in the web UI.",
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "trace, debug, info, warn or error.",
       "required": false,
       "mask": false
-    },
-    {
-      "name": "Username",
-      "key": "CLEANARR_USERNAME",
-      "value": "",
-      "description": "Optional. Locks the login username from the environment. Leave blank to create the account in the web UI on first launch.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Password",
-      "key": "CLEANARR_PASSWORD",
-      "value": "",
-      "description": "Optional. Locks the login password from the environment. Leave blank to create the account in the web UI on first launch.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Session secret",
-      "key": "CLEANARR_SECRET",
-      "value": "",
-      "description": "Optional signing secret. Leave blank and Cleanarr stores a random secret in Appdata.",
-      "required": false,
-      "mask": true
     }
   ],
   "devices": [],

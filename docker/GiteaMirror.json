@@ -1,0 +1,83 @@
+{
+  "name": "Gitea-Mirror",
+  "repo": "ghcr.io/raylabshq/gitea-mirror:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://github.com/RayLabsHQ/gitea-mirror/pkgs/container/gitea-mirror",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4321]/",
+  "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/gitea-mirror.png",
+  "project": "https://github.com/RayLabsHQ/gitea-mirror",
+  "description": "Gitea Mirror automatically mirrors your GitHub repositories (including organizations, starred repos, etc.) to a self-hosted Gitea instance. Set BETTER_AUTH_SECRET (openssl rand -base64 32) and ENCRYPTION_SECRET (openssl rand -base64 48) explicitly so they are kept with your container config; if left empty they are auto-generated and stored in the data folder. Make sure the URL variables match the address you use to open the WebUI.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/gitea-mirror",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database and app data",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "4321",
+      "container": "4321",
+      "protocol": "tcp",
+      "description": "Web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Required. Signs session tokens (min 32 chars). Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ENCRYPTION_SECRET",
+      "key": "ENCRYPTION_SECRET",
+      "value": "",
+      "description": "Recommended. Encrypts stored GitHub/Gitea/notification tokens. Generate with: openssl rand -base64 48. If empty, one is auto-generated and stored in /app/data/.encryption_secret. If lost, tokens must be re-entered.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BETTER_AUTH_URL",
+      "key": "BETTER_AUTH_URL",
+      "value": "http://192.168.1.10:4321",
+      "description": "URL you use to access the WebUI, e.g. http://192.168.1.10:4321",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUBLIC_BETTER_AUTH_URL",
+      "key": "PUBLIC_BETTER_AUTH_URL",
+      "value": "http://192.168.1.10:4321",
+      "description": "Same as BETTER_AUTH_URL (public address of the WebUI)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "key": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "value": "http://192.168.1.10:4321",
+      "description": "Comma-separated list of trusted origins; include the WebUI address (and reverse proxy domain if used)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

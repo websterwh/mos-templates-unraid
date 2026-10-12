@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]/",
   "icon": "https://raw.githubusercontent.com/robert-dean/deadair/main/apps/web/public/logo-mark.png",
   "project": "https://github.com/robert-dean/deadair",
-  "description": "An AI radio station: it picks the records, writes what the presenter says between them, speaks it, and streams the result. Everything is in this one container: the station, its console, the audio chain and the stream server. Pick the tag that matches what your server already runs: deadair/deadair:full brings everything: PostgreSQL, Redis and a voice. Nothing else needed. deadair/deadair:latest includes a voice. Point it at your own PostgreSQL and Redis. deadair/deadair:slim is the station alone, for pointing at a speech server on another machine. Everything it keeps lives under one path, so backing it up is backing up one share. First run: open the console on the WebUI port and sign in. The database schema is applied automatically. The stream is served by this same container at /live.mp3, so whatever you put in front of the WebUI port (a reverse proxy or a tunnel) carries the station too. On Spotify there are TWO authorizations on the plugin page, and the station needs both. The connection lets the plugin read your library; the playback authorization below it lets the station fetch the audio. With only the first, your playlists list perfectly and nothing ever plays. The page Spotify sends your browser to will not load. That is expected, not a failure, so copy that address out of the bar and paste it back into the console.",
+  "description": "An AI radio station: it picks the records, writes what the presenter says between them, speaks it, and streams the result. Everything is in this one container: the station, its console, the audio chain and the stream server. Pick the tag that matches what your server already runs: deadair/deadair:full brings everything: PostgreSQL, Redis and a voice. Nothing else needed. deadair/deadair:latest includes a voice. Point it at your own PostgreSQL and Redis. deadair/deadair:slim is the station alone, for pointing at a speech server on another machine. Each has an Apple Music twin (apple, full-apple, slim-apple) that adds a player for an Apple Music subscription. It is most of a gigabyte bigger; add --shm-size=1g under Extra Parameters with it. Everything it keeps lives under one path, so backing it up is backing up one share. First run: open the console on the WebUI port and sign in. The database schema is applied automatically. The stream is served by this same container at /live.mp3, so whatever you put in front of the WebUI port (a reverse proxy or a tunnel) carries the station too. On Spotify there are TWO authorizations on the plugin page, and the station needs both. The connection lets the plugin read your library; the playback authorization below it lets the station fetch the audio. With only the first, your playlists list perfectly and nothing ever plays. The page Spotify sends your browser to will not load. That is expected, not a failure, so copy that address out of the bar and paste it back into the console.",
   "paths": [
     {
       "name": "Data",
@@ -73,16 +73,16 @@
       "name": "Secret key",
       "key": "KMS_LOCAL_ROOT_KEY",
       "value": "",
-      "description": "Encrypts every credential the station stores, including your music provider's. Generate once with: openssl rand -hex 32 (it must be hex), and keep it. Losing it means entering all of them again.",
-      "required": true,
+      "description": "Encrypts every credential the station stores, including your music provider's. Leave it empty and the station makes one on its first boot, in secrets/ under Data. Set it only to keep the key off that share: generate once with openssl rand -hex 32 (it must be hex), and keep it. Losing it means entering all of them again.",
+      "required": false,
       "mask": true
     },
     {
       "name": "Session key",
       "key": "AUTHENTICATION_SESSION_JWT_PRIVATE_KEY",
       "value": "",
-      "description": "Signs sessions, RS256, so it must be an RSA key. Generate one with: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 | base64 -w0. A key is several lines and this field is one, so base64 it and paste that. Losing it signs everybody out and nothing worse.",
-      "required": true,
+      "description": "Signs sessions. Leave it empty and the station makes one on its first boot, in secrets/ under Data. To set your own it must be RSA: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 | base64 -w0, since a key is several lines and this field is one. Losing it signs everybody out and nothing worse.",
+      "required": false,
       "mask": true
     },
     {

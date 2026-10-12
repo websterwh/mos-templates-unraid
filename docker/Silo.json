@@ -9,12 +9,12 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": null,
+  "extra_parameters": "--restart=on-failure",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8080]",
   "icon": "https://raw.githubusercontent.com/Silo-Server/unraid-templates/main/icons/silo.png",
   "project": "https://github.com/Silo-Server/silo-server",
-  "description": "Silo is a self-hosted media server for your films and series. Point it at your media folders and stream to your devices - at home or away - with direct play, remuxing and hardware-accelerated transcoding handled automatically. A full-featured web client and admin interface ship with the server. An optional Jellyfin/Emby-compatible API lets you keep using clients you already own, such as Infuse, VidHub and Findroid. Household profiles give each member their own watch state and parental controls, and metadata is matched through installable plugins including TMDB and TVDB. IMPORTANT: Silo needs a PostgreSQL 18 database with the pgvector extension and Redis 6.2 or newer. Install the Silo-PostgreSQL template from this repository, then install any generic Redis container from Community Applications or use an existing Redis service. Set DATABASE_URL and REDIS_URL below to point at them. If you enable Unraid autostart, place Redis and Silo-PostgreSQL before Silo in Docker startup order and give PostgreSQL time to become ready; Silo stops when either dependency is unavailable. Hardware transcoding is optional. For Intel or AMD, add --device=/dev/dri:/dev/dri in Advanced View's Extra Parameters only when /dev/dri exists on the host. For NVIDIA, install the Unraid Nvidia-Driver plugin, add --runtime=nvidia in Advanced View's Extra Parameters, and enter your GPU UUID in the NVIDIA GPU UUID field. Silo's automatic hardware detection will select NVENC.",
+  "description": "Silo is a self-hosted media server for your films and series. Point it at your media folders and stream to your devices - at home or away - with direct play, remuxing and hardware-accelerated transcoding handled automatically. A full-featured web client and admin interface ship with the server. An optional Jellyfin/Emby-compatible API lets you keep using clients you already own, such as Infuse, VidHub and Findroid. Household profiles give each member their own watch state and parental controls, and metadata is matched through installable plugins including TMDB and TVDB. IMPORTANT: Silo needs a PostgreSQL 18 database with the pgvector extension and Redis 6.2 or newer. Install the Silo-PostgreSQL template from this repository, then install any generic Redis container from Community Applications or use an existing Redis service. Set DATABASE_URL and REDIS_URL below to point at them. If you enable Unraid autostart, place Redis and Silo-PostgreSQL before Silo in Docker startup order. If Silo starts before either dependency is reachable, it exits and Docker restarts it with a growing delay until both are up. This relies on --restart=on-failure in Advanced View's Extra Parameters, so keep it there. Hardware transcoding is optional. For Intel or AMD, add --device=/dev/dri:/dev/dri to Advanced View's Extra Parameters, after --restart=on-failure, only when /dev/dri exists on the host. For NVIDIA, install the Unraid Nvidia-Driver plugin, add --runtime=nvidia to Advanced View's Extra Parameters after --restart=on-failure, and enter your GPU UUID in the NVIDIA GPU UUID field. Silo's automatic hardware detection will select NVENC.",
   "paths": [
     {
       "name": "Media Data",
@@ -131,7 +131,7 @@
       "name": "NVIDIA GPU UUID",
       "key": "NVIDIA_VISIBLE_DEVICES",
       "value": "",
-      "description": "Optional NVIDIA hardware transcoding. Install the Unraid Nvidia-Driver plugin, copy a GPU UUID from its settings into this field (or use 'all'), and add --runtime=nvidia in Advanced View's Extra Parameters. Leave blank when NVIDIA is not used.",
+      "description": "Optional NVIDIA hardware transcoding. Install the Unraid Nvidia-Driver plugin, copy a GPU UUID from its settings into this field (or use 'all'), and add --runtime=nvidia to Advanced View's Extra Parameters after --restart=on-failure. Leave blank when NVIDIA is not used.",
       "required": false,
       "mask": false
     },

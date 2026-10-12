@@ -1,0 +1,668 @@
+{
+  "name": "tModLoader-Web-Managed-Server",
+  "repo": "ghcr.io/crosis47/tmodloader:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/Crosis47/tmodloader/pkgs/container/tmodloader",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout=120",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://media.sys.truenas.net/apps/tmodloader/icons/icon.png",
+  "project": "https://github.com/Crosis47/tmodloader",
+  "description": "Run a modded Terraria dedicated server with a web dashboard for worlds, Workshop mods, players, settings, backups, and restart schedules. First startup needs internet access. Find the one-time setup code in the container logs, then open WebUI to create your administrator credential. Use dedicated data and backup folders, and keep the dashboard on a trusted LAN or behind an HTTPS reverse proxy. See the README for installation and configuration. Independently maintained; not affiliated with Re-Logic or the tModLoader team.",
+  "paths": [
+    {
+      "name": "Server data",
+      "host": "/mnt/cache/appdata/tmodloader-crosis47/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Dedicated folder for worlds, mods, runtime, dashboard credentials, settings, and logs. Startup sets ownership to 1000:1000. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Updates-and-Storage#persistent-folders",
+      "required": true
+    },
+    {
+      "name": "Backup archives",
+      "host": "/mnt/cache/appdata/tmodloader-crosis47/backups",
+      "container": "/backups",
+      "mode": "rw",
+      "description": "Dedicated backup folder. Preserve this and server data during updates. Startup sets ownership to 1000:1000. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Updates-and-Storage#persistent-folders",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game port",
+      "host": "7777",
+      "container": "7777",
+      "protocol": "tcp",
+      "description": "Host TCP port players connect to. Keep the container port at 7777. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Networking-and-Access#game-connections",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dashboard port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host dashboard port. Keep the container port at 8080; the WebUI button follows this mapping. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Networking-and-Access#change-the-dashboard-port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Manage game settings with",
+      "key": "TMOD_CONFIG_SOURCE",
+      "value": "web",
+      "description": "web: saved dashboard values override Unraid game settings; Unraid values only seed unsaved settings. env: Unraid controls game settings and dashboard configuration editing is disabled. Dashboard disabled always uses env. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#choose-who-manages-settings",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use custom server configuration",
+      "key": "TMOD_USECONFIGFILE",
+      "value": "No",
+      "description": "Yes requires TMOD_CONFIG_SOURCE=env or dashboard disabled, plus a separately added read-only file mapping to /terraria-server/customconfig.txt. Keep its game port at 7777 for this template. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#custom-server-configuration",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dashboard origin",
+      "key": "TMOD_WEB_ORIGIN",
+      "value": "",
+      "description": "Leave empty for server-IP access. For a hostname or proxy, enter the exact browser origin including scheme and non-default port. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#web-dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxy",
+      "key": "TMOD_WEB_TRUSTED_PROXY",
+      "value": "",
+      "description": "Optional single proxy IP or DNS name as seen by the container. Proxy must overwrite forwarding headers; see networking documentation. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#web-dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Administrator hash file",
+      "key": "TMOD_WEB_TOKEN_FILE",
+      "value": "",
+      "description": "WebUI only. Optional container path to an existing Argon2id credential hash file; add a matching read-only file mount. Empty uses first-run setup. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#web-dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Workshop API key file",
+      "key": "TMOD_WORKSHOP_KEY_FILE",
+      "value": "",
+      "description": "WebUI only. Optional container path to a Steam API key file; add a matching read-only file mount. A key saved in the dashboard takes precedence. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#web-dashboard",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game password file",
+      "key": "TMOD_PASS_FILE",
+      "value": "",
+      "description": "Optional path inside the container; add a matching read-only file mount. Saved dashboard passwords override this in web mode. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#change-the-game-password",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic runtime updates",
+      "key": "TMOD_AUTO_UPDATE",
+      "value": "1",
+      "description": "1 checks and tests runtime updates at startup. 0 retains the installed runtime. First startup always requires a download. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#startup-runtime-updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Runtime update channel",
+      "key": "TMOD_UPDATE_CHANNEL",
+      "value": "",
+      "description": "Empty follows the image channel; enter stable or preview to override. Applied at container startup. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#startup-runtime-updates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Runtime version pin",
+      "key": "TMOD_UPDATE_VERSION",
+      "value": "",
+      "description": "Exact supported tModLoader release. Empty follows the selected channel; downgrades require a matching checkpoint. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#startup-runtime-updates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update free-space reserve (MiB)",
+      "key": "TMOD_UPDATE_MIN_FREE_MB",
+      "value": "1024",
+      "description": "Additional free space beyond three copies of game data required for startup update staging. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#startup-runtime-updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Update readiness timeout (seconds)",
+      "key": "TMOD_UPDATE_TEST_TIMEOUT",
+      "value": "600",
+      "description": "Maximum wait for the copied-world compatibility test and live startup readiness. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#startup-runtime-updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "GitHub API token",
+      "key": "TMOD_GITHUB_TOKEN",
+      "value": "",
+      "description": "Optional narrowly scoped token for release-discovery API rate limits. Not required for ordinary public downloads. Stored in container configuration; not a dashboard setting. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Updates-and-Storage#startup-runtime-updates",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Enable Dashboard",
+      "key": "TMOD_WEB_ENABLED",
+      "value": "1",
+      "description": "Enabled (1): no need to set any game settings below; leave their defaults and configure them in the dashboard. Keep Manage game settings with set to web (default). Optional deployment settings above are configured in Unraid. Disabled (0): expand Show more settings and configure the game settings in Unraid; administrator setup is skipped. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#web-dashboard",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Initial game password",
+      "key": "TMOD_PASS",
+      "value": "",
+      "description": "Optional player password, separate from the administrator credential. Empty disables it. Saved dashboard password overrides this after setup. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#change-the-game-password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Welcome message",
+      "key": "TMOD_MOTD",
+      "value": "A tModLoader server powered by Docker!",
+      "description": "Message displayed to players when they join the server. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#game-network-and-access",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum players",
+      "key": "TMOD_MAXPLAYERS",
+      "value": "8",
+      "description": "Maximum simultaneous players allowed, from 1 to 255. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#game-network-and-access",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Server language",
+      "key": "TMOD_LANGUAGE",
+      "value": "en-US",
+      "description": "Language code for server messages, such as en-US. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#game-network-and-access",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Additional cheat protection",
+      "key": "TMOD_SECURE",
+      "value": "0",
+      "description": "0 disables Terraria\u2019s additional cheat checks; 1 enables them. This is not authentication or a firewall. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "NPC streaming range",
+      "key": "TMOD_NPCSTREAM",
+      "value": "60",
+      "description": "Controls NPC streaming to clients, from 0 to 1000. Leave the default unless tuning network behavior. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UPnP port mapping",
+      "key": "TMOD_UPNP",
+      "value": "0",
+      "description": "0 disables automatic router port mapping; 1 requests it. Docker port publishing and firewall rules still need host configuration. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "World name",
+      "key": "TMOD_WORLDNAME",
+      "value": "Docker",
+      "description": "Selects the world file by name. A different name may create a new world if no matching file exists. Do not include path separators. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#world-selection-and-generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "New world size",
+      "key": "TMOD_WORLDSIZE",
+      "value": "3",
+      "description": "Used only when creating a world: 1 small, 2 medium, 3 large. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#world-selection-and-generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "New world evil",
+      "key": "TMOD_WORLDEVIL",
+      "value": "random",
+      "description": "Random, Corruption, or Crimson. To change evil in the WebUI, choose an unused world name, stage the settings, and apply changes. Apply saves and stops the game, disconnects players, creates the new world, and restarts. Existing worlds are never converted; a matching name loads that world. Custom evil requires a name of at most 26 characters and seed of at most 39 characters. Special seeds and mods may generate both evils or alter generation. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#world-selection-and-generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "New world seed",
+      "key": "TMOD_WORLDSEED",
+      "value": "Docker",
+      "description": "Seed used when generating a new world. Changing it does not regenerate the current world. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#world-selection-and-generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "New world difficulty",
+      "key": "TMOD_DIFFICULTY",
+      "value": "1",
+      "description": "Used when creating a world: 0 Classic, 1 Expert, 2 Master, 3 Journey. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#world-selection-and-generation",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Selected Workshop entries",
+      "key": "TMOD_MODS",
+      "value": "",
+      "description": "Comma-separated Workshop mod IDs or collection:ID entries. Removing an entry disables it on managed startup but keeps cached downloads. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#mods-and-workshop",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam offline policy",
+      "key": "TMOD_MOD_OFFLINE_POLICY",
+      "value": "use-cache",
+      "description": "use-cache allows startup with available cached mods when Steam cannot be reached. strict fails if required update/download checks fail. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#mods-and-workshop",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Collection expansion limit",
+      "key": "TMOD_COLLECTION_MAX_ITEMS",
+      "value": "1000",
+      "description": "Maximum items allowed while expanding Workshop collections, from 1 to 1000. Limits unexpectedly large collections. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#mods-and-workshop",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Download attempts",
+      "key": "TMOD_DOWNLOAD_RETRIES",
+      "value": "3",
+      "description": "Maximum attempts for transient Steam Workshop download failures, from 1 to 20. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#mods-and-workshop",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Retry delay (seconds)",
+      "key": "TMOD_DOWNLOAD_RETRY_DELAY",
+      "value": "10",
+      "description": "Time to wait between failed download attempts, from 0 to 600 seconds. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#mods-and-workshop",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Autosave interval (minutes)",
+      "key": "TMOD_AUTOSAVE_INTERVAL",
+      "value": "10",
+      "description": "Save the live world every N minutes (default: 10). 0 disables scheduled autosaves. Saves update the world in place without disconnecting players; they do not create backup archives. Save the draft, then Apply &amp; Restart to activate a changed interval. The timer resets when the game starts. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Autosave chat announcement",
+      "key": "TMOD_AUTOSAVE_MESSAGE",
+      "value": "Scheduled world save starting.",
+      "description": "Chat message sent before each scheduled save. Leave empty to save silently. The autosave interval controls the schedule; 0 disables scheduled saves. Save the draft and apply to activate changes. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup schedule",
+      "key": "TMOD_BACKUP_MODE",
+      "value": "interval",
+      "description": "Choose disabled, minutes, every X days, daily, weekly, or monthly. Interval mode preserves the existing backup interval. Cold backups disconnect players, save, archive, and restart the game. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup interval (minutes)",
+      "key": "TMOD_BACKUP_INTERVAL",
+      "value": "0",
+      "description": "0 disables scheduled backups. 1440 runs approximately every 24 hours. The interval resets on container start or after a manual backup. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Back up every X days",
+      "key": "TMOD_BACKUP_DAYS",
+      "value": "7",
+      "description": "Used in days mode. Each day is 24 hours. The timer resets on container startup, configuration apply, and after any backup attempt. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup weekday",
+      "key": "TMOD_BACKUP_WEEKDAY",
+      "value": "sunday",
+      "description": "Used for weekly backups at the selected backup time and timezone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup day of month",
+      "key": "TMOD_BACKUP_MONTHDAY",
+      "value": "1",
+      "description": "Used for monthly backups. Choose 1 through 31; shorter months use their last day. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup time",
+      "key": "TMOD_BACKUP_TIME",
+      "value": "03:00",
+      "description": "Daily, weekly, and monthly backups use this 24-hour HH:MM time. Busy or unhealthy servers defer the backup. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup timezone",
+      "key": "TMOD_BACKUP_TIMEZONE",
+      "value": "UTC",
+      "description": "Use UTC or an IANA timezone such as America/New_York. Missing daylight-saving times shift forward; repeated times use their first occurrence. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backups to retain",
+      "key": "TMOD_BACKUP_KEEP",
+      "value": "7",
+      "description": "Number of verified backup bundles to keep for this data directory. Cleanup runs only after a successful backup and restart; recovery originals are not pruned. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minimum free space (MiB)",
+      "key": "TMOD_BACKUP_MIN_FREE_MB",
+      "value": "1024",
+      "description": "Refuse a backup before stopping the game when /backups has less free space than this threshold. 1024 means 1 GiB. This is not an archive-size estimate; 0 disables the threshold. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#backups-and-autosave",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart schedule",
+      "key": "TMOD_RESTART_MODE",
+      "value": "disabled",
+      "description": "Choose disabled (default), minutes, every X days, daily, weekly, or monthly. Save the draft and apply to activate changes. Busy or unhealthy servers defer the restart until ready. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart interval (minutes)",
+      "key": "TMOD_RESTART_INTERVAL",
+      "value": "0",
+      "description": "Used in interval mode only. 0 disables interval restarts; 1440 is approximately every 24 hours. The timer resets whenever the game starts, including after backups or applying settings. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart every X days",
+      "key": "TMOD_RESTART_DAYS",
+      "value": "7",
+      "description": "Used in every-X-days mode. Enter 1 through 3650; each day is exactly 24 hours. The timer resets whenever the game starts, including after backups or applying settings. It does not use the calendar time or timezone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart weekday",
+      "key": "TMOD_RESTART_WEEKDAY",
+      "value": "sunday",
+      "description": "Used in weekly mode. Choose the weekday on which the restart warning begins, at the selected time in the selected timezone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart day of month",
+      "key": "TMOD_RESTART_MONTHDAY",
+      "value": "1",
+      "description": "Used in monthly mode. Choose 1 through 31. If a month has fewer days, use its last day: 31 becomes February 28 or 29, for example. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart time",
+      "key": "TMOD_RESTART_TIME",
+      "value": "04:00",
+      "description": "Used for daily, weekly, and monthly schedules. Enter HH:MM in 24-hour format, such as 04:00, in the restart timezone below. The warning starts at this time; the game stops after the warning delay. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart timezone",
+      "key": "TMOD_RESTART_TIMEZONE",
+      "value": "UTC",
+      "description": "Used for daily, weekly, and monthly schedules. Use UTC or an IANA timezone such as America/New_York. A skipped daylight-saving time shifts forward by the clock-change gap; a repeated time runs at its first occurrence only. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart warning delay (seconds)",
+      "key": "TMOD_RESTART_DELAY",
+      "value": "60",
+      "description": "Wait after the scheduled restart announcement before saving and stopping the game. Default: 60; 0 restarts immediately. This delay is separate from the Docker shutdown warning delay. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart countdown warnings (seconds)",
+      "key": "TMOD_RESTART_COUNTDOWN",
+      "value": "300,60,10",
+      "description": "Comma-separated remaining times, such as 300,60,10. Warnings longer than the restart delay are skipped. Leave empty to disable countdown chat messages; the initial announcement is controlled separately. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Restart chat announcement",
+      "key": "TMOD_RESTART_MESSAGE",
+      "value": "Scheduled server restart soon. Please prepare to disconnect.",
+      "description": "Chat message sent when a scheduled restart becomes due, before the warning delay. Leave empty to omit the announcement. Players will still disconnect when the game restarts. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#scheduled-restarts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Shutdown announcement",
+      "key": "TMOD_SHUTDOWN_MESSAGE",
+      "value": "Server is shutting down NOW!",
+      "description": "Chat message sent to players when Docker requests a graceful container shutdown. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Shutdown warning delay (seconds)",
+      "key": "TMOD_SHUTDOWN_DELAY",
+      "value": "3",
+      "description": "Wait after the shutdown announcement before requesting save-and-exit when Docker stops the container. Default: 3; 0 skips the delay. Keep Docker stop_grace_period longer than this delay plus the graceful shutdown timeout and shutdown overhead. Dashboard restarts and backups use their own stop flow. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. Keep Unraid Docker Stop Timeout and Extra Parameters --stop-timeout greater than shutdown delay + timeout + overhead (120 seconds by default). || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Graceful shutdown timeout (seconds)",
+      "key": "TMOD_SHUTDOWN_TIMEOUT",
+      "value": "90",
+      "description": "How long to wait after requesting a save-and-exit before forced termination. Keep Docker\u2019s stop_grace_period longer than this value plus shutdown overhead. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. Keep Unraid Docker Stop Timeout and Extra Parameters --stop-timeout greater than shutdown delay + timeout + overhead (120 seconds by default). || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console verbosity",
+      "key": "TMOD_LOG_LEVEL",
+      "value": "normal",
+      "description": "quiet reduces routine output; normal shows standard output; debug shows detailed output. Complete raw output remains in the persistent console log. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Crash replay lines",
+      "key": "TMOD_CRASH_LOG_LINES",
+      "value": "200",
+      "description": "Number of raw console lines replayed when the game fails. 0 disables crash replay; debug already shows raw output. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console history retention (days)",
+      "key": "TMOD_LOG_RETENTION_DAYS",
+      "value": "30",
+      "description": "Remove archived console logs older than this many days. Default: 30; 0 disables age-based cleanup. The current and previous console logs and tModLoader own logs are kept. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console history size limit (MiB)",
+      "key": "TMOD_LOG_HISTORY_MAX_MB",
+      "value": "512",
+      "description": "Remove oldest archived console logs until history fits this budget. Default: 512; 0 disables the size limit. Current and previous console logs are separate from this budget. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Console log rotation size (MiB)",
+      "key": "TMOD_LOG_ROTATE_MB",
+      "value": "64",
+      "description": "Rotate the current console log at this size so one long server session cannot grow it indefinitely. Default: 64. Cleanup runs at startup, rotation, and periodically while output is received. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Process priority",
+      "key": "TMOD_PRIORITY",
+      "value": "1",
+      "description": "Server scheduling priority, from 0 (realtime) to 5 (idle). Lower values request higher priority; container permissions may limit this. Prefer the default unless diagnosing performance. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#runtime-and-diagnostics",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Freeze time",
+      "key": "TMOD_JOURNEY_SETFROZEN",
+      "value": "0",
+      "description": "Who can control freeze time in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Set time to dawn",
+      "key": "TMOD_JOURNEY_SETDAWN",
+      "value": "0",
+      "description": "Who can control set time to dawn in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Set time to noon",
+      "key": "TMOD_JOURNEY_SETNOON",
+      "value": "0",
+      "description": "Who can control set time to noon in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Set time to dusk",
+      "key": "TMOD_JOURNEY_SETDUSK",
+      "value": "0",
+      "description": "Who can control set time to dusk in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Set time to midnight",
+      "key": "TMOD_JOURNEY_SETMIDNIGHT",
+      "value": "0",
+      "description": "Who can control set time to midnight in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "God mode",
+      "key": "TMOD_JOURNEY_GODMODE",
+      "value": "0",
+      "description": "Who can control god mode in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Wind strength",
+      "key": "TMOD_JOURNEY_WIND_STRENGTH",
+      "value": "0",
+      "description": "Who can control wind strength in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Rain strength",
+      "key": "TMOD_JOURNEY_RAIN_STRENGTH",
+      "value": "0",
+      "description": "Who can control rain strength in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time speed",
+      "key": "TMOD_JOURNEY_TIME_SPEED",
+      "value": "0",
+      "description": "Who can control time speed in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Freeze rain",
+      "key": "TMOD_JOURNEY_RAIN_FROZEN",
+      "value": "0",
+      "description": "Who can control freeze rain in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Freeze wind",
+      "key": "TMOD_JOURNEY_WIND_FROZEN",
+      "value": "0",
+      "description": "Who can control freeze wind in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Extended placement range",
+      "key": "TMOD_JOURNEY_PLACEMENT_RANGE",
+      "value": "0",
+      "description": "Who can control extended placement range in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Adjust difficulty",
+      "key": "TMOD_JOURNEY_SET_DIFFICULTY",
+      "value": "0",
+      "description": "Who can control adjust difficulty in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Biome spread",
+      "key": "TMOD_JOURNEY_BIOME_SPREAD",
+      "value": "0",
+      "description": "Who can control biome spread in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Enemy spawn rate",
+      "key": "TMOD_JOURNEY_SPAWN_RATE",
+      "value": "0",
+      "description": "Who can control enemy spawn rate in a Journey world: 0 locked, 1 host only, 2 everyone. In web mode, saved dashboard settings override this value; in env mode, Unraid controls it. || Wiki: https://github.com/Crosis47/tmodloader/wiki/Configuration#journey-permissions",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

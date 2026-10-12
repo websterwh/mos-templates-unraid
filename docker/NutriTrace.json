@@ -1,0 +1,115 @@
+{
+  "name": "NutriTrace",
+  "repo": "ghcr.io/traceapps/nutritrace:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/orgs/TraceApps/packages/container/package/nutritrace",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/TraceApps/unraid-templates/main/icons/nutritrace.png",
+  "project": "https://github.com/TraceApps/nutritrace",
+  "description": "NutriTrace is a self-hosted personal nutrition tracker. Log what you eat in a daily diary with your own meal slots, keep a personal database of foods, meals and recipes, look up products by barcode or name from Open Food Facts and USDA, and set calorie and macro goals with fixed, dynamic or adaptive TDEE modes. It also tracks activity and intermittent fasting, connects to Fitbit (through Google Health), Withings, Garmin and Health Connect, and imports from MyFitnessPal, Lose It, Cronometer and Waistline. Multi-user with OIDC single sign-on, a browser app that keeps working offline, and a native Android app. No telemetry and no accounts on external services; your data stays in your appdata folder. Before the first start, fill in JWT Secret with a long random string, for example the output of openssl rand -base64 48. Insecure Cookies starts at 1 so that signing in works over plain http:// on your LAN, which is how the WebUI link opens the app. Once the app sits behind an HTTPS reverse proxy, set it to 0.",
+  "paths": [
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/nutritrace/db",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "Folder for the SQLite database (nutritrace.db). Back up this folder and the Uploads folder.",
+      "required": true
+    },
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/nutritrace/uploads",
+      "container": "/data/uploads",
+      "mode": "rw",
+      "description": "Folder for photos and other uploaded files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3001",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Port for the web interface. Change the host port if 3001 is already taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required. Signs sign-in sessions and protects stored secrets. Use a long random string, for example the output of: openssl rand -base64 48. Keep it secret and keep it the same: changing it signs everyone out and makes stored sign-in and connection secrets unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Insecure Cookies",
+      "key": "INSECURE_COOKIES",
+      "value": "1",
+      "description": "1: sign-in works over plain http://, the way the WebUI link opens the app on your LAN. Session cookies then travel unencrypted, so keep the app on a network you trust. 0: session cookies are HTTPS-only. Use 0 behind an HTTPS reverse proxy; over plain http:// the browser drops them and signing in sends you back to the login page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Optional. The full address people open the app at, subpath included, for example https://nutrition.example.com. Links in password reset, invite and sharing emails use it. Empty: they use an address an admin has opened the app at.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Optional. Serve the app under a subpath behind a reverse proxy, for example /nutritrace. Empty: served at the root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery Token",
+      "key": "RECOVERY_TOKEN",
+      "value": "",
+      "description": "Optional. Turns on the lockout recovery option on the login page (Disable user management), which asks for this token. Empty: recovery stays off.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "How much the server logs. Default: info.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database File",
+      "key": "DB_PATH",
+      "value": "/data/db/nutritrace.db",
+      "description": "Database file inside the container. Leave as is: it sits in the Database folder above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uploads Folder",
+      "key": "UPLOADS_PATH",
+      "value": "/data/uploads",
+      "description": "Uploads folder inside the container. Leave as is: it is the Uploads folder above.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

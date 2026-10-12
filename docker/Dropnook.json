@@ -1,0 +1,131 @@
+{
+  "name": "Dropnook",
+  "repo": "ghcr.io/dropnook/dropnook:2",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/dropnook/dropnook.app/pkgs/container/dropnook",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER --cap-add NET_BIND_SERVICE --security-opt no-new-privileges:true --memory 2g --pids-limit 200",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/dropnook/dropnook.app/main/.github/icons/drop.png",
+  "project": "https://dropnook.dropnook.app/",
+  "description": "Instant sharing for your home network \u2014 like AirDrop, but for every device. Open one web page on your phone, laptop or PC, drop in text, files or a screenshot (Ctrl+V), and it is on every other device at once: no app, no login, no cloud. Text fields that survive lost connections, uploads of any size that resume, picture previews, 17 languages, five colour layouts in light and dark, an optional PIN, and up to five users with an area of their own next to the shared one. This is the LAN-only edition: a single container, reachable in your network only, without sharing to the internet. Sharing single files or texts through expiring links needs a second, locked-down container \u2014 for that, install Dropnook as a Compose stack instead (see the project page).",
+  "paths": [
+    {
+      "name": "Files and texts",
+      "host": "/mnt/cache/drop",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where Drop keeps its files and text fields \u2014 a share of its own. Create it before the first start.",
+      "required": true
+    },
+    {
+      "name": "Translations of your own",
+      "host": "/mnt/cache/appdata/drop",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Optional lang/ and help/ files that change Drop's wording or add a language. Read-only; may stay empty.",
+      "required": false
+    },
+    {
+      "name": "Server name",
+      "host": "/boot/config/ident.cfg",
+      "container": "/unraid/ident.cfg",
+      "mode": "ro",
+      "description": "Unraid's settings file with the server name, read-only \u2014 the page calls itself e.g. &quot;Tower Drop&quot;.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8088",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Port in your network for Drop's page: http://Tower:8088",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PIN",
+      "key": "PIN",
+      "value": "",
+      "description": "Optional. A PIN or password every new browser is asked for once (then signed in for 90 days). Empty: anyone in your network can open Drop. With users: the PIN of every user without one of their own.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "More names",
+      "key": "HOSTS",
+      "value": "",
+      "description": "Optional. Drop answers to IP addresses and local names (tower, tower.local, \u2026.lan, \u2026.fritz.box) by itself. If you open it under another name, put it here, e.g. drop.example.org \u2014 comma-separated, *.example.org for every name under it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User (teal)",
+      "key": "USER_TEAL",
+      "value": "",
+      "description": "Optional, up to five users, one per colour: name:PIN (e.g. Anna:2468), or the name alone. Each gets an area of their own next to the shared one, and the page in their colour.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "User (gold)",
+      "key": "USER_GOLD",
+      "value": "",
+      "description": "Optional: name:PIN, or the name alone.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "User (blue)",
+      "key": "USER_BLUE",
+      "value": "",
+      "description": "Optional: name:PIN, or the name alone.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "User (violet)",
+      "key": "USER_VIOLET",
+      "value": "",
+      "description": "Optional: name:PIN, or the name alone.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "User (coral)",
+      "key": "USER_CORAL",
+      "value": "",
+      "description": "Optional: name:PIN, or the name alone.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mode",
+      "key": "MODE",
+      "value": "lan",
+      "description": "Drop itself, in your network. Leave it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Sharing to the internet",
+      "key": "SHARING",
+      "value": "off",
+      "description": "Off in this edition \u2014 it needs the second container of the Compose stack. Leave it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,123 @@
+{
+  "name": "nexbrand",
+  "repo": "ghcr.io/derkezorm/nexbrand",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/DerKezorm/nexbrand/pkgs/container/nexbrand",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexbrand.png",
+  "project": "https://www.nexbrand.de",
+  "description": "nexbrand keeps the corporate design of your clients in one place, on your own server: colours with their print values, fonts with their licence, logos with the ground they belong on, a type scale, rules and example files, per client and per project, with every version kept on a time line. Checks are computed from the set: contrast of every pair by WCAG 2.2, logos at 3:1, colour vision deficiencies, nearly identical colours, fonts that must not leave the house. A workbench builds a new CI from a few words, a picture or one colour, clients review the directions through a link without an account, and the choice becomes version 1.0. Every version comes as CSS variables, a Tailwind 4 theme, SCSS or design tokens, over an API and over MCP for an AI in your editor. Access per client for people and teams, accounts by invitation or OpenID Connect (one-button setup for authentik), an optional second factor, public pages, backups and a log. English and German, light and dark.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexbrand",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts, clients, versions and projects, the logos, fonts and example files, the key secret.key, backups and logs. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8540",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexbrand at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone for timestamps in the log and the versions of a client, for example Europe/Berlin. Leave blank for UTC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Code",
+      "key": "NEXBRAND_SETUP_TOKEN",
+      "value": "",
+      "description": "The code the first account needs to become the operator. Leave blank: nexbrand makes a new one at every start until it is set up and writes it to the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXBRAND_PUBLIC_URL",
+      "value": "",
+      "description": "The address people use to reach nexbrand, for example https://brand.example.com when it sits behind a reverse proxy. Used for invitation links, public pages, review links and the return address of OpenID Connect. Leave blank to take the address of the request; the same can be set later in the settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "NEXBRAND_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Addresses or networks of your reverse proxies, comma separated, for example 172.16.0.0/12. Only their X-Forwarded-For and X-Forwarded-Proto (the rightmost value) are believed, so only they can tell nexbrand that a request came in over https; without it every sign-in seems to come from the proxy and the brake against password guessing cannot tell people apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXBRAND_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexbrand off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXBRAND_SECRET_KEY",
+      "value": "",
+      "description": "Protects the server-side secrets (the OpenID Connect client secret, the mail password, second-factor seeds, keys for collecting). Leave blank: nexbrand creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXBRAND_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https, also behind a proxy listed under Trusted Proxies that sends X-Forwarded-Proto. Use on only if a proxy terminates TLS and forwards plain http without that header, and never if nexbrand should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Largest Upload (MB)",
+      "key": "NEXBRAND_UPLOAD_MAX_MB",
+      "value": "50",
+      "description": "The largest logo, font or example file in megabytes. The operator can lower it in the settings.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

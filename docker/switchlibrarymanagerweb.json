@@ -1,0 +1,123 @@
+{
+  "name": "switch-library-manager-web",
+  "repo": "delfus77/switch-library-manager-web:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/delfus77/switch-library-manager-web",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/DeLFuS77/switch-library-manager-web/master/resources/static/android-chrome-512x512.png",
+  "project": "https://github.com/DeLFuS77/switch-library-manager-web",
+  "description": "Manage your Nintendo Switch backup library from the browser: missing updates, DLC and games, issues, organizing and renaming, NSZ compression and an SD card planner. Discover games you might like, upcoming releases and your series, see statistics, your year on Switch, the version history of each game and, optionally, how long games take to beat (IGDB). Quick search, notifications, user accounts with protection against bots, 11 languages. Use it with backups of games you own. Put your own prod.keys (and optionally title.keys), dumped from your console, in the appdata folder; no keys or games are included or downloaded.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/switch-library-manager-web",
+      "container": "/usr/local/share/switch-library-manager-web",
+      "mode": "rw",
+      "description": "Settings, caches and covers. Put your prod.keys (and optionally title.keys) here.",
+      "required": true
+    },
+    {
+      "name": "Switch library",
+      "host": "",
+      "container": "/mnt/roms",
+      "mode": "rw",
+      "description": "Share with your NSP, NSZ, XCI and XCZ files, e.g. /mnt/user/switch. Read and write, to organize and compress files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that runs the app; 99 is nobody, the owner of Unraid shares.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group that runs the app; 100 is users.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Madrid",
+      "description": "Time zone for dates and scheduled synchronizations.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin user",
+      "key": "SLM_AUTH_USERNAME",
+      "value": "",
+      "description": "Optional: an administrator, with the password below. Users can also be created in the app.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "SLM_AUTH_PASSWORD",
+      "value": "",
+      "description": "Optional: password of the administrator above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allow remote access without login",
+      "key": "SLM_ALLOW_REMOTE_WITHOUT_LOGIN",
+      "value": "",
+      "description": "Optional: set to true only if another service (a proxy with its own login, a VPN) protects the app. Without users, the app otherwise only answers on the local network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "SLM_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Optional: set to cloudflare when Cloudflare connects to the app directly, so the login protection sees the real visitor address (not needed with a Cloudflare Tunnel or a proxy on your network). Also takes proxy addresses or ranges, separated by commas.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGDB Client ID",
+      "key": "SLM_IGDB_CLIENT_ID",
+      "value": "",
+      "description": "Optional: the Client ID of your own Twitch application (dev.twitch.tv/console), to show how long games take to beat, from IGDB. Can also be set in Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGDB Client Secret",
+      "key": "SLM_IGDB_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional: the Client Secret of the same Twitch application.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

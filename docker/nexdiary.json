@@ -1,0 +1,115 @@
+{
+  "name": "nexdiary",
+  "repo": "ghcr.io/derkezorm/nexdiary",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/DerKezorm/nexdiary/pkgs/container/nexdiary",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexdiary.png",
+  "project": "https://github.com/DerKezorm/nexdiary",
+  "description": "nexdiary is a diary for the family on your own server. Jot things down during the day without minding the spelling, and in the evening turn the notes into a page: by yourself, or with an AI that only orders and smooths and invents nothing. Every person sees only their own diary, and the operator manages the accounts without ever seeing what is written in them. Every day gets a cover picture (your own photo or one of 256 drawn illustrations), values from 1 to 10 for whatever you want to rate, a question of the day for when nothing comes to mind, a journal as a blog or a timeline with search, and statistics worked out on the server from your own days only. Single days can be shared with chosen people of the family, read-only, with a heart as the only reaction. Photos can come from your own Immich. Reminders arrive by Web Push, and the app installs to the home screen of a phone. Everything you write is encrypted in the database with a key of each person. A second factor is required from the start, passkeys are supported, and accounts come by invitation or through OpenID Connect (one-button setup for authentik). The AI is off until the operator chooses a service, a local model works, and nothing is sent without a press of the button. German and English, light and dark, five colours.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexdiary",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts, days and notes, the photos, the key secret.key, backups and logs. It also holds keys/master.key, the master key that unlocks everything people write: without it no backup can be read, so keep a copy of it apart from your backups (Settings, Backups, Encryption). Keep this folder on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8550",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexdiary at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone for timestamps in the log, for example Europe/Berlin. Leave blank for UTC. People's own time zones come from their browsers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Code",
+      "key": "NEXDIARY_SETUP_TOKEN",
+      "value": "",
+      "description": "The code the first account needs to become the operator. Leave blank: nexdiary makes a new one at every start until it is set up and writes it to the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXDIARY_PUBLIC_URL",
+      "value": "",
+      "description": "The address people use to reach nexdiary, for example https://diary.example.com when it sits behind a reverse proxy. Used for invitation links and the return address of OpenID Connect. Leave blank to take the address of the request; the same can be set later in the settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "NEXDIARY_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Addresses or networks of your reverse proxies, comma separated, for example 172.16.0.0/12. Only their X-Forwarded-For and X-Forwarded-Proto (the rightmost value) are believed, so only they can tell nexdiary that a request came in over https; without it every sign-in seems to come from the proxy and the brake against password guessing cannot tell people apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXDIARY_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexdiary off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXDIARY_SECRET_KEY",
+      "value": "",
+      "description": "Protects the server-side secrets (the OpenID Connect client secret, the mail password). Leave blank: nexdiary creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXDIARY_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https, also behind a proxy listed under Trusted Proxies that sends X-Forwarded-Proto. Use on only if a proxy terminates TLS and forwards plain http without that header, and never if nexdiary should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

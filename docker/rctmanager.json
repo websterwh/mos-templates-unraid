@@ -1,0 +1,91 @@
+{
+  "name": "rct-manager",
+  "repo": "giiibates/rct-manager:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/giiibates/rct-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=SETUID --cap-add=SETGID --read-only --tmpfs /tmp:rw,noexec,nosuid,nodev,size=1m,mode=1777",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/Gill-Bates/unraid-app-templates/main/icons/05_rct-magager.png",
+  "project": "https://github.com/Gill-Bates/rct-manager",
+  "description": "REST API gateway for RCT Power inverters \u2014 readings, controls, metrics, admin GUI in one service. Features: - Read any metric from the full protocol catalog (894 of 895 IDs), partial success on multi-metric requests, RFC 9457 error responses - Energy Manager for dynamic electricity tariffs: charge the battery from the grid or discharge it to the house with a target state of charge, power limit and duration - Data export to your own InfluxDB 2 or QuestDB for Grafana, Telegraf and custom analysis - Administration GUI: Overview, Inverters, Energy Manager, TSDB, Prometheus, API tokens and Settings pages with autosave - Ready-made /metrics endpoint for Telegraf, Grafana and friends; a scrape never touches the inverter - API token authentication, separate admin sessions, read and read/write roles, encrypted SQLite administration storage - Guarded writes: off by default, allowlist-based, with readback confirmation - Several inverters behind one API, requests per endpoint serialized so the device never sees a conflict - Hardened container: read-only root filesystem, all capabilities dropped, non-root user, built-in health check IMPORTANT - Required Environment Variable: - HMAC_SECRET: encrypts the administration database (data/rct.db). Generate with: openssl rand -base64 32. Changing it afterwards makes the database unreadable. First start: The container logs a boxed \"FIRST START - admin login\" block with the one-time \"admin\" password in clear text (also saved to /app/data/initial-admin-password as a fallback). The first login requires a password change. Until then, periodic reads, heartbeat and metric export stay paused. Reverse Proxy: rct-manager speaks plain HTTP inside the container. Enable \"behind reverse proxy\" on the admin Settings page when terminating TLS in front of it. Multi-arch image: linux/amd64 and linux/arm64, published with Trivy scanning, an SBOM and a provenance attestation. Source: https://github.com/Gill-Bates/rct-manager",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/rct-manager/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Encrypted administration database (devices, API tokens, settings), dispatch state and the one-time admin password fallback. Back up together with HMAC_SECRET.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "rct-manager Web UI/API port (container listens on 8000, mapped to host port 8000 by default).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HMAC Secret",
+      "key": "HMAC_SECRET",
+      "value": "",
+      "description": "REQUIRED: Encrypts the administration database (data/rct.db). Generate with: openssl rand -base64 32. Changing it afterwards makes the database unreadable - back it up together with the data volume.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Bind Address",
+      "key": "BIND_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Listen address inside the container. Leave at 0.0.0.0 so the published port reaches the service; a loopback value makes the container unreachable through the port mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bind Port",
+      "key": "BIND_PORT",
+      "value": "8000",
+      "description": "Listen port inside the container. Must match the container port in the WebUI/Port mapping below.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Non-Loopback Bind",
+      "key": "ALLOW_NON_LOOPBACK_BIND",
+      "value": "true",
+      "description": "Explicit consent for a non-loopback listener inside the container. Does not provide TLS; terminate TLS at a reverse proxy and enable 'behind reverse proxy' on the admin Settings page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public API Docs",
+      "key": "DOCS_PUBLIC",
+      "value": "false",
+      "description": "true: serve /docs and /openapi.json without a token. false: both return 404 on every bind address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "Verbosity of the container logs.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

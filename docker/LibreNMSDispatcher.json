@@ -1,0 +1,161 @@
+{
+  "name": "LibreNMS-Dispatcher",
+  "repo": "librenms/librenms:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/librenms/librenms",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--hostname=librenms-dispatcher",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/hoody424/unraid-templates/main/librenms-dispatcher/librenms-dispatcher.png",
+  "project": "https://github.com/librenms/docker#dispatcher-service-container",
+  "description": "Dispatcher service sidecar for an existing LibreNMS container (for example librenms from A75G's repository). The official LibreNMS image does not poll devices on its own: polling and discovery run in at least one separate dispatcher container. This template runs that container from the same official image librenms/librenms with SIDECAR_DISPATCHER=1. Use the same appdata folder (/data) and the same database settings as your LibreNMS container, and start LibreNMS first. Redis is required (the dispatcher does not start without it), for example the Redis app from Community Apps. With several dispatchers, give each a unique DISPATCHER_NODE_ID and hostname. Check the result in LibreNMS under Settings - Pollers: the dispatcher shows up with its node ID and hostname.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/librenms/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The SAME folder your LibreNMS container uses for /data (config, RRD files, logs).",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "DB_HOST",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "Database host or IP, as in your LibreNMS container. It must be reachable from this container's network.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PORT",
+      "key": "DB_PORT",
+      "value": "3306",
+      "description": "Database port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_NAME",
+      "key": "DB_NAME",
+      "value": "librenms",
+      "description": "Database name, as in your LibreNMS container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_USER",
+      "key": "DB_USER",
+      "value": "librenms",
+      "description": "Database user, as in your LibreNMS container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "DB_PASSWORD",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "Database password, as in your LibreNMS container.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "DB_TIMEOUT",
+      "key": "DB_TIMEOUT",
+      "value": "60",
+      "description": "Seconds to wait for the database at start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISPATCHER_NODE_ID",
+      "key": "DISPATCHER_NODE_ID",
+      "value": "dispatcher1",
+      "description": "Unique ID of this dispatcher. Use a different one for each dispatcher container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_HOST",
+      "key": "REDIS_HOST",
+      "value": "",
+      "description": "Redis host or IP. Required: the dispatcher does not start without Redis. Set the same Redis on the LibreNMS container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PORT",
+      "key": "REDIS_PORT",
+      "value": "6379",
+      "description": "Redis port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "REDIS_PASSWORD",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Redis password, if any.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "REDIS_DB",
+      "key": "REDIS_DB",
+      "value": "0",
+      "description": "Redis database number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISPATCHER_ARGS",
+      "key": "DISPATCHER_ARGS",
+      "value": "",
+      "description": "Extra arguments for librenms-service.py, e.g. -v for verbose logs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "key": "MEMORY_LIMIT",
+      "value": "256M",
+      "description": "PHP memory limit for the poller processes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SIDECAR_DISPATCHER",
+      "key": "SIDECAR_DISPATCHER",
+      "value": "1",
+      "description": "Runs this container as dispatcher. Must stay 1.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID, same as in your LibreNMS container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID, same as in your LibreNMS container.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

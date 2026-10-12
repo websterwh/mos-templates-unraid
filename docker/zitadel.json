@@ -2,7 +2,7 @@
   "name": "zitadel",
   "repo": "ghcr.io/zitadel/zitadel:latest",
   "category": [
-    "Security"
+    "Network"
   ],
   "registry": "https://github.com/zitadel/zitadel/pkgs/container/zitadel",
   "network": "bridge",
@@ -10,110 +10,231 @@
   "default_shell": "sh",
   "privileged": false,
   "extra_parameters": "--restart unless-stopped",
-  "post_parameters": "start-from-init --masterkey MasterkeyNeedsToHave32Characters --tlsMode disabled",
-  "web_ui_url": "http://[IP]:[PORT:8080]/",
-  "icon": "https://raw.githubusercontent.com/jcesclapez/unraid-templates/refs/heads/main/zitadel/zitadel-logo-darkdesign.png",
-  "project": "https://github.com/zitadel/",
-  "description": "ZITADEL as identity experience platform provides all the features for identity management, secure authentication, and access management for your customers, employees, devices or services. Our platform makes it easy to deploy a hosted, multi-factor secured login, offer single sign-on, allow users to bring existing identities, integrate with our APIs, and keep informed with our event-based audit trail. Working with Postgres 16 and 17. Please replace --masterkey \u201cMasterkeyNeedsToHave32Characters\u201d in Post Arguments with a safe one. Default username: zitadel-admin@zitadel.localhost Default password: Password1! In the above username, replace localhost with your configured external domain, if any. e.g. with zitadel-admin@zitadel.sso.my.domain.tld",
-  "paths": [],
+  "post_parameters": "start-from-init --masterkey MasterkeyNeedsToHave32Characters",
+  "web_ui_url": "http://[IP]:[PORT:8080]/ui/console",
+  "icon": "https://raw.githubusercontent.com/Nebur692/unraid-community-apps/main/icons/zitadel-icon.png",
+  "project": "https://github.com/zitadel/zitadel",
+  "description": "ZITADEL is a self-hosted identity infrastructure platform: SSO (OIDC/SAML), MFA, and user management for your own apps and services. This template deploys the ZITADEL v4 core/API service only. Since v4, the interactive login pages were split into a separate service (zitadel-login) that MUST be deployed alongside this one, or logging in will fail with a 404 on /ui/v2/login/login. See the companion \"zitadel-login\" template from the same repository. Requires an external Postgres 14+ database (not included in this template) and a 32-character Master Key. IMPORTANT: besides filling in the \"Master Key\" field below, you MUST also replace the placeholder in \"Post Arguments\" (under Extra Parameters, near the bottom of the Add Container page) with that exact same key \u2014 ZITADEL has a known bug where the environment variable alone isn't reliably read with the start-from-init command, and the container will crash-loop with \"no master key provided\" if you skip this. Default admin login after first start: zitadel-admin@zitadel.your external domain / Password1! \u2014 you will be asked to change this password on first login (unless you disable that below). Full setup guide: https://github.com/Nebur692/Unraid-sso-templates",
+  "paths": [
+    {
+      "name": "Bootstrap Volume (shared with zitadel-login)",
+      "host": "/mnt/cache/appdata/zitadel/bootstrap",
+      "container": "/zitadel/bootstrap",
+      "mode": "rw",
+      "description": "Shared with the zitadel-login container (mounted read-only there) so it can read the login-client.pat token written here on first start. Both templates must point at the exact same host path. IMPORTANT: ZITADEL runs internally as UID 1000. If Unraid auto-creates this folder on first start, it may end up owned by root/nobody without write access for UID 1000, causing the token to silently fail to write with no error in the log. If the folder stays empty after 'setup completed', run: chown -R 1000:1000 this path on the Unraid host, then wipe the Postgres database (the first-instance bootstrap only runs once per empty database) and restart.",
+      "required": true
+    }
+  ],
   "ports": [
     {
-      "name": "WEB UI",
+      "name": "Web UI / API Port",
       "host": "8080",
       "container": "8080",
       "protocol": "tcp",
-      "description": null,
-      "required": false,
+      "description": "Internal port. Put your reverse proxy in front of this \u2014 do not expose it directly to the internet without TLS.",
+      "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "DATABASE POSTGRES HOST",
-      "key": "ZITADEL_DATABASE_POSTGRES_HOST",
-      "value": "db",
-      "description": null,
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES PORT",
-      "key": "ZITADEL_DATABASE_POSTGRES_PORT",
-      "value": "5432",
-      "description": null,
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES",
-      "key": "ZITADEL_DATABASE_POSTGRES_DATABASE",
-      "value": "zitadel",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES USER USERNAME",
-      "key": "ZITADEL_DATABASE_POSTGRES_USER_USERNAME",
-      "value": "zitadel",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES USER PASSWORD",
-      "key": "ZITADEL_DATABASE_POSTGRES_USER_PASSWORD",
-      "value": "zitadel",
-      "description": null,
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "DATABASE POSTGRES USER SSL MODE",
-      "key": "ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE",
-      "value": "disable",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES ADMIN USERNAME",
-      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME",
-      "value": "postgres",
-      "description": null,
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "DATABASE POSTGRES ADMIN PASSWORD",
-      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD",
-      "value": "postgres",
-      "description": null,
+      "name": "Master Key",
+      "key": "ZITADEL_MASTERKEY",
+      "value": "",
+      "description": "REQUIRED. Exactly 32 characters, used to encrypt secrets at rest. Generate once, keep it safe, never change it after first start (you will lose access to encrypted data). Example: openssl rand -base64 24 | cut -c1-32. IMPORTANT: ZITADEL has a known bug where this environment variable alone is not always read with the start-from-init command \u2014 you MUST also replace the placeholder in Post Arguments (Extra Parameters section) with this exact same value, or the container will crash-loop with 'no master key provided'.",
       "required": true,
       "mask": true
     },
     {
-      "name": "DATABASE POSTGRES ADMIN SSL MODE",
-      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE",
-      "value": "disable",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "EXTERNAL SECURE",
-      "key": "ZITADEL_EXTERNALSECURE",
-      "value": "false",
-      "description": null,
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "EXTERNAL DOMAIN",
+      "name": "External Domain",
       "key": "ZITADEL_EXTERNALDOMAIN",
       "value": "localhost",
-      "description": null,
+      "description": "REQUIRED. The public domain users will use to reach ZITADEL (e.g. sso.example.com), without protocol or port. Must match what your reverse proxy serves.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Port",
+      "key": "ZITADEL_EXTERNALPORT",
+      "value": "443",
+      "description": "The public-facing port your reverse proxy exposes ZITADEL on (usually 443 for HTTPS). This is NOT the container's internal port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "External Secure (HTTPS)",
+      "key": "ZITADEL_EXTERNALSECURE",
+      "value": "true",
+      "description": "Set to true if users reach ZITADEL over HTTPS (normal case, e.g. behind Nginx Proxy Manager with a valid certificate). Set to false only for plain-HTTP test setups.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS Enabled (container-internal)",
+      "key": "ZITADEL_TLS_ENABLED",
+      "value": "false",
+      "description": "Whether ZITADEL itself terminates TLS inside the container. Leave false if a reverse proxy (Nginx Proxy Manager, Traefik, Caddy...) handles HTTPS in front of it, which is the recommended setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Postgres Host",
+      "key": "ZITADEL_DATABASE_POSTGRES_HOST",
+      "value": "",
+      "description": "REQUIRED. Hostname or IP of your external Postgres server/container.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Postgres Port",
+      "key": "ZITADEL_DATABASE_POSTGRES_PORT",
+      "value": "5432",
+      "description": "Postgres port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Name",
+      "key": "ZITADEL_DATABASE_POSTGRES_DATABASE",
+      "value": "zitadel",
+      "description": "Database name ZITADEL will use/create.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database Admin Username",
+      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME",
+      "value": "postgres",
+      "description": "Username with rights to create the app role/database on first start. IMPORTANT: if your Postgres container was created with a custom POSTGRES_USER (instead of leaving it as the default 'postgres'), that custom user IS your superuser \u2014 put that same username here, not 'postgres'. Using the wrong one causes a password authentication failed / restart loop.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database Admin Password",
+      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the admin username above.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database Admin SSL Mode",
+      "key": "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE",
+      "value": "disable",
+      "description": "SSL mode for the admin connection (disable/require/verify-ca/verify-full).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database App Username",
+      "key": "ZITADEL_DATABASE_POSTGRES_USER_USERNAME",
+      "value": "zitadel",
+      "description": "Username ZITADEL uses day-to-day (created automatically on first start using the admin credentials above, unless it's the same as the admin username).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database App Password",
+      "key": "ZITADEL_DATABASE_POSTGRES_USER_PASSWORD",
+      "value": "",
+      "description": "Password for the day-to-day database user above.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database App SSL Mode",
+      "key": "ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE",
+      "value": "disable",
+      "description": "SSL mode for the app connection (disable/require/verify-ca/verify-full).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Require Password Change On First Login",
+      "key": "ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED",
+      "value": "true",
+      "description": "Whether the default admin account must change its password on first login. Recommended: true. Only has effect on the very first start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Client PAT Path (bootstrap)",
+      "key": "ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH",
+      "value": "/zitadel/bootstrap/login-client.pat",
+      "description": "CRITICAL, do not change. On first start, ZITADEL writes here the access token that the companion zitadel-login container needs to function. Must point inside the shared bootstrap volume below.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Login Client Machine Username",
+      "key": "ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME",
+      "value": "login-client",
+      "description": "Do not change unless you know why. Internal service-account username created on first start for the login UI to authenticate as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Client Machine Name",
+      "key": "ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME",
+      "value": "Automatically Initialized IAM_LOGIN_CLIENT",
+      "description": "Display name for the internal login-client service account.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Client PAT Expiration Date",
+      "key": "ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE",
+      "value": "2124-01-01T00:00:00Z",
+      "description": "CRITICAL, do not leave empty: without a valid RFC3339 date here, ZITADEL silently skips writing the login-client.pat file entirely (no error logged) and zitadel-login will never work. The default is ~100 years out, effectively 'never expires' for practical purposes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Login V2 Required",
+      "key": "ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED",
+      "value": "true",
+      "description": "Do not change: v4 always requires the new login UI. Kept visible for transparency.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login V2 Base URI",
+      "key": "ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI",
+      "value": "",
+      "description": "REQUIRED. Full public URL of the login pages, e.g. https://sso.example.com/ui/v2/login/ \u2014 must match your External Domain/Port/Secure settings above, with the trailing slash.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OIDC Default Login URL V2",
+      "key": "ZITADEL_OIDC_DEFAULTLOGINURLV2",
+      "value": "",
+      "description": "REQUIRED. e.g. https://sso.example.com/ui/v2/login/login?authRequest=",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OIDC Default Logout URL V2",
+      "key": "ZITADEL_OIDC_DEFAULTLOGOUTURLV2",
+      "value": "",
+      "description": "REQUIRED. e.g. https://sso.example.com/ui/v2/login/logout?post_logout_redirect=",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SAML Default Login URL V2",
+      "key": "ZITADEL_SAML_DEFAULTLOGINURLV2",
+      "value": "",
+      "description": "REQUIRED if you plan to use SAML (e.g. Zabbix). e.g. https://sso.example.com/ui/v2/login/login?samlRequest=",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTP Client Deny List (SSRF protection)",
+      "key": "ZITADEL_HTTPCLIENT_DENYLIST",
+      "value": "localhost,0.0.0.0/8,10.0.0.0/8,100.64.0.0/10,127.0.0.0/8,169.254.0.0/16,172.16.0.0/12,198.18.0.0/15,::/128,::1/128,fc00::/7,fe80::/10",
+      "description": "ZITADEL blocks Actions V2 Target endpoints on private IP ranges by default (SSRF protection) \u2014 this INCLUDES 192.168.0.0/16 by default, which breaks creating a Target pointing at any container on a typical home LAN (fails with 'Errors.Target.DeniedURL'). This default value is the stock deny list with 192.168.0.0/16 removed, so LAN targets work while keeping protection against loopback, link-local, and cloud metadata endpoints (169.254.169.254) intact. Only widen this further if you understand the SSRF risk of doing so.",
+      "required": false,
       "mask": false
     }
   ],

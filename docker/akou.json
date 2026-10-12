@@ -1,0 +1,59 @@
+{
+  "name": "akou",
+  "repo": "drumsergio/akou:1.0.0",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/akou",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 0:0 --entrypoint /bin/sh",
+  "post_parameters": "-c chown 1000:1000 /data /models && exec setpriv --reuid=1000 --regid=1000 --clear-groups env HOME=/home/bun akou serve",
+  "web_ui_url": "http://[IP]:[PORT:8476]/",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/main/drumsergio/images/akou.png",
+  "project": "https://github.com/GeiserX/akou",
+  "description": "Self-hosted transcription server. A program uploads an audio file and reads back the text with word and segment times and speaker labels, as JSON, SRT or VTT, by long-poll, an event feed or a signed webhook. It also answers the OpenAI transcription endpoint (POST /v1/audio/transcriptions). A web page shows the job queue, the API keys, the models and the settings. This is the server mode of akou, a call recorder for macOS, with the same core. First use: the speech models (about 3 GB) download on the first job. Set the web page's admin password from the Unraid terminal, at least 12 characters (this reads it without echo): read -rs P && printf '%s' \"$P\" | docker exec -i -u 1000:1000 akou akou admin set-password; unset P then log in and create one API key per program on the Keys page. Folders: Unraid creates the appdata folders as root, and akou runs as uid 1000. The container starts as root only to hand the Data and Models folders to uid 1000, then drops to that user before akou starts; that is what the extra parameters and post arguments do. Network: akou has no TLS of its own and listens on the network only with AKOU_BEHIND_PROXY set to true. Keep it on your LAN, or put a reverse proxy with TLS in front before you reach it from outside. The image tag is the akou version; there is no latest tag. For a GPU use the -cuda or -vulkan tag (see the docs). More info: https://geiserx.github.io/akou/server/",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/akou/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Settings, API keys and jobs",
+      "required": true
+    },
+    {
+      "name": "Models",
+      "host": "/mnt/cache/appdata/akou/models",
+      "container": "/models",
+      "mode": "rw",
+      "description": "Speech models, downloaded on first use (about 3 GB)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI and API Port",
+      "host": "8476",
+      "container": "8476",
+      "protocol": "tcp",
+      "description": "Web page and API",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Behind proxy",
+      "key": "AKOU_BEHIND_PROXY",
+      "value": "true",
+      "description": "Must be true for akou to listen on the network. It has no TLS of its own: keep it on your LAN or put a TLS proxy in front.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

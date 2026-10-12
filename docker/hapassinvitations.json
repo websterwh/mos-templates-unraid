@@ -1,0 +1,155 @@
+{
+  "name": "ha-pass-invitations",
+  "repo": "ghcr.io/nebur692/ha-pass-invitations:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/Nebur692/ha-pass-invitations/pkgs/container/ha-pass-invitations",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5880]/admin/dashboard",
+  "icon": "https://raw.githubusercontent.com/Nebur692/ha-pass-invitations/main/docs/icon.png",
+  "project": "https://github.com/Nebur692/ha-pass-invitations",
+  "description": "Shareable, schedulable guest links for controlling specific Home Assistant entities - lights, locks, thermostats, fans, and more. Guests get a mobile-friendly PWA, no HA account or app install needed. Fork of Rohithkadaveru/ha-pass adding: advance/recurring access windows (schedule a link today that only activates on a future date, or repeats weekly), automatic link delivery via any notify.* service, button/input_button support (for gate/door relay helper entities), local-network-only command execution for access-type domains (lock/cover/button/input_button - the link stays viewable from anywhere, but triggering the action requires being on the configured home network), and single-device link binding (the first browser to open a link claims it, so it can't be casually forwarded). Requires an existing Home Assistant instance reachable from this container and a Long-Lived Access Token (HA Profile -> Security -> Long-Lived Access Tokens). This is a standalone Docker container, not a Home Assistant Supervisor add-on - it works with Home Assistant Core installs that don't have Supervisor/add-ons.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/ha-pass-invitations",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database (tokens, access log)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5880",
+      "container": "5880",
+      "protocol": "tcp",
+      "description": "Port for the admin dashboard and guest links",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HA_BASE_URL",
+      "key": "HA_BASE_URL",
+      "value": "",
+      "description": "Base URL of your Home Assistant instance, e.g. http://192.168.1.10:8123 (no trailing slash)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HA_TOKEN",
+      "key": "HA_TOKEN",
+      "value": "",
+      "description": "Home Assistant Long-Lived Access Token (Profile -&gt; Security -&gt; Long-Lived Access Tokens)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "ADMIN_USERNAME",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Username for the admin dashboard",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password for the admin dashboard (min 8 characters)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "TIMEZONE",
+      "key": "TIMEZONE",
+      "value": "UTC",
+      "description": "IANA timezone used to evaluate recurring weekly access windows, e.g. Europe/Madrid",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCAL_NETWORK_CIDRS",
+      "key": "LOCAL_NETWORK_CIDRS",
+      "value": "",
+      "description": "JSON array of CIDRs considered your home network, e.g. [&quot;192.168.0.0/16&quot;]. When set, guests can only trigger locks/covers/buttons while connected to one of these ranges. Leave empty for no restriction.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRUSTED_PROXIES",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "JSON array of CIDRs whose X-Forwarded-For header is believed, e.g. [&quot;192.168.1.5/32&quot;] for your reverse proxy. Leave empty to trust loopback and private ranges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GUEST_URL",
+      "key": "GUEST_URL",
+      "value": "",
+      "description": "External base URL for guest links, e.g. https://guest.myhouse.com. Leave empty to use the local network address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_NAME",
+      "key": "APP_NAME",
+      "value": "Home Access",
+      "description": "Display name shown to guests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CONTACT_MESSAGE",
+      "key": "CONTACT_MESSAGE",
+      "value": "Please request a new link from the person who shared this one.",
+      "description": "Message shown when a guest link expires",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BRAND_BG",
+      "key": "BRAND_BG",
+      "value": "#F2F0E9",
+      "description": "Background color (hex) shown to guests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BRAND_PRIMARY",
+      "key": "BRAND_PRIMARY",
+      "value": "#D9523C",
+      "description": "Accent/button color (hex) shown to guests",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ACCESS_LOG_RETENTION_DAYS",
+      "key": "ACCESS_LOG_RETENTION_DAYS",
+      "value": "90",
+      "description": "Days to keep guest access log entries",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "5880",
+      "description": "Internal listen port (only change if you also change the WebUI Port mapping above)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

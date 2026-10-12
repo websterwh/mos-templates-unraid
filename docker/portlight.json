@@ -1,0 +1,131 @@
+{
+  "name": "port-light",
+  "repo": "stepaniah/port-light:v0.8.5",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/stepaniah/port-light/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2100]/",
+  "icon": "https://raw.githubusercontent.com/StepaniaH/port-light/main/docs/icon.png",
+  "project": "https://github.com/StepaniaH/port-light",
+  "description": "Port occupancy map for a Docker host. Shows host listeners and container mappings in a traffic-light grid. Compose scanning is optional. Can pull occupancy JSON from other Port-Light instances. Includes a CLI and MCP server for port checks and reservations.",
+  "paths": [
+    {
+      "name": "Compose stacks",
+      "host": "",
+      "container": "/compose",
+      "mode": "ro",
+      "description": "Optional folder of Compose projects (read-only). Leave empty if unused. After mapping a folder, enable Compose in Port-Light Settings - Machines &amp; scanning.",
+      "required": false
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker API socket; a read-only mount does not restrict Docker API permissions",
+      "required": true
+    },
+    {
+      "name": "Host proc",
+      "host": "/proc",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "Host /proc for listen detection (read-only)",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/port-light",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Settings, reservations, manual entries, CLI credentials, and SQLite history",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "2100",
+      "container": "2100",
+      "protocol": "tcp",
+      "description": "Port-Light web UI",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Enabled scanners",
+      "key": "PORT_LIGHT_SCANNERS",
+      "value": "listen,docker",
+      "description": "Default sources: listen,docker. Add compose only after mapping Compose stacks. Saved scanner choices in Port-Light Settings take precedence.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HIDDEN_UNLOCK_PASSWORD",
+      "key": "HIDDEN_UNLOCK_PASSWORD",
+      "value": "",
+      "description": "Optional password to reveal hidden ports in the API",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AGENT_TOKEN",
+      "key": "AGENT_TOKEN",
+      "value": "",
+      "description": "Optional token required for allocation and recovery requests",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "COMPOSE_SCAN_DIR",
+      "key": "COMPOSE_SCAN_DIR",
+      "value": "/compose",
+      "description": "In-container compose scan path",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "URL_HOST",
+      "key": "URL_HOST",
+      "value": "",
+      "description": "Hostname for guessed http(s) links (optional)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THEME_MODE",
+      "key": "THEME_MODE",
+      "value": "system",
+      "description": "system, dark, or light",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "THEME_PALETTE",
+      "key": "THEME_PALETTE",
+      "value": "",
+      "description": "Optional named palette (gruvbox, catppuccin, nord, \u2026); empty uses the built-in colors",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOCALE",
+      "key": "LOCALE",
+      "value": "auto",
+      "description": "auto, en, fr, de, es, zh-CN, zh-TW, or ja",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

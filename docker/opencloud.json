@@ -2,94 +2,150 @@
   "name": "opencloud",
   "repo": "opencloudeu/opencloud-rolling",
   "category": [
-    "Productivity"
+    "System"
   ],
-  "registry": "https://hub.docker.com/r/opencloudeu/opencloud-rolling/",
+  "registry": "https://hub.docker.com/r/opencloudeu/opencloud-rolling",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": null,
-  "post_parameters": "init",
+  "extra_parameters": "--entrypoint /bin/sh",
+  "post_parameters": "-c opencloud init || true; opencloud server",
   "web_ui_url": "https://[IP]:[PORT:9200]",
-  "icon": "https://raw.githubusercontent.com/mcreekmore/unraid-templates/refs/heads/main/opencloud/opencloud.png",
-  "project": "https://docs.opencloud.eu/",
-  "description": "https://hub.docker.com/r/opencloudeu/opencloud-rolling/ Ensure that the OpenCloud config and OpenCloud data directories are created before running and that the Unraid user 'nobody' has read/write access. This container requires a first time boot to initialize, so it will stop on first boot to establish the IDM_ADMIN_PASSWORD. Once it has stopped, remove \"init\" from the \"Post Arguments\" under the advanced view and restart the container.",
+  "icon": "https://avatars.githubusercontent.com/u/188916550?s=200&v=4",
+  "project": "https://opencloud.eu/",
+  "description": "Welcome to OpenCloud, your self-hosted file sharing platform: Secure, simple and reliable. Documentation: https://docs.opencloud.eu/docs/admin/intro Before first run: 1. Create the directories with chmod 751 2. Set the owner to the user with UID 1000",
   "paths": [
     {
-      "name": "OpenCloud config",
-      "host": "/mnt/cache/appdata/opencloud",
+      "name": "Config",
+      "host": "/mnt/cache/appdata/opencloud/config",
       "container": "/etc/opencloud",
       "mode": "rw",
       "description": null,
       "required": true
     },
     {
-      "name": "OpenCloud data",
-      "host": "",
+      "name": "Data",
+      "host": "/mnt/cache/opencloud/data",
       "container": "/var/lib/opencloud",
       "mode": "rw",
-      "description": null,
+      "description": "Where OpenCloud stores files",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Container Port 1",
+      "name": "WebUI Port",
       "host": "9200",
       "container": "9200",
       "protocol": "tcp",
       "description": null,
-      "required": false,
+      "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "IDM_ADMIN_PASSWORD",
+      "name": "OpenCloud URL",
+      "key": "OC_URL",
+      "value": "https://opencloud.mydomain.tld",
+      "description": "Address where you access OpenCloud",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
       "key": "IDM_ADMIN_PASSWORD",
-      "value": "admin",
-      "description": "If not set, a password will be auto-generated",
+      "value": "",
+      "description": "Overrides generated administrator password in config.",
       "required": false,
       "mask": true
     },
     {
-      "name": "OC_INSECURE",
+      "name": "INSECURE",
       "key": "OC_INSECURE",
-      "value": "true",
+      "value": "false",
+      "description": "INSECURE: Needed if OpenCloud / Traefik is using self generated certificates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow Basic Auth",
+      "key": "PROXY_ENABLE_BASIC_AUTH",
+      "value": "false",
+      "description": "Not recommended, but needed for eg. WebDav clients that do not support OpenID Connect",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Sender",
+      "key": "NOTIFICATIONS_SMTP_SENDER",
+      "value": "",
       "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "PROXY_HTTP_ADDR",
-      "key": "PROXY_HTTP_ADDR",
-      "value": "0.0.0.0:9200",
+      "name": "SMTP Username",
+      "key": "NOTIFICATIONS_SMTP_USERNAME",
+      "value": "",
       "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "OC_URL",
-      "key": "OC_URL",
-      "value": "https://cloud.example.com",
-      "description": "If you're using a reverse proxy, put your URL. (ex. https://cloud.example.com)",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
+      "name": "SMTP Host",
+      "key": "NOTIFICATIONS_SMTP_HOST",
+      "value": "",
       "description": null,
       "required": false,
       "mask": false
     },
     {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
+      "name": "SMTP Port",
+      "key": "NOTIFICATIONS_SMTP_PORT",
+      "value": "587",
       "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP Password",
+      "key": "NOTIFICATIONS_SMTP_PASSWORD",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP Encryption Type",
+      "key": "NOTIFICATIONS_SMTP_ENCRYPTION",
+      "value": "starttls",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Collabora Domain",
+      "key": "COLLABORA_DOMAIN",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OnlyOffice Domain",
+      "key": "ONLYOFFICE_DOMAIN",
+      "value": "",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Additional Services",
+      "key": "START_ADDITIONAL_SERVICES",
+      "value": "\"notifications\"",
+      "description": "Add any services to the startup list comma separated",
       "required": false,
       "mask": false
     }

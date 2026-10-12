@@ -1,0 +1,107 @@
+{
+  "name": "LiftTrace",
+  "repo": "ghcr.io/traceapps/lifttrace:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/orgs/TraceApps/packages/container/package/lifttrace",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3002]/",
+  "icon": "https://raw.githubusercontent.com/TraceApps/unraid-templates/main/icons/lifttrace.png",
+  "project": "https://github.com/TraceApps/lifttrace",
+  "description": "LiftTrace is a self-hosted weightlifting tracker. Log sets with weight, reps and RPE, run multi-week programs from starter templates or your own, and pick exercises from a library drawn from wger, Free Exercise DB and ExerciseDB, plus your own custom exercises. Statistics cover progress per exercise, records, volume, frequency and body weight, with automatic PR detection and dated progress photos. Trainer accounts can prescribe workouts to athletes, and you can import your history from Strong, Hevy, FitNotes, Jefit or Garmin FIT files. Multi-user with OIDC single sign-on and a native Android app. No telemetry and no accounts on external services; your data stays in your appdata folder. Before the first start, fill in JWT Secret with a long random string, for example the output of openssl rand -base64 48. Insecure Cookies starts at 1 so that signing in works over plain http:// on your LAN, which is how the WebUI link opens the app. Once the app sits behind an HTTPS reverse proxy, set it to 0.",
+  "paths": [
+    {
+      "name": "Database",
+      "host": "/mnt/cache/appdata/lifttrace/db",
+      "container": "/data/db",
+      "mode": "rw",
+      "description": "Folder for the SQLite database (lifttrace.db). Back up this folder and the Uploads folder.",
+      "required": true
+    },
+    {
+      "name": "Uploads",
+      "host": "/mnt/cache/appdata/lifttrace/uploads",
+      "container": "/data/uploads",
+      "mode": "rw",
+      "description": "Folder for photos and other uploaded files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3002",
+      "container": "3002",
+      "protocol": "tcp",
+      "description": "Port for the web interface. Change the host port if 3002 is already taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JWT Secret",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Required. Signs sign-in sessions and protects stored secrets. Use a long random string, for example the output of: openssl rand -base64 48. Keep it secret and keep it the same: changing it signs everyone out and makes stored sign-in and connection secrets unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Insecure Cookies",
+      "key": "INSECURE_COOKIES",
+      "value": "1",
+      "description": "1: sign-in works over plain http://, the way the WebUI link opens the app on your LAN. Session cookies then travel unencrypted, so keep the app on a network you trust. 0: session cookies are HTTPS-only. Use 0 behind an HTTPS reverse proxy; over plain http:// the browser drops them and signing in sends you back to the login page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Optional. Serve the app under a subpath behind a reverse proxy, for example /lifttrace. Empty: served at the root.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery Token",
+      "key": "RECOVERY_TOKEN",
+      "value": "",
+      "description": "Optional. Turns on the lockout recovery option on the login page (Disable user management), which asks for this token. Empty: recovery stays off.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "How much the server logs. Default: info.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Database File",
+      "key": "DB_PATH",
+      "value": "/data/db/lifttrace.db",
+      "description": "Database file inside the container. Leave as is: it sits in the Database folder above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uploads Folder",
+      "key": "UPLOADS_PATH",
+      "value": "/data/uploads",
+      "description": "Uploads folder inside the container. Leave as is: it is the Uploads folder above.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

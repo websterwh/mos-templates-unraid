@@ -1,0 +1,99 @@
+{
+  "name": "Maison",
+  "repo": "ghcr.io/yundera/maison:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/Yundera/Maison/pkgs/container/maison",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/Yundera/Maison/main/web/brand/icon.svg",
+  "project": "https://github.com/Yundera/Maison",
+  "description": "Maison is a lightweight self-hosted dashboard for managing Docker apps on a single host. It is a dashboard-only reimagining of CasaOS: same look, same feel, same app store \u2014 but stripped down to a home screen for your apps and a store to install more. Ships as one container: a Go binary with Svelte UI, no database required.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/maison",
+      "container": "/DATA",
+      "mode": "rw",
+      "description": "Host path for app data. Apps installed by Maison bind their volumes here.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Docker socket for managing containers on the host",
+      "required": true
+    },
+    {
+      "name": "Host Proc",
+      "host": "/proc",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "Host /proc mount for system resource monitoring",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Maison dashboard web interface port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DATA_ROOT",
+      "key": "DATA_ROOT",
+      "value": "/DATA",
+      "description": "Data folder path inside the container",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATA_HOST_PATH",
+      "key": "DATA_HOST_PATH",
+      "value": "/mnt/user/appdata/maison",
+      "description": "Host path of the data folder. Must match the Data Path mount source.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,91 @@
+{
+  "name": "Norri",
+  "repo": "registry.norri.tv/norri:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://norri.tv/docs/getting-started/installation-unraid/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--log-driver=local --log-opt=max-size=10m --log-opt=max-file=3 --tmpfs=/run:rw,exec,size=16m,mode=0755 --security-opt=no-new-privileges:true --stop-timeout=45",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:11423]/",
+  "icon": "https://norri.tv/apple-touch-icon.png",
+  "project": "https://norri.tv",
+  "description": "Norri is a fast, privacy-focused media server for your movies, TV shows and music. Your library and playback history stay on your server, with no Norri cloud account or usage telemetry. The server and web app are free, with all server features included. This Unraid template installs the server, database and transcoder together. Native apps for iPhone, iPad and Apple TV are currently available free through TestFlight. Optional hardware transcoding: Intel (including Arc) and AMD use a /dev/dri Device mapping. NVIDIA uses the Nvidia Driver plugin, --runtime=nvidia, NVIDIA_VISIBLE_DEVICES and NVIDIA_DRIVER_CAPABILITIES. Open Read Me for the exact GPU setup steps and how to find your GPU ID. Join our Discord for support, discussion and announcements. Installation guides and Apple app links are also available at norri.tv. Unraid\u00ae is a registered trademark of Lime Technology, Inc. This application is not affiliated with, endorsed, or sponsored by Lime Technology, Inc.",
+  "paths": [
+    {
+      "name": "Movies",
+      "host": "",
+      "container": "/media/movies",
+      "mode": "ro",
+      "description": "Select your existing Unraid movies folder. It appears at /media/movies in Norri. Leave blank if unused; no deletion needed.",
+      "required": false
+    },
+    {
+      "name": "TV shows",
+      "host": "",
+      "container": "/media/tv-shows",
+      "mode": "ro",
+      "description": "Select your existing Unraid TV folder. It appears at /media/tv-shows in Norri. Leave blank if unused; no deletion needed.",
+      "required": false
+    },
+    {
+      "name": "Music",
+      "host": "",
+      "container": "/media/music",
+      "mode": "ro",
+      "description": "Select your existing Unraid music folder. It appears at /media/music in Norri. Leave blank if unused; no deletion needed.",
+      "required": false
+    },
+    {
+      "name": "Norri appdata",
+      "host": "/mnt/cache/appdata/norri/data",
+      "container": "/var/lib/norri",
+      "mode": "rw",
+      "description": "Persistent settings, artwork and cache. SSD/NVMe recommended: use an exclusive appdata share or a direct pool Host Path. Read Me explains both. Keep this folder when updating or reinstalling; move existing data before changing its path.",
+      "required": true
+    },
+    {
+      "name": "Norri database",
+      "host": "/mnt/cache/appdata/norri/database",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Persistent database. SSD/NVMe recommended: use an exclusive appdata share or a direct pool Host Path. Read Me explains both. Keep this folder when updating or reinstalling; move existing data before changing its path. Must be separate from Norri appdata and media.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web interface",
+      "host": "11423",
+      "container": "11423",
+      "protocol": "tcp",
+      "description": "Open Norri using this port. Change the host port if another container already uses 11423.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Unraid's standard nobody user. Change only if your media uses a different user ID.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Unraid's standard users group. Change only if your media uses a different group ID.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,10 +1,10 @@
 {
-  "name": "tpdb-jellyfin-poster-manager",
-  "repo": "tpdb-jellyfin-poster-manager:docker",
+  "name": "jellyfin-poster-manager",
+  "repo": "ghcr.io/thecommishdeuce/jellyfin-poster-manager:latest",
   "category": [
     "Media"
   ],
-  "registry": "https://registry.hub.docker.com/_/tpdb-jellyfin-poster-manager",
+  "registry": "https://ghcr.io/thecommishdeuce/jellyfin-poster-manager",
   "network": "bridge",
   "custom_ip": null,
   "default_shell": "sh",
@@ -12,38 +12,38 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:5001]/",
-  "icon": "https://raw.githubusercontent.com/Soitora/TPDB_JellyfinPosterManager/docker/static/images/favicon.ico",
-  "project": "https://github.com/Soitora/TPDB_JellyfinPosterManager/tree/docker",
-  "description": "Jellyfin Poster Manager finds and uploads posters from ThePosterDB to Jellyfin. This temporary template uses the locally built image tag tpdb-jellyfin-poster-manager:docker, sourced from the project's docker branch. Build the image before installing or updating this container: docker build --pull --tag tpdb-jellyfin-poster-manager:docker https://github.com/Soitora/TPDB_JellyfinPosterManager.git#docker The app has no authentication. Do not expose its web interface to the public internet. The container runs as UID 10001, so its data, cache, and logs directories must be writable by that user.",
+  "icon": "https://raw.githubusercontent.com/Soitora/Unraid-Templates/refs/heads/main/jellyfin-poster-manager/logo.png",
+  "project": "https://github.com/TheCommishDeuce/TPDB_JellyfinPosterManager",
+  "description": "Jellyfin Poster Manager finds and uploads posters from ThePosterDB to Jellyfin. The app has no authentication. Do not expose its web interface to the public internet. The container initializes ownership of its data, cache, and logs directories, then runs as PUID:PGID (default 99:100, Unraid's nobody:users). Changing these IDs also changes ownership of existing files in the mapped directories. UMASK controls permissions for new files.",
   "paths": [
     {
       "name": "Application data",
-      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/data",
+      "host": "/mnt/cache/appdata/jellyfin-poster-manager/data",
       "container": "/app/data",
       "mode": "rw",
-      "description": "Durable SQLite state, jobs, selections, and settings. Must be writable by UID 10001.",
+      "description": "Durable SQLite state, jobs, selections, and settings. Ownership is initialized to the configured PUID:PGID at startup.",
       "required": true
     },
     {
       "name": "Cache",
-      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/cache",
+      "host": "/mnt/cache/appdata/jellyfin-poster-manager/cache",
       "container": "/app/cache",
       "mode": "rw",
-      "description": "Disposable poster-picker cache and temporary images. Must be writable by UID 10001.",
+      "description": "Disposable poster-picker cache and temporary images. Ownership is initialized to the configured PUID:PGID at startup.",
       "required": true
     },
     {
       "name": "Logs",
-      "host": "/mnt/cache/appdata/tpdb-jellyfin-poster-manager/logs",
+      "host": "/mnt/cache/appdata/jellyfin-poster-manager/logs",
       "container": "/app/logs",
       "mode": "rw",
-      "description": "Application logs and optional ThePosterDB debug snapshots. Must be writable by UID 10001.",
+      "description": "Application logs and optional ThePosterDB debug snapshots. Ownership is initialized to the configured PUID:PGID at startup.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Web UI port",
+      "name": "WebUI port",
       "host": "5001",
       "container": "5001",
       "protocol": "tcp",
@@ -100,6 +100,22 @@
       "description": "A long, randomly generated value used for Flask sessions. Set this before use and retain it across updates.",
       "required": true,
       "mask": true
+    },
+    {
+      "name": "ThePosterDB base URL",
+      "key": "TPDB_BASE_URL",
+      "value": "https://theposterdb.com",
+      "description": "ThePosterDB endpoint. Normally leave the default unchanged.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ThePosterDB search URL template",
+      "key": "TPDB_SEARCH_URL_TEMPLATE",
+      "value": "https://theposterdb.com/search?term={query}",
+      "description": "ThePosterDB search endpoint; {query} is replaced with the search term. Normally leave the default unchanged.",
+      "required": true,
+      "mask": false
     },
     {
       "name": "Web host",
@@ -163,6 +179,30 @@
       "value": "false",
       "description": "Save ThePosterDB challenge pages to the logs directory. Enable only while troubleshooting.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": null,
+      "required": false,
       "mask": false
     }
   ],

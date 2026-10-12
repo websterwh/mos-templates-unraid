@@ -1,0 +1,75 @@
+{
+  "name": "Pantrix",
+  "repo": "ghcr.io/007darkmatter5/pantrix:production",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/007darkmatter5/pantrix/pkgs/container/pantrix",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/007darkmatter5/pantrix/main/docs/images/icon.png",
+  "project": "https://github.com/007darkmatter5/pantrix",
+  "description": "Pantrix is a self-hosted kitchen planner. Save recipes and the ingredients they use, keep track of what is in your refrigerator, freezer and pantry, and plan meals on a calendar. A recipe line can accept substitutes (\"penne or elbow pasta\"), and a planned meal can be a recipe, a single ingredient such as a packaged meal, or eating out. The shopping list writes itself: it always holds what your upcoming meals need plus anything below the minimum you set, less what you already have. Add your own items, check things off as you shop, and save one-off items as ingredients for next time. Add the stores you shop at and record which aisle each item is in at each one. Pick the store on a shopping list and it sorts into walking order. Each item can also carry the exact product you usually buy and a link to its page on the store's website. Store addresses can be looked up through OpenStreetMap. With the optional Pantrix-Browser container installed, Pantrix can also look aisles up on store websites that show them (H-E-B is tested), when you ask it to. Several people can use one install. Each account has a kitchen of its own that nobody else can see, and a kitchen's owner can share a join code so a partner or housemate works in the same one. The first account you create becomes the admin, who can close sign-ups once everyone has an account. Everything is stored in the appdata folders below. Keep the keys folder with the data folder: it holds the encryption keys for sign-ins. To reach Pantrix from outside your network, put it behind a reverse proxy with HTTPS and set \"Behind a reverse proxy\" to true.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/pantrix/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database (pantrix.db).",
+      "required": true
+    },
+    {
+      "name": "Keys",
+      "host": "/mnt/cache/appdata/pantrix/keys",
+      "container": "/keys",
+      "mode": "rw",
+      "description": "Encryption keys for sign-ins. Back these up with the data.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "5057",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Pantrix web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID Pantrix runs as. It owns the data and keys folders.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID Pantrix runs as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Behind a reverse proxy",
+      "key": "ASPNETCORE_FORWARDEDHEADERS_ENABLED",
+      "value": "false",
+      "description": "Set to true when a reverse proxy (SWAG, Nginx Proxy Manager, Traefik) handles HTTPS in front of Pantrix.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,227 @@
+{
+  "name": "oauth2-proxy",
+  "repo": "quay.io/oauth2-proxy/oauth2-proxy:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://quay.io/repository/oauth2-proxy/oauth2-proxy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4180]",
+  "icon": "https://raw.githubusercontent.com/oauth2-proxy/oauth2-proxy/master/docs/static/img/logos/OAuth2_Proxy_icon.png",
+  "project": "https://oauth2-proxy.github.io/oauth2-proxy/",
+  "description": "Puts a login in front of web apps that have none of their own. Your reverse proxy asks this container, on every request, whether the visitor is signed in; if not, the visitor is sent to your identity provider (ZITADEL, Keycloak, Authentik, Authelia, Google, GitHub...) and only comes back once authenticated. Typical use: an Nginx Proxy Manager host with an \"auth_request\" block in its Advanced tab pointing here, so the app itself is never reachable without a login. One container can protect any number of sites: leave the redirect URL as a path only and it derives the right absolute URL from each request, and a shared cookie domain means one login covers all of them. Every setting below maps to an oauth2-proxy option of the same name. The four you must fill in are the issuer URL, the client ID and secret from your provider, and the cookie secret. The ready-to-paste reverse proxy snippet and a step-by-step walkthrough are in the repository README. IMPORTANT: this container is a gate, not a proxy. It is meant to be used with \"Upstreams = static://202\", letting your reverse proxy do the actual proxying. Anyone whose e-mail is in the allow-list file gets into everything behind the same instance, so use a separate instance for a different audience.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/oauth2-proxy",
+      "container": "/data",
+      "mode": "ro",
+      "description": "Folder holding the allow-list file. Mounted read-only on purpose.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "4180",
+      "container": "4180",
+      "protocol": "tcp",
+      "description": "Port your reverse proxy will point at. Nothing else should be able to reach it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Listen address",
+      "key": "OAUTH2_PROXY_HTTP_ADDRESS",
+      "value": "0.0.0.0:4180",
+      "description": "Address inside the container. Leave as is unless you change the port above too.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Provider",
+      "key": "OAUTH2_PROXY_PROVIDER",
+      "value": "oidc",
+      "description": "Keep 'oidc' for any standards-compliant provider (ZITADEL, Keycloak, Authentik, Authelia...). Other values such as google or github are also supported.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Issuer URL",
+      "key": "OAUTH2_PROXY_OIDC_ISSUER_URL",
+      "value": "",
+      "description": "Public HTTPS address of your identity provider, exactly as it appears in the 'issuer' field of its /.well-known/openid-configuration. No trailing slash.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Client ID",
+      "key": "OAUTH2_PROXY_CLIENT_ID",
+      "value": "",
+      "description": "Client ID of the application you registered at the provider.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Client secret",
+      "key": "OAUTH2_PROXY_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret of that same application.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Redirect URL",
+      "key": "OAUTH2_PROXY_REDIRECT_URL",
+      "value": "/oauth2/callback",
+      "description": "Leave it as a path only and the absolute URL is derived from the host of each request, so one container serves many sites. Every one of those sites must be registered as a redirect URI at your provider, as https://site/oauth2/callback.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Cookie secret",
+      "key": "OAUTH2_PROXY_COOKIE_SECRET",
+      "value": "",
+      "description": "32 random bytes, base64. Generate with: openssl rand -base64 32 . Changing it signs everyone out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cookie domains",
+      "key": "OAUTH2_PROXY_COOKIE_DOMAINS",
+      "value": "",
+      "description": "Domains the session cookie is issued for, comma separated. A leading dot covers subdomains (.example.com), so a single login is shared by every protected site under it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allowed redirect domains",
+      "key": "OAUTH2_PROXY_WHITELIST_DOMAINS",
+      "value": "",
+      "description": "Domains the proxy may send the visitor back to after login, comma separated. A leading dot allows subdomains. Anything not listed here is refused, which is what stops an open redirect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secure cookie",
+      "key": "OAUTH2_PROXY_COOKIE_SECURE",
+      "value": "true",
+      "description": "Only send the session cookie over HTTPS. Leave true unless you are testing over plain HTTP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Session lifetime",
+      "key": "OAUTH2_PROXY_COOKIE_EXPIRE",
+      "value": "8h",
+      "description": "How long a login lasts before the visitor has to authenticate again.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "E-mail domains",
+      "key": "OAUTH2_PROXY_EMAIL_DOMAINS",
+      "value": "*",
+      "description": "Accepted e-mail domains. Set to * when you filter with the allow-list file below instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow-list file",
+      "key": "OAUTH2_PROXY_AUTHENTICATED_EMAILS_FILE",
+      "value": "/data/authenticated-emails.txt",
+      "description": "File with one allowed e-mail address per line, inside the Data folder above. The container watches it, so adding someone does not need a restart. Without it, every account at your provider gets in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Upstreams",
+      "key": "OAUTH2_PROXY_UPSTREAMS",
+      "value": "static://202",
+      "description": "Leave as static://202 when your reverse proxy does the proxying (auth_request). Point it at an app URL only if you want this container to proxy the traffic itself.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Behind reverse proxy",
+      "key": "OAUTH2_PROXY_REVERSE_PROXY",
+      "value": "true",
+      "description": "Trust X-Forwarded-* headers, but only from the addresses listed below.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxy IPs",
+      "key": "OAUTH2_PROXY_TRUSTED_PROXY_IPS",
+      "value": "",
+      "description": "CIDR of your reverse proxy, for example 192.168.1.10/32. Fill this in: leaving it empty lets any client claim any IP address in the logs and in rate limiting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip provider button",
+      "key": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON",
+      "value": "true",
+      "description": "Go straight to the provider instead of showing an extra 'Sign in' page first.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Scope",
+      "key": "OAUTH2_PROXY_SCOPE",
+      "value": "openid email profile",
+      "description": "OIDC scopes requested at login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PKCE method",
+      "key": "OAUTH2_PROXY_CODE_CHALLENGE_METHOD",
+      "value": "S256",
+      "description": "Proof Key for Code Exchange. Leave S256 if your provider supports it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pass auth headers",
+      "key": "OAUTH2_PROXY_SET_XAUTHREQUEST",
+      "value": "true",
+      "description": "Return X-Auth-Request-User and X-Auth-Request-Email to the reverse proxy, so a protected app can know who is signed in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Real client IP header",
+      "key": "OAUTH2_PROXY_REAL_CLIENT_IP_HEADER",
+      "value": "X-Real-IP",
+      "description": "Header used to work out the visitor's address for logging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed groups",
+      "key": "OAUTH2_PROXY_ALLOWED_GROUP",
+      "value": "",
+      "description": "Optional: restrict logins to members of these groups, as they appear in the groups claim of your provider's token. Leave empty to rely on the allow-list file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Madrid",
+      "description": "Container time zone, used in the log timestamps.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

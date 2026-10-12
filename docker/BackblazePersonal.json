@@ -1,0 +1,444 @@
+{
+  "name": "Backblaze-Personal",
+  "repo": "allornothing/backblaze-personal:latest",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/allornothing/backblaze-personal",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5800]/",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/backblaze.png",
+  "project": "https://github.com/aon082910/backblaze-personal",
+  "description": "Backblaze Personal Backup running under Wine in a container, with a browser desktop (no VNC client needed) and a monitor, status and settings dashboard beside it. This is a fork of iamfoz/backblaze-64-personal-wine-container with a Container tab that changes every setting below from the browser, update notices for the image, Wine and the Backblaze client, and a template that exposes every option. Not affiliated with or supported by Backblaze. The container needs read-write access to what it backs up: Backblaze writes a .bzvol folder into the root of every drive. Map each folder you want protected to /drive_d, /drive_e and so on. Image tags (edit the Repository field to switch): latest = WineHQ stable, pins client 10.0.1.1069; latest-patched = the fork's patched Wine, fixes on, follows the newest client; beta = patched Wine with the performance patches on, weekly; ubuntu26 = early access. On a patched or beta tag, clear Pin the Backblaze client. First start: open the Web UI, sign in to your Backblaze account in the desktop, and let the first backup run. Nothing is sent to this project; update checks fetch version numbers from Docker Hub, WineHQ and Backblaze only. Moving from iamfoz's template: point Config at the same appdata folder and the Wine prefix and your Backblaze identity carry over. Do not run two containers on one folder.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/backblaze-personal",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage for the Wine prefix, your Backblaze identity and every setting saved on the Container tab. Must survive restarts. Back this folder up.",
+      "required": true
+    },
+    {
+      "name": "Backup Source (Drive D)",
+      "host": "",
+      "container": "/drive_d/",
+      "mode": "rw",
+      "description": "Optional: a host folder to back up as drive D:. Must be read-write: Backblaze creates a .bzvol folder in the drive's root. For more drives add another Path with Container Path /drive_h/ and so on up to /drive_z/.",
+      "required": false
+    },
+    {
+      "name": "Backup Source (Drive E)",
+      "host": "",
+      "container": "/drive_e/",
+      "mode": "rw",
+      "description": "Optional: a host folder to back up as drive E:. Must be read-write: Backblaze creates a .bzvol folder in the drive's root. For more drives add another Path with Container Path /drive_h/ and so on up to /drive_z/.",
+      "required": false
+    },
+    {
+      "name": "Backup Source (Drive F)",
+      "host": "",
+      "container": "/drive_f/",
+      "mode": "rw",
+      "description": "Optional: a host folder to back up as drive F:. Must be read-write: Backblaze creates a .bzvol folder in the drive's root. For more drives add another Path with Container Path /drive_h/ and so on up to /drive_z/.",
+      "required": false
+    },
+    {
+      "name": "Backup Source (Drive G)",
+      "host": "",
+      "container": "/drive_g/",
+      "mode": "rw",
+      "description": "Optional: a host folder to back up as drive G:. Must be read-write: Backblaze creates a .bzvol folder in the drive's root. For more drives add another Path with Container Path /drive_h/ and so on up to /drive_z/.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "5800",
+      "container": "5800",
+      "protocol": "tcp",
+      "description": "Port for the browser desktop, the monitor and the Container tab. With a custom network (br0) or host networking set Web port inside the container instead.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "VNC Port",
+      "host": "5900",
+      "container": "5900",
+      "protocol": "tcp",
+      "description": "Port for a VNC client. Leave unmapped if you only use the browser.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "User ID",
+      "key": "USER_ID",
+      "value": "500",
+      "description": "The user ID the app runs as. It must own the files it backs up, because Backblaze writes a .bzvol folder into the root of every drive. Find yours with: id -u Not 0. Files already in /config keep their old owner until the container takes ownership at start. (1 to 65534)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "GROUP_ID",
+      "value": "500",
+      "description": "The group ID the app runs as. Find yours with: id -g (1 to 65534)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Supplementary group IDs",
+      "key": "SUP_GROUP_IDS",
+      "value": "",
+      "description": "Comma-separated extra groups, for a share that is group-readable only. Empty for none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File creation mask",
+      "key": "UMASK",
+      "value": "0022",
+      "description": "Octal mask for files the app creates. 0022 is readable by everyone, writable by the owner; 0000 is writable by everyone, the usual Unraid choice.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "A tz database name such as America/New_York. Backup schedules, quiet hours and log times follow it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Screen width",
+      "key": "DISPLAY_WIDTH",
+      "value": "900",
+      "description": "Width in pixels of the virtual screen. Must be divisible by 4. (400 to 7680)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Screen height",
+      "key": "DISPLAY_HEIGHT",
+      "value": "700",
+      "description": "Height in pixels of the virtual screen. Must be divisible by 4. (300 to 4320)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Wine's virtual desktop",
+      "key": "DISABLE_VIRTUAL_DESKTOP",
+      "value": "false",
+      "description": "Draw Backblaze's windows directly on the screen instead of inside one Wine desktop window.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Dark mode",
+      "key": "DARK_MODE",
+      "value": "0",
+      "description": "Use a dark theme for the browser desktop's own controls. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Chinese, Japanese and Korean font",
+      "key": "ENABLE_CJK_FONT",
+      "value": "0",
+      "description": "Installs the WenQuanYi Zen Hei font at start, for file names in those scripts. Needs internet access at start. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pin the Backblaze client",
+      "key": "BACKBLAZE_VERSION",
+      "value": "10.0.1.1069",
+      "description": "Run exactly this client version, for example 10.0.1.1069. At each start the container installs it if a different one is there, newer or older, and skips the update check. Empty lets the two switches below decide. The stable image pins 10.0.1.1069 because 10.0.3.1075 completes no backup pass under WineHQ's Wine; the patched and beta images follow Backblaze's newest. Pinning a client that needs the Wine service-token fix on an image without it will stall backups.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update the client at every start",
+      "key": "FORCE_LATEST_UPDATE",
+      "value": "true",
+      "description": "Download the newest Backblaze client at each start. Off keeps the installed version and skips the check.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip the update check at start",
+      "key": "DISABLE_AUTOUPDATE",
+      "value": "false",
+      "description": "Start faster by not asking Backblaze for a newer client. The client's own updater is separate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web port inside the container",
+      "key": "WEB_LISTENING_PORT",
+      "value": "5800",
+      "description": "Change only when the container shares the host's network and 5800 is taken. With a bridge network leave it and change the port mapping instead. (1 to 65535)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC port inside the container",
+      "key": "VNC_LISTENING_PORT",
+      "value": "5900",
+      "description": "As above, for VNC clients. (1 to 65535)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File manager in the browser",
+      "key": "WEB_FILE_MANAGER",
+      "value": "0",
+      "description": "Adds a file manager to the desktop's side panel, for looking at what is mapped into the container. Anyone who can open the desktop can then browse the allowed paths. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File manager: allowed paths",
+      "key": "WEB_FILE_MANAGER_ALLOWED_PATHS",
+      "value": "AUTO",
+      "description": "AUTO allows the mapped folders. Otherwise a comma-separated list of paths.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "File manager: denied paths",
+      "key": "WEB_FILE_MANAGER_DENIED_PATHS",
+      "value": "",
+      "description": "Comma-separated paths the file manager must not show.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Terminal in the browser",
+      "key": "WEB_TERMINAL",
+      "value": "0",
+      "description": "Adds a shell to the desktop's side panel. Anyone who can open the desktop gets a shell as the app's user. Turn the web login on first. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Desktop notifications",
+      "key": "WEB_NOTIFICATION",
+      "value": "0",
+      "description": "Show the desktop's own notifications as browser notifications. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Clipboard sync",
+      "key": "WEB_HOST_CLIPBOARD_SYNC",
+      "value": "1",
+      "description": "Copy and paste between your computer and the desktop. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web interface on localhost only",
+      "key": "WEB_LOCALHOST_ONLY",
+      "value": "0",
+      "description": "Listen on 127.0.0.1 only, for use behind a reverse proxy in the same network namespace. Nothing outside the container can reach the desktop, or this page, while it is on. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC on localhost only",
+      "key": "VNC_LOCALHOST_ONLY",
+      "value": "0",
+      "description": "Do not accept VNC clients from outside the container. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Encrypted connection",
+      "key": "SECURE_CONNECTION",
+      "value": "0",
+      "description": "Serve the desktop over HTTPS and VNC over TLS, with a certificate made on first start. Needed for the web login unless you allow the insecure one. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC encryption method",
+      "key": "SECURE_CONNECTION_VNC_METHOD",
+      "value": "SSL",
+      "description": "SSL wraps the connection (stunnel); TLS uses VNC's own upgrade.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web login",
+      "key": "WEB_AUTHENTICATION",
+      "value": "0",
+      "description": "Ask for a username and password before the desktop, this page and the monitor open. Off by default, which leaves the monitor's controls open to anything on your network. Set the username and password below first. If you lock yourself out, set BB_IGNORE_UI_SETTINGS=1 on the container, restart it, fix the settings here, remove the variable. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web login username",
+      "key": "WEB_AUTHENTICATION_USERNAME",
+      "value": "",
+      "description": "The username for the web login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web login password",
+      "key": "WEB_AUTHENTICATION_PASSWORD",
+      "value": "",
+      "description": "The password for the web login. It is stored in the settings file on your appdata share and is never shown again.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Allow the web login over plain HTTP",
+      "key": "WEB_AUTHENTICATION_ALLOW_INSECURE",
+      "value": "0",
+      "description": "Lets the login work without the encrypted connection. The password then crosses your network in the clear. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login lifetime (hours)",
+      "key": "WEB_AUTHENTICATION_TOKEN_VALIDITY_TIME",
+      "value": "24",
+      "description": "How long a browser stays logged in. (1 to 8760)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VNC password",
+      "key": "VNC_PASSWORD",
+      "value": "",
+      "description": "Password for VNC clients and the browser desktop. VNC passwords are cut to 8 characters by the protocol. Stored in the settings file and never shown again.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "API origins",
+      "key": "API_CORS_ORIGINS",
+      "value": "",
+      "description": "Comma-separated origins a browser page may call the HTTP API from. Empty allows none. There is no wildcard.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Priority (niceness)",
+      "key": "APP_NICENESS",
+      "value": "0",
+      "description": "-20 is the highest priority, 19 the lowest. Lower the priority to keep a busy server responsive. A negative value needs the container to be started with --cap-add=SYS_NICE. (-20 to 19)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Restart the app when it exits",
+      "key": "KEEP_APP_RUNNING",
+      "value": "0",
+      "description": "When Backblaze's launcher exits, start it again instead of stopping the container. (1 is on, 0 is off.)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shutdown grace time (ms)",
+      "key": "SERVICES_GRACETIME",
+      "value": "5000",
+      "description": "How long each service gets to stop before it is killed when the container stops. Raise it if a stop leaves the client's database in recovery. (0 to 600000)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check for updates",
+      "key": "UPDATE_CHECK",
+      "value": "true",
+      "description": "Once a day, ask Docker Hub, WineHQ and Backblaze whether anything newer exists. Only version numbers are fetched; nothing about your backup leaves the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hours between checks",
+      "key": "UPDATE_CHECK_INTERVAL_HOURS",
+      "value": "24",
+      "description": "How often the check runs. (1 to 168)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable watchdog",
+      "key": "ENABLE_WATCHDOG",
+      "value": "false",
+      "description": "Recover automatically from the known stalls: clear a stale four-hour lock left by an out-of-memory kill and stop a pass stuck on a lost upload child. Every action is logged. Off by default because it deletes a lock file and kills processes. The Settings tab has a switch that overrides this without a restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Datasets as folders",
+      "key": "MOUNTPOINTS_AS_DIRS",
+      "value": "",
+      "description": "Patched and beta tags only. Which drives show the separate filesystems inside them (ZFS datasets, a mounted cache pool) as ordinary folders so the client backs them up: all, or drive letters such as d,e. Empty for none. Without it the client skips every dataset inside a drive. A dataset already backed up under its own letter uploads again under the new path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wine: upload writability fix",
+      "key": "WINE_SOCK_SEND_READY",
+      "value": "1",
+      "description": "Patched and beta tags only. Lifts the stock-Wine cap of about 140 KB/s on a single upload stream (WineHQ bug 59893). The Settings tab overrides it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wine: FD_WRITE re-arm",
+      "key": "WINE_SOCK_FDWRITE_REARM",
+      "value": "0",
+      "description": "Patched and beta tags only. About three times the upload rate on high-latency links; a workaround that differs from Windows and needs the writability fix. The beta image turns it on; :latest-patched leaves it off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wine: service token",
+      "key": "WINE_SERVICE_TOKEN",
+      "value": "1",
+      "description": "Patched and beta tags only. Gives services the LocalSystem group, which client 10.0.3.1075 and later need to complete a backup pass. Off means the client must stay on 10.0.1.1069.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wine: OFD file locks",
+      "key": "WINE_OFD_LOCKS",
+      "value": "1",
+      "description": "Patched and beta tags only. Stops the client's database leaking file descriptors until nothing can open a file.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Wine: case-sensitivity cache",
+      "key": "WINE_CASE_CACHE",
+      "value": "0",
+      "description": "Patched and beta tags only. Decides case sensitivity once per device instead of after every failed lookup; large speed-up on Unraid user shares. The beta image turns it on; :latest-patched leaves it off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ignore saved Container-tab values",
+      "key": "BB_IGNORE_UI_SETTINGS",
+      "value": "0",
+      "description": "Set to 1 for one start to ignore everything saved on the Container tab, for example after locking yourself out with a web login. Set it back to 0 afterwards.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

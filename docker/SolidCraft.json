@@ -1,0 +1,75 @@
+{
+  "name": "SolidCraft",
+  "repo": "ghcr.io/denara/solidcraft-unraid:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/denara/solidcraft-unraid/pkgs/container/solidcraft-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --init --read-only --tmpfs /tmp:rw,nosuid,nodev,size=256m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --memory=4g --cpus=4 --pids-limit=128",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/denara/unraid-templates/main/icons/solidcraft.png",
+  "project": "https://github.com/denara/solidcraft-unraid",
+  "description": "Unofficial SolidCraft integration for Unraid, maintained by denara. Unraid\u00ae is a registered trademark of Lime Technology, Inc. This application is not affiliated with, endorsed, or sponsored by Lime Technology, Inc. The CAD application and browser app are developed by bherbruck and the upstream SolidCraft contributors; denara provides the container packaging, HTTP MCP adapter and Unraid template, not the original CAD application. Linux amd64 only. Experimental software: latest contains the newest container build that passed modelling, persistence and web checks. Server designs and exports persist under /data/files; browser designs are stored separately and do not share MCP sessions. Upstream: https://github.com/bherbruck/solidcraft. This is not an official upstream distribution.",
+  "paths": [
+    {
+      "name": "Persistent data",
+      "host": "/mnt/cache/appdata/your-cad-service",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Choose your appdata folder, writable by UID 99 / GID 100. Contains mcp-token and files/.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web and MCP port",
+      "host": "8781",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web at / ; MCP at /mcp. Nginx can proxy both through this port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Allowed origins",
+      "key": "SOLVECRAFT_ALLOWED_ORIGINS",
+      "value": "https://cad.example.invalid",
+      "description": "Replace this example with your hostname. Comma-separated exact browser origins; clients without Origin can authenticate normally.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum CAD sessions",
+      "key": "SOLVECRAFT_MAX_SESSIONS",
+      "value": "4",
+      "description": "Each session has its own CAD process and model; 1 to 32.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Idle session seconds",
+      "key": "SOLVECRAFT_IDLE_SECONDS",
+      "value": "1800",
+      "description": "Unsaved models are discarded on expiry. Explicitly save designs you want to keep.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tool timeout seconds",
+      "key": "SOLVECRAFT_TOOL_TIMEOUT",
+      "value": "300",
+      "description": "A timed-out CAD process is ended; operations are never automatically retried.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

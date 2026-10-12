@@ -1,0 +1,211 @@
+{
+  "name": "ha-login-approval",
+  "repo": "ghcr.io/nebur692/ha-login-approval:latest",
+  "category": [
+    "Security"
+  ],
+  "registry": "https://ghcr.io/nebur692/ha-login-approval",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/admin",
+  "icon": "https://raw.githubusercontent.com/Nebur692/ha-login-approval/main/.github/images/ha-login-approval_logo.png",
+  "project": "https://github.com/Nebur692/ha-login-approval",
+  "description": "Approve or reject sign-ins from a Home Assistant push notification. Truly PASSWORDLESS login, acting as a generic OIDC identity provider compatible with ZITADEL, Keycloak, Authentik, or any standard OIDC-capable relying party. Includes one-time recovery codes, IP blocking after 3 failed attempts, optional GeoIP enrichment, and a full admin panel. Full step-by-step guide (registering the IDP in ZITADEL/Keycloak/Authentik, the admin panel, every variable): https://github.com/Nebur692/ha-login-approval Admin panel: http://IP:8000/admin IMPORTANT if you run this behind a reverse proxy (Nginx Proxy Manager, Traefik, Caddy...): set \"Trusted proxies\" below to your proxy's address. Until you do, this service uses the address it is connected from, so every notification and audit entry will show the proxy instead of the visitor, and location lookups will be meaningless. Sign-in itself keeps working either way.",
+  "paths": [
+    {
+      "name": "Persistent data",
+      "host": "/mnt/cache/appdata/ha-login-approval",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent folder for this service's own SQLite database (the account directory, recovery codes, audit log, IP blocks, branding) and for the optional GeoIP .mmdb files. Without this volume, everything resets whenever the container is recreated \u2014 do not skip it.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web/API Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Internal port. Used for the /admin panel and as the base for the identity provider's own URLs (authorize/token/jwks, built from IDP Issuer URL below).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "HA Base URL",
+      "key": "HA_BASE_URL",
+      "value": "",
+      "description": "REQUIRED. Your Home Assistant's internal URL, no trailing slash. Example: http://192.168.1.50:8123. This container calls Home Assistant's REST API and WebSocket to send push notifications and read the approve/reject action back.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HA Token",
+      "key": "HA_TOKEN",
+      "value": "",
+      "description": "REQUIRED. A Home Assistant long-lived access token (Profile -> Security -> Long-Lived Access Tokens, at the bottom of the page). Needs permission to call notify.* services and to read mobile_app_notification_action events over the WebSocket.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin Username",
+      "key": "ADMIN_USERNAME",
+      "value": "admin",
+      "description": "Username for this container's own /admin panel, entered on its sign-in page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "REQUIRED. Password for the /admin panel, paired with Admin Username above. At least 12 characters and not a default one, or the panel stays off (sign-ins are not affected).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "IDP Issuer URL",
+      "key": "IDP_ISSUER_URL",
+      "value": "",
+      "description": "REQUIRED. The PUBLIC https:// URL your identity provider (ZITADEL/Keycloak/Authentik) and the browser of whoever is signing in both use to reach this service. Must be a real domain behind a reverse proxy with a valid TLS certificate (nginx, Nginx Proxy Manager, Traefik, Caddy...) \u2014 NOT a local/LAN IP address, or nobody will be able to sign in from outside your own network. Example: https://login.yourdomain.com. Used as the OIDC issuer (iss claim) and to build the /authorize, /token, and /jwks.json URLs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "IDP Client ID",
+      "key": "IDP_CLIENT_ID",
+      "value": "",
+      "description": "REQUIRED. The identifier your identity provider will present when authenticating against this service's /token endpoint. You make this value up yourself (e.g. ha-login-approval) \u2014 it must exactly match the Client ID you enter when registering this service as a generic external OIDC provider in your ZITADEL/Keycloak/Authentik.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "IDP Client Secret",
+      "key": "IDP_CLIENT_SECRET",
+      "value": "",
+      "description": "REQUIRED. A long, random secret you generate yourself, paired with IDP Client ID above \u2014 again, it must exactly match what you enter on the identity provider's side when registering this service.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "IDP Client Redirect URI",
+      "key": "IDP_CLIENT_REDIRECT_URI",
+      "value": "",
+      "description": "REQUIRED. The exact callback URL your identity provider redirects to after a successful login (for ZITADEL, typically https://your-zitadel-domain/idps/callback). Validated on every request \u2014 a mismatch is rejected outright, to prevent an open redirect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The service runs as this user, never as root. On start it hands its data folder to this user. 99 is Unraid's nobody.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The service runs with this group. 100 is Unraid's users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "TRUSTED_PROXIES",
+      "value": "",
+      "description": "STRONGLY RECOMMENDED if you run this behind a reverse proxy. JSON array of the reverse proxies this service reads X-Forwarded-For / X-Real-IP from, as IPs or CIDRs \u2014 for example [&quot;192.168.1.10&quot;] or [&quot;172.18.0.0/16&quot;]. Those headers are how a proxy reports who called it, and they are only trusted when the request actually arrives from an address listed here; otherwise the connecting address is used, so a visitor cannot fake their own IP. Left empty, notifications, the audit log, IP blocking and GeoIP lookups will all show your proxy instead of the visitor.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Approval Timeout Seconds",
+      "key": "APPROVAL_TIMEOUT_SECONDS",
+      "value": "120",
+      "description": "How many seconds to wait for an approve/reject tap on the phone before giving up and treating the login as failed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery/retry delay (seconds)",
+      "key": "BRIDGE_RECOVERY_UNLOCK_DELAY_SECONDS",
+      "value": "60",
+      "description": "Seconds with no response before the bridge page offers to resend the notification or use a one-time recovery code instead. The original approval keeps waiting in the background too, so a late tap on the phone still works normally.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IP block threshold",
+      "key": "IP_BLOCK_THRESHOLD",
+      "value": "3",
+      "description": "Consecutive failures (an explicit Reject, or a wrong recovery code \u2014 same account plus same IP) before that account+IP pair is blocked. Not a time window, a straight consecutive-failure counter; any success resets it back to zero. Unblock manually from /admin/blocked-ips.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery code batch size",
+      "key": "RECOVERY_CODE_BATCH_SIZE",
+      "value": "10",
+      "description": "How many one-time recovery codes get generated at once from the /admin/recovery panel. Generating a new batch instantly invalidates every code from the previous one.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Recovery code low warning",
+      "key": "RECOVERY_CODE_LOW_WARNING",
+      "value": "3",
+      "description": "Push a warning notification once this many unused recovery codes (or fewer) remain for an account, so you notice before running out entirely.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MaxMind Account ID (GeoIP, optional)",
+      "key": "GEOIP_ACCOUNT_ID",
+      "value": "",
+      "description": "OPTIONAL. A free MaxMind (maxmind.com) account ID, used to download the self-hosted GeoLite2-City/ASN databases and add city/country/ISP to both the audit log and the push notification itself. Left empty, that part of the audit log and notification just stays blank \u2014 login still works exactly the same.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MaxMind License Key (GeoIP, optional)",
+      "key": "GEOIP_LICENSE_KEY",
+      "value": "",
+      "description": "OPTIONAL, used together with the Account ID above. The license key generated in your MaxMind account settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ZITADEL URL (app name, optional)",
+      "key": "ZITADEL_API_URL",
+      "value": "",
+      "description": "OPTIONAL, ZITADEL only. Your ZITADEL's base URL (e.g. https://sso.example.com), so the approval notification can say which app is being signed in to. Needs the two fields below too. Left empty, the notification simply has no app line.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ZITADEL service user client ID (app name, optional)",
+      "key": "ZITADEL_API_CLIENT_ID",
+      "value": "",
+      "description": "OPTIONAL. Client ID of a ZITADEL service user with the read-only IAM_OWNER_VIEWER role. It only reads ZITADEL's event store.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ZITADEL service user client secret (app name, optional)",
+      "key": "ZITADEL_API_CLIENT_SECRET",
+      "value": "",
+      "description": "OPTIONAL. Client secret of that same service user.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

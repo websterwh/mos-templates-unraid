@@ -1,0 +1,75 @@
+{
+  "name": "Pantrix-Browser",
+  "repo": "ghcr.io/007darkmatter5/pantrix-browser:production",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/007darkmatter5/pantrix/pkgs/container/pantrix-browser",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--shm-size=1gb",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3001]/",
+  "icon": "https://raw.githubusercontent.com/007darkmatter5/pantrix/main/docs/images/icon.png",
+  "project": "https://github.com/007darkmatter5/pantrix",
+  "description": "An optional companion to Pantrix. Install it only if you want Pantrix to look aisles up on store websites for you; Pantrix works without it, with aisles you type in. It is a Chromium browser (linuxserver's container) with a screen you open from another computer, set up so that Pantrix can drive it. Store websites turn away plain programs, so Pantrix asks this real browser to open a store's search page and reads the aisles off it. It does this only when someone presses \"Look up\" in Pantrix, one page at a time. Setup: 1. In the Unraid terminal, create a network for the two containers: docker network create pantrix 2. Set Network Type to \"pantrix\" on this container and on Pantrix. That is how Pantrix reaches the browser's control port (9223), which is deliberately not published to the rest of your network. 3. Open this container's WebUI (https, accept the self-signed certificate), visit each store's website and choose your store. You can sign in to store accounts there too; the sign-in stays in this browser, and Pantrix never sees the password. 4. In Pantrix, on the Admin page, enter http://Pantrix-Browser:9223 as the browser address and press Test. Set the screen username and password below. The screen includes a terminal, and the browser may be signed in to your store accounts, so it should not be open to anyone on your network. If a store site asks for a human check, Pantrix tells you and you complete it here yourself. Automated use may be against a store's terms, and a site can change or block it at any time.",
+  "paths": [
+    {
+      "name": "Browser profile",
+      "host": "/mnt/cache/appdata/pantrix-browser",
+      "container": "/config",
+      "mode": "rw",
+      "description": "The browser's profile: chosen stores, store sign-ins and settings.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Browser screen port (https)",
+      "host": "3011",
+      "container": "3001",
+      "protocol": "tcp",
+      "description": "Port for the browser's screen. Open it with https.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Screen username",
+      "key": "CUSTOM_USER",
+      "value": "",
+      "description": "Username for the browser's screen.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Screen password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Password for the browser's screen.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the browser runs as. It owns the profile folder.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the browser runs as.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

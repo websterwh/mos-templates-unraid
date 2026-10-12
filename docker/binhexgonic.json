@@ -49,7 +49,7 @@
       "name": "Variable: GONIC_MUSIC_PATH",
       "key": "GONIC_MUSIC_PATH",
       "value": "/media",
-      "description": "Path to music files",
+      "description": "Path to your music collection inside the container. Multiple folders are supported as a comma separated list, e.g. '/media/music,/media/audiobooks'",
       "required": true,
       "mask": false
     },
@@ -57,7 +57,7 @@
       "name": "Variable: GONIC_PODCAST_PATH",
       "key": "GONIC_PODCAST_PATH",
       "value": "/config/gonic/podcasts",
-      "description": "Path to store downloaded podcasts",
+      "description": "Path to store downloaded podcasts. Keep this inside a mapped path such as /config so subscriptions survive container updates.",
       "required": true,
       "mask": false
     },
@@ -65,8 +65,224 @@
       "name": "Variable: GONIC_PLAYLISTS_PATH",
       "key": "GONIC_PLAYLISTS_PATH",
       "value": "/config/gonic/playlists",
-      "description": "Path to store created playlists",
+      "description": "Path to store created playlists. Files use the 'userid/name.m3u' layout, e.g. '1/jazz.m3u' for the admin user, and are created and changed by gonic through the subsonic api. Keep this inside a mapped path such as /config.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_CACHE_PATH",
+      "key": "GONIC_CACHE_PATH",
+      "value": "/config/gonic/cache",
+      "description": "Path to store audio transcodes, covers, etc. This path must exist inside the container, the application will not start if it is empty or missing.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_DB_PATH",
+      "key": "GONIC_DB_PATH",
+      "value": "/config/gonic/db/gonic.db",
+      "description": "Path to the gonic database file. Keep this inside a mapped path such as /config so your library database survives container updates.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_LISTEN_ADDR",
+      "key": "GONIC_LISTEN_ADDR",
+      "value": "",
+      "description": "Host and port to listen on, e.g. '0.0.0.0:4747' or '127.0.0.1:4747'. If not specified then the default of '0.0.0.0:4747' will be used. Change this only if you also change the container side of the Web Interface port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_PROXY_PREFIX",
+      "key": "GONIC_PROXY_PREFIX",
+      "value": "",
+      "description": "Url path prefix to use if behind a reverse proxy, e.g. '/gonic'. If not specified then gonic will be served from the root path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_TLS_CERT",
+      "key": "GONIC_TLS_CERT",
+      "value": "",
+      "description": "Path to a TLS cert inside the container to enable HTTPS listening, e.g. '/config/gonic/certs/cert.pem'. Must be set together with the TLS key below. If not specified then gonic will serve plain HTTP, which is typical when a reverse proxy terminates TLS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_TLS_KEY",
+      "key": "GONIC_TLS_KEY",
+      "value": "",
+      "description": "Path to the TLS private key that matches the TLS cert above. Must be set together with the TLS cert.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_HTTP_LOG",
+      "key": "GONIC_HTTP_LOG",
+      "value": "true|false",
+      "description": "Enable or disable HTTP request logging, enabled by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_SCAN_INTERVAL",
+      "key": "GONIC_SCAN_INTERVAL",
+      "value": "",
+      "description": "Interval in minutes to automatically check for new music. Automatic scanning is disabled if this is not specified, a scan can still be started from the web interface.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_SCAN_AT_START_ENABLED",
+      "key": "GONIC_SCAN_AT_START_ENABLED",
+      "value": "false|true",
+      "description": "Whether to perform an initial scan of your music collection every time the container starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_SCAN_WATCHER_ENABLED",
+      "key": "GONIC_SCAN_WATCHER_ENABLED",
+      "value": "false|true",
+      "description": "Whether to watch the file system for new music and rescan automatically. Use this or the scan interval above, there is usually no need to enable both.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_SCAN_EMBEDDED_COVER_ENABLED",
+      "key": "GONIC_SCAN_EMBEDDED_COVER_ENABLED",
+      "value": "true|false",
+      "description": "Whether to scan for embedded covers in audio files, in addition to image files in the album folder. Enabled by default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_EXCLUDE_PATTERN",
+      "key": "GONIC_EXCLUDE_PATTERN",
+      "value": "",
+      "description": "Go regular expression matched against the absolute path of every file and folder whilst scanning, anything that matches is not imported. Example: '@eaDir|[aA]rtwork|[cC]overs|[sS]cans'. If the pattern is invalid then the application will not start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_GENRE_TREE",
+      "key": "GONIC_GENRE_TREE",
+      "value": "",
+      "description": "Path to a tab separated genre hierarchy file inside the container, for hierarchical genre browsing. Each line contains a parent genre and a child genre separated by a tab character, e.g. 'electronic' followed by a tab followed by 'edm'. If the file is missing or invalid then the application will not start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_MULTI_VALUE_GENRE",
+      "key": "GONIC_MULTI_VALUE_GENRE",
+      "value": "",
+      "description": "Setting for multi-valued genre tags when scanning, 'multi' uses the multi-valued tag fields written by tools such as MusicBrainz Picard or beets, 'delim delimiter' splits your single genre tag on a delimiter, e.g. 'delim ;', 'none' disables splitting (default). Note a comma delimiter must be escaped, e.g. 'delim \\,', because the environment variable parser splits on comma.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_MULTI_VALUE_ARTIST",
+      "key": "GONIC_MULTI_VALUE_ARTIST",
+      "value": "",
+      "description": "Setting for multi-valued artist tags when scanning, 'multi' uses the multi-valued tag fields, 'delim delimiter' splits your single artist tag on a delimiter, e.g. 'delim ;', 'none' disables splitting (default). Note a comma delimiter must be escaped, e.g. 'delim \\,', because the environment variable parser splits on comma.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_MULTI_VALUE_ALBUM_ARTIST",
+      "key": "GONIC_MULTI_VALUE_ALBUM_ARTIST",
+      "value": "",
+      "description": "Setting for multi-valued album artist tags when scanning, 'multi' uses the multi-valued tag fields, 'delim delimiter' splits your single album artist tag on a delimiter, e.g. 'delim ;', 'none' disables splitting (default). Using 'multi' or a delimiter keeps compilation appearances out of your artist list. Note a comma delimiter must be escaped, e.g. 'delim \\,', because the environment variable parser splits on comma.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_MULTI_VALUE_ISRC",
+      "key": "GONIC_MULTI_VALUE_ISRC",
+      "value": "",
+      "description": "Setting for multi-valued isrc tags when scanning, 'multi' uses the multi-valued tag fields, 'delim delimiter' splits your single isrc tag on a delimiter, e.g. 'delim ;', 'none' disables splitting (default). Note a comma delimiter must be escaped, e.g. 'delim \\,', because the environment variable parser splits on comma.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_TRANSCODE_CACHE_SIZE",
+      "key": "GONIC_TRANSCODE_CACHE_SIZE",
+      "value": "",
+      "description": "Size of the transcode cache in MB, 0 or empty means no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_TRANSCODE_EJECT_INTERVAL",
+      "key": "GONIC_TRANSCODE_EJECT_INTERVAL",
+      "value": "",
+      "description": "Interval in minutes to eject the transcode cache, 0 or empty means never. Only used if a transcode cache size above 0 is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_COVER_CACHE_SIZE",
+      "key": "GONIC_COVER_CACHE_SIZE",
+      "value": "",
+      "description": "Size of the cover art cache in MB, 0 or empty means no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_COVER_EJECT_INTERVAL",
+      "key": "GONIC_COVER_EJECT_INTERVAL",
+      "value": "",
+      "description": "Interval in minutes to eject the cover art cache, 0 or empty means never. Only used if a cover art cache size above 0 is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_PODCAST_PURGE_AGE",
+      "key": "GONIC_PODCAST_PURGE_AGE",
+      "value": "",
+      "description": "Age in days to purge podcast episodes if not accessed, 0 or empty means never purge.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_JUKEBOX_ENABLED",
+      "key": "GONIC_JUKEBOX_ENABLED",
+      "value": "false|true",
+      "description": "Whether the subsonic jukebox api should be enabled, for gapless server-side playback through the audio device of the host (mpv is included in this container). You may also need to pass the audio device of the host into the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_JUKEBOX_MPV_EXTRA_ARGS",
+      "key": "GONIC_JUKEBOX_MPV_EXTRA_ARGS",
+      "value": "",
+      "description": "Extra command line arguments to pass to the jukebox mpv daemon, e.g. '--audio-device=alsa/hdmi:CARD=HDMI'. Shell style quoting is supported.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_EXPVAR",
+      "key": "GONIC_EXPVAR",
+      "value": "false|true",
+      "description": "Enable the /debug/vars endpoint, which exposes useful debugging attributes as well as database stats. Leave disabled unless troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_PPROF",
+      "key": "GONIC_PPROF",
+      "value": "false|true",
+      "description": "Enable the /debug/pprof endpoint, used for profiling the application. Leave disabled unless troubleshooting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: GONIC_LOG_DB",
+      "key": "GONIC_LOG_DB",
+      "value": "false|true",
+      "description": "Enable database query logging, this is very verbose. Leave disabled unless troubleshooting.",
+      "required": false,
       "mask": false
     },
     {

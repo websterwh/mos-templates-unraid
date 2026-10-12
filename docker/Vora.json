@@ -1,0 +1,523 @@
+{
+  "name": "Vora",
+  "repo": "ghcr.io/axufuris/vora-media-server:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/axufuris/vora-media-server",
+  "network": "vora",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://getvora.net/vora-icon-512.png",
+  "project": "https://getvora.net",
+  "description": "Vora is a self-hosted media server for movies, TV, music, and IPTV with DVR, with cinematic clients for Android, Android TV, Fire TV, Roku, and the web. REQUIREMENTS: Vora needs a PostgreSQL database with the pgvector extension. Install the \"pgvector\" app from Community Applications FIRST (name its container \"vora-postgres\"), and put BOTH containers on the same user-defined Docker network (create one under Settings > Docker > Add network, e.g. \"vora\") so Vora can reach Postgres by container name. After both are running, browse to http://[SERVER-IP]:8080 and claim the server: the account you create there is the server admin. GPU (optional): for NVIDIA hardware transcoding, install the Nvidia-Driver plugin and set Extra Parameters to --runtime=nvidia. For an Intel or AMD GPU, set the Intel/AMD GPU field to /dev/dri.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/vora",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent data: config, artwork, plugins, logs, backups",
+      "required": true
+    },
+    {
+      "name": "Transcode",
+      "host": "/mnt/cache/appdata/vora-transcode",
+      "container": "/transcode",
+      "mode": "rw",
+      "description": "Transcoder scratch (HLS segments, IPTV timeshift); a fast local disk or cache pool is recommended",
+      "required": true
+    },
+    {
+      "name": "Movies",
+      "host": "/mnt/cache/media/movies",
+      "container": "/media/movies",
+      "mode": "ro",
+      "description": "Movies library (read-only)",
+      "required": false
+    },
+    {
+      "name": "Shows",
+      "host": "/mnt/cache/media/shows",
+      "container": "/media/shows",
+      "mode": "ro",
+      "description": "TV shows library (read-only)",
+      "required": false
+    },
+    {
+      "name": "Music",
+      "host": "/mnt/cache/media/music",
+      "container": "/media/music",
+      "mode": "ro",
+      "description": "Music library (read-only)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI / API port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Database Connection",
+      "key": "ConnectionStrings__DefaultConnection",
+      "value": "Host=vora-postgres;Port=5432;Database=vora;Username=vora;Password=CHANGEME",
+      "description": "Npgsql connection string. Host = the Postgres container name on your custom network. Match the database, user and password set on the pgvector app.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JWT Secret Key",
+      "key": "Jwt__SecretKey",
+      "value": "",
+      "description": "Long random string used to sign auth tokens. Generate once (e.g. openssl rand -base64 64) and keep it stable; changing it logs everyone out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id the container runs as (Unraid 'nobody' = 99)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id the container runs as (Unraid 'users' = 100)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/Chicago",
+      "description": "Container timezone (e.g. America/Chicago). Affects scheduled scans and tasks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal HTTP Port",
+      "key": "ASPNETCORE_HTTP_PORTS",
+      "value": "8080",
+      "description": "Internal listen port; leave at 8080",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permissions mask for files the app creates",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Path: Custom Artwork",
+      "key": "StoragePaths__CustomArtwork",
+      "value": "/app/data/custom_artwork",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Artwork Cache",
+      "key": "StoragePaths__OriginalArtworkCache",
+      "value": "/app/data/original_artwork_cache",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: EPG Cache",
+      "key": "StoragePaths__EpgCache",
+      "value": "/app/data/iptv/epg_cache",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: IPTV DVR",
+      "key": "StoragePaths__IptvDvr",
+      "value": "/app/data/iptv/dvr",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: User Images",
+      "key": "StoragePaths__UserImages",
+      "value": "/app/data/users",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Plugins",
+      "key": "StoragePaths__Plugins",
+      "value": "/app/data/plugins",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Subtitles",
+      "key": "StoragePaths__Subtitles",
+      "value": "/app/data/subtitles",
+      "description": "Internal path; keep under /app/data",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Logs",
+      "key": "StoragePaths__Logs",
+      "value": "/app/data/logs",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Backups",
+      "key": "StoragePaths__Backups",
+      "value": "/app/data/backups",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Data Protection Keys",
+      "key": "StoragePaths__DataProtection",
+      "value": "/app/data/dp-keys",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Video Thumbnails",
+      "key": "StoragePaths__VideoThumbnails",
+      "value": "/app/data/video-thumbnails",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Metadata",
+      "key": "StoragePaths__Metadata",
+      "value": "/app/data/metadata",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Path: Audio Fingerprints",
+      "key": "StoragePaths__AudioFingerprints",
+      "value": "/app/data/audio-fingerprints",
+      "description": "Internal path; keep under /app/data so it persists across container updates",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TMDB Metadata: api_key",
+      "key": "Vora__PluginSettings__tmdb_metadata__api_key",
+      "value": "",
+      "description": "TMDB v3 API key. themoviedb.org -&gt; Settings -&gt; API -&gt; API Key (v3 auth).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB Metadata: is_enabled",
+      "key": "Vora__PluginSettings__tmdb_metadata__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB Discovery: discovery_region",
+      "key": "Vora__PluginSettings__tmdb_discovery__discovery_region",
+      "value": "",
+      "description": "Discovery region code, e.g. US.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB Discovery: discovery_language",
+      "key": "Vora__PluginSettings__tmdb_discovery__discovery_language",
+      "value": "",
+      "description": "Discovery language, e.g. en-US.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB Discovery: is_enabled",
+      "key": "Vora__PluginSettings__tmdb_discovery__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TVDB Metadata: api_key",
+      "key": "Vora__PluginSettings__tvdb_metadata__api_key",
+      "value": "",
+      "description": "TVDB v4 API key. Register at thetvdb.com/api-information.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TVDB Metadata: subscriber_pin",
+      "key": "Vora__PluginSettings__tvdb_metadata__subscriber_pin",
+      "value": "",
+      "description": "Optional TVDB subscriber PIN.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TVDB Metadata: is_enabled",
+      "key": "Vora__PluginSettings__tvdb_metadata__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OMDb Ratings: api_key",
+      "key": "Vora__PluginSettings__omdb_imdb__api_key",
+      "value": "",
+      "description": "OMDb API key (omdbapi.com). Shared by all OMDb rating sources.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OMDb Ratings: is_enabled",
+      "key": "Vora__PluginSettings__omdb_imdb__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Fanart Artwork: api_key",
+      "key": "Vora__PluginSettings__fanart_artwork__api_key",
+      "value": "",
+      "description": "Fanart.tv personal API key. Shared by the Fanart music artwork provider.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Fanart Artwork: is_enabled",
+      "key": "Vora__PluginSettings__fanart_artwork__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Last.fm: api_key",
+      "key": "Vora__PluginSettings__lastfm_listening__api_key",
+      "value": "",
+      "description": "Last.fm API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm: api_secret",
+      "key": "Vora__PluginSettings__lastfm_listening__api_secret",
+      "value": "",
+      "description": "Last.fm API secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Last.fm: is_enabled",
+      "key": "Vora__PluginSettings__lastfm_listening__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Genius Lyrics: access_token",
+      "key": "Vora__PluginSettings__genius_lyrics__access_token",
+      "value": "",
+      "description": "Genius API access token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Genius Lyrics: is_enabled",
+      "key": "Vora__PluginSettings__genius_lyrics__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: api_key",
+      "key": "Vora__PluginSettings__openai_recommendations__api_key",
+      "value": "",
+      "description": "OpenAI secret key (sk-...). platform.openai.com/api-keys; billing required.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI: chat_model",
+      "key": "Vora__PluginSettings__openai_recommendations__chat_model",
+      "value": "",
+      "description": "Recommendations model. Default gpt-4o-mini.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: collections_model",
+      "key": "Vora__PluginSettings__openai_recommendations__collections_model",
+      "value": "",
+      "description": "AI collections model. Default gpt-5.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: schedule_time",
+      "key": "Vora__PluginSettings__openai_recommendations__schedule_time",
+      "value": "",
+      "description": "Nightly vector generation time, HH:mm. Default 02:00.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: monthly_token_limit",
+      "key": "Vora__PluginSettings__openai_recommendations__monthly_token_limit",
+      "value": "",
+      "description": "Monthly OpenAI token ceiling across all AI features. 0 = no limit.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: guardrails",
+      "key": "Vora__PluginSettings__openai_recommendations__guardrails",
+      "value": "",
+      "description": "Optional house rules appended to every AI request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI: is_enabled",
+      "key": "Vora__PluginSettings__openai_recommendations__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MDbList: api_key",
+      "key": "Vora__PluginSettings__mdblist_collection_sync__api_key",
+      "value": "",
+      "description": "MDbList API key (mdblist.com -&gt; Preferences -&gt; API). Reused by MDbList chronology.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MDbList: is_enabled",
+      "key": "Vora__PluginSettings__mdblist_collection_sync__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenSubtitles: api_key",
+      "key": "Vora__PluginSettings__opensubtitles_search__api_key",
+      "value": "",
+      "description": "OpenSubtitles API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenSubtitles: auth_mode",
+      "key": "Vora__PluginSettings__opensubtitles_search__auth_mode",
+      "value": "",
+      "description": "Auth mode (see plugin options).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenSubtitles: username",
+      "key": "Vora__PluginSettings__opensubtitles_search__username",
+      "value": "",
+      "description": "OpenSubtitles username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenSubtitles: password",
+      "key": "Vora__PluginSettings__opensubtitles_search__password",
+      "value": "",
+      "description": "OpenSubtitles password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenSubtitles: default_languages",
+      "key": "Vora__PluginSettings__opensubtitles_search__default_languages",
+      "value": "",
+      "description": "Default subtitle languages, e.g. en.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenSubtitles: is_enabled",
+      "key": "Vora__PluginSettings__opensubtitles_search__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poster Overlays: enable_schedule",
+      "key": "Vora__PluginSettings__local_imagesharp_overlays__enable_schedule",
+      "value": "",
+      "description": "Enable nightly overlay generation (true/false). Default false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poster Overlays: schedule_time",
+      "key": "Vora__PluginSettings__local_imagesharp_overlays__schedule_time",
+      "value": "",
+      "description": "Overlay generation time, HH:mm. Default 03:00.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Poster Overlays: is_enabled",
+      "key": "Vora__PluginSettings__local_imagesharp_overlays__is_enabled",
+      "value": "",
+      "description": "Enable this plugin (true/false). Blank = app default.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Intel/AMD GPU",
+      "host": "",
+      "container": "",
+      "description": "Optional. Set to /dev/dri to transcode on an Intel (Quick Sync) or AMD (VAAPI) GPU. Leave blank for NVIDIA or no GPU.",
+      "required": false
+    }
+  ],
+  "labels": []
+}

@@ -1,0 +1,181 @@
+{
+  "name": "CacheParty",
+  "repo": "ghcr.io/antiremy/cacheparty:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/antiremy/CacheParty/pkgs/container/cacheparty",
+  "network": "br0",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/antiremy/unraid-templates/main/images/cacheparty.png",
+  "project": "https://github.com/antiremy/CacheParty",
+  "description": "CacheParty is a LAN game-download cache: a single-binary, drop-in replacement for lancachenet/monolithic. It caches plain-HTTP downloads from Steam, Battle.net, Epic, Riot, Xbox/WSUS, PlayStation and everything else in uklans/cache-domains, so each game is downloaded from the internet once and then served to every PC on your network at LAN speed. It uses the same environment variables and access.log format as monolithic, and adds streaming request coalescing, adaptive read-ahead, an internet download speed limit, fast restarts and a built-in dashboard with live throughput and per-game, per-client traffic. Setup: give the container its own IP on br0 (ports 80 and 443 are taken by the Unraid web UI), then point lancache-dns, Pi-hole or AdGuard Home at that IP for the cache-domains lists. HTTPS (:443) is passed through, not cached. CacheParty cannot read an existing monolithic cache, so give it an empty cache folder.",
+  "paths": [
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/cacheparty/",
+      "container": "/data/cache",
+      "mode": "rw",
+      "description": "Cached chunks and their index. Put this on the disk or pool with the most space; use an empty folder, not an existing monolithic cache.",
+      "required": true
+    },
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/cacheparty/",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Logs, dashboard settings and stats, and the cache-domains checkout.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP port",
+      "host": "80",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "Caching proxy. Clients must reach it on port 80, so use a dedicated IP (br0) rather than remapping it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "HTTPS SNI passthrough (not cached).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dashboard port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Dashboard, /metrics and health check.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Cache size",
+      "key": "CACHE_DISK_SIZE",
+      "value": "1000g",
+      "description": "Maximum total cache size, e.g. 500g or 2t. Can also be changed later from the dashboard.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Dashboard password",
+      "key": "DASHBOARD_PASSWORD",
+      "value": "",
+      "description": "Lets you change settings, verify the cache and purge games from the dashboard. Leave empty for a read-only dashboard.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Upstream DNS",
+      "key": "UPSTREAM_DNS",
+      "value": "8.8.8.8 8.8.4.4",
+      "description": "Resolvers used to reach the real CDNs. Must not be the DNS server that points game domains at this cache.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Internet speed limit",
+      "key": "UPSTREAM_RATE_LIMIT",
+      "value": "0",
+      "description": "Caps internet bandwidth used for cache misses, in bits/s (e.g. 500m, 1g). 0 is unlimited. Cache hits always run at full LAN speed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Minimum free disk",
+      "key": "MIN_FREE_DISK",
+      "value": "10g",
+      "description": "Evict old chunks to keep at least this much free space on the cache volume.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max age",
+      "key": "CACHE_MAX_AGE",
+      "value": "3560d",
+      "description": "Evict chunks not accessed within this time.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Bypass domains",
+      "key": "BYPASS_DOMAINS",
+      "value": "",
+      "description": "Comma-separated domains to pass through without caching, e.g. example.com, *.cdn.example.net",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max read-ahead fetches",
+      "key": "CACHE_MAX_PREFETCHES",
+      "value": "64",
+      "description": "Chunk fetches allowed to run ahead of clients, across all clients. 0 disables read-ahead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Slice size",
+      "key": "CACHE_SLICE_SIZE",
+      "value": "1m",
+      "description": "Chunk size. Changing this makes everything already cached unreadable; leave it alone unless you are starting a fresh cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache domains repo",
+      "key": "CACHE_DOMAINS_REPO",
+      "value": "https://github.com/uklans/cache-domains.git",
+      "description": "Git repository for the list of domains to cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache domains branch",
+      "key": "CACHE_DOMAINS_BRANCH",
+      "value": "master",
+      "description": "Branch of the cache-domains repository.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip domain update",
+      "key": "NOFETCH",
+      "value": "false",
+      "description": "Set to true to skip updating cache-domains at startup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log format",
+      "key": "NGINX_LOG_FORMAT",
+      "value": "cachelog",
+      "description": "access.log format: cachelog or cachelog-json.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Go memory limit",
+      "key": "GOMEMLIMIT",
+      "value": "",
+      "description": "If you set a container memory limit, set this a little below it (e.g. 900MiB for 1 GiB).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

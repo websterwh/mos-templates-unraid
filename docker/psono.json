@@ -1,6 +1,6 @@
 {
   "name": "psono",
-  "repo": "psono/psono-server",
+  "repo": "psono/psono-server:latest",
   "category": [
     "Security"
   ],
@@ -9,30 +9,30 @@
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
-  "extra_parameters": "--hostname=changeme.example.org",
+  "extra_parameters": null,
   "post_parameters": null,
-  "web_ui_url": "http://[IP]:[PORT:80]",
+  "web_ui_url": "http://[IP]:[PORT:80]/info/",
   "icon": "https://doc.psono.com/images/hero.png",
-  "project": "https://doc.psono.com/admin/installation/install-psono-ce.html",
-  "description": "Secure self-hosted solution for businesses Need settings.yaml in appdata directory (Read First)",
+  "project": "https://psono.com",
+  "description": "Psono server: the backend of the self-hosted Psono password manager for teams. Official image psono/psono-server. The Psono browser extensions, apps and web client connect to it. This container has no web UI of its own: the WebUI button opens /info/, which shows the server version when it runs. Before the first start: a PostgreSQL database and settings.yaml in the config folder (appdata/psono/settings.yaml). The README has the steps. Database migrations run automatically at every start. For real use, put it behind a reverse proxy with HTTPS.",
   "paths": [
     {
-      "name": "psono config dir",
+      "name": "Config folder",
       "host": "/mnt/cache/appdata/psono",
-      "container": "/var/lib/psono",
+      "container": "/root/.psono_server",
       "mode": "rw",
-      "description": null,
-      "required": false
+      "description": "Must contain settings.yaml (see the README).",
+      "required": true
     }
   ],
   "ports": [
     {
-      "name": "Web UI",
-      "host": "80",
+      "name": "API port",
+      "host": "10100",
       "container": "80",
       "protocol": "tcp",
-      "description": "HTTP port for Web UI",
-      "required": false,
+      "description": "Psono server API. Clients and your reverse proxy connect here.",
+      "required": true,
       "mask": false
     }
   ],

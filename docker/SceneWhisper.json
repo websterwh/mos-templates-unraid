@@ -1,0 +1,99 @@
+{
+  "name": "SceneWhisper",
+  "repo": "ghcr.io/master-oogwayxxx/scenewhisper:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/Master-Oogwayxxx/SceneWhisper/pkgs/container/scenewhisper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:80]/",
+  "icon": "https://raw.githubusercontent.com/Master-Oogwayxxx/SceneWhisper/main/app/icons/scene_whisper.png",
+  "project": "https://github.com/Master-Oogwayxxx/SceneWhisper",
+  "description": "SceneWhisper is a self-hosted video processing suite for local media libraries, including JAV video collections. Scan and manage video folders, queue scene detection and splitting jobs, generate and clean subtitles with Whisper, repair frame pacing, review processing status, and work with scraped/R18 metadata. The Unraid container bundles the React web interface, FastAPI worker, ffmpeg processing, persistent app data, Hugging Face model caching, and optional NVIDIA GPU acceleration.",
+  "paths": [
+    {
+      "name": "Video Library",
+      "host": "/mnt/cache/videos",
+      "container": "/videos",
+      "mode": "rw",
+      "description": "Host path containing videos to scan and process.",
+      "required": true
+    },
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/scenewhisper/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, logs, and runtime state.",
+      "required": true
+    },
+    {
+      "name": "Hugging Face Cache",
+      "host": "/mnt/cache/appdata/scenewhisper/hf-cache",
+      "container": "/root/.cache/huggingface",
+      "mode": "rw",
+      "description": "Model cache for Whisper and related downloads.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5175",
+      "container": "80",
+      "protocol": "tcp",
+      "description": "SceneWhisper web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Container timezone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hugging Face Token",
+      "key": "HF_TOKEN",
+      "value": "",
+      "description": "Optional token for private or rate-limited Hugging Face model access.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NVIDIA Visible Devices",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "all",
+      "description": "Use all NVIDIA GPUs, a specific GPU id, or void for CPU-only mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA Driver Capabilities",
+      "key": "NVIDIA_DRIVER_CAPABILITIES",
+      "value": "compute,utility,video",
+      "description": "NVIDIA runtime capabilities used by AI and ffmpeg workloads.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Hugging Face Transfer",
+      "key": "HF_HUB_ENABLE_HF_TRANSFER",
+      "value": "1",
+      "description": "Enable faster Hugging Face model downloads.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

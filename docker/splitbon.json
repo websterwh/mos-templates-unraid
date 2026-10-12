@@ -1,0 +1,403 @@
+{
+  "name": "splitbon",
+  "repo": "ghcr.io/cyborcc/splitbon:stable",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/cyborcc/splitbon/pkgs/container/splitbon",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/cyborcc/splitbon/main/public/icons/icon-512.png",
+  "project": "https://github.com/cyborcc/splitbon",
+  "description": "Splitbon is an open-source, self-hosted Splitwise alternative with AI-powered receipt scanning. All-in-one container: PostgreSQL is bundled inside \u2014 no external database required. Features: - Group expense tracking with multiple split modes - AI receipt scanning: photograph a receipt, extract items, assign to friends - Claim sessions: share a receipt link so everyone claims their own items - Guest bill splitting with no account needed - Multi-currency expenses with automatic exchange-rate conversion - Venmo pay links (optional, admin toggle, USD only) - Pluggable AI providers: OpenAI, OpenAI-Codex (ChatGPT OAuth), Claude, Meridian (Claude Max), Ollama - Cross-group dashboard with debt simplification - 9 languages - PWA installable on mobile - Sign-in options: email/password, magic link email, and OIDC single sign-on (Authentik, Authelia, Keycloak, ...); a Google provider can also be configured, but the login page has no Google button This template runs the :stable image, which can lag the newest features described in the README.",
+  "paths": [
+    {
+      "name": "Database Data",
+      "host": "/mnt/cache/appdata/splitbon/db",
+      "container": "/var/lib/postgresql/data",
+      "mode": "rw",
+      "description": "Path to store PostgreSQL data (persists across restarts)",
+      "required": true
+    },
+    {
+      "name": "Receipt Uploads",
+      "host": "/mnt/cache/appdata/splitbon/uploads",
+      "container": "/app/uploads",
+      "mode": "rw",
+      "description": "Path to store uploaded receipt images",
+      "required": true
+    },
+    {
+      "name": "Claude Data (meridian)",
+      "host": "/mnt/cache/appdata/splitbon/claude",
+      "container": "/app/claude",
+      "mode": "rw",
+      "description": "Persistent storage for Claude login data used by the meridian AI provider. Optional unless meridian is in AI_PROVIDER_PRIORITY.",
+      "required": false
+    },
+    {
+      "name": "ChatGPT OAuth Data (openai-codex)",
+      "host": "/mnt/cache/appdata/splitbon/chatgpt",
+      "container": "/app/chatgpt",
+      "mode": "rw",
+      "description": "Persistent storage for ChatGPT OAuth login data used by the openai-codex AI provider. Optional unless openai-codex is in AI_PROVIDER_PRIORITY.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port to expose Splitbon on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "NextAuth URL",
+      "key": "NEXTAUTH_URL",
+      "value": "http://192.168.1.x:3000",
+      "description": "The URL where Splitbon is accessible (e.g., http://your-server-ip:3000). Split and personal links are copied from the browser address bar, not built from this, so open Splitbon at this URL before sharing one.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth Secret",
+      "key": "AUTH_SECRET",
+      "value": "",
+      "description": "Secret key for session encryption. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "NextAuth Secret",
+      "key": "NEXTAUTH_SECRET",
+      "value": "",
+      "description": "Same value as Auth Secret (required by NextAuth)",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Trust Host",
+      "key": "AUTH_TRUST_HOST",
+      "value": "true",
+      "description": "Set to true when running on a local network or behind a reverse proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB Password",
+      "key": "DB_PASSWORD",
+      "value": "sharetab",
+      "description": "Password for the bundled PostgreSQL user",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DB User",
+      "key": "DB_USER",
+      "value": "sharetab",
+      "description": "Username for the bundled PostgreSQL database",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DB Name",
+      "key": "DB_NAME",
+      "value": "sharetab",
+      "description": "Name of the bundled PostgreSQL database",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Provider Priority",
+      "key": "AI_PROVIDER_PRIORITY",
+      "value": "openai",
+      "description": "Comma-separated provider priority chain, for example: openai-codex,meridian,openai. Splitbon uses the first available provider and falls back to the next provider if extraction fails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI API Key",
+      "key": "OPENAI_API_KEY",
+      "value": "",
+      "description": "API key for OpenAI (required when openai is in AI_PROVIDER_PRIORITY)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OpenAI Model",
+      "key": "OPENAI_MODEL",
+      "value": "gpt-4o",
+      "description": "OpenAI model for receipt scanning. Defaults to gpt-4o.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OpenAI Codex Model",
+      "key": "OPENAI_CODEX_MODEL",
+      "value": "gpt-5.5",
+      "description": "Model for receipt scanning when openai-codex is in AI_PROVIDER_PRIORITY. Defaults to gpt-5.5.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "API key for Claude (required when claude is in AI_PROVIDER_PRIORITY)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Anthropic Model",
+      "key": "ANTHROPIC_MODEL",
+      "value": "claude-sonnet-5",
+      "description": "Claude model for receipt scanning (claude/meridian providers). Defaults to claude-sonnet-5. Options include claude-sonnet-5, claude-opus-5, claude-haiku-4-5",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic Health Model",
+      "key": "ANTHROPIC_HEALTH_MODEL",
+      "value": "claude-haiku-4-5-20251001",
+      "description": "Lightweight model used by the Meridian health poller to verify auth tokens. Defaults to Haiku to minimize token usage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Meridian Port",
+      "key": "MERIDIAN_PORT",
+      "value": "3457",
+      "description": "Port for the embedded Meridian proxy (used when meridian is in AI_PROVIDER_PRIORITY). Change if port 3457 conflicts with another service.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama URL",
+      "key": "OLLAMA_BASE_URL",
+      "value": "http://192.168.1.x:11434",
+      "description": "Ollama server URL (required when ollama is in AI_PROVIDER_PRIORITY)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Ollama Model",
+      "key": "OLLAMA_MODEL",
+      "value": "llava",
+      "description": "Ollama vision model for receipt scanning",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email SMTP Host",
+      "key": "EMAIL_SERVER_HOST",
+      "value": "",
+      "description": "SMTP server for outgoing emails. Used for magic link sign-in and OAuth auth expiry alerts (Meridian / ChatGPT OAuth). Leave blank to disable email sending.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email SMTP Port",
+      "key": "EMAIL_SERVER_PORT",
+      "value": "465",
+      "description": "SMTP port (465 for implicit TLS, 587 for STARTTLS)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email SMTP User",
+      "key": "EMAIL_SERVER_USER",
+      "value": "",
+      "description": "SMTP username / email address",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email SMTP Password",
+      "key": "EMAIL_SERVER_PASSWORD",
+      "value": "",
+      "description": "SMTP password or app password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email From",
+      "key": "EMAIL_FROM",
+      "value": "",
+      "description": "From address for sent emails",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google OAuth Client ID",
+      "key": "GOOGLE_CLIENT_ID",
+      "value": "",
+      "description": "Google OAuth client ID (optional). The login page has no Google button, but sign-ins sent to the provider directly still work and create accounts for any Google user; see the README security notes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Google OAuth Client Secret",
+      "key": "GOOGLE_CLIENT_SECRET",
+      "value": "",
+      "description": "Google OAuth client secret",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Issuer",
+      "key": "OIDC_ISSUER",
+      "value": "",
+      "description": "OIDC issuer URL (optional \u2014 enables SSO via Authentik, Authelia, Keycloak, ...). Must match the issuer in the IdP's .well-known/openid-configuration exactly (Authentik: trailing slash). Redirect URI: [NEXTAUTH_URL]/api/auth/callback/oidc",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Display Name",
+      "key": "OIDC_DISPLAY_NAME",
+      "value": "SSO",
+      "description": "Login button label: Sign in with [name]",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Auto Register",
+      "key": "OIDC_AUTO_REGISTER",
+      "value": "true",
+      "description": "Create a Splitbon account the first time a new IdP user signs in (true/false)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Allow Email Linking",
+      "key": "OIDC_ALLOW_EMAIL_LINKING",
+      "value": "false",
+      "description": "Link a first-time IdP login to an existing Splitbon user with the same email (true/false). Only enable if your IdP doesn't let users set arbitrary, unverified emails. Refused while anyone can sign up with a password (Registration Mode: Open).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Token Auth Method",
+      "key": "OIDC_TOKEN_AUTH_METHOD",
+      "value": "client_secret_basic",
+      "description": "How the client secret is sent to the token endpoint: client_secret_basic or client_secret_post",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Password Login",
+      "key": "DISABLE_PASSWORD_LOGIN",
+      "value": "false",
+      "description": "Hide the email/password form and close registration (true/false). Ignored unless OIDC or magic link sign-in is configured. With SSO only, link existing accounts first or their owners cannot sign in.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Guest Uploads",
+      "key": "DISABLE_GUEST_UPLOADS",
+      "value": "false",
+      "description": "Lock guest (no account) receipt uploads and AI scans off, overriding the admin toggle (true/false). Signed-in users with an active account keep Quick Split, so also limit who can create an account: Registration Control only covers password sign-up; magic link, Google and OIDC auto-registration still create accounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin Email",
+      "key": "ADMIN_EMAIL",
+      "value": "",
+      "description": "Email address of the admin user. Grants access to the /admin dashboard for managing users, groups, and storage, and receives OAuth auth expiry alerts when email is configured. Leave blank to disable admin features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Rate Limit",
+      "key": "AUTH_RATE_LIMIT_MAX",
+      "value": "5",
+      "description": "Max login attempts per email address per 15 minutes. Increase for testing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Registration Rate Limit",
+      "key": "REGISTER_RATE_LIMIT_MAX",
+      "value": "10",
+      "description": "Max registration attempts per client IP per hour.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login Rate Limit per IP",
+      "key": "AUTH_IP_RATE_LIMIT_MAX",
+      "value": "30",
+      "description": "Max login attempts per client IP per 15 minutes. The client IP comes from the cf-connecting-ip, x-real-ip, or first x-forwarded-for header. Clients can forge these unless your reverse proxy overwrites all three; see the README Rate Limiting section.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guest Rate Limit",
+      "key": "GUEST_RATE_LIMIT_MAX",
+      "value": "10",
+      "description": "Per client IP per hour, applied separately to guest receipt uploads, guest splits, and claim sessions.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guest Upload Global Limit",
+      "key": "GUEST_UPLOAD_GLOBAL_LIMIT",
+      "value": "100",
+      "description": "Max guest receipt uploads per hour across all guests combined.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guest AI Scan Global Limit",
+      "key": "GUEST_AI_GLOBAL_LIMIT",
+      "value": "100",
+      "description": "Max guest AI receipt scans per hour across all guests combined.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Upload Size (MB)",
+      "key": "MAX_UPLOAD_SIZE_MB",
+      "value": "10",
+      "description": "Maximum receipt image upload size in megabytes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Server log verbosity: debug | info | warn | error. Defaults to info.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

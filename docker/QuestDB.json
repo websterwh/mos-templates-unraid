@@ -13,44 +13,53 @@
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:9000]",
   "icon": "https://gitlab.com/yayitazale/unraid-templates/-/raw/main/QuestDB.png",
-  "project": "https://questdb.io/",
-  "description": "QuestDB is an open-source database designed to make time-series lightning fast and easy.",
+  "project": "https://questdb.com/",
+  "description": "QuestDB is an open-source database designed to make time-series lightning fast and easy. The Web Console and REST API are on port 9000. Ingest data with the InfluxDB line protocol (9009) or over HTTP, and query it with SQL from the Web Console or any PostgreSQL client (8812). Server settings can be passed as QDB_* variables (see the configuration docs) or edited in conf/server.conf inside the data folder.",
   "paths": [
     {
       "name": "Data Path",
       "host": "/mnt/cache/appdata/questdb",
       "container": "/var/lib/questdb",
       "mode": "rw",
-      "description": null,
+      "description": "Database, configuration and logs.",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Postgres wire protocol",
-      "host": "8812",
-      "container": "8812",
-      "protocol": "tcp",
-      "description": null,
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "API Rest and webgui",
+      "name": "Web Console and REST API",
       "host": "9000",
       "container": "9000",
       "protocol": "tcp",
-      "description": null,
+      "description": "Web Console, REST API and HTTP ingestion.",
       "required": true,
       "mask": false
     },
     {
-      "name": "InfluxDB line protocol",
+      "name": "PostgreSQL Wire Protocol",
+      "host": "8812",
+      "container": "8812",
+      "protocol": "tcp",
+      "description": "SQL from PostgreSQL clients. Remove it if you don't use it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB Line Protocol",
       "host": "9009",
       "container": "9009",
       "protocol": "tcp",
-      "description": null,
-      "required": true,
+      "description": "ILP ingestion over TCP. Remove it if you don't use it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health and Metrics",
+      "host": "9003",
+      "container": "9003",
+      "protocol": "tcp",
+      "description": "Minimal health check and metrics server.",
+      "required": false,
       "mask": false
     }
   ],

@@ -1,0 +1,307 @@
+{
+  "name": "Sylo-Fluxer",
+  "repo": "ghcr.io/ferdinand99/sylo-fluxer:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/Ferdinand99/Sylo-Fluxer/pkgs/container/sylo-fluxer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/Ferdinand99/Sylo-Fluxer/main/unraid/sylo-icon.png",
+  "project": "https://github.com/Ferdinand99/Sylo-Fluxer",
+  "description": "BETA: Sylo-Fluxer runs on Fluxer and every module is ported, but it started life as a Discord bot and some features don't work as expected yet - see \"Beta status\" in the project README before relying on it. Sylo-Fluxer is a multi-function bot for Fluxer (https://fluxer.app) with a web dashboard - a port of Sylo. It has a per-community module system: moderation with warning thresholds and a numbered case log, server logging, tickets/modmail answered from the dashboard, reaction roles & autoroles, verification (react to verify, or a Cloudflare Turnstile captcha), welcome/leave messages, birthdays, sticky messages, auto-moderation, counting, custom commands, an autoresponder, reminders, leveling (text + voice XP), AFK, server statistics, server insights, free games, ban appeals, temporary voice channels, a starboard, an invite tracker, polls, giveaways, game stats, Twitch / YouTube / Kick / RSS alerts, scheduled channel cleanup and a message/embed creator. Commands are typed with a prefix (! by default, changeable per community). State is stored in a single SQLite file under /app/data and survives updates; it is snapshotted automatically into /app/data/backups. Setup: in the Fluxer app open User Settings -> Developer -> Applications, create an application, then set FLUXER_TOKEN (Bot token) and FLUXER_CLIENT_ID (Application ID). Invite the bot with https://web.fluxer.app/oauth2/authorize?client_id=YOUR_APPLICATION_ID&scope=bot&permissions=1100469103831 Dashboard: runs open (no login) until you turn on \"Log in with Fluxer\" - use it only on a trusted LAN until then. To restrict it to community owners / admins, set FLUXER_CLIENT_SECRET (Client secret, same page), DASHBOARD_URL (the URL you open the dashboard on), SESSION_SECRET and OWNER_IDS, and add DASHBOARD_URL/auth/fluxer/callback to the application's Redirect URIs.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/sylo-fluxer/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Where the SQLite database (sylo.db) is stored. Persists across updates/restarts.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Host port for the Sylo dashboard. Only change the host side; the container always listens on 3000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "FLUXER_TOKEN",
+      "key": "FLUXER_TOKEN",
+      "value": "",
+      "description": "Fluxer bot token (User Settings -> Developer -> Applications -> your app -> Bot token).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "FLUXER_CLIENT_ID",
+      "key": "FLUXER_CLIENT_ID",
+      "value": "",
+      "description": "Fluxer Application ID (top of the same page).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "FLUXER_SHARD_COUNT",
+      "key": "FLUXER_SHARD_COUNT",
+      "value": "",
+      "description": "Optional. Number of gateway shards this one container runs. Leave blank (or 'auto') - it stays at 1 until the bot is in ~2,500+ communities. Multi-process sharding is not supported.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLUXER_CLIENT_SECRET",
+      "key": "FLUXER_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Set this (same page -> Client secret) to require 'Log in with Fluxer' on the dashboard, restricted to community admins. Also add http:// :[HOST-PORT]/auth/fluxer/callback to the application's Redirect URIs. Leave blank to run the dashboard open (trusted LAN only).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "FLUXER_API_URL",
+      "key": "FLUXER_API_URL",
+      "value": "",
+      "description": "Optional, self-hosted Fluxer only. Public API origin of your instance. Leave blank for hosted Fluxer (fluxer.app).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLUXER_WEB_URL",
+      "key": "FLUXER_WEB_URL",
+      "value": "",
+      "description": "Optional, self-hosted Fluxer only. Web app origin of your instance. Leave blank for hosted Fluxer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DASHBOARD_URL",
+      "key": "DASHBOARD_URL",
+      "value": "",
+      "description": "Optional. The public dashboard URL (e.g. https://sylo.example.com or http:// :[HOST-PORT]). Needed behind a reverse proxy for the OAuth2 redirect URI, and to build the links members open for verification-captcha and ban appeals. Leave blank for direct IP access without those features.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_SECRET",
+      "key": "SESSION_SECRET",
+      "value": "",
+      "description": "Recommended with FLUXER_CLIENT_SECRET. Any long random string (e.g. from 'openssl rand -hex 32') that signs dashboard sessions. If blank a random one is generated at start, so everyone is logged out on every restart.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OWNER_IDS",
+      "key": "OWNER_IDS",
+      "value": "",
+      "description": "Recommended with FLUXER_CLIENT_SECRET. Your Fluxer user id(s), comma-separated. Only these accounts can open the Health page (status, error log, database backup / restore) once login is on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DEV_LOG_CHANNEL_ID",
+      "key": "DEV_LOG_CHANNEL_ID",
+      "value": "",
+      "description": "Optional. A Fluxer channel id where Sylo posts its own errors and warnings. Sylo must be in that community and able to send embeds there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLUXER_TIMESTAMPS",
+      "key": "FLUXER_TIMESTAMPS",
+      "value": "native",
+      "description": "How times render in bot messages: native (the t:... markup, shown in each reader's timezone) or text (plain UTC). Use text if times show up as raw markup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURNSTILE_SITE_KEY",
+      "key": "TURNSTILE_SITE_KEY",
+      "value": "",
+      "description": "Optional. Cloudflare Turnstile site key \u2014 enables the Verification module's captcha mode. Free at dash.cloudflare.com -&gt; Turnstile. Needs both keys and DASHBOARD_URL set; otherwise captcha mode falls back to reacting with \u2705 to verify.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TURNSTILE_SECRET_KEY",
+      "key": "TURNSTILE_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Cloudflare Turnstile secret key \u2014 pairs with TURNSTILE_SITE_KEY for the Verification captcha.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "ITAD_API_KEY",
+      "key": "ITAD_API_KEY",
+      "value": "",
+      "description": "Optional. IsThereAnyDeal API key (free at isthereanydeal.com/apps) \u2014 broadens the Free games module beyond the Epic Games Store to Steam, GOG, Fanatical, Humble and more. Without it, Free games is Epic-only.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TWITCH_CLIENT_ID",
+      "key": "TWITCH_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Twitch application client id for the Twitch alerts module ('go live' notifications). Free app at dev.twitch.tv/console. Needs TWITCH_CLIENT_SECRET too; without both, the module's poll loop does nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TWITCH_CLIENT_SECRET",
+      "key": "TWITCH_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Twitch application client secret, paired with TWITCH_CLIENT_ID for the Twitch alerts module.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "KICK_CLIENT_ID",
+      "key": "KICK_CLIENT_ID",
+      "value": "",
+      "description": "Optional. Kick application client id for the Kick alerts module ('go live' notifications). Free app at kick.com/settings/developer. Needs KICK_CLIENT_SECRET too; without both, the module's poll loop does nothing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "KICK_CLIENT_SECRET",
+      "key": "KICK_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional. Kick application client secret, paired with KICK_CLIENT_ID for the Kick alerts module.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "STATS_CACHE_TTL_MINUTES",
+      "key": "STATS_CACHE_TTL_MINUTES",
+      "value": "5",
+      "description": "How long (minutes) to cache a stats lookup before hitting the API again.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GAMETOOLS_API_BASE",
+      "key": "GAMETOOLS_API_BASE",
+      "value": "https://api.gametools.network",
+      "description": "Base URL of the Battlefield stats API.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DATABASE_PATH",
+      "key": "DATABASE_PATH",
+      "value": "/app/data/sylo.db",
+      "description": "Path to the SQLite file inside the container. Must sit inside the Data Directory mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_INTERVAL_HOURS",
+      "key": "BACKUP_INTERVAL_HOURS",
+      "value": "24",
+      "description": "How often (hours) to write an automatic compacted database snapshot into Data Directory/backups. A snapshot is also always taken just before a schema migration, and on demand from the Health page. Set to 0 to disable the scheduled backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_RETENTION",
+      "key": "BACKUP_RETENTION",
+      "value": "14",
+      "description": "How many database snapshots to keep in Data Directory/backups. Older ones are pruned automatically.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_DIR",
+      "key": "BACKUP_DIR",
+      "value": "",
+      "description": "Optional. Directory (inside the container) for database snapshots. Leave blank to use Data Directory/backups; must sit inside the Data Directory mount if set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_URL",
+      "key": "BACKUP_WEBDAV_URL",
+      "value": "",
+      "description": "Optional. Off-site backups: a WebDAV folder URL (e.g. a Nextcloud path like https://cloud.example.com/remote.php/dav/files/me/sylo-backups). After every local snapshot a gzipped copy is PUT to url/name.db.gz. Best-effort and logged; never blocks the local backup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_USER",
+      "key": "BACKUP_WEBDAV_USER",
+      "value": "",
+      "description": "Optional. Username for BACKUP_WEBDAV_URL (HTTP basic auth). Use an app password, not your account password.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "BACKUP_WEBDAV_PASS",
+      "key": "BACKUP_WEBDAV_PASS",
+      "value": "",
+      "description": "Optional. Password / app password for BACKUP_WEBDAV_URL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BACKUP_WEBHOOK_URL",
+      "key": "BACKUP_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional. Off-site backups: a webhook URL. Each gzipped snapshot is uploaded as an attachment (skipped when it is over ~8 MiB \u2014 use WebDAV for a larger database).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "WEB_PORT",
+      "key": "WEB_PORT",
+      "value": "3000",
+      "description": "Port the app listens on inside the container. Leave at 3000 unless you also change the container side of the WebUI Port mapping.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NODE_ENV",
+      "key": "NODE_ENV",
+      "value": "production",
+      "description": "Node environment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: debug, info, warn or error. debug also emits one line per HTTP request.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_FORMAT",
+      "key": "LOG_FORMAT",
+      "value": "text",
+      "description": "Log line format: text or json (LOG_JSON=1 is shorthand for json).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Oslo",
+      "description": "IANA timezone name, used for timestamps in ticket transcripts and logs. Defaults to Europe/Oslo.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

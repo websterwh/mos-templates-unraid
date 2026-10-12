@@ -1,0 +1,107 @@
+{
+  "name": "ai-marketplace-monitor",
+  "repo": "ghcr.io/bopeng/ai-marketplace-monitor:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/BoPeng/ai-marketplace-monitor/pkgs/container/ai-marketplace-monitor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8467]/",
+  "icon": "https://raw.githubusercontent.com/BoPeng/ai-marketplace-monitor/main/docs/icon.png",
+  "project": "https://github.com/BoPeng/ai-marketplace-monitor",
+  "description": "AI Marketplace Monitor (aimm) watches Facebook Marketplace for the items you want, rates each new listing with AI, and notifies you of good deals by email, phone, Discord, Slack, Telegram and more. Open the web UI and sign in with your Facebook username and password. aimm logs in to Facebook in its own browser; if Facebook asks for a CAPTCHA or a security code, click Open browser in the web UI and complete it there. Then describe what you are looking for in the Configure chat, or edit config.toml in the web UI. The default configuration uses one UnitySVC API key (https://unitysvc.com) both for the AI that rates listings (OpenAI, Anthropic and other engines) and for email and phone notifications. You can configure other providers instead; add their API keys as variables (e.g. OPENAI_API_KEY) and refer to them in config.toml as ${OPENAI_API_KEY}.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/ai-marketplace-monitor",
+      "container": "/data",
+      "mode": "rw",
+      "description": "config.toml, the cache and the logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8467",
+      "container": "8467",
+      "protocol": "tcp",
+      "description": "Port of the web UI.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Facebook username",
+      "key": "FACEBOOK_USERNAME",
+      "value": "",
+      "description": "The Facebook account aimm logs in with. Also signs you in to the web UI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Facebook password",
+      "key": "FACEBOOK_PASSWORD",
+      "value": "",
+      "description": "Password of that Facebook account. Also signs you in to the web UI.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "UnitySVC API key",
+      "key": "UNITYSVC_API_KEY",
+      "value": "svcpass_XXXXX",
+      "description": "For the default configuration: the AI that rates listings, and email and phone notifications. Sign up at https://unitysvc.com and create an API key. Replace the placeholder with your key; with the placeholder, aimm searches but cannot rate listings or send notifications until you set a key here or other AI and notification services in the web UI.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Web UI sign-in",
+      "key": "AIMM_WEBUI_AUTH",
+      "value": "facebook",
+      "description": "facebook: sign in with the Facebook username and password. local: sign in with the web UI username and password below. Behind a reverse proxy that signs users in, choose it and set its variables (see the Docker installation guide).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI username",
+      "key": "AIMM_WEBUI_USERNAME",
+      "value": "admin",
+      "description": "With Web UI sign-in local: the username of the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Web UI password",
+      "key": "AIMM_WEBUI_PASSWORD",
+      "value": "",
+      "description": "With Web UI sign-in local (required): the password of the web UI, unrelated to the Facebook password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the files in the data folder.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the files in the data folder.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

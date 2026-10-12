@@ -1,0 +1,155 @@
+{
+  "name": "pocket-tts-german-wyoming",
+  "repo": "ghcr.io/marco-taylor/pocket-tts-german-wyoming:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io/marco-taylor/pocket-tts-german-wyoming",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --read-only --cap-drop ALL --security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:10204]",
+  "icon": "https://raw.githubusercontent.com/marco-taylor/pocket-tts-german-wyoming/main/icons/pocket-tts.png",
+  "project": "https://github.com/marco-taylor/pocket-tts-german-wyoming",
+  "description": "Native Rust German Pocket TTS server with Wyoming protocol support for Home Assistant. CPU-only streaming TTS: German/de-DE, 24 kHz mono PCM16 LE, Q8 by default, 27 official German voice states and configurable speech speed. Models and voices are downloaded from pinned official sources when missing and persist across restarts. Compatible local assets can be installed manually. No Python, PyTorch or GPU runtime. Add Wyoming Protocol manually in Home Assistant using the host address and Wyoming port. This template prepares a future registry release; no public image or CA listing is currently claimed.",
+  "paths": [
+    {
+      "name": "Models",
+      "host": "/mnt/cache/appdata/pocket-tts-german-wyoming/models",
+      "container": "/app/models",
+      "mode": "rw",
+      "description": "Dedicated persistent models directory. Must be writable by UID 99 / GID 100; existing user files are not overwritten.",
+      "required": true
+    },
+    {
+      "name": "Voices",
+      "host": "/mnt/cache/appdata/pocket-tts-german-wyoming/voices",
+      "container": "/app/voices",
+      "mode": "rw",
+      "description": "Dedicated persistent voices directory. Must be writable by UID 99 / GID 100; existing user files are not overwritten.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Wyoming Port",
+      "host": "10204",
+      "container": "10204",
+      "protocol": "tcp",
+      "description": "Wyoming TCP port for Home Assistant. Container port remains 10204.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Model language",
+      "key": "POCKET_TTS_LANGUAGE",
+      "value": "german",
+      "description": "Only german is supported; Wyoming advertises de-DE.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local model path",
+      "key": "POCKET_TTS_MODEL_PATH",
+      "value": "",
+      "description": "Optional compatible model path inside the container. When set, no automatic model download or replacement occurs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Models directory",
+      "key": "POCKET_TTS_MODELS_DIR",
+      "value": "/app/models",
+      "description": "Persistent model root. Keep aligned with the models volume target.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Voices directory",
+      "key": "POCKET_TTS_VOICES_DIR",
+      "value": "/app/voices",
+      "description": "Persistent official and local voice root. Keep aligned with the voices volume target.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Default voice",
+      "key": "POCKET_TTS_VOICE",
+      "value": "juergen",
+      "description": "Default voice name. 27 pinned official German voices plus compatible local states are discovered at startup. See README and assets/german-voices.lock.json.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Q8 quantization",
+      "key": "POCKET_TTS_QUANTIZE",
+      "value": "true",
+      "description": "true uses Q8; false uses FP32. Q8 derivatives are stored separately; the original model is never overwritten.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "CPU threads",
+      "key": "POCKET_TTS_THREADS",
+      "value": "2",
+      "description": "Backend threads: 1 to 4. Intel N100 tested with 2.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "German normalization",
+      "key": "POCKET_TTS_NORMALIZE",
+      "value": "true",
+      "description": "Native German SPAN/Priority normalization before the Pocket TTS tokenizer.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Speech Speed",
+      "key": "POCKET_TTS_SPEED",
+      "value": "1.0",
+      "description": "Speech speed / Sprechgeschwindigkeit. Valid range: 0.8\u20131.2; default: 1.0. Intermediate values allowed. Invalid values cause a startup error; no clamping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Wyoming listen port",
+      "key": "WYOMING_PORT",
+      "value": "10204",
+      "description": "Container listen port. Keep 10204 to match the port mapping; change only the host port when necessary.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "RUST_LOG",
+      "value": "info",
+      "description": "error, warn, info, debug or trace. INFO currently logs input, normalized and tokenizer text; use warn for privacy.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Voice cache MiB",
+      "key": "POCKET_TTS_VOICE_CACHE_MB",
+      "value": "32",
+      "description": "Lazy voice LRU budget: 16\u2013512 MiB. Not a total-process RAM limit.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Download official voices",
+      "key": "POCKET_TTS_DOWNLOAD_VOICES",
+      "value": "true",
+      "description": "Automatically download missing pinned public official voice states. Existing valid states are reused; local states are not overwritten.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

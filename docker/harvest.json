@@ -1,0 +1,227 @@
+{
+  "name": "harvest",
+  "repo": "ghcr.io/pross/harvest:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8099]/",
+  "icon": "https://raw.githubusercontent.com/Pross/harvest/main/docs/icon.png",
+  "project": "https://github.com/Pross/harvest",
+  "description": "Self-hosted seedbox to homelab sync. Pulls finished downloads from your seedbox over SFTP, FTP or FTPS to local folders on a schedule, verifies them, and keeps a ledger so a file you delete locally is never downloaded again.",
+  "paths": [
+    {
+      "name": "Config Directory",
+      "host": "/mnt/cache/appdata/harvest",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent storage: SQLite database (db/), temporary files (tmp/), and logs.",
+      "required": true
+    },
+    {
+      "name": "Target Directory",
+      "host": "/mnt/cache/downloads",
+      "container": "/data/downloads",
+      "mode": "rw",
+      "description": "Example download target. Map any number of additional paths under /data/name (e.g., -e /data/tv:/mnt/user/tv). Staging (.harvest-staging) is created inside each target, so staging and destination must be on the same mount. Never map a target such that staging and final path cross filesystems.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8099",
+      "container": "8099",
+      "protocol": "tcp",
+      "description": "Port to access the Harvest web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App Secret",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "Encrypts stored remote credentials. Keep it stable: changing it makes saved credentials unreadable. Generate with: openssl rand -hex 32. If unset, a key is auto-generated and stored in /config/.app_secret (back it up separately).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Auth Mode",
+      "key": "AUTH_MODE",
+      "value": "builtin",
+      "description": "Authentication mode: builtin (single user, session cookie) or none (no login, use only behind your own reverse proxy).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin User",
+      "key": "ADMIN_USER",
+      "value": "admin",
+      "description": "Username for the first admin user (builtin auth only). Applied only when no user exists.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin Password",
+      "key": "ADMIN_PASS",
+      "value": "",
+      "description": "Password for the first admin user. Minimum 8 characters. Applied only when no user exists.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "The public URL of the app (e.g., https://harvest.example.com). Used to generate webhook URLs and validate cross-site requests. Recommended if AUTH_MODE=none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone for schedules and log timestamps (e.g., Europe/London).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. Unraid default is 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. Unraid default is 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "File creation mask (e.g., 002 allows group writes).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity: silent, fatal, error, warn, info, debug, trace.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "Configure trust in reverse-proxy headers (X-Forwarded-For, X-Forwarded-Proto). Options: false (default), true (trust any proxy\u2014only safe if it overwrites X-Forwarded-For), a hop count like 1, or a comma-separated list of proxy IPs/CIDRs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional Host header allowlist (comma-separated). If set, requests with an unknown Host are rejected with 421. Useful to block DNS rebinding attacks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cookie Secure",
+      "key": "COOKIE_SECURE",
+      "value": "false",
+      "description": "Set to true when the app is served over HTTPS (via a reverse proxy). Controls the Secure flag on session cookies.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics Enabled",
+      "key": "METRICS_ENABLED",
+      "value": "false",
+      "description": "Serve Prometheus metrics at /metrics on the Web UI port. WARNING: no login is required when enabled, so anyone who can reach the port can read job names and transfer stats. Keep the port on your LAN or behind your own proxy. Leave false unless you scrape it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Concurrent Runs",
+      "key": "MAX_CONCURRENT_RUNS",
+      "value": "2",
+      "description": "Maximum number of jobs that can run concurrently.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Concurrent Files",
+      "key": "MAX_CONCURRENT_FILES",
+      "value": "4",
+      "description": "Maximum number of files being transferred across all concurrent runs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stall Timeout (seconds)",
+      "key": "STALL_TIMEOUT_SECONDS",
+      "value": "120",
+      "description": "Kill and retry a byte range if no bytes arrive in this many seconds.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connect Timeout (seconds)",
+      "key": "CONNECT_TIMEOUT_SECONDS",
+      "value": "30",
+      "description": "Timeout for rclone to connect and deliver the first byte.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Range Min Bytes",
+      "key": "RANGE_MIN_BYTES",
+      "value": "268435456",
+      "description": "Files smaller than this (256 MB default) use a single byte range. Larger files split into multiple parallel ranges.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Checkpoint Bytes",
+      "key": "CHECKPOINT_BYTES",
+      "value": "16777216",
+      "description": "Fsync and checkpoint progress every N bytes per range (16 MB default). A crash loses at most this much progress.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Browse Roots",
+      "key": "BROWSE_ROOTS",
+      "value": "/data",
+      "description": "Comma-separated container paths exposed in the local folder browser (e.g., /data,/media).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "rclone Binary Path",
+      "key": "RCLONE_BIN",
+      "value": "rclone",
+      "description": "Path to the rclone binary. The Docker image includes it at /usr/local/bin/rclone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

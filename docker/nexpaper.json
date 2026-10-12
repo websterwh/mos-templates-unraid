@@ -1,0 +1,115 @@
+{
+  "name": "nexpaper",
+  "repo": "ghcr.io/derkezorm/nexpaper",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/DerKezorm/nexpaper/pkgs/container/nexpaper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/DerKezorm/unraid-templates/main/icons/nexpaper.png",
+  "project": "https://github.com/DerKezorm/nexpaper",
+  "description": "Paperless-ngx for the home, the simple version. nexpaper is a light filing cabinet for the papers of a household or a small firm, on your own server: upload, find, done. One container, no Redis, no Celery and no Postgres, and an import that takes over what you already have in Paperless-ngx. Everything new waits in an inbox with the fields filled in, whether it came from the browser, a photo taken on the phone, a scanner's folder, a mailbox or Paperless, and one click files it. Scans are read and become searchable PDFs while the original stays exactly as it came, with its checksum. The search understands parts of words and filters. Pages can be turned, deleted, ordered, joined and split, and every change is a new version. Everybody has a vault of their own, the operator makes shared ones for the household or the business, and single documents can be shared with a person or, for somebody without an account, as a link that ends. For small firms, e-invoices (ZUGFeRD, Factur-X, XRechnung) are read from their data, a history shows who changed what, and an export for the tax adviser is a ZIP with the PDFs and a list. A second factor is required from the start, passkeys are supported, and accounts come by invitation or through OpenID Connect (one-button setup for authentik). An open API serves the apps that will come. nexpaper is an independent project and not affiliated with Paperless-ngx.",
+  "paths": [
+    {
+      "name": "Data (Container Path: /data)",
+      "host": "/mnt/cache/appdata/nexpaper",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds the SQLite database with accounts and the search index, the documents as plain files in dokumente/, the key secret.key, backups and logs. A backup made by nexpaper does not hold the documents: copy this folder with the backup your server makes anyway. Keep it on a local disk, not on a network share.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8560",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port you reach nexpaper at. Container port: 8000",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id that should own the files in /data. 99 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id that should own the files in /data. 100 is the Unraid default.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "",
+      "description": "Time zone for timestamps in the log, for example Europe/Berlin. Leave blank for UTC. People's own time zones come from their browsers.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup Code",
+      "key": "NEXPAPER_SETUP_TOKEN",
+      "value": "",
+      "description": "The code the first account needs to become the operator. Leave blank: nexpaper makes a new one at every start until it is set up and writes it to the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NEXPAPER_PUBLIC_URL",
+      "value": "",
+      "description": "The address people use to reach nexpaper, for example https://paper.example.com when it sits behind a reverse proxy. Used for invitation links and the return address of OpenID Connect. Leave blank to take the address of the request; the same can be set later in the settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxies",
+      "key": "NEXPAPER_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Addresses or networks of your reverse proxies, comma separated, for example 172.16.0.0/12. Only their X-Forwarded-For and X-Forwarded-Proto (the rightmost value) are believed, so only they can tell nexpaper that a request came in over https; without it every sign-in seems to come from the proxy and the brake against password guessing cannot tell people apart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container Port (host networking only)",
+      "key": "NEXPAPER_PORT",
+      "value": "",
+      "description": "Leave this empty unless you switched Network Type to Host. In bridge mode the WebUI Port above already does the job and setting this will break it, because the mapping still points at 8000. On host networking the port inside the container is the port on your server, so use this to move nexpaper off 8000 if something else is already there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "NEXPAPER_SECRET_KEY",
+      "value": "",
+      "description": "Protects the server-side secrets (the OpenID Connect client secret, the mail password, the AI key). Leave blank: nexpaper creates one on first start and keeps it in /data/secret.key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookie",
+      "key": "NEXPAPER_COOKIE_SECURE",
+      "value": "auto",
+      "description": "auto marks the session cookie Secure when the request arrived over https, also behind a proxy listed under Trusted Proxies that sends X-Forwarded-Proto. Use on only if a proxy terminates TLS and forwards plain http without that header, and never if nexpaper should also be reachable over http, or nobody can sign in. off never marks it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

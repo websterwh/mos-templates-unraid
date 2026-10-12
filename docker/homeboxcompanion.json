@@ -1,0 +1,107 @@
+{
+  "name": "homebox-companion",
+  "repo": "ghcr.io/duelion/homebox-companion:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/Duelion/homebox-companion/pkgs/container/homebox-companion",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/Duelion/homebox-companion/main/.github/assets/images/homebox-companion-icon.png",
+  "project": "https://github.com/Duelion/homebox-companion",
+  "description": "AI companion for a Homebox inventory. Photograph your things and let a vision model identify them, then create the items - including photos, quantities, manufacturer, model and tags - directly in Homebox. An AI chat helps to search, organise and update the inventory. REQUIREMENTS: a running Homebox server and an API key for an LLM provider (OpenAI, Anthropic, Google or OpenRouter via LiteLLM). The LLM key is paid per use; the project estimates roughly 0.30 USD per 100 items with gpt-5-mini. SETUP: set \"Homebox URL\" to the address of your Homebox server including its port, as reachable from inside this container - the server IP works, \"localhost\" does not. Keep the data folder mapped so settings, AI profiles and custom fields survive updates. LOGIN: by default the app asks for your Homebox username and password. Filling in the optional Homebox API key (Homebox 0.26.0 or newer, Profile - API Keys) removes that login screen; everyone who can reach this container then acts as the owner of that key. Only use it on a network you control or behind an authenticated reverse proxy. Unofficial third-party app, not affiliated with the Homebox project. This template is maintained by mygrexit, not by the application author; please report application issues upstream.",
+  "paths": [
+    {
+      "name": "Data folder",
+      "host": "/mnt/cache/appdata/homebox-companion",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Stores settings, AI profiles and custom field definitions. Without it every update resets them.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port of the Companion web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LLM API key (HBC_LLM_API_KEY)",
+      "key": "HBC_LLM_API_KEY",
+      "value": "",
+      "description": "API key of your LLM provider, e.g. OpenAI (sk-...), Anthropic, Google or OpenRouter. Billed per use.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Homebox URL (HBC_HOMEBOX_URL)",
+      "key": "HBC_HOMEBOX_URL",
+      "value": "http://192.168.1.100:7745",
+      "description": "Address of your Homebox server including port, as reachable from inside this container. Use the server IP and the host port you mapped for Homebox. localhost points at this container, not at Homebox.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "LLM model (HBC_LLM_MODEL)",
+      "key": "HBC_LLM_MODEL",
+      "value": "gpt-5-mini",
+      "description": "Model identifier, e.g. gpt-5-mini, gpt-5-nano, claude-3-5-sonnet-20241022, gemini-2.0-flash or openrouter/openai/gpt-5-mini.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Homebox API key (optional)",
+      "key": "HBC_HOMEBOX_API_KEY",
+      "value": "",
+      "description": "Optional. Homebox-issued key (Homebox 0.26.0+, Profile - API Keys). Removes the Companion login screen - everyone who can reach the container then acts as that key's Homebox owner. Leave empty to keep username/password login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public Homebox URL (HBC_LINK_BASE_URL)",
+      "key": "HBC_LINK_BASE_URL",
+      "value": "",
+      "description": "Optional. Address used for Homebox links shown in chat, when the container reaches Homebox internally but you open it under a public address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM API base (HBC_LLM_API_BASE)",
+      "key": "HBC_LLM_API_BASE",
+      "value": "",
+      "description": "Optional. Custom endpoint for proxies or gateways, e.g. https://openrouter.ai/api/v1.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Image quality (HBC_IMAGE_QUALITY)",
+      "key": "HBC_IMAGE_QUALITY",
+      "value": "medium",
+      "description": "raw, high, medium or low. Controls compression of uploaded photos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level (HBC_LOG_LEVEL)",
+      "key": "HBC_LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING, ERROR or CRITICAL.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,81 @@
+{
+  "name": "WARHOST",
+  "repo": "ghcr.io/suchamoneypit/warhost:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/suchamoneypit/WARHOST/pkgs/container/warhost",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:11400]/",
+  "icon": "https://raw.githubusercontent.com/suchamoneypit/WARHOST/main/icon.png",
+  "project": "https://github.com/suchamoneypit/WARHOST",
+  "description": "WARHOST runs Eugen's official WARNO dedicated server. This form writes login.ini. The WebUI writes the lobby, including the server name, map, and workshop mods. WARNO was a game made in France, but WARHOST was created in the United States. Request a login and key from eugsupport@eugensystems.com (one pair runs five servers). The first start seeds a base-game Hesse 2v2 lobby named WARHOST - default server name, with no workshop mods. Open the WebUI to change that. Save and restart on that page loads the save. If the page cannot restart the container, restart it in Unraid. Map and mod IDs are in the project README. Each server's game port must be forwarded to this Unraid server as TCP and UDP. The next container uses that port plus 1, and its settings folder uses that new port, for example /mnt/user/appdata/warno/10401/settings. The image is built FROM eugensystems/warno:latest and its license is left unlabeled. The Docker WebUI button is http:// :[PORT:11400]/; do not forward that port. This template installs ghcr.io/suchamoneypit/warhost:latest. Lobby settings are edited in the WebUI.",
+  "paths": [
+    {
+      "name": "Settings Folder",
+      "host": "/mnt/cache/appdata/warno/10400/settings",
+      "container": "/server/settings",
+      "mode": "rw",
+      "description": "Ini files for this container only. Use /mnt/user/appdata/warno/10400/settings. The next container uses this path with the port number plus 1, for example /mnt/user/appdata/warno/10401/settings.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Eugen Login",
+      "key": "EUGEN_LOGIN",
+      "value": "",
+      "description": "Login from Eugen's reply, exactly as written. Not your Steam name; this login and the key are a matching pair good for five containers.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Eugen Dedicated Key",
+      "key": "EUGEN_DEDICATED_KEY",
+      "value": "",
+      "description": "Key from the same reply. Shown in clear text on this form so servers can be told apart.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Public WAN IP",
+      "key": "EXPOSEDIP",
+      "value": "",
+      "description": "Public address players connect to. Not a hostname, and not this Unraid server's LAN address.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI",
+      "key": "WEB_UI",
+      "value": "true",
+      "description": "false leaves the Docker WebUI button with nothing listening. true serves that page at the game port plus 1000, so 10400 uses 11400. Do not forward that port. The log names the port. Saving writes variables.ini. Save and restart loads it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Game Port",
+      "key": "EXPOSEDPORT",
+      "value": "10400",
+      "description": "Forward this number to the Unraid host as TCP and UDP. The next container uses this number plus 1. Players join by the server name set in the WebUI.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Write Config From Form",
+      "key": "WRITE_CONFIG",
+      "value": "true",
+      "description": "true rewrites login.ini and params_for_ai.json on every start, seeds variables.ini when missing, and refreshes bare Workshop ids in that file. false leaves the files and sets login.ini to mode 600.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

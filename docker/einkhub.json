@@ -1,0 +1,99 @@
+{
+  "name": "eink-hub",
+  "repo": "registry.gitlab.com/yayitazale/eink-hub:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://gitlab.com/yayitazale/eink-hub/container_registry",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://gitlab.com/yayitazale/eink-hub/-/raw/main/apps/web/public/icon-512.png",
+  "project": "https://gitlab.com/yayitazale/eink-hub",
+  "description": "Self-hosted control center for e-ink photo frames (BLOOMIN8, SwitchBot AI Art Frame, TRMNL firmware and your own ESP32 / Raspberry Pi frames), with Immich integration. Exact previews with smart crop, collections from uploads or Immich, schedules and battery-friendly pull mode. Set LOCAL_URL to http://[your Unraid IP]:8080: frames on your LAN use it to reach the hub, and \"Search the network\" scans its subnet. Then open the WebUI and choose an admin password. Documentation: https://eink-hub-7ba3a3.gitlab.io/guide/Unraid",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/eink-hub",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, photos and render cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI and the endpoints frames pull pictures from. If you change it, change LOCAL_URL too.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "LOCAL_URL",
+      "key": "LOCAL_URL",
+      "value": "",
+      "description": "LAN address of the hub, e.g. http://192.168.1.10:8080 (your Unraid IP and the port above). Frames use it to reach the hub; not localhost.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Admin password. Leave empty to choose one on first visit.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "EXTERNAL_URL",
+      "key": "EXTERNAL_URL",
+      "value": "",
+      "description": "Optional address people use to open the hub (reverse proxy\u2026). The QR code on the frames opens it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMMICH_URL",
+      "key": "IMMICH_URL",
+      "value": "",
+      "description": "Optional Immich address, e.g. http://192.168.1.10:2283. Can also be set from Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMMICH_API_KEY",
+      "key": "IMMICH_API_KEY",
+      "value": "",
+      "description": "Optional Immich API key. Can also be set from Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CLOUD_URL",
+      "key": "CLOUD_URL",
+      "value": "",
+      "description": "Only for SwitchBot frames: public https address SwitchBot's cloud downloads photos from, when only /u/img is exposed. Empty = EXTERNAL_URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AUTH_DISABLED",
+      "key": "AUTH_DISABLED",
+      "value": "false",
+      "description": "true turns the admin password off. Only on a trusted network or behind your own auth proxy.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

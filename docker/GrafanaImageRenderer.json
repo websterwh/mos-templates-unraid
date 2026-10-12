@@ -14,20 +14,29 @@
   "web_ui_url": "http://[IP]:[PORT:8081]",
   "icon": "https://github.com/atribe/unRAID-docker/raw/master/icons/grafana.png",
   "project": "https://github.com/grafana/grafana-image-renderer",
-  "description": "A Grafana remote image renderer that handles rendering panels & dashboards to PNGs using headless chrome. Read Grafana Image Renderer documentation and see usage instructions at readme link. In order to use this as a plugin of your Grafana docker instance you must add this enviromental arguments to that container: - GF_RENDERING_SERVER_URL: http://renderer-ip:8081/render - GF_RENDERING_CALLBACK_URL: http://grafana-ip:3000/ Change the IP (and the ports) to suit your configuration.",
+  "description": "Grafana's remote image renderer: renders panels and dashboards to PNG and PDF with a headless browser, for alerts, reports and sharing. To use it, add these variables to your Grafana container (change the IPs and ports to suit your setup): GF_RENDERING_SERVER_URL=http://[renderer IP]:8081/render GF_RENDERING_CALLBACK_URL=http://[Grafana IP]:3000/ GF_RENDERING_RENDERER_TOKEN=the same value as Auth Token below",
   "paths": [],
   "ports": [
     {
-      "name": "Endpoint port",
+      "name": "Endpoint Port",
       "host": "8081",
       "container": "8081",
       "protocol": "tcp",
-      "description": null,
+      "description": "Grafana calls the renderer here (GF_RENDERING_SERVER_URL).",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Auth Token",
+      "key": "AUTH_TOKEN",
+      "value": "-",
+      "description": "Shared secret with Grafana: set the same value in Grafana's GF_RENDERING_RENDERER_TOKEN. Both default to -; change it to a random string.",
+      "required": true,
+      "mask": true
+    }
+  ],
   "devices": [],
   "labels": []
 }

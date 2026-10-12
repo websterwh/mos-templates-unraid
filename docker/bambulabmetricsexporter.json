@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:9109]/",
   "icon": "https://raw.githubusercontent.com/TheBlackBush/bambulab_metrics_exporter/main/docs/logo.png",
   "project": "https://github.com/TheBlackBush/bambulab_metrics_exporter",
-  "description": "Prometheus exporter for Bambu Lab printers on Unraid. Exposes /metrics, /health, and /ready. Quick setup: 1) Set required values: BAMBULAB_TRANSPORT, BAMBULAB_SERIAL, BAMBULAB_SECRET_KEY (example: openssl rand -base64 48). 2) cloud_mqtt: set BAMBULAB_CLOUD_EMAIL (code/token fields can be left empty for first run and may auto-populate). 3) local_mqtt: set BAMBULAB_HOST and BAMBULAB_ACCESS_CODE. Then start the container and open WebUI for status. Scrape /metrics from Prometheus.",
+  "description": "Prometheus exporter for Bambu Lab 3D printers (local LAN or Bambu Cloud). Exposes /metrics for Prometheus, /health, /ready, a status page at / and a printer connection page at /auth. Quick setup: 1) Set Secret Key (generate once, for example: openssl rand -hex 32) and keep it. 2) Start the container and open WebUI, then Printer connection (/auth). 3) Choose Local (printer IP, serial, LAN access code) or Bambu Cloud (email and verification code). The exporter connects right away and keeps the settings across restarts. All printer and login fields below are optional; use them only if you prefer configuring with variables. Settings saved on the /auth page take precedence over them. The /auth page has no login of its own; keep the port on a trusted network.",
   "paths": [
     {
       "name": "Config Dir",
       "host": "/mnt/cache/appdata/bambulab-metrics-exporter",
       "container": "/config/bambulab-metrics-exporter",
       "mode": "rw",
-      "description": "Persistent config and encrypted credentials",
+      "description": "Stores the encrypted /auth page settings and cloud credentials.",
       "required": true
     }
   ],
@@ -31,105 +31,33 @@
       "host": "9109",
       "container": "9109",
       "protocol": "tcp",
-      "description": "Exporter HTTP port",
+      "description": "Host port for the web UI and /metrics.",
       "required": true,
       "mask": false
     }
   ],
   "variables": [
     {
-      "name": "Listen Host",
-      "key": "LISTEN_HOST",
-      "value": "0.0.0.0",
-      "description": "HTTP bind host",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Listen Port",
-      "key": "LISTEN_PORT",
-      "value": "9109",
-      "description": "HTTP bind port",
-      "required": false,
-      "mask": false
+      "name": "Secret Key",
+      "key": "BAMBULAB_SECRET_KEY",
+      "value": "",
+      "description": "Encrypts the settings and cloud login saved by the /auth page so they survive restarts. Generate once (openssl rand -hex 32) and keep it; changing it means connecting again.",
+      "required": true,
+      "mask": true
     },
     {
       "name": "Transport",
       "key": "BAMBULAB_TRANSPORT",
-      "value": "cloud_mqtt",
-      "description": "Select transport mode",
-      "required": true,
+      "value": "local_mqtt",
+      "description": "Optional. local_mqtt (LAN) or cloud_mqtt (Bambu Cloud). Ignored once a connection is saved on the /auth page.",
+      "required": false,
       "mask": false
     },
     {
       "name": "Printer Serial",
       "key": "BAMBULAB_SERIAL",
       "value": "",
-      "description": "Printer device serial (required)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "Secret Key",
-      "key": "BAMBULAB_SECRET_KEY",
-      "value": "",
-      "description": "Strong key for encrypted credentials. Generate example: openssl rand -base64 48",
-      "required": true,
-      "mask": true
-    },
-    {
-      "name": "Cloud Email",
-      "key": "BAMBULAB_CLOUD_EMAIL",
-      "value": "",
-      "description": "Used only when Transport=cloud_mqtt. Recommended/required for automatic cloud auth flow.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Cloud One-Time Code",
-      "key": "BAMBULAB_CLOUD_CODE",
-      "value": "",
-      "description": "Used only when Transport=cloud_mqtt. Optional verification code from email; if empty, startup can trigger code flow and ask for restart.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Cloud User ID",
-      "key": "BAMBULAB_CLOUD_USER_ID",
-      "value": "",
-      "description": "Used only when Transport=cloud_mqtt. Usually auto-filled by startup auth process; can stay empty on first run.",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Cloud Access Token",
-      "key": "BAMBULAB_CLOUD_ACCESS_TOKEN",
-      "value": "",
-      "description": "Used only when Transport=cloud_mqtt. Usually auto-filled by startup auth process; leave empty unless setting manually.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Cloud Refresh Token",
-      "key": "BAMBULAB_CLOUD_REFRESH_TOKEN",
-      "value": "",
-      "description": "Used only when Transport=cloud_mqtt. Auto-filled when available by startup auth process; optional for manual setup.",
-      "required": false,
-      "mask": true
-    },
-    {
-      "name": "Cloud MQTT Host",
-      "key": "BAMBULAB_CLOUD_MQTT_HOST",
-      "value": "us.mqtt.bambulab.com",
-      "description": "Cloud MQTT host",
-      "required": false,
-      "mask": false
-    },
-    {
-      "name": "Cloud MQTT Port",
-      "key": "BAMBULAB_CLOUD_MQTT_PORT",
-      "value": "8883",
-      "description": "Cloud MQTT port",
+      "description": "Optional. Printer serial number; leave empty to set it on the /auth page.",
       "required": false,
       "mask": false
     },
@@ -137,7 +65,7 @@
       "name": "Local Host/IP",
       "key": "BAMBULAB_HOST",
       "value": "",
-      "description": "Used only when Transport=local_mqtt. Required printer IP/hostname.",
+      "description": "Optional, local_mqtt only. Printer IP or hostname; leave empty to set it on the /auth page.",
       "required": false,
       "mask": false
     },
@@ -145,7 +73,7 @@
       "name": "Local Access Code",
       "key": "BAMBULAB_ACCESS_CODE",
       "value": "",
-      "description": "Used only when Transport=local_mqtt. Required LAN access code from printer settings.",
+      "description": "Optional, local_mqtt only. LAN access code from the printer (Settings, Network); leave empty to set it on the /auth page.",
       "required": false,
       "mask": true
     },
@@ -153,7 +81,7 @@
       "name": "Local MQTT Port",
       "key": "BAMBULAB_PORT",
       "value": "8883",
-      "description": "Used only when Transport=local_mqtt. Usually keep default 8883.",
+      "description": "local_mqtt only. Keep 8883.",
       "required": false,
       "mask": false
     },
@@ -161,47 +89,79 @@
       "name": "Local MQTT Username",
       "key": "BAMBULAB_USERNAME",
       "value": "bblp",
-      "description": "Used only when Transport=local_mqtt. Usually keep default bblp.",
+      "description": "local_mqtt only. Keep bblp.",
       "required": false,
       "mask": false
     },
     {
-      "name": "PUID",
-      "key": "PUID",
-      "value": "500",
-      "description": "User ID to run container as (Unraid: usually 99)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "PGID",
-      "key": "PGID",
-      "value": "500",
-      "description": "Group ID to run container as (Unraid: usually 100)",
-      "required": true,
-      "mask": false
-    },
-    {
-      "name": "UMASK",
-      "key": "UMASK",
-      "value": "002",
-      "description": "File creation mask",
+      "name": "Cloud Email",
+      "key": "BAMBULAB_CLOUD_EMAIL",
+      "value": "",
+      "description": "Optional, cloud_mqtt only. For the env-variable login flow: the container emails a verification code to this address. Not needed when you log in on the /auth page.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Config Dir Env",
-      "key": "BAMBULAB_CONFIG_DIR",
-      "value": "/config/bambulab-metrics-exporter",
-      "description": "Internal config path",
+      "name": "Cloud One-Time Code",
+      "key": "BAMBULAB_CLOUD_CODE",
+      "value": "",
+      "description": "Optional, cloud_mqtt only. Legacy: the emailed verification code for the env-variable flow; remove it after login. Logging in on the /auth page is easier.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud User ID",
+      "key": "BAMBULAB_CLOUD_USER_ID",
+      "value": "",
+      "description": "Optional, cloud_mqtt only. Only for manually obtained tokens; leave empty.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Credentials File",
-      "key": "BAMBULAB_CREDENTIALS_FILE",
-      "value": "credentials.enc.json",
-      "description": "Encrypted credentials filename",
+      "name": "Cloud Access Token",
+      "key": "BAMBULAB_CLOUD_ACCESS_TOKEN",
+      "value": "",
+      "description": "Optional, cloud_mqtt only. Only for manually obtained tokens; leave empty.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud Refresh Token",
+      "key": "BAMBULAB_CLOUD_REFRESH_TOKEN",
+      "value": "",
+      "description": "Optional, cloud_mqtt only. Only for manually obtained tokens; leave empty.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloud MQTT Host",
+      "key": "BAMBULAB_CLOUD_MQTT_HOST",
+      "value": "us.mqtt.bambulab.com",
+      "description": "cloud_mqtt only. Bambu Cloud MQTT broker; keep the default unless your account uses another region.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloud MQTT Port",
+      "key": "BAMBULAB_CLOUD_MQTT_PORT",
+      "value": "8883",
+      "description": "cloud_mqtt only. Keep 8883.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Printer Name Label",
+      "key": "PRINTER_NAME_LABEL",
+      "value": "",
+      "description": "Optional. printer_name label on all metrics; leave empty to use the printer name from the printer or Bambu Cloud.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Request Snapshots",
+      "key": "BAMBULAB_REQUEST_PUSHALL",
+      "value": "true",
+      "description": "true: ask the printer for a full status report every poll (read-only). false: only listen to updates the printer sends on its own.",
       "required": false,
       "mask": false
     },
@@ -209,7 +169,7 @@
       "name": "Polling Interval",
       "key": "POLLING_INTERVAL_SECONDS",
       "value": "10",
-      "description": "Polling interval in seconds",
+      "description": "Seconds between polls.",
       "required": false,
       "mask": false
     },
@@ -217,7 +177,15 @@
       "name": "Request Timeout",
       "key": "REQUEST_TIMEOUT_SECONDS",
       "value": "8",
-      "description": "Request timeout in seconds",
+      "description": "Seconds to wait for a printer report each poll.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Allowed Hosts",
+      "key": "AUTH_ALLOWED_HOSTS",
+      "value": "",
+      "description": "Extra host names allowed for the /auth page, comma separated (for example a reverse-proxy name). IP addresses and local names are always allowed.",
       "required": false,
       "mask": false
     },
@@ -225,15 +193,63 @@
       "name": "Log Level",
       "key": "LOG_LEVEL",
       "value": "INFO",
-      "description": "DEBUG/INFO/WARNING/ERROR",
+      "description": "Log verbosity.",
       "required": false,
       "mask": false
     },
     {
-      "name": "Printer Name Label",
-      "key": "PRINTER_NAME",
-      "value": "",
-      "description": "Prometheus label value; leave empty to auto-fill from printer serial",
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the exporter runs as (Unraid: 99).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the exporter runs as (Unraid: 100).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "File creation mask.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen Host",
+      "key": "LISTEN_HOST",
+      "value": "0.0.0.0",
+      "description": "HTTP bind address inside the container. Keep 0.0.0.0.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen Port",
+      "key": "LISTEN_PORT",
+      "value": "9109",
+      "description": "HTTP port inside the container. Keep 9109; to use another port on the server, change Web UI Port instead.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Config Dir Env",
+      "key": "BAMBULAB_CONFIG_DIR",
+      "value": "/config/bambulab-metrics-exporter",
+      "description": "Config path inside the container; must match the Config Dir container path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Credentials File",
+      "key": "BAMBULAB_CREDENTIALS_FILE",
+      "value": "credentials.enc.json",
+      "description": "Encrypted credentials file name in the config directory.",
       "required": false,
       "mask": false
     }
