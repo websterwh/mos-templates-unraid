@@ -9,12 +9,12 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--user=99:100 --read-only --cap-drop=ALL --security-opt=no-new-privileges --cpus=1 --memory=1g --pids-limit=128 --tmpfs=/tmp:rw,noexec,nosuid,size=128m --restart=unless-stopped --log-opt=max-size=10m --log-opt=max-file=3",
+  "extra_parameters": "--user=99:100 --read-only --cap-drop=ALL --security-opt=no-new-privileges --cpus=2 --memory=2g --pids-limit=256 --tmpfs=/tmp:rw,noexec,nosuid,size=128m --restart=unless-stopped --log-opt=max-size=10m --log-opt=max-file=3",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8270]",
   "icon": "https://raw.githubusercontent.com/Desadius/Tdarr-Review/main/assets/icon.svg",
   "project": "https://github.com/Desadius/Tdarr-Review",
-  "description": "Review Tdarr transcodes before replacing originals. Compare image and audio samples, approve individually or in batches, record rejection reasons and track savings. Optional manual Radarr replacement requests preserve the original in quarantine. Czech interface. Linux amd64. Requires a separately installed Tdarr server, its DB2 directory and a separate folder containing completed results. Set PUBLIC_ORIGIN and TDARR_URL for your server before installing. Recovery is an optional separate worker; this template installs only Review. Approval writes to your media library.",
+  "description": "Review Tdarr transcodes before replacing originals. A guided process combines picture, audio and synchronized video samples with saved manual checks. Approve completed assessments individually or in batches, record rejection reasons and track savings. Optional manual Radarr replacement requests preserve the original in quarantine. Czech and English interfaces. Linux amd64. Requires a separately installed Tdarr server, its DB2 directory and a separate folder containing completed results. Set PUBLIC_ORIGIN and TDARR_URL for your server before installing. Optional Recovery runs inside this container and is Off by default (RECOVERY_MODE). Approval writes to your media library.",
   "paths": [
     {
       "name": "Application state",
@@ -75,6 +75,14 @@
       "value": "",
       "description": "Enter the Tdarr server API URL reachable from this container, for example http://YOUR_UNRAID_IP:8266. This is the server API port, not its WebUI port.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "Recovery mode",
+      "key": "RECOVERY_MODE",
+      "value": "off",
+      "description": "Optional automatic repair of corrupted originals. off: Recovery does not run. verify: confirm corrupted originals without changing them. repair: repair confirmed corruptions within the configured limits. verify and repair also need /data/recovery/config.json. Applies after a container restart.",
+      "required": false,
       "mask": false
     },
     {

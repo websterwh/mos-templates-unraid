@@ -1,0 +1,175 @@
+{
+  "name": "Arrmada",
+  "repo": "ghcr.io/tristenlammi/arrmada:stable-aio",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/tristenlammi/Arrmada/pkgs/container/arrmada",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=SYS_NICE --restart=unless-stopped --stop-timeout=30",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7878]/",
+  "icon": "https://raw.githubusercontent.com/tristenlammi/Arrmada/main/web/public/icon-512.png",
+  "project": "https://github.com/tristenlammi/Arrmada",
+  "description": "Arrmada finds, downloads and organises movies, series, books and audiobooks in one app, with requests for your household, subtitles, Convert and Plex or Jellyfin watch insights. This container includes qBittorrent and FlareSolverr, already connected: there's nothing to set up for them. To use your own instead, switch either off under Show more settings (ARRMADA_BUNDLE_QBITTORRENT, ARRMADA_BUNDLE_FLARESOLVERR) and add yours in Settings, Connections. Map the share that holds your media and downloads to /storage, so imports hardlink instead of copying. On first start, open the web UI, create the admin account, and follow the setup: your TMDB key, then each library folder and the Downloads folder under /storage. Never put media in /data: that's the database.",
+  "paths": [
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/arrmada",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database, its backups and settings, and the built-in qBittorrent's settings and torrent list. Keep it in appdata. Never put media here.",
+      "required": true
+    },
+    {
+      "name": "Media and downloads",
+      "host": "",
+      "container": "/storage",
+      "mode": "rw",
+      "description": "The share that holds your libraries and your downloads, for example /mnt/user/data with media and torrents inside. One share for both, so imports can hardlink. Each library folder is picked inside it in the app.",
+      "required": true
+    },
+    {
+      "name": "Transcode folder",
+      "host": "",
+      "container": "/transcode",
+      "mode": "rw",
+      "description": "Optional. Scratch space for Convert on a fast pool, not the array (for example /mnt/cache/transcode).",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "7880",
+      "container": "7878",
+      "protocol": "tcp",
+      "description": "The web interface. 7880 on the server, because Radarr usually has 7878.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torrent port (TCP)",
+      "host": "56881",
+      "container": "56881",
+      "protocol": "tcp",
+      "description": "The built-in qBittorrent's incoming port. Forward it on your router. To change it, use the same new number on both sides here, in the UDP entry and in Torrent port setting.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent port (UDP)",
+      "host": "56881",
+      "container": "56881",
+      "protocol": "udp",
+      "description": "The same port for UDP (DHT and peers). Keep it the same as the TCP entry.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Audiobook server port",
+      "host": "13379",
+      "container": "13378",
+      "protocol": "tcp",
+      "description": "For listening apps such as Lissen. Off until you switch it on in the app; 13379 stays clear of an Audiobookshelf on 13378.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent web UI port",
+      "host": "8091",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Optional. The built-in qBittorrent's own page, if you want to look inside it. Arrmada doesn't need it. The login is in Arrmada, Settings, Connections (admins).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Built-in qBittorrent",
+      "key": "ARRMADA_BUNDLE_QBITTORRENT",
+      "value": "true",
+      "description": "true runs qBittorrent inside this container, connected and set up by Arrmada. false to use your own: add it in Settings, Connections. Switching it off keeps its settings and torrents in appdata for later.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Built-in FlareSolverr",
+      "key": "ARRMADA_BUNDLE_FLARESOLVERR",
+      "value": "true",
+      "description": "true runs FlareSolverr inside this container, for trackers behind Cloudflare. false to use your own (FlareSolverr URL below) or none.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent port setting",
+      "key": "ARRMADA_QBIT_PORT",
+      "value": "56881",
+      "description": "The port the built-in qBittorrent listens on. Must be the same number as the torrent port entries above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "qBittorrent web UI host port",
+      "key": "ARRMADA_QBIT_WEBUI_HOST_PORT",
+      "value": "8091",
+      "description": "The same number as the qBittorrent web UI port above, so Arrmada links the right page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The user Arrmada and the built-in qBittorrent run as. 99 is Unraid's nobody.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The group they run as. 100 is Unraid's users.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Audiobook server host port",
+      "key": "ARRMADA_AUDIOBOOK_HOST_PORT",
+      "value": "13379",
+      "description": "The same number as the audiobook server port above, so the app shows people the right address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Starting library folder",
+      "key": "ARRMADA_LIBRARY_DIR",
+      "value": "/storage",
+      "description": "Where a library you haven't picked a folder for goes (movies, tvshows, ebooks, audiobooks inside it). The folders you pick in the app win. Keep it under /storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Starting downloads folder",
+      "key": "ARRMADA_DOWNLOADS_DIR",
+      "value": "/storage/downloads",
+      "description": "Where downloads go until you pick the Downloads folder in the app. Keep it under /storage.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FlareSolverr URL",
+      "key": "ARRMADA_FLARESOLVERR_URL",
+      "value": "",
+      "description": "Optional. Leave it blank to use the built-in FlareSolverr. Your own (for example http://192.168.1.10:8191) if you switched the built-in one off. Can also be set in the app.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

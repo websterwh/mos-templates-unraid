@@ -1,0 +1,195 @@
+{
+  "name": "vettarr",
+  "repo": "drumsergio/vettarr:1.0.2",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/drumsergio/vettarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4850]/",
+  "icon": "https://raw.githubusercontent.com/GeiserX/docker-templates/main/drumsergio/images/vettarr.png",
+  "project": "https://github.com/GeiserX/vettarr",
+  "description": "vettarr takes a link, a Telegram post, a magnet, a .torrent file or a Seerr request, checks the title against your rules (certification, IMDb parents guide, TMDB genres and keywords, size, seeders, what your library already has) and approves it, holds it for you or refuses it. Approved items go to qBittorrent, Radarr, Sonarr or back to Seerr. Every decision keeps its reasons; shadow mode decides without acting so you can watch it first. Web UI that works from a phone, plus a Telegram bot. One file configures it: /data/config.yaml (copy config.example.yaml from the project and edit it; secrets stay in the container's variables as ${VAR}). The schema is created in the empty Postgres database on the first start and upgraded on every later one. Requires: a PostgreSQL database (the official postgres template works). Telegram, TMDB, Prowlarr, qBittorrent, Radarr, Sonarr and Seerr are each optional and start only when the config names them. Licence AGPL-3.0-or-later. Docs: https://github.com/GeiserX/vettarr/blob/main/docs/CONFIG.md",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/vettarr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds config.yaml, the Telegram and web sessions, the posters a Telegram source saves and the torrents a post brought",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "4850",
+      "container": "4850",
+      "protocol": "tcp",
+      "description": "Web UI port",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Config path",
+      "key": "CONFIG_PATH",
+      "value": "/data/config.yaml",
+      "description": "The config file inside the container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Host",
+      "key": "POSTGRES_HOST",
+      "value": "",
+      "description": "PostgreSQL hostname or IP",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Port",
+      "key": "POSTGRES_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL User",
+      "key": "POSTGRES_USER",
+      "value": "vettarr",
+      "description": "PostgreSQL user",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PostgreSQL Password",
+      "key": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PostgreSQL Database",
+      "key": "POSTGRES_DB",
+      "value": "vettarr",
+      "description": "PostgreSQL database name",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web password hash",
+      "key": "WEB_PASSWORD_HASH",
+      "value": "",
+      "description": "The line `vettarr web hash-password` prints; referenced from config.yaml as ${WEB_PASSWORD_HASH} under web.auth",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram bot token",
+      "key": "TELEGRAM_BOT_TOKEN",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${TELEGRAM_BOT_TOKEN}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "TMDB API key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${TMDB_API_KEY}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Prowlarr API key",
+      "key": "PROWLARR_API_KEY",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${PROWLARR_API_KEY}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "qBittorrent password",
+      "key": "QBITTORRENT_PASSWORD",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${QBITTORRENT_PASSWORD}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram API id",
+      "key": "TELEGRAM_API_ID",
+      "value": "",
+      "description": "Optional, for a source read as your own account; referenced from config.yaml as ${TELEGRAM_API_ID}",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Telegram API hash",
+      "key": "TELEGRAM_API_HASH",
+      "value": "",
+      "description": "Optional, for a source read as your own account; referenced from config.yaml as ${TELEGRAM_API_HASH}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Telegram phone",
+      "key": "TELEGRAM_PHONE",
+      "value": "",
+      "description": "Optional, for a source read as your own account; referenced from config.yaml as ${TELEGRAM_PHONE}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Radarr API key",
+      "key": "RADARR_API_KEY",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${RADARR_API_KEY}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sonarr API key",
+      "key": "SONARR_API_KEY",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${SONARR_API_KEY}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Seerr API key",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Optional; referenced from config.yaml as ${SEERR_API_KEY}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Seerr webhook secret",
+      "key": "SEERR_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Optional, what Seerr's webhook sends as its Authorization header; referenced from config.yaml as ${SEERR_WEBHOOK_SECRET}",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Madrid",
+      "description": "Timezone for logs and schedules",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

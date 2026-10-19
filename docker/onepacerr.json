@@ -1,0 +1,427 @@
+{
+  "name": "onepacerr",
+  "repo": "ghcr.io/eltharynd/onepacerr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://ghcr.io/eltharynd/onepacerr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/api/v1/status/pipeline/report",
+  "icon": "https://raw.githubusercontent.com/Soitora/Unraid-Templates/refs/heads/main/onepacerr/logo.png",
+  "project": "https://github.com/eltharynd/OnePacerr",
+  "description": "Automates One Pace downloads, organization, and metadata for Jellyfin (default), Plex, Emby, or a local folder. Read https://github.com/eltharynd/OnePacerr#readme for initial setup and environment variables, especially the first-run pipeline settings. Configure your media server and torrent client credentials using reachable URLs (not localhost), or enable Skip downloads for an existing library. Data maps /mnt/user/data to /data; adjust it to include your library and downloads. If other containers use different paths, set both fields in each mapping pair in Advanced View; otherwise leave both empty. Hardlinks require the same filesystem and volume mount. Runs as 99:100 via Extra Parameters; needs download read access and library read/write access. No appdata volume required. Configure through environment variables; WebUI opens a JSON status report.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Existing share containing your library and torrent downloads. For example, /mnt/user/data/media/tv becomes /data/media/tv inside OnePacerr.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Status API port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "JSON status and health API. There is no graphical configuration interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Media server",
+      "key": "LIBRARY_MEDIA_SERVER",
+      "value": "jellyfin",
+      "description": "Select your media server, or none to organize a local folder. Fill in only the selected server's settings.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Series name",
+      "key": "LIBRARY_SERIES_NAME",
+      "value": "One Pace",
+      "description": "Series name in your media server and default series folder name.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Use hardlinks",
+      "key": "LIBRARY_USE_HARDLINKS",
+      "value": "false",
+      "description": "Enable upstream's hardlink import option. Downloads and library must share the same filesystem and Docker volume mount, such as the single /data mount. Defaults to copying. See the GitHub README for details.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Local library root",
+      "key": "LIBRARY_NONE_ROOT_FOLDER",
+      "value": "/data/media/tv",
+      "description": "Used only with media server none. Parent directory of the series folder, inside the Data mount.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Required for plex, e.g. http://192.168.1.10:32400. Use an address reachable from the container, not localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Required for plex. Authentication token for your Plex server.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Plex library name",
+      "key": "PLEX_LIBRARY_NAME",
+      "value": "TV Shows",
+      "description": "Exact name of the TV library in Plex.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Required for jellyfin, e.g. http://192.168.1.10:8096. Do not use localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin username",
+      "key": "JELLYFIN_USERNAME",
+      "value": "",
+      "description": "Required for jellyfin. Account with permission to update library metadata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin password",
+      "key": "JELLYFIN_PASSWORD",
+      "value": "",
+      "description": "Required for jellyfin. Password for the selected account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Jellyfin library name",
+      "key": "JELLYFIN_LIBRARY_NAME",
+      "value": "Shows",
+      "description": "Exact name of the TV library in Jellyfin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Required for emby, e.g. http://192.168.1.10:8096. Do not use localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby username",
+      "key": "EMBY_USERNAME",
+      "value": "",
+      "description": "Required for emby. Account with permission to update library metadata.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby password",
+      "key": "EMBY_PASSWORD",
+      "value": "",
+      "description": "Required for emby. Password for the selected account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Emby library name",
+      "key": "EMBY_LIBRARY_NAME",
+      "value": "Shows",
+      "description": "Exact name of the TV library in Emby.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent client",
+      "key": "TORRENT_CLIENT",
+      "value": "qbittorrent",
+      "description": "Torrent client with its WebUI/API enabled. Deluge also needs its Label plugin enabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torrent client URL",
+      "key": "TORRENT_URL",
+      "value": "",
+      "description": "Required unless Skip downloads is true. Use a reachable URL, e.g. http://192.168.1.10:8080, not localhost.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent username",
+      "key": "TORRENT_USER",
+      "value": "",
+      "description": "Torrent client WebUI username, if the client uses one.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent password",
+      "key": "TORRENT_PASSWORD",
+      "value": "",
+      "description": "Torrent client WebUI password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Skip downloads",
+      "key": "PIPELINE_SKIP_DOWNLOADS",
+      "value": "false",
+      "description": "True disables torrent client integration and processes only your existing library.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media server library path",
+      "key": "MOUNT_LIBRARY_MEDIA_SERVER",
+      "value": "",
+      "description": "Library root as reported by your media server, e.g. /tv. Set together with OnePacerr library path, or leave BOTH empty when paths match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OnePacerr library path",
+      "key": "MOUNT_LIBRARY_ONEPACERR",
+      "value": "",
+      "description": "Equivalent library root inside this container, e.g. /data/media/tv. Must exist under the Data mount. Set together with Media server library path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent client download path",
+      "key": "MOUNT_DOWNLOADS_TORRENT",
+      "value": "",
+      "description": "Download root as reported by the torrent client, e.g. /downloads. Set together with OnePacerr download path, or leave BOTH empty when paths match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OnePacerr download path",
+      "key": "MOUNT_DOWNLOADS_ONEPACERR",
+      "value": "",
+      "description": "Equivalent download root inside this container, e.g. /data/torrents. Set together with Torrent client download path.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip existing file verification",
+      "key": "PIPELINE_SKIP_VERIFY_PRESENT_FILES",
+      "value": "true",
+      "description": "False hashes existing episodes to check for updated releases. Can take time on large libraries.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip existing file organization",
+      "key": "PIPELINE_SKIP_ORGANIZE_PRESENT_FILES",
+      "value": "true",
+      "description": "False organizes and renames episodes already in the library.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip existing metadata updates",
+      "key": "PIPELINE_SKIP_UPDATE_METADATA_PRESENT_FILES",
+      "value": "true",
+      "description": "False refreshes metadata for episodes already in the library. New imports still receive metadata when true.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip posters",
+      "key": "PIPELINE_SKIP_POSTERS",
+      "value": "false",
+      "description": "True disables poster updates.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Include specials",
+      "key": "PIPELINE_INCLUDE_SPECIALS",
+      "value": "false",
+      "description": "Also process special episodes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Prefer extended cuts",
+      "key": "PIPELINE_PREFER_EXTENDED",
+      "value": "false",
+      "description": "Prefer extended cuts when available.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Prefer alternate cuts",
+      "key": "PIPELINE_PREFER_ALTERNATE",
+      "value": "false",
+      "description": "Prefer the alternate G-8 cut at the end of Skypiea.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Skip supplements",
+      "key": "PIPELINE_SKIP_SUPPLEMENTS",
+      "value": "false",
+      "description": "Skip alternate edits that supplement incomplete arcs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Include filters",
+      "key": "PIPELINE_FILTERS_INCLUDE",
+      "value": "",
+      "description": "Optional comma-separated filters, e.g. S01,S02E01. Empty includes all episodes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Exclude filters",
+      "key": "PIPELINE_FILTERS_EXCLUDE",
+      "value": "",
+      "description": "Optional comma-separated filters, e.g. S35,S36.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Series folder name",
+      "key": "LIBRARY_SERIES_FOLDER_NAME",
+      "value": "",
+      "description": "Optional override. Empty uses Series name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Create missing series",
+      "key": "LIBRARY_CREATE_SHOW_IF_NOT_FOUND",
+      "value": "true",
+      "description": "Automatically create the series if missing from your media server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Plex skip metadata files",
+      "key": "PLEX_SKIP_METADATA_FILES",
+      "value": "true",
+      "description": "For Plex, update metadata through its API without writing NFO and poster files. False also writes those files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torrent category",
+      "key": "TORRENT_CATEGORY",
+      "value": "onepacerr",
+      "description": "Category for downloads managed by OnePacerr.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Completed torrent category",
+      "key": "TORRENT_CATEGORY_ONCE_COMPLETED",
+      "value": "completed",
+      "description": "Category assigned after importing completed downloads.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torrent check interval",
+      "key": "TORRENT_CHECK_INTERVAL",
+      "value": "60",
+      "description": "Seconds between checks for completed downloads.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Torrent request timeout",
+      "key": "TORRENT_CLIENT_TIMEOUT",
+      "value": "10",
+      "description": "Seconds to wait for a torrent client response.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Metadata poster set",
+      "key": "METADATA_POSTER_SET",
+      "value": "default",
+      "description": "Poster set identifier, e.g. default, official, or mizzoufan523. See the project's poster set documentation.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Disable metadata WebSocket",
+      "key": "METADATA_DISABLE_WEBSOCKET",
+      "value": "false",
+      "description": "True uses periodic metadata polling instead of live updates.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Metadata check interval",
+      "key": "METADATA_CHECK_INTERVAL",
+      "value": "3600",
+      "description": "Polling interval in seconds; used only when metadata WebSocket is disabled.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Application log verbosity. Read output through Unraid's container logs.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

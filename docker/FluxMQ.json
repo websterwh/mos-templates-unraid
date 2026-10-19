@@ -1,0 +1,105 @@
+{
+  "name": "FluxMQ",
+  "repo": "ghcr.io/absmach/fluxmq:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/absmach/fluxmq/pkgs/container/fluxmq",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 99:100 --ulimit nofile=65536:65536",
+  "post_parameters": "--config /tmp/fluxmq/config.yaml --config-optional",
+  "web_ui_url": "http://[IP]:[PORT:1883]",
+  "icon": "https://raw.githubusercontent.com/hoody424/unraid-templates/main/fluxmq/fluxmq.png",
+  "project": "https://github.com/absmach/fluxmq",
+  "description": "FluxMQ is a lightweight message broker in a single Go binary: MQTT 3.1.1 and 5.0 over TCP and WebSocket, AMQP 1.0 and AMQP 0.9.1, durable queues with consumer groups, and BadgerDB storage. Official image from Abstract Machines; the upstream project calls itself experimental. The defaults work without a config file: MQTT 3.1.1 on 1883, MQTT 5.0 on 1884, MQTT over WebSocket on 8083/8084 (path /mqtt), AMQP 1.0 on 5672, AMQP 0.9.1 on 5682, health on 8081 and the admin API on 8082. Data is kept in the appdata folder. Retained messages need the config.yaml from the README (single-node cluster mode). Without it they are stored but not delivered to new subscribers. FluxMQ has no built-in user/password login: clients connect anonymously unless you add an external auth service. Only publish it to networks you trust. A web dashboard is available as the separate FluxMQ-Dashboard template.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/fluxmq",
+      "container": "/tmp/fluxmq",
+      "mode": "rw",
+      "description": "Message store and the optional config.yaml. /tmp/fluxmq is FluxMQ's built-in data location, so the defaults persist here without a config file.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "MQTT 3.1.1",
+      "host": "1883",
+      "container": "1883",
+      "protocol": "tcp",
+      "description": "MQTT 3.1.1 over TCP.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT 5.0",
+      "host": "1884",
+      "container": "1884",
+      "protocol": "tcp",
+      "description": "MQTT 5.0 over TCP. FluxMQ serves each MQTT version on its own port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "MQTT 3.1.1 WebSocket",
+      "host": "8083",
+      "container": "8083",
+      "protocol": "tcp",
+      "description": "MQTT 3.1.1 over WebSocket, path /mqtt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT 5.0 WebSocket",
+      "host": "8084",
+      "container": "8084",
+      "protocol": "tcp",
+      "description": "MQTT 5.0 over WebSocket, path /mqtt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMQP 1.0",
+      "host": "5672",
+      "container": "5672",
+      "protocol": "tcp",
+      "description": "AMQP 1.0.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AMQP 0.9.1",
+      "host": "5682",
+      "container": "5682",
+      "protocol": "tcp",
+      "description": "AMQP 0.9.1 (RabbitMQ clients).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Health",
+      "host": "8081",
+      "container": "8081",
+      "protocol": "tcp",
+      "description": "Health and readiness checks: /health, /ready.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admin API",
+      "host": "8082",
+      "container": "8082",
+      "protocol": "tcp",
+      "description": "Admin API for FluxMQ-Dashboard. No authentication: anyone who reaches it can list all sessions, manage queues and reload the config. Do not forward it.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

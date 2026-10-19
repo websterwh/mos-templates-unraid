@@ -1,0 +1,131 @@
+{
+  "name": "Tellyard",
+  "repo": "ghcr.io/sandobserver/tellyard:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/SandObserver/Tellyard/pkgs/container/tellyard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --restart=unless-stopped --init --read-only --tmpfs=/tmp --cap-drop=ALL --security-opt=no-new-privileges:true --memory=512m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5004]",
+  "icon": "https://raw.githubusercontent.com/SandObserver/Tellyard/main/site/public/icon-512.png",
+  "project": "https://github.com/SandObserver/Tellyard",
+  "description": "A live TV tuner for Plex and Jellyfin that you'll forget is running. Tellyard shows up in Plex and Jellyfin as a network tuner. You list your channels in one file. When someone tunes in, Tellyard finds the channel's live stream on YouTube, Twitch, a broadcaster's page or an HLS address and passes it on without re-encoding. When they stop watching, it stops. The guide merges XMLTV schedules with placeholder blocks, so it is never empty. Tellyard ships no channels. It starts with an empty line-up: put your channels.toml in /mnt/user/appdata/tellyard/config and it is loaded within a minute. Then add the tuner in Plex at Unraid-IP:5004 and the guide at http://Unraid-IP:5004/guide.xml.",
+  "paths": [
+    {
+      "name": "Channels",
+      "host": "/mnt/cache/appdata/tellyard/config",
+      "container": "/config",
+      "mode": "ro",
+      "description": "Folder with your channels.toml. Tellyard reloads it within a minute of a change.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/tellyard/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Guide and yt-dlp caches. Rebuilt when missing.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Tuner Port",
+      "host": "5004",
+      "container": "5004",
+      "protocol": "tcp",
+      "description": "Port Plex and Jellyfin use for the tuner, the guide and the /healthz check.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Tuners",
+      "key": "TUNERS",
+      "value": "4",
+      "description": "Streams that may play at the same time.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Minimum Height",
+      "key": "MIN_HEIGHT",
+      "value": "off",
+      "description": "Lowest resolution tellyard check accepts, such as 1080. off accepts any. A channel's own min_height in channels.toml overrides it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Device Name",
+      "key": "DEVICE_NAME",
+      "value": "Tellyard",
+      "description": "Name shown in Plex.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Device ID",
+      "key": "DEVICE_ID",
+      "value": "",
+      "description": "8 hexadecimal characters. Plex remembers the tuner by this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Address Plex should use, such as http://192.168.1.10:5004. Set it when the address Plex connects with is not reachable for streams.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guide Days",
+      "key": "GUIDE_DAYS",
+      "value": "3",
+      "description": "Days of listings to publish.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guide Refresh Hours",
+      "key": "GUIDE_REFRESH_HOURS",
+      "value": "6",
+      "description": "How often the guide is rebuilt.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "yt-dlp Arguments",
+      "key": "YTDLP_ARGS",
+      "value": "",
+      "description": "Extra yt-dlp arguments, for example extractor options.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heartbeat URL",
+      "key": "HEARTBEAT_URL",
+      "value": "",
+      "description": "Address Tellyard calls once a minute while it is healthy, for a monitor such as Uptime Kuma or Healthchecks.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warning or error.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

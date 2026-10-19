@@ -5,7 +5,7 @@
     "Network"
   ],
   "registry": "https://github.com/dropnook/dropnook.app/pkgs/container/dropnook",
-  "network": "bridge",
+  "network": "br0",
   "custom_ip": null,
   "default_shell": "sh",
   "privileged": false,
@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]/",
   "icon": "https://raw.githubusercontent.com/dropnook/dropnook.app/main/.github/icons/drop.png",
   "project": "https://dropnook.dropnook.app/",
-  "description": "Instant sharing for your home network \u2014 like AirDrop, but for every device. Open one web page on your phone, laptop or PC, drop in text, files or a screenshot (Ctrl+V), and it is on every other device at once: no app, no login, no cloud. Text fields that survive lost connections, uploads of any size that resume, picture previews, 17 languages, five colour layouts in light and dark, an optional PIN, and up to five users with an area of their own next to the shared one. This is the LAN-only edition: a single container, reachable in your network only, without sharing to the internet. Sharing single files or texts through expiring links needs a second, locked-down container \u2014 for that, install Dropnook as a Compose stack instead (see the project page).",
+  "description": "Instant sharing for your home network \u2014 like AirDrop, but for every device. Open one web page on your phone, laptop or PC, drop in text, files or a screenshot (Ctrl+V), and it is on every other device at once: no app, no login, no cloud. Text fields that survive lost connections, uploads of any size that resume, picture previews, 17 languages, five colour layouts in light and dark, an optional PIN, up to five users with an area of their own next to the shared one, and a live room: go live with video or voice, everyone with Drop open sees a tile and joins with one click \u2014 up to 10 people, straight from device to device. Over HTTPS Drop can do more \u2014 the live room, copying pictures: give it a certificate from Cert Warden in the advanced settings, and it fetches and renews it by itself. This is the LAN-only edition: a single container, reachable in your network only, without sharing to the internet. Sharing single files or texts through expiring links needs a second, locked-down container \u2014 for that, install Dropnook as a Compose stack instead (see the project page).",
   "paths": [
     {
       "name": "Files and texts",
@@ -44,11 +44,20 @@
   "ports": [
     {
       "name": "Web UI port",
-      "host": "8088",
+      "host": "80",
       "container": "80",
       "protocol": "tcp",
-      "description": "Port in your network for Drop's page: http://Tower:8088",
+      "description": "Port for Drop's page. Drop has an IP address of its own here (Network Type: Custom: br0 \u2014 put a free address of your network into Fixed IP address), so 80 fits: http://that address/. Works with ipvlan and macvlan alike (Settings \u2192 Docker); with macvlan the Unraid server itself cannot reach Drop unless Host access to custom networks is enabled \u2014 other devices can. Without a bridge on the server the network is called e.g. eth0 instead of br0. Switched to Bridge? Then port 80 is already taken by Unraid's own web interface and Drop will not start \u2014 change it, e.g. to 8088, and open http://Tower:8088.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS port",
+      "host": "443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Only with a certificate (Cert Warden below): Drop's page over HTTPS, http:// then redirects here. Needed for the live room and copying pictures \u2014 browsers allow those over HTTPS only.",
+      "required": false,
       "mask": false
     }
   ],
@@ -110,10 +119,58 @@
       "mask": true
     },
     {
+      "name": "Cert Warden address",
+      "key": "CERTWARDEN_ENDPOINT_URL",
+      "value": "",
+      "description": "Optional: fetch Drop's certificate from Cert Warden, e.g. https://certwarden.example.org \u2014 then Drop serves HTTPS. Open it by the certificate's name (e.g. https://drop.example.org) and let that name point to Drop's address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Certificate name",
+      "key": "CERT_INT_NAME",
+      "value": "",
+      "description": "The certificate's name in Cert Warden.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Certificate API key",
+      "key": "CERT_INT_CERT_API",
+      "value": "",
+      "description": "The certificate's API key in Cert Warden.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Private key API key",
+      "key": "CERT_INT_KEY_API",
+      "value": "",
+      "description": "The API key of the certificate's private key in Cert Warden.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Renew days before expiry",
+      "key": "CERT_CHECK_DAY",
+      "value": "30",
+      "description": "Fetch a new certificate this many days before the current one expires.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live room: most people",
+      "key": "LIVE_MAX",
+      "value": "10",
+      "description": "How many people can be in the live room at once (2\u201350). Every member sends its picture to every other one, so the phones set the limit, not the network.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Mode",
       "key": "MODE",
       "value": "lan",
-      "description": "Drop itself, in your network. Leave it.",
+      "description": "Drop itself, in your network \u2014 leave it at lan. Want share links to the internet (drop-share)? Then install the Compose stack from https://github.com/dropnook/dropnook.app instead of this container.",
       "required": true,
       "mask": false
     },
@@ -121,7 +178,7 @@
       "name": "Sharing to the internet",
       "key": "SHARING",
       "value": "off",
-      "description": "Off in this edition \u2014 it needs the second container of the Compose stack. Leave it.",
+      "description": "Off in this edition \u2014 leave it. Sharing to the internet needs the second container (drop-share): install the Compose stack from https://github.com/dropnook/dropnook.app instead of this container.",
       "required": true,
       "mask": false
     }

@@ -1,0 +1,161 @@
+{
+  "name": "n8n-sandbox-runner",
+  "repo": "ghcr.io/n8n-io/n8n-sandbox-service-runner-dind:stable",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/n8n-io/n8n-sandbox-service/pkgs/container/n8n-sandbox-service-runner-dind",
+  "network": "n8n-sandbox",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": "--network-alias=n8n-sandbox-runner-1 --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/n8n.png",
+  "project": "https://github.com/n8n-io/n8n-sandbox-service",
+  "description": "Runner for the self-hosted n8n code sandbox. Only useful together with an existing n8n container and the n8n-sandbox-api container: install n8n-sandbox-api first and follow the setup steps in its description. The runner does the actual work. It runs its own Docker engine (Docker-in-Docker) and starts one throwaway container per sandbox, in which the n8n Assistant and n8n Agents run AI-generated code. It registers with n8n-sandbox-api over mutual TLS, using the certificates n8n-sandbox-api created on its first start. It restarts on its own until n8n-sandbox-api is reachable, so the start order does not matter. The first start takes longer because the inner Docker engine is set up first; until the runner has registered, n8n reports \"no sandbox runners are registered or available\". Privileged: Docker-in-Docker requires it. Treat this container as root on the host. It publishes no ports; keep it that way and never expose it to the internet. Code inside a sandbox can reach the internet; the runner blocks its traffic to private address ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16), so your LAN is not reachable from a sandbox. The inner Docker data (sandbox image, sandbox containers) lives in the Docker data path. It must be a pool or disk path such as /mnt/cache/..., not /mnt/user/..., because the inner Docker cannot use the user share file system. Image tag :stable follows the latest stable release of the n8n sandbox service. Update this container together with n8n-sandbox-api. Unofficial template, maintained by benjaminmue. The images are published by n8n (n8n-io/n8n-sandbox-service).",
+  "paths": [
+    {
+      "name": "TLS certificates",
+      "host": "/mnt/cache/appdata/n8n-sandbox/tls/runner",
+      "container": "/tls/runner",
+      "mode": "ro",
+      "description": "The runner/ subfolder of the TLS path of n8n-sandbox-api. Created there on the first start of n8n-sandbox-api.",
+      "required": true
+    },
+    {
+      "name": "Docker data",
+      "host": "/mnt/cache/appdata/n8n-sandbox/docker",
+      "container": "/var/lib/docker",
+      "mode": "rw",
+      "description": "Storage of the inner Docker engine. Must be a pool or disk path (/mnt/cache/..., /mnt/POOLNAME/...), NOT /mnt/user/...: the inner Docker fails on the user share file system.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Runner registration token",
+      "key": "SANDBOX_RUNNER_REGISTRATION_TOKEN",
+      "value": "",
+      "description": "Must be identical to Runner registration token in n8n-sandbox-api.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Runner key",
+      "key": "SANDBOX_RUNNER_API_KEYS",
+      "value": "",
+      "description": "Must be identical to Runner key in n8n-sandbox-api.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Sandbox image",
+      "key": "SANDBOX_RUNNER_DOCKER_SANDBOX_IMAGE",
+      "value": "ghcr.io/n8n-io/n8n-sandbox-service-sandbox:stable",
+      "description": "Image of the per-sandbox containers, pulled by the inner Docker on first use.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Runner ID",
+      "key": "SANDBOX_RUNNER_ID",
+      "value": "runner-1",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API gRPC address",
+      "key": "SANDBOX_RUNNER_API_GRPC_ADDR",
+      "value": "n8n-sandbox-api:9090",
+      "description": "Registration endpoint of n8n-sandbox-api on the n8n-sandbox network. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "API server name",
+      "key": "SANDBOX_RUNNER_REGISTRATION_GRPC_SERVER_NAME",
+      "value": "n8n-sandbox-api",
+      "description": "Name in the API certificate. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP base URL",
+      "key": "SANDBOX_RUNNER_HTTP_BASE_URL",
+      "value": "https://n8n-sandbox-runner-1:8080",
+      "description": "Address under which n8n-sandbox-api reaches this runner. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Control listen address",
+      "key": "SANDBOX_RUNNER_CONTROL_GRPC_LISTEN_ADDR",
+      "value": ":9091",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Control advertise address",
+      "key": "SANDBOX_RUNNER_CONTROL_GRPC_ADVERTISE_ADDR",
+      "value": "n8n-sandbox-runner-1:9091",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Registration CA",
+      "key": "SANDBOX_RUNNER_REGISTRATION_GRPC_CA_FILE",
+      "value": "/tls/runner/ca.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Registration client certificate",
+      "key": "SANDBOX_RUNNER_REGISTRATION_GRPC_CERT_FILE",
+      "value": "/tls/runner/grpc-client.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Registration client key",
+      "key": "SANDBOX_RUNNER_REGISTRATION_GRPC_KEY_FILE",
+      "value": "/tls/runner/grpc-client.key",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Control server certificate",
+      "key": "SANDBOX_RUNNER_CONTROL_GRPC_TLS_CERT_FILE",
+      "value": "/tls/runner/control-grpc-server.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Control server key",
+      "key": "SANDBOX_RUNNER_CONTROL_GRPC_TLS_KEY_FILE",
+      "value": "/tls/runner/control-grpc-server.key",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Control client CA",
+      "key": "SANDBOX_RUNNER_CONTROL_GRPC_TLS_CLIENT_CA_FILE",
+      "value": "/tls/runner/ca.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

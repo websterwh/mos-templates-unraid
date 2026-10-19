@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:7330]",
   "icon": "https://raw.githubusercontent.com/ellite/scrob/main/frontend/public/favicon-96x96.png",
   "project": "https://github.com/ellite/scrob",
-  "description": "Self-hosted media tracking for Jellyfin, Plex, and Emby \u2014 your private Letterboxd + Trakt. Omnibus image with embedded PostgreSQL (single container).",
+  "description": "Self-hosted media tracking for Jellyfin, Plex, and Emby \u2014 your private Letterboxd + Trakt. Omnibus image with embedded PostgreSQL (single container). Optional OpenID Connect SSO (Authelia, Authentik, Keycloak, etc.).",
   "paths": [
     {
       "name": "App Data",
@@ -90,6 +90,110 @@
       "key": "REGISTRATION_MAX_ALLOWED_USERS",
       "value": "0",
       "description": "Maximum registered users. 0 = unlimited.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server URL",
+      "key": "SERVER_URL",
+      "value": "",
+      "description": "Public HTTPS URL of this Scrob instance (e.g. https://scrob.example.com). Used for email links and OIDC post-logout defaults when behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable OIDC / SSO",
+      "key": "OIDC_ENABLED",
+      "value": "false",
+      "description": "Enable OpenID Connect login button. Leave false unless you have an IdP configured.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Discovery URL",
+      "key": "OIDC_DISCOVERY_URL",
+      "value": "",
+      "description": "Recommended. IdP OpenID discovery URL \u2014 enables id_token verification and stable (issuer, sub) binding. Example: https://auth.example.com/.well-known/openid-configuration",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Provider Name",
+      "key": "OIDC_PROVIDER_NAME",
+      "value": "SSO",
+      "description": "Label on the login button (e.g. Authelia, Authentik, Keycloak).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OAuth/OIDC client id registered at your IdP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OAuth/OIDC client secret (plaintext). Masked in the UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Auth URL",
+      "key": "OIDC_AUTH_URL",
+      "value": "",
+      "description": "IdP authorization endpoint. Example: https://auth.example.com/api/oidc/authorization",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Token URL",
+      "key": "OIDC_TOKEN_URL",
+      "value": "",
+      "description": "IdP token endpoint. Example: https://auth.example.com/api/oidc/token",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC UserInfo URL",
+      "key": "OIDC_USERINFO_URL",
+      "value": "",
+      "description": "IdP userinfo endpoint. Example: https://auth.example.com/api/oidc/userinfo",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Redirect URL",
+      "key": "OIDC_REDIRECT_URL",
+      "value": "",
+      "description": "Must match an IdP redirect URI. Example: https://scrob.example.com/oidc-callback",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Scopes",
+      "key": "OIDC_SCOPES",
+      "value": "openid email profile",
+      "description": "Space-separated scopes requested from the IdP.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Auto-create Users",
+      "key": "OIDC_AUTO_CREATE_USERS",
+      "value": "true",
+      "description": "Create a Scrob account on first successful SSO login when no matching user exists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Disable Password Login",
+      "key": "OIDC_DISABLE_PASSWORD_LOGIN",
+      "value": "false",
+      "description": "Hide password login and registration; SSO only. Keep false until SSO is verified.",
       "required": false,
       "mask": false
     }

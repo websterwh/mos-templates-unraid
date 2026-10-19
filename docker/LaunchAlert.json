@@ -1,0 +1,113 @@
+{
+  "name": "Launch-Alert",
+  "repo": "ghcr.io/hmallen/launch-alert:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://ghcr.io/hmallen/launch-alert",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --restart=unless-stopped --read-only --cap-drop=ALL --security-opt=no-new-privileges --tmpfs=/tmp:rw,noexec,nosuid,size=16m",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/hmallen/launch-alert/main/assets/launch-alert.png",
+  "project": "https://github.com/hmallen/launch-alert",
+  "description": "Rocket launch reminders on your phones and computers through ntfy. Sends an alert about 30 minutes before launches with a listed livestream, including a watch link. Follows delays and holds, retries failed notifications, and preserves reminder history across restarts. Set your own private ntfy topic and subscribe each device. Headless: configure this app in Unraid's container settings; no WebUI or published ports are required. Internet access and working device notification permissions are required. Launch times and push receipt can change.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/launch-alert",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Persistent reminder history and retry state. Keep this folder across container updates.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "ntfy server",
+      "key": "NTFY_SERVER",
+      "value": "https://ntfy.sh",
+      "description": "HTTPS ntfy server. The default supports Android, iPhone, and desktop clients.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Private ntfy topic",
+      "key": "NTFY_TOPIC",
+      "value": "",
+      "description": "Required: enter your own long random topic and subscribe every device to it. Anyone who knows an unreserved public topic can read and publish to it. Do not reuse an example topic.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Reminder lead time (minutes)",
+      "key": "LEAD_MINUTES",
+      "value": "30",
+      "description": "Send reminders this many minutes before the published launch time (1-1440).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Display time zone",
+      "key": "DISPLAY_TIMEZONE",
+      "value": "",
+      "description": "Optional IANA time zone, such as America/Chicago. Leave blank to use the Unraid server's time zone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "ntfy access token",
+      "key": "NTFY_TOKEN",
+      "value": "",
+      "description": "Optional bearer token for an authenticated ntfy server. Masking hides this value in the form; Unraid still stores it in the container configuration.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Schedule refresh interval (seconds)",
+      "key": "POLL_SECONDS",
+      "value": "300",
+      "description": "Keep 300 for the free Launch Library API (15 requests/hour per IP). Must be shorter than the maximum data age.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Maximum data age (seconds)",
+      "key": "MAX_DATA_AGE_SECONDS",
+      "value": "900",
+      "description": "Suppress notifications when schedule data is older than this. Must exceed the refresh interval (60-3600).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Launch Library access token",
+      "key": "LL2_TOKEN",
+      "value": "",
+      "description": "Optional Launch Library 2 API token for a paid account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Database path",
+      "key": "DB_PATH",
+      "value": "/config/launch-alert.sqlite3",
+      "description": "SQLite database in the persistent appdata mount.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Configuration file",
+      "key": "ENV_FILE",
+      "value": "/dev/null",
+      "description": "Unraid supplies settings as environment variables.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

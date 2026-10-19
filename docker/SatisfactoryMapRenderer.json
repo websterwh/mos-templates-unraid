@@ -1,0 +1,83 @@
+{
+  "name": "Satisfactory-Map-Renderer",
+  "repo": "tunefish92/satisfactorymaprenderer:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://hub.docker.com/r/tunefish92/satisfactorymaprenderer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Tunefish92/SatisfactoryMapRenderer/main/unraid/satisfactory-map-renderer.png",
+  "project": "https://github.com/Tunefish92/SatisfactoryMapRenderer",
+  "description": "Interactive map of your Satisfactory save game. Shows the whole factory (foundations, buildings, belts, pipes, railways, power), players, vehicles, resource nodes with purity, collectibles and more, with search and click-to-inspect. The save game is chosen in the web UI by an admin: upload a .sav file, fetch it from a running dedicated server through its HTTPS API (game version 1.0 or newer, API token from server.GenerateAPIToken), or copy it over SSH. A \"Refresh snapshot\" button fetches the current state again. Visitors only see the map. Reads saves from Update 5 up to 1.2.4. Works out of the box: the game's icons, names and in-game map (from Satisfactory 1.2.4) are included.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/satisfactory-map-renderer",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The rendered map, exported game data, map images and the save game source settings (including the server's API token).",
+      "required": true
+    },
+    {
+      "name": "Game Folder",
+      "host": "",
+      "container": "/game",
+      "mode": "ro",
+      "description": "Optional, normally not needed. A Satisfactory installation (the folder that contains FactoryGame and CommunityResources): if your game is newer than the game data in the image, the icons, names and in-game map are exported from it once.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port the map is served on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin Password",
+      "key": "SMR_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required, at least 8 characters. Only admins who log in with it (Save game tab of the side panel) can choose or refresh the save game.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Max Zoom",
+      "key": "SMR_MAX_ZOOM",
+      "value": "9",
+      "description": "Highest rendered zoom level, 3 to 9. 9 is the sharpest; each level less renders about four times faster and needs a quarter of the disk space.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the data path; the app runs as this user. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the data path. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

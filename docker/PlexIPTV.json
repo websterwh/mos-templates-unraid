@@ -1,0 +1,67 @@
+{
+  "name": "PlexIPTV",
+  "repo": "xiaodoudoufr/plexiptv:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/xiaodoudoufr/plexiptv",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:1234]/dashboard",
+  "icon": "https://raw.githubusercontent.com/xiaodoudou/unraid-templates/main/PlexIPTV/icon.png",
+  "project": "https://github.com/xiaodoudou/PlexIPTV",
+  "description": "Makes an IPTV subscription show up as live TV in Plex, by pretending to be an HDHomeRun tuner. Give it an m3u playlist URL or an Xtream account, or several of each, and it filters, renames and numbers the channels, proxies the streams so your provider only ever sees one viewer, and serves an XMLTV guide with your channel logos. ffmpeg is included, for RTSP channels and HLS with fragmented MP4 segments. The first start writes settings.json into the config folder and prints a dashboard password in the container log, so open the log first. Put your provider in settings.json, restart the container, then add an HDHomeRun tuner in Plex at your server's address and port 1234. Apart from the dashboard there is no login, so keep it on your LAN.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/plexiptv",
+      "container": "/opt/PlexIPTV/config",
+      "mode": "rw",
+      "description": "settings.json, where your provider goes, and the cached playlist. Both are written on the first start.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Tuner and dashboard",
+      "host": "1234",
+      "container": "1234",
+      "protocol": "tcp",
+      "description": "Plex reaches the tuner on this port, and the dashboard is at /dashboard on it. If you change it, add the tuner in Plex with the new port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User PlexIPTV runs as. 99 is nobody, the usual owner of appdata. The container hands the config folder to this user when it starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group PlexIPTV runs as. 100 is users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log folder",
+      "key": "PLEXIPTV_LOGDIR",
+      "value": "/opt/PlexIPTV/config/logs",
+      "description": "Where logs.txt is written. Inside the config folder, so it survives updates.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

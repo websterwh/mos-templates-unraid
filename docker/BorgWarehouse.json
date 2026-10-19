@@ -1,0 +1,308 @@
+{
+  "name": "BorgWarehouse",
+  "repo": "borgwarehouse/borgwarehouse",
+  "category": [
+    "Backup"
+  ],
+  "registry": "https://hub.docker.com/r/borgwarehouse/borgwarehouse",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/jamesfreeman959/unraid-borgwarehouse/main/icon.png",
+  "project": "https://borgwarehouse.com",
+  "description": "BorgWarehouse is a fast, modern web interface for running a BorgBackup server. It turns your Unraid server into a central destination for Borg backups from your other machines: create and manage repositories, assign SSH keys, set quotas, monitor backup status and storage use, and get alerts by email or Apprise when a backup is late. Clients back up over SSH using borg, Vorta or borgmatic. Before installing: generate two secrets for BETTER_AUTH_SECRET and CRONJOB_KEY (for example with \"openssl rand -base64 32\" in the Unraid terminal), and set SSH_SERVER_PORT to the same value as the SSH host port. Unraid's own SSH already uses port 22, so the default here is 2222. Status and storage checks run on a schedule outside the container. Install the User Scripts plugin and add the script from the support page to keep the dashboard up to date. OIDC single sign-on (Authentik, Keycloak, Zitadel and others), SMTP and the LAN settings are under Show more settings.",
+  "paths": [
+    {
+      "name": "Repositories",
+      "host": "/mnt/cache/borgwarehouse/",
+      "container": "/home/borgwarehouse/repos",
+      "mode": "rw",
+      "description": "Where the Borg repositories are stored. Backups can be large, so use a share on the array (or a pool sized for it) rather than appdata.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/borgwarehouse/config/",
+      "container": "/home/borgwarehouse/app/config",
+      "mode": "rw",
+      "description": "Application config and user database.",
+      "required": true
+    },
+    {
+      "name": "SSH authorized keys",
+      "host": "/mnt/cache/appdata/borgwarehouse/ssh/",
+      "container": "/home/borgwarehouse/.ssh",
+      "mode": "rw",
+      "description": "Client public keys managed by BorgWarehouse (authorized_keys).",
+      "required": true
+    },
+    {
+      "name": "SSH host keys",
+      "host": "/mnt/cache/appdata/borgwarehouse/ssh_host/",
+      "container": "/etc/ssh",
+      "mode": "rw",
+      "description": "The server's SSH host keys, generated on first start. Keep this so clients don't see a host key warning after an update.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the BorgWarehouse web interface.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSH port",
+      "host": "2222",
+      "container": "22",
+      "protocol": "tcp",
+      "description": "Port Borg clients connect to over SSH. Unraid's own SSH uses 22, so pick another port. SSH_SERVER_PORT below must match this value.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "FQDN",
+      "key": "FQDN",
+      "value": "",
+      "description": "Hostname or IP address that Borg clients use to reach this server. It appears in the backup commands BorgWarehouse shows you, e.g. tower.local or backup.example.com.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSH_SERVER_PORT",
+      "key": "SSH_SERVER_PORT",
+      "value": "2222",
+      "description": "Must match the SSH host port above. It appears in the backup commands BorgWarehouse shows you.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_URL",
+      "key": "BETTER_AUTH_URL",
+      "value": "",
+      "description": "The main URL you open BorgWarehouse at, including http:// or https:// and any port, e.g. https://borg.example.com or http://192.168.1.10:3000. Logins from any other address are refused (Invalid origin in the log), so add the others to BETTER_AUTH_TRUSTED_ORIGINS under Show more settings.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "key": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Secret used to sign login sessions. Generate with: openssl rand -base64 32. If empty, a new one is made at every restart and everyone is logged out.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "CRONJOB_KEY",
+      "key": "CRONJOB_KEY",
+      "value": "",
+      "description": "Key for the scheduled status and storage checks. Generate with: openssl rand -base64 32. The User Scripts script reads it from the container, so you don't need to copy it anywhere.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. 99 is Unraid's nobody user. Must not be 0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. 100 is Unraid's users group. Must not be 0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OIDC_ISSUER_URL",
+      "key": "OIDC_ISSUER_URL",
+      "value": "",
+      "description": "OIDC issuer URL (Authentik, Keycloak, Zitadel, ...), without /.well-known/openid-configuration. Set the redirect URI at your provider to BETTER_AUTH_URL/api/auth/callback/oidc. Users must already exist in BorgWarehouse with the same email; SSO doesn't create accounts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC_PROVIDER_NAME",
+      "key": "OIDC_PROVIDER_NAME",
+      "value": "",
+      "description": "Label on the SSO login button. Defaults to SSO.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_PASSWORD_LOGIN",
+      "key": "DISABLE_PASSWORD_LOGIN",
+      "value": "false",
+      "description": "Allow SSO login only. Only takes effect when an SSO provider is configured.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SETUP_SECRET",
+      "key": "SETUP_SECRET",
+      "value": "",
+      "description": "Passphrase required to complete the first-run setup wizard. Recommended if the web UI is reachable from the internet before you've created the admin account.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "key": "BETTER_AUTH_TRUSTED_ORIGINS",
+      "value": "",
+      "description": "Other URLs you open BorgWarehouse at besides BETTER_AUTH_URL, comma separated, e.g. http://192.168.1.10:3000 when BETTER_AUTH_URL is your reverse proxy domain. Without this, logins from those addresses fail with Invalid origin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SESSION_EXPIRY_SECONDS",
+      "key": "SESSION_EXPIRY_SECONDS",
+      "value": "",
+      "description": "Login session lifetime in seconds. Defaults to 3600 (1 hour).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FQDN_LAN",
+      "key": "FQDN_LAN",
+      "value": "",
+      "description": "Optional local hostname or IP. BorgWarehouse then also shows backup commands for clients on your LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSH_SERVER_PORT_LAN",
+      "key": "SSH_SERVER_PORT_LAN",
+      "value": "",
+      "description": "SSH port for the LAN commands, if different.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HIDE_SSH_PORT",
+      "key": "HIDE_SSH_PORT",
+      "value": "false",
+      "description": "Leave the port out of the commands BorgWarehouse shows (e.g. when clients set it in ~/.ssh/config).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAIL_SMTP_HOST",
+      "key": "MAIL_SMTP_HOST",
+      "value": "",
+      "description": "SMTP server for email alerts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAIL_SMTP_PORT",
+      "key": "MAIL_SMTP_PORT",
+      "value": "",
+      "description": "SMTP port. Defaults to 587.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAIL_SMTP_LOGIN",
+      "key": "MAIL_SMTP_LOGIN",
+      "value": "",
+      "description": "SMTP username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAIL_SMTP_PWD",
+      "key": "MAIL_SMTP_PWD",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MAIL_SMTP_FROM",
+      "key": "MAIL_SMTP_FROM",
+      "value": "",
+      "description": "From address for alert emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MAIL_REJECT_SELFSIGNED_TLS",
+      "key": "MAIL_REJECT_SELFSIGNED_TLS",
+      "value": "true",
+      "description": "Set to false to accept a self-signed certificate on the SMTP server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_INTEGRATIONS",
+      "key": "DISABLE_INTEGRATIONS",
+      "value": "false",
+      "description": "Turn off API tokens (integrations).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_DELETE_REPO",
+      "key": "DISABLE_DELETE_REPO",
+      "value": "false",
+      "description": "Prevent anyone from deleting a repository.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DISABLE_COMPACT_REPO",
+      "key": "DISABLE_COMPACT_REPO",
+      "value": "false",
+      "description": "Prevent anyone from compacting a repository.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STORAGE_TARGETS",
+      "key": "STORAGE_TARGETS",
+      "value": "",
+      "description": "Extra storage locations selectable per repository, comma separated, optionally path|name (e.g. /mnt/offsite|Offsite disk). Each path must also be added as a Path mapping to this container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NEXT_TELEMETRY_DISABLED",
+      "key": "NEXT_TELEMETRY_DISABLED",
+      "value": "1",
+      "description": "1 turns off Next.js anonymous telemetry.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

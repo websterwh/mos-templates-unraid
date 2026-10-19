@@ -1,0 +1,83 @@
+{
+  "name": "Savorum",
+  "repo": "ghcr.io/savorum/savorum:documents",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/savorum/savorum/pkgs/container/savorum",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user=0:0 --entrypoint=/bin/sh --env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/ --env XDG_CACHE_HOME=/data/.cache --read-only --tmpfs /tmp:size=256m,mode=1777 --stop-timeout=30 --cap-drop=ALL --cap-add=CHOWN --cap-add=FOWNER --cap-add=SETUID --cap-add=SETGID --cap-add=SETPCAP --security-opt=no-new-privileges:true",
+  "post_parameters": "-ec mode=0700; [ ${SAVORUM_STORAGE_ACCESS:-owner} != group ] || mode=0770; chown 65532:65532 /data; chmod $mode /data; exec setpriv --reuid=65532 --regid=65532 --clear-groups --inh-caps=-all --ambient-caps=-all --bounding-set=-all --no-new-privs /savorum serve",
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/savorum/unraid-templates/main/icon.png",
+  "project": "https://savorum.app/",
+  "description": "Savorum is a free, open-source recipe manager. Save recipes from websites, PDFs, and photos, or import from Paprika, Mealie, Tandoor Recipes, and CookBook Manager. Organize books, plan meals, and build shopping lists. Scale ingredients and cook step by step with timers. Print recipes or export them with photos in SREF. Sign-in is off by default. Enable Authentication to use accounts and shared libraries. Configuration: https://docs.savorum.app/admin/configure/ Accounts: https://docs.savorum.app/admin/accounts/ Single sign-on: https://docs.savorum.app/admin/single-sign-on/ Remote access: https://docs.savorum.app/admin/remote-access/",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/savorum",
+      "container": "/data",
+      "mode": "rw",
+      "description": null,
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server address",
+      "key": "SAVORUM_PUBLIC_URL",
+      "value": "",
+      "description": "Other addresses are rejected.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication",
+      "key": "SAVORUM_AUTH_ENABLED",
+      "value": "false",
+      "description": "Create an administrator before enabling.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSO config file",
+      "key": "SAVORUM_AUTH_PROVIDERS_FILE",
+      "value": "",
+      "description": "JSON path inside the container. Requires authentication.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "SAVORUM_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Comma-separated IPs or CIDRs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Network discovery",
+      "key": "SAVORUM_DNS_SD",
+      "value": "false",
+      "description": "Disabled with bridge networking.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

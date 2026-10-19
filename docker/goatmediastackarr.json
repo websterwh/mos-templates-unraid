@@ -1,0 +1,264 @@
+{
+  "name": "goatmediastackarr",
+  "repo": "ghcr.io/bdlnaredi/goatmediastackarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/bdlnaredi/goatmediastackarr/pkgs/container/goatmediastackarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device=/dev/net/tun --sysctl net.ipv4.conf.all.src_valid_mark=1 --sysctl net.ipv4.conf.all.rp_filter=2",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2806]/",
+  "icon": "https://raw.githubusercontent.com/bdlnaredi/goatmediastackarr/main/ui/public/icon-192.png",
+  "project": "https://github.com/bdlnaredi/goatmediastackarr",
+  "description": "GoatMediaStackarr: a whole media stack in one container Sonarr, Radarr, Lidarr, Prowlarr, Bazarr, qBittorrent, SABnzbd, Jellyfin and Seerr, plus optional Tautulli, Plex and FlareSolverr. They're all connected to each other on first start, behind one interface and one login. A built-in VPN (WireGuard or OpenVPN) with a kill switch covers the download apps only. Runs on x86 and 64-bit ARM. Web page on port 2806. Before you install: storage - Image: about 2.4 GB on x86 and 2.2 GB on ARM. Make sure your Docker image file has room. - App data grows over time. Jellyfin's (and Plex's) artwork, thumbnails and databases can reach many GB in a big library. Keep App data on your cache or another SSD, not the array. Jellyfin won't start with less than 2 GB free there. - Separate Media and Downloads folders (the default) means finished downloads are copied into your library. A torrent that keeps seeding takes up its space twice until you remove it. To avoid this, map one shared folder and set \"Media folder in container\" and \"Downloads folder in container\" inside it; then files are hardlinked instead of copied. Before you install: data loss - App data holds every app's settings and database in one folder. Deleting it, or a broken disk, wipes all of them at once. Back it up, for example with the Appdata Backup plugin. Removing or reinstalling the container is safe; deleting the folder is not. - Sonarr, Radarr and Lidarr manage your media folder. They rename and move files, replace files with better copies when they upgrade (the old file is deleted unless you set a recycle bin in their settings), and delete files from disk if you choose \"delete files\" when removing a show, movie or artist. - Don't run this alongside your existing Sonarr, Radarr or qBittorrent on the same media folder. Both setups will download, rename and upgrade the same files. Bring your setup in from the Stack page, then stop the old containers. - Importing replaces settings with the same name. Bringing in your existing setup copies its quality profiles, custom formats, delay and release profiles and file naming, and replaces any with the same name in the built-in apps. Your old apps are only read from, and media files are never moved or copied. - latest is rebuilt every Monday with the newest version of each app. App updates can upgrade their databases in ways an older version can't read, so going back to an older image may not work. Back up App data before updating. For fewer surprises, use a version tag like :0.3.0 instead of latest. - This is early software (version 0.x). Test it before trusting it with a library you can't replace. VPN and network - The container needs NET_ADMIN and /dev/net/tun for the VPN; these are already in the template. It does not run privileged. - With the VPN on, the download apps stay offline until a working VPN file is in App data/vpn. That's the kill switch at work, not a fault. - With the VPN off, torrent and usenet traffic uses your own internet connection. - Ports 2806, 8096 (Jellyfin) and 5055 (Seerr) each have their own login. Don't open them to the internet without a reverse proxy or a VPN of your own. Good to know - Plex isn't included in the image. When you turn it on, it's downloaded from plex.tv on first start, and it's proprietary software under Plex's own terms. - FlareSolverr is x86 only. When turned on, it downloads itself (with a browser) on first start. - Files are written as PUID/PGID (99:100 on Unraid). Existing files in your media folder are never re-owned.",
+  "paths": [
+    {
+      "name": "App data",
+      "host": "/mnt/cache/appdata/goatmediastackarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings and databases of every app, plus the vpn folder for your VPN file. Back this up.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your library: tv, movies and music folders are made inside it",
+      "required": true
+    },
+    {
+      "name": "Downloads",
+      "host": "/mnt/cache/downloads",
+      "container": "/downloads",
+      "mode": "rw",
+      "description": "Torrent and usenet downloads",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "2806",
+      "container": "2806",
+      "protocol": "tcp",
+      "description": "GoatMediaStackarr web page",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin port",
+      "host": "8096",
+      "container": "8096",
+      "protocol": "tcp",
+      "description": "For Jellyfin apps on TVs and phones",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Seerr port",
+      "host": "5055",
+      "container": "5055",
+      "protocol": "tcp",
+      "description": "Seerr's own request page, for family and friends to ask for shows and movies",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex port",
+      "host": "32400",
+      "container": "32400",
+      "protocol": "tcp",
+      "description": "Only used if Plex is turned on (add plex to Apps to run)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent port",
+      "host": "50413",
+      "container": "50413",
+      "protocol": "tcp",
+      "description": "Incoming torrent connections when the VPN is off. Not used with the VPN on. Not 6881: many trackers block 6881-6889.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent port (UDP)",
+      "host": "50413",
+      "container": "50413",
+      "protocol": "udp",
+      "description": "Same as above, UDP",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Plex claim code",
+      "key": "PLEX_CLAIM",
+      "value": "",
+      "description": "Only for built-in Plex: a code from https://plex.tv/claim links it to your Plex account. Codes last 4 minutes, so start the container right after. Not needed again once linked.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Your Plex address",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Only if Plex runs outside this container and you have not added it under Settings, then Apps: like http://192.168.1.10:32400. Seerr signs in through it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Your Plex token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "The X-Plex-Token for the Plex address above",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Seerr media server",
+      "key": "SEERR_MEDIA_SERVER",
+      "value": "jellyfin",
+      "description": "Which media server Seerr uses when both Jellyfin and Plex run",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Plex",
+      "key": "PLEX_UPDATE",
+      "value": "true",
+      "description": "Built-in Plex: get the newest public Plex at each start",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Torrent port number",
+      "key": "TORRENT_PORT",
+      "value": "",
+      "description": "Only to use a different torrent port than 50413 (1024-65535). Change the two Torrent port mappings above to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media folder in container",
+      "key": "MEDIA_DIR",
+      "value": "/media",
+      "description": "Change only if you map one shared folder for both (for example /data/media), so downloads can be hardlinked instead of copied",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Downloads folder in container",
+      "key": "DOWNLOADS_DIR",
+      "value": "/downloads",
+      "description": "Change only if you map one shared folder for both (for example /data/downloads)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN on",
+      "key": "VPN_ENABLED",
+      "value": "false",
+      "description": "true sends the download apps through your VPN with a kill switch",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN type",
+      "key": "VPN_TYPE",
+      "value": "wireguard",
+      "description": "wireguard: put the provider's .conf in App data/vpn. openvpn: put the .ovpn there.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN username",
+      "key": "VPN_USER",
+      "value": "",
+      "description": "OpenVPN only, if your provider needs it",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN password",
+      "key": "VPN_PASS",
+      "value": "",
+      "description": "OpenVPN only",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Apps through VPN",
+      "key": "VPN_APPS",
+      "value": "qbittorrent,sabnzbd,prowlarr",
+      "description": "Which apps use the VPN",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VPN port forwarding",
+      "key": "VPN_PORT_FORWARD",
+      "value": "off",
+      "description": "natpmp for ProtonVPN and other NAT-PMP providers: opens a port and gives it to qBittorrent",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port forwarding gateway",
+      "key": "VPN_PF_GATEWAY",
+      "value": "10.2.0.1",
+      "description": "NAT-PMP gateway inside the tunnel (10.2.0.1 for ProtonVPN)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Apps to run",
+      "key": "GOAT_ENGINES",
+      "value": "sonarr,radarr,lidarr,prowlarr,bazarr,qbittorrent,sabnzbd,jellyfin,seerr",
+      "description": "Remove any you do not want. Add plex for a built-in Plex server, tautulli for Plex statistics, and flaresolverr to get past Cloudflare checks on indexer sites (x86 only).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that owns files (99 is nobody on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group that owns files (100 is users on Unraid)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Asia/Kolkata",
+      "description": "For schedules and logs",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [
+    {
+      "name": "Graphics card",
+      "host": "",
+      "container": "/dev/dri",
+      "description": "Optional: /dev/dri for Intel/AMD hardware transcoding in Jellyfin",
+      "required": false
+    }
+  ],
+  "labels": []
+}

@@ -1,0 +1,129 @@
+{
+  "name": "claude-unraid-manager",
+  "repo": "ghcr.io/mygrexit/claude-unraid-manager:beta",
+  "category": [
+    "Misc"
+  ],
+  "registry": "https://github.com/mygrexit/claude-unraid-manager/pkgs/container/claude-unraid-manager",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--hostname claude-unraid-manager",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/mygrexit/unraid-templates/main/images/claude-unraid-manager.png",
+  "project": "https://github.com/mygrexit/claude-unraid-manager",
+  "description": "**For experienced Unraid users only. Careful: this app can do serious damage to your server if you don't know what you're doing.** Claude Code set up as an Unraid administrator, not as a coding tool: an AI assistant that manages containers, storage, VMs, plugins and configuration from the terminal or from your phone via Remote Control. It is meant to ask before it acts; that only holds as long as you keep the permission prompts on and read them. **What it does** - Scans your storage (ZFS, btrfs, array), containers, VMs, plugins, User Scripts and network on every start and writes a CLAUDE.md so Claude knows your server. - Manages containers via the Docker socket and runs host commands through a short-lived helper container. No privileged mode needed. - Safe defaults: boot drive read-only, no shares mounted. Opt in to more access as needed. - Risky commands (downloads piped to a shell, network tools, deletes, writes to the flash drive) always ask for your approval with a reason, whatever the mode; disk formatting and wipes are blocked outright. **Requirements** An Anthropic account: a claude.ai subscription (also needed for Remote Control) or a Console API key. **Setup** 1. Apply this template with the default mounts (adjust the two appdata paths if yours is not /mnt/user/appdata). 2. Click the container in the Docker tab, then Console: you are in the Claude session. 3. Log in once (URL in any browser, paste the code back). Leave the session with Ctrl-b, then d; it keeps running. 4. Phone: open the Claude app, tap Code, pick this session. Sessions start in manual mode and ask before acting. 5. Optional: a `claude-Unraid` command in the Unraid terminal. Two lines in /boot/config/go, shown in the guide (step 4); the container does not write to your host for this. Full walkthrough: https://github.com/mygrexit/claude-Unraid-manager/blob/main/docs/getting-started.md **Beta** Tested on the author's two Unraid 7.3.3 servers (ZFS pool-only), not on a range of setups. It is an AI agent: its rules shape what it does, they do not guarantee it. **Warning** The Docker socket gives this container root-equivalent access to your server. The guard rails reduce accidents but are not a security boundary. If you would not do the same work yourself on the Unraid command line, do not install this. Review every action before confirming. Keep backups. The author accepts no liability for data loss or misconfiguration.",
+  "paths": [
+    {
+      "name": "Data (login, settings, history)",
+      "host": "/mnt/cache/appdata/claude-unraid-manager/home",
+      "container": "/root",
+      "mode": "rw",
+      "description": "Persisted home directory. Holds .claude/ (settings, history) and .claude.json (login). Must survive container rebuilds. Tip: a cache-only (exclusive) appdata share avoids FUSE overhead for the many small history writes.",
+      "required": true
+    },
+    {
+      "name": "Workspace",
+      "host": "/mnt/cache/appdata/claude-unraid-manager/workspace",
+      "container": "/workspace",
+      "mode": "rw",
+      "description": "Working directory. CLAUDE.md is auto-generated here on every start.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required for container management and host command execution. Without this, Claude is just a code editor.",
+      "required": true
+    },
+    {
+      "name": "Unraid Boot Config",
+      "host": "/boot",
+      "container": "/host/boot",
+      "mode": "ro",
+      "description": "Read-only: view plugins, templates, share configs, startup script. The flash drive is then read-only for Claude everywhere, host commands included. Change to rw to let Claude modify Unraid configuration; commands touching the flash drive should then ask first.",
+      "required": false
+    },
+    {
+      "name": "Container App Data (optional)",
+      "host": "",
+      "container": "/appdata",
+      "mode": "ro",
+      "description": "Optional. Set to your appdata share (e.g. /mnt/user/appdata) so Claude can read other containers' configs and logs. Leave empty if not needed. Read-only recommended.",
+      "required": false
+    },
+    {
+      "name": "Example: a share for Claude (optional)",
+      "host": "",
+      "container": "/media",
+      "mode": "ro",
+      "description": "Just an example, leave it empty if you don't need it. Set it to one share Claude may look at, e.g. /mnt/user/Media. Claude only sees shares that are mounted; it will tell you how to add one when it matters. For more shares use 'Add another Path' with any container path you like (outside /root). Read-only unless Claude should change files.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Your timezone (e.g. America/New_York, Europe/Berlin).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Language",
+      "key": "CLAUDE_LANG",
+      "value": "",
+      "description": "Response language (e.g. de, fr, es, nl). Empty = English.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remote Control Name",
+      "key": "REMOTE_CONTROL_NAME",
+      "value": "",
+      "description": "Session name shown in the Claude app for phone/tablet access. Empty = container hostname, 'off' = disabled.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Anthropic API Key",
+      "key": "ANTHROPIC_API_KEY",
+      "value": "",
+      "description": "Optional. Leave empty to log in with a claude.ai subscription from the attached terminal (required for Remote Control). Set it to bill usage to a Claude Console API key instead.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Resume Conversation",
+      "key": "CONTINUE",
+      "value": "true",
+      "description": "Resume the last conversation on start. Set to false to always start fresh.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "tmux Session Name",
+      "key": "TMUX_SESSION",
+      "value": "main",
+      "description": "Name of the persistent tmux session.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Host Helper Image",
+      "key": "HOST_HELPER_IMAGE",
+      "value": "alpine:3.21",
+      "description": "Image used for the short-lived helper container that runs host commands. Only change this if you mirror images locally.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,195 @@
+{
+  "name": "Nametag",
+  "repo": "ghcr.io/mattogodoy/nametag:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/mattogodoy/nametag/pkgs/container/nametag",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/mattogodoy/nametag/master/public/icons/icon-512.png",
+  "project": "https://nametag.one",
+  "description": "Nametag is a personal CRM for the people in your life. Keep notes, birthdays and important dates, see how everyone is connected in an interactive network graph, organize people into groups, keep a journal, and get reminders to stay in touch. Two-way CardDAV sync works with Google Contacts, iCloud, Outlook and Nextcloud. Before the first start: - Install a PostgreSQL container (for example the official postgres:16 image) and create a database and user for Nametag. - Generate the two secrets in the Unraid terminal with: openssl rand -base64 32 - Run: mkdir -p /mnt/user/appdata/nametag/photos && chown -R 1001:1001 /mnt/user/appdata/nametag (the container runs as UID 1001). Reminders and CardDAV sync need scheduled calls. The Read Me link has ready-to-paste User Scripts entries.",
+  "paths": [
+    {
+      "name": "Photos",
+      "host": "/mnt/cache/appdata/nametag/photos",
+      "container": "/app/data/photos",
+      "mode": "rw",
+      "description": "Where profile photos are stored. Must be owned by UID 1001.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App URL",
+      "key": "NEXTAUTH_URL",
+      "value": "http://YOUR-SERVER-IP:3000",
+      "description": "The address you open Nametag at, for example http://192.168.1.10:3000 or https://nametag.example.com. Used for sign-in and links in emails.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Auth secret",
+      "key": "NEXTAUTH_SECRET",
+      "value": "",
+      "description": "At least 32 characters. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Cron secret",
+      "key": "CRON_SECRET",
+      "value": "",
+      "description": "At least 16 characters. Protects the scheduled-job endpoints. Generate with: openssl rand -base64 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database host",
+      "key": "DB_HOST",
+      "value": "",
+      "description": "IP address or container name of your PostgreSQL server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database port",
+      "key": "DB_PORT",
+      "value": "5432",
+      "description": "PostgreSQL port.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database name",
+      "key": "DB_NAME",
+      "value": "nametag",
+      "description": "Name of the PostgreSQL database. It must already exist.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database user",
+      "key": "DB_USER",
+      "value": "nametag",
+      "description": "PostgreSQL user.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database password",
+      "key": "DB_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Disable registration",
+      "key": "DISABLE_REGISTRATION",
+      "value": "false",
+      "description": "Set to true after creating your account to stop others from signing up.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis URL",
+      "key": "REDIS_URL",
+      "value": "",
+      "description": "Optional. For example redis://192.168.1.10:6379. Without it, rate limiting uses memory.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Redis password",
+      "key": "REDIS_PASSWORD",
+      "value": "",
+      "description": "Optional. Only if your Redis needs a password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email domain",
+      "key": "EMAIL_DOMAIN",
+      "value": "",
+      "description": "Domain emails are sent from, for example example.com. Needed to send email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP host",
+      "key": "SMTP_HOST",
+      "value": "",
+      "description": "Optional. SMTP server for reminder and password-reset emails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP port",
+      "key": "SMTP_PORT",
+      "value": "",
+      "description": "587 for STARTTLS or 465 for SSL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP secure",
+      "key": "SMTP_SECURE",
+      "value": "",
+      "description": "true for port 465, false for 587. Default false.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP require TLS",
+      "key": "SMTP_REQUIRE_TLS",
+      "value": "",
+      "description": "Require STARTTLS. Default true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP user",
+      "key": "SMTP_USER",
+      "value": "",
+      "description": "SMTP username, often your email address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP password",
+      "key": "SMTP_PASS",
+      "value": "",
+      "description": "SMTP password or app password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "SMTP from",
+      "key": "SMTP_FROM",
+      "value": "",
+      "description": "Optional. Override the from address if your server rejects custom ones.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

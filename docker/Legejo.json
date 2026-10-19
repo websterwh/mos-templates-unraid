@@ -1,0 +1,155 @@
+{
+  "name": "Legejo",
+  "repo": "slurvdjur/legejo:1",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/slurvdjur/legejo",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]",
+  "icon": "https://raw.githubusercontent.com/jularboolean/unraid-templates/main/legejo.png",
+  "project": "https://github.com/jularboolean/legejo",
+  "description": "Legejo is a self-hosted library for your EPUB books. Read in the browser, sync books, reading positions and highlights with a Kobo, use any OPDS reading app, and keep KOReader in step. Share shelves with other users, listen to audiobooks, and federate shelves of free books over ActivityPub so they can be followed from Mastodon or another Legejo. PDF and comics (CBZ) are kept too. Everything, the SQLite database included, lives in the appdata folder. Sign in with the admin user and password below; when the password is left empty, one is generated and printed once in the container log.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/legejo",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The library: database, book files, covers and audiobooks.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Port for the web app, OPDS and the Kobo.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin user",
+      "key": "LEGEJO_ADMIN_USER",
+      "value": "admin",
+      "description": "The first admin account, created on the first start.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "LEGEJO_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Its password, used only on the first start. Leave empty to have one generated and printed once in the log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "LEGEJO_PUBLIC_URL",
+      "value": "",
+      "description": "The address users reach Legejo on, e.g. https://books.example.org. Needed for federation and for links in mail; with https, session cookies are marked Secure. Leave empty for use on the local network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Search inside the books",
+      "key": "LEGEJO_FULLTEXT",
+      "value": "false",
+      "description": "true keeps the text of the EPUBs in the database for searching inside them.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MCP server",
+      "key": "LEGEJO_MCP",
+      "value": "false",
+      "description": "true turns on the read-only MCP server for AI assistants at /api/mcp.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP host",
+      "key": "LEGEJO_SMTP_HOST",
+      "value": "",
+      "description": "Mail server, for self-registration, invitations and password reset. Mail is off when empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP port",
+      "key": "LEGEJO_SMTP_PORT",
+      "value": "587",
+      "description": "Mail server port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP user",
+      "key": "LEGEJO_SMTP_USER",
+      "value": "",
+      "description": "Mail server user.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP password",
+      "key": "LEGEJO_SMTP_PASSWORD",
+      "value": "",
+      "description": "Mail server password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mail from",
+      "key": "LEGEJO_MAIL_FROM",
+      "value": "",
+      "description": "Sender address, e.g. Legejo books@example.org.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Librarian API key",
+      "key": "LEGEJO_AI_API_KEY",
+      "value": "",
+      "description": "Key for an OpenAI-compatible language model; turns on the librarian, which suggests books. The account behind the key pays.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC issuer",
+      "key": "LEGEJO_OIDC_ISSUER",
+      "value": "",
+      "description": "Single sign-on with OpenID Connect; off when empty. See the README for the other LEGEJO_OIDC_* settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC client id",
+      "key": "LEGEJO_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Client id for single sign-on.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC client secret",
+      "key": "LEGEJO_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Client secret for single sign-on.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,6 +1,6 @@
 {
   "name": "uchiyomi-suwayomi",
-  "repo": "ghcr.io/suwayomi/suwayomi-server:v2.3.2243",
+  "repo": "ghcr.io/suwayomi/suwayomi-server:v2.4.2366",
   "category": [
     "Media"
   ],
@@ -9,12 +9,12 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--memory=1536m",
+  "extra_parameters": "--memory=2048m",
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:4567]",
   "icon": "https://raw.githubusercontent.com/AngeloSha/uchiyomi/main/web/public/icons/icon-512.png",
   "project": "https://github.com/AngeloSha/uchiyomi/blob/main/docs/extensions.md",
-  "description": "The extension engine for Uchiyomi: it runs Mihon/Tachiyomi extensions so Uchiyomi can search, follow and download from them. You never open it yourself; Uchiyomi's Admin, Extensions tab is where you add repositories and install extensions. Install Uchiyomi first. Before the first start, open the Unraid terminal and run: mkdir -p /mnt/user/appdata/uchiyomi-suwayomi and then chown 1000:1000 /mnt/user/appdata/uchiyomi-suwayomi (the engine runs as user 1000 and cannot write to a folder that belongs to root). It takes a minute or two to start the first time. Then, on the uchiyomi container, set SUWAYOMI_URL to http://YOUR-SERVER-IP:4567 and apply. It uses about 750 MB of memory while it runs and is capped at 1.5 GB. MangaDex and sites you add by address work in Uchiyomi without it. To remove it, stop it and clear SUWAYOMI_URL on Uchiyomi; keep its appdata folder if you might come back, because it holds the links for every series you added through an extension.",
+  "description": "The extension engine for Uchiyomi: it runs Mihon/Tachiyomi extensions so Uchiyomi can search, follow and download from them. You never open it yourself; Uchiyomi's Admin, Sources tab is where you add repositories and install extensions. Install Uchiyomi first. Choose a password for the engine below (AUTH_PASSWORD): its port is on your network, so it asks for one. Before the first start, open the Unraid terminal and run: mkdir -p /mnt/user/appdata/uchiyomi-suwayomi and then chown 1000:1000 /mnt/user/appdata/uchiyomi-suwayomi (the engine runs as user 1000 and cannot write to a folder that belongs to root). It takes a minute or two to start the first time. Then, on the uchiyomi container, set SUWAYOMI_URL to http://YOUR-SERVER-IP:4567, SUWAYOMI_USERNAME to the user name below (uchiyomi unless you changed it) and SUWAYOMI_PASSWORD to the password you chose, and apply. It uses 1 to 1.5 GB of memory while it runs and is capped at 2 GB. MangaDex and sites you add by address work in Uchiyomi without it. To remove it, stop it and clear SUWAYOMI_URL on Uchiyomi; keep its appdata folder if you might come back, because it holds the links for every series you added through an extension.",
   "paths": [
     {
       "name": "Engine data",
@@ -31,7 +31,7 @@
       "host": "4567",
       "container": "4567",
       "protocol": "tcp",
-      "description": "The port Uchiyomi talks to: SUWAYOMI_URL is http://YOUR-SERVER-IP:4567. Its own web page is off.",
+      "description": "The port Uchiyomi talks to: SUWAYOMI_URL is http://YOUR-SERVER-IP:4567. Its own web page is off, and the user name and password below guard it.",
       "required": true,
       "mask": false
     }
@@ -57,7 +57,15 @@
       "name": "JAVA_TOOL_OPTIONS",
       "key": "JAVA_TOOL_OPTIONS",
       "value": "-Xmx768m -XX:+UseSerialGC",
-      "description": "The engine's heap cap, the same as the desktop app's. Raise it (and the memory limit in Extra Parameters) only for a very long extension list.",
+      "description": "The engine's heap cap, the same as the desktop app's. Raise it only if the engine's log says java.lang.OutOfMemoryError: Java heap space, and raise the memory limit in Extra Parameters by the same amount: keep that limit at least 1.25 GB above this.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MALLOC_ARENA_MAX",
+      "key": "MALLOC_ARENA_MAX",
+      "value": "2",
+      "description": "Keep 2. The C library otherwise gives the engine up to eight memory pools per CPU core, and what one thread frees stays in its own pool: with 2 the engine holds about 120 MB less.",
       "required": false,
       "mask": false
     },
@@ -81,7 +89,7 @@
       "name": "WEB_UI_ENABLED",
       "key": "WEB_UI_ENABLED",
       "value": "false",
-      "description": "The engine's own web page. Off: the port is on your network, and Uchiyomi is the interface.",
+      "description": "The engine's own web page. Off: Uchiyomi is the interface.",
       "required": false,
       "mask": false
     },
@@ -96,16 +104,16 @@
     {
       "name": "AUTH_MODE",
       "key": "AUTH_MODE",
-      "value": "",
-      "description": "Optional: basic_auth to require a user name and password on the engine's port. Then set the same two on Uchiyomi as SUWAYOMI_USERNAME and SUWAYOMI_PASSWORD. Leave empty for none.",
+      "value": "basic_auth",
+      "description": "basic_auth: the engine's port asks for the user name and password below, which Uchiyomi sends as SUWAYOMI_USERNAME and SUWAYOMI_PASSWORD. Leave it on: the port is on your network.",
       "required": false,
       "mask": false
     },
     {
       "name": "AUTH_USERNAME",
       "key": "AUTH_USERNAME",
-      "value": "",
-      "description": "With AUTH_MODE basic_auth.",
+      "value": "uchiyomi",
+      "description": "The engine's user name. Set the same on the uchiyomi container as SUWAYOMI_USERNAME.",
       "required": false,
       "mask": false
     },
@@ -113,8 +121,8 @@
       "name": "AUTH_PASSWORD",
       "key": "AUTH_PASSWORD",
       "value": "",
-      "description": "With AUTH_MODE basic_auth.",
-      "required": false,
+      "description": "Choose a password for the engine, and set the same on the uchiyomi container as SUWAYOMI_PASSWORD.",
+      "required": true,
       "mask": true
     }
   ],

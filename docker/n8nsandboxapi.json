@@ -1,0 +1,139 @@
+{
+  "name": "n8n-sandbox-api",
+  "repo": "ghcr.io/n8n-io/n8n-sandbox-service-api:stable",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/n8n-io/n8n-sandbox-service/pkgs/container/n8n-sandbox-service-api",
+  "network": "n8n-sandbox",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--network-alias=n8n-sandbox-api --user=0:0 --entrypoint=/bin/sh",
+  "post_parameters": "-c bootstrap-mtls.sh --out-dir /tls --api-san n8n-sandbox-api --control-san-prefix n8n-sandbox-runner --runners 1 && chown -R sandbox-api:sandbox-api /tls/api /data && exec su sandbox-api -s /bin/sh -c exec /sbin/tini -- /usr/local/bin/sandbox-api",
+  "web_ui_url": "http://[IP]:[PORT:3200]",
+  "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons/png/n8n.png",
+  "project": "https://github.com/n8n-io/n8n-sandbox-service",
+  "description": "Code sandbox for the n8n Assistant and n8n Agents, self-hosted on Unraid. Only useful together with an existing n8n container: this is not n8n itself, it is the isolated environment n8n uses to run AI-generated code and work with files. n8n stays where it is; you only point it at this service. The sandbox is two containers and both are needed: n8n-sandbox-api (this one, the control plane n8n talks to) and n8n-sandbox-runner (privileged Docker-in-Docker that starts one throwaway container per sandbox). They talk to each other over mutual TLS. This container creates the certificates on its first start, so there is nothing to generate by hand. Setup: 1. Settings - Docker: set \"Preserve user defined networks\" to Yes, otherwise Unraid deletes the network below on every Docker restart. 2. Create the network once in the Unraid terminal: docker network create n8n-sandbox 3. Install this container. Fill in the three keys with long random values, for example from: openssl rand -hex 32 4. Install n8n-sandbox-runner with the same registration token and runner key. 5. In n8n open Settings - n8n Assistant (or Agents) - Add a code sandbox, choose n8n Sandbox and enter the service URL and the API key. Service URL: http://n8n-sandbox-api:8080 if n8n is attached to the n8n-sandbox network, otherwise http://Unraid-IP:3200 (the host port below). Check: http://Unraid-IP:3200/healthz answers {\"status\":\"ok\"}, and the log of this container shows \"runner registered\". On its first start the runner first brings up its own Docker engine and only then registers. Until it has, the connection test in n8n fails with \"no sandbox runners are registered or available\": wait a moment and test again. Image tag :stable follows the latest stable release of the n8n sandbox service. API and runner are released together and only supported in the same version, so update both containers at the same time. Security: LAN only. Never forward port 3200 to the internet. The runner is privileged and equivalent to root on the host. Unofficial template, maintained by benjaminmue. The images are published by n8n (n8n-io/n8n-sandbox-service).",
+  "paths": [
+    {
+      "name": "TLS certificates",
+      "host": "/mnt/cache/appdata/n8n-sandbox/tls",
+      "container": "/tls",
+      "mode": "rw",
+      "description": "Mutual TLS material, created on the first start: root CA, API certificates under api/, runner certificates under runner/. The runner mounts the runner/ subfolder of this path. Delete the folder and restart both containers to issue new certificates.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/n8n-sandbox/api",
+      "container": "/data",
+      "mode": "rw",
+      "description": "SQLite database with sandboxes, runners and tenants.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "API Port",
+      "host": "3200",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the sandbox API. Only needed if n8n is NOT on the n8n-sandbox network; n8n then uses http://UNRAID-IP:3200. LAN only, never expose to the internet.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "API key for n8n",
+      "key": "SANDBOX_API_KEYS",
+      "value": "",
+      "description": "The key n8n uses to talk to this service. Enter the same value in n8n under Add a code sandbox - API key. Generate with: openssl rand -hex 32",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Runner registration token",
+      "key": "SANDBOX_API_RUNNER_REGISTRATION_TOKEN",
+      "value": "",
+      "description": "Shared secret the runner presents when it registers. Must be identical to Runner registration token in n8n-sandbox-runner.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Runner key",
+      "key": "SANDBOX_API_RUNNER_API_KEY",
+      "value": "",
+      "description": "Key this service uses to call the runner. Must be identical to Runner key in n8n-sandbox-runner.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Runner control server name",
+      "key": "SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_SERVER_NAME",
+      "value": "n8n-sandbox-runner-1",
+      "description": "Name in the runner certificate. Matches the network alias of n8n-sandbox-runner. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data dir",
+      "key": "SANDBOX_API_DATA_DIR",
+      "value": "/data",
+      "description": "Location of the SQLite database inside the container. Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "gRPC server certificate",
+      "key": "SANDBOX_API_GRPC_TLS_CERT_FILE",
+      "value": "/tls/api/grpc-server.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "gRPC server key",
+      "key": "SANDBOX_API_GRPC_TLS_KEY_FILE",
+      "value": "/tls/api/grpc-server.key",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "gRPC client CA",
+      "key": "SANDBOX_API_GRPC_TLS_CLIENT_CA_FILE",
+      "value": "/tls/api/ca.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Runner control CA",
+      "key": "SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CA_FILE",
+      "value": "/tls/api/ca.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Runner control client certificate",
+      "key": "SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CERT_FILE",
+      "value": "/tls/api/control-grpc-api-client.crt",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Runner control client key",
+      "key": "SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_KEY_FILE",
+      "value": "/tls/api/control-grpc-api-client.key",
+      "description": "Do not change.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

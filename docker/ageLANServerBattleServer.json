@@ -1,0 +1,65 @@
+{
+  "name": "ageLANServer-BattleServer",
+  "repo": "ghcr.io/indyone/agelanserver-battleserver:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/indyone/unraid-templates/main/ageLANServer-BattleServer/icon.png",
+  "project": "https://github.com/luskaner/ageLANServer",
+  "description": "ageLANServer with a BattleServer included: LAN server emulator for Age of Empires: DE (AoE1), Age of Empires II: DE (AoE2), Age of Empires III: DE (AoE3), Age of Empires IV (AoE4), and Age of Mythology: Retold (AoM). It runs the game's own BattleServer.exe (which you provide) inside the container, which AoE4 and AoM require. It includes Wine, so the download is about 1.3 GB. If you only play AoE, AoE II or AoE III, the ageLANServer template is enough. Each container instance serves one game.",
+  "paths": [
+    {
+      "name": "Certificates Path",
+      "host": "/mnt/cache/appdata/agelanserver-battleserver/certificates",
+      "container": "/app/resources/certificates",
+      "mode": "rw",
+      "description": "Persistent storage for the server's SSL certificates. Generated automatically on first run; keep this mounted so the certificates survive restarts and clients keep trusting the server.",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/agelanserver-battleserver/config",
+      "container": "/app/resources/config",
+      "mode": "rw",
+      "description": "Server configuration. On first run the per-game folders (do not delete them) and a fully commented config.toml.example are placed here. Rename the example to config.toml and edit it to change authentication, announce settings, etc. Restart the container after editing.",
+      "required": false
+    },
+    {
+      "name": "BattleServer Folder",
+      "host": "/mnt/cache/appdata/agelanserver-battleserver/battleserver",
+      "container": "/app/battleserver",
+      "mode": "ro",
+      "description": "Folder containing BattleServer.exe from your game install, from the game this container serves (AoE IV ships none and AoM's is buggy: for age4 and athens use the one from AoE II: DE). It is started automatically inside the container. Required for age4 and athens; for the other games an empty folder runs without a BattleServer.",
+      "required": true
+    },
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/agelanserver-battleserver/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Server and BattleServer log files. Detailed server file logging is off by default; add --log to Post Arguments (Advanced View) to enable it.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Game",
+      "key": "GAMES",
+      "value": "age2",
+      "description": "The single game this container serves: age2 (AoE II: DE), age1 (AoE: DE), age3 (AoE III: DE), age4 (AoE IV) or athens (AoM: Retold). age4 and athens will not start without BattleServer.exe in the BattleServer Folder. To serve another game, run a second container with its own IP (ipvlan network) and its own appdata folders.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

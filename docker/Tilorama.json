@@ -1,0 +1,59 @@
+{
+  "name": "Tilorama",
+  "repo": "tunefish92/tilorama:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/tunefish92/tilorama",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Tunefish92/Tilorama/main/unraid/tilorama.png",
+  "project": "https://github.com/Tunefish92/Tilorama",
+  "description": "Fast deep-zoom viewer for very large images. Drop an image on the page (or browse for it or paste it): the server cuts it into a tile pyramid, like an online map, and the browser then loads only the tiles that are visible. A gigapixel image opens and pans as smoothly as a photo; a 2.8 gigapixel JPEG is ready in about 40 seconds. Reads JPEG, PNG, WebP, TIFF, GIF, AVIF and SVG. Zoom, rotate, flip, minimap, fullscreen and keyboard shortcuts, light and dark theme. Tile size, format, quality and the cache size limit are set in the page. Tilorama has no login: everyone who can reach the port can open images and clear the cache. Use it on a network you trust, or put it behind a reverse proxy with authentication.",
+  "paths": [
+    {
+      "name": "Data Path",
+      "host": "/mnt/cache/appdata/tilorama",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Uploaded originals, the generated tiles and the settings. Grows up to the cache size limit set in the page (10 GB by default), plus the image being opened.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port the viewer is served on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the data path; the app runs as this user. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the data path. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

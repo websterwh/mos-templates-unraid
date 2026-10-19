@@ -1,0 +1,265 @@
+{
+  "name": "uhppote-desk",
+  "repo": "ghcr.io/alexbn71/uhppote-desk:1",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/alexbn71/UHPPOTE-Desk/pkgs/container/uhppote-desk",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:8080/",
+  "icon": "https://raw.githubusercontent.com/alexbn71/UHPPOTE-Desk/main/apps/web/public/icon-512.png",
+  "project": "https://github.com/alexbn71/UHPPOTE-Desk",
+  "description": "Web application to manage UHPPOTE UT0311-L0x access controllers (1/2/4-door Wiegand boards), replacing the Windows \"Access Control\" software (N3000). Controller discovery and configuration, people, cards and permissions with automatic sync, time profiles and scheduled tasks, live monitor with photos, event history, attendance reports, anomaly detection. Home Assistant integration over MQTT (auto discovery), webhooks, Telegram/email/ntfy/Gotify notifications, automation rules and a mobile app (PWA) with fingerprint/Face ID. Interface in English, Italian, Spanish, French and German. Requires \"host\" networking to discover the controllers and receive their UDP events.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/uhppote-desk",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, backups, test reports",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that will own the data folder (Unraid: 99 = nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that will own the data folder (Unraid: 100 = users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Web port",
+      "key": "HTTP_PORT",
+      "value": "8080",
+      "description": "Port of the web interface (host networking: change it if already used by another container). If you change it, the WebUI button still opens port 8080: open http://[server IP]:[new port]/ instead",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Admin password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Password of the admin user, applied at every start. If empty, a password is generated on the first start (see the log) and must be changed at first login",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Local IP facing the controllers",
+      "key": "UHPPOTE_BIND_ADDR",
+      "value": "0.0.0.0",
+      "description": "Server IP on the controllers' network (0.0.0.0 = all interfaces)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Discovery broadcast",
+      "key": "UHPPOTE_BROADCAST",
+      "value": "255.255.255.255:60000",
+      "description": "Broadcast address used to discover controllers; the broadcast of the controllers' subnet is recommended, e.g. 192.168.1.255:60000",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Event listen address",
+      "key": "UHPPOTE_LISTEN",
+      "value": "0.0.0.0:60001",
+      "description": "UDP address:port on which events are received",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Event destination",
+      "key": "UHPPOTE_LISTENER_PUBLIC",
+      "value": "",
+      "description": "IP:port of this server as reached by the controllers, e.g. 192.168.1.10:60001 (without it events arrive only through periodic polling)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS-only cookies",
+      "key": "SECURE_COOKIES",
+      "value": "false",
+      "description": "true if published behind an HTTPS reverse proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Packet debug",
+      "key": "UHPPOTE_DEBUG",
+      "value": "false",
+      "description": "Log every packet in hexadecimal",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public address",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Public HTTPS address behind a reverse proxy, e.g. https://doors.example.com (mobile app: fingerprint/Face ID, push). See docs/MOBILE.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT broker",
+      "key": "MQTT_URL",
+      "value": "",
+      "description": "Home Assistant integration: MQTT broker URL, e.g. mqtt://192.168.1.10:1883 (empty = disabled). See docs/HOME-ASSISTANT.md",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT username",
+      "key": "MQTT_USERNAME",
+      "value": "",
+      "description": "MQTT broker user",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "MQTT_PASSWORD",
+      "value": "",
+      "description": "MQTT broker password",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MQTT door control",
+      "key": "MQTT_DOOR_CONTROL",
+      "value": "true",
+      "description": "false = Home Assistant can see the doors but not open them",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT language",
+      "key": "MQTT_LANGUAGE",
+      "value": "en",
+      "description": "Language of the Home Assistant entity names and event texts: en, it, es, fr, de",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT base topic",
+      "key": "MQTT_BASE_TOPIC",
+      "value": "uhppote-desk",
+      "description": "Prefix of the published topics",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT discovery prefix",
+      "key": "MQTT_DISCOVERY_PREFIX",
+      "value": "homeassistant",
+      "description": "Home Assistant discovery prefix",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Europe/Rome",
+      "description": "Used for the time set on the controllers and for reports",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Controller reply timeout",
+      "key": "UHPPOTE_TIMEOUT_MS",
+      "value": "2500",
+      "description": "Maximum wait for a controller reply, in milliseconds",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Retries",
+      "key": "UHPPOTE_RETRIES",
+      "value": "1",
+      "description": "Additional attempts after a timeout (only for operations that can be repeated safely; door opening is never repeated)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Status check interval",
+      "key": "HEALTH_INTERVAL_SEC",
+      "value": "15",
+      "description": "Seconds between controller status checks (online/offline, doors)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Event download interval",
+      "key": "COLLECT_INTERVAL_SEC",
+      "value": "300",
+      "description": "Seconds between event downloads from the controllers, a safety net for events not received over UDP",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Clock correction threshold",
+      "key": "TIME_SYNC_THRESHOLD_SEC",
+      "value": "30",
+      "description": "Difference in seconds beyond which the controller clock is corrected automatically (0 = never)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial event import",
+      "key": "INITIAL_BACKFILL",
+      "value": "5000",
+      "description": "Number of events already stored on a controller to import the first time it is connected",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session duration",
+      "key": "SESSION_HOURS",
+      "value": "12",
+      "description": "Operator session duration, in hours",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup hour",
+      "key": "BACKUP_HOUR",
+      "value": "2",
+      "description": "Hour of the daily database backup into /data/backups (-1 = disabled)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups kept",
+      "key": "BACKUP_KEEP",
+      "value": "14",
+      "description": "Number of daily backups to keep",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warn or error",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

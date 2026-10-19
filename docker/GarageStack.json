@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:80]/",
   "icon": "https://raw.githubusercontent.com/joszz/garagestack/main/frontend/public/pwa-192x192.png",
   "project": "https://github.com/joszz/garagestack",
-  "description": "GarageStack is an open-source vehicle monitoring dashboard for MG / SAIC electric, plug-in hybrid, and hybrid vehicles. It connects to the MG iSmart cloud via the SAIC MQTT Gateway and stores all data locally in an embedded PostgreSQL database. Features include: live dashboard, energy and efficiency statistics, trip history with heatmap visualisation, EV charging station overlay (requires free OCM API key), fuel station and motorway service area overlays (OpenStreetMap, no key required), Web Push notifications, and a Homepage dashboard widget. Everything runs in a single container -- no external database or MQTT broker required.",
+  "description": "GarageStack is an open-source, self-hosted dashboard for MG / SAIC electric, plug-in hybrid and hybrid cars. It connects to the MG iSmart cloud through the SAIC MQTT Gateway and keeps everything in its own embedded PostgreSQL database. Features: a live dashboard; remote commands (climate, lock, boot, horn and lights, and on a plug-in car charging, the charge target, cable lock, battery heating and their schedules); climate schedules; energy statistics over any period; trips drawn on the roads they took, with heatmaps and speed limits; a trip log for the taxman with automatic commutes and CSV export; maintenance reminders; tyre history with a slow-puncture alert; push notifications, among them the car moving while parked; charging station, fuel station, service area and speed camera map layers; kilometres or miles and the other units by region; Home Assistant through MQTT discovery; single sign-on through any OpenID Connect provider; read-only API tokens; a full data export; a log viewer; and a Homepage dashboard widget. Everything runs in this one container: no external database or MQTT broker required.",
   "paths": [
     {
       "name": "Data Directory",
@@ -161,8 +161,8 @@
     {
       "name": "Secure Session Cookie",
       "key": "AUTH_COOKIE_SECURE",
-      "value": "false",
-      "description": "Set to true when GarageStack is served over HTTPS (behind a TLS-terminating reverse proxy) so the session cookie is never sent over plain HTTP. Leave false for a plain-HTTP LAN install, or you will not be able to log in.",
+      "value": "auto",
+      "description": "auto (recommended) marks the session cookie Secure whenever you open GarageStack over HTTPS, also behind a TLS-terminating reverse proxy, and keeps a plain-HTTP LAN install working. true always marks it Secure (plain HTTP then cannot log in); false never does.",
       "required": false,
       "mask": false
     },
@@ -271,10 +271,26 @@
       "mask": true
     },
     {
+      "name": "VAPID Subject",
+      "key": "VAPID_SUBJECT",
+      "value": "",
+      "description": "Contact the push services (Google, Mozilla, Apple) receive with every notification: mailto:you@example.com or an https URL. Empty uses CORS_ORIGIN when that is https, otherwise a placeholder; it is never taken from your MG account.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Notification Language",
       "key": "NOTIFICATION_LANGUAGE",
       "value": "en",
       "description": "Language of the push notification texts (Engine started, Door left open, ...): en or nl. Notifications are written by the background worker, which has no browser to take a language from, so this is set per deployment.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Check",
+      "key": "UPDATE_CHECK_ENABLED",
+      "value": "true",
+      "description": "Once a day GarageStack asks GitHub for the latest release, and the footer links to it when it is newer. Only the release number is fetched. Set to false to keep GarageStack from contacting GitHub.",
       "required": false,
       "mask": false
     },
@@ -298,7 +314,7 @@
       "name": "Overpass API Base URL",
       "key": "OVERPASS__BASEURL",
       "value": "https://overpass-api.de/api/interpreter",
-      "description": "Overpass API endpoint used for fuel station and motorway service area overlays. Defaults to the public endpoint -- no API key required. Change this only if you self-host an Overpass instance.",
+      "description": "Overpass API endpoint used for the fuel station, motorway service area and speed camera overlays. Defaults to the public endpoint -- no API key required. Change this only if you self-host an Overpass instance.",
       "required": false,
       "mask": false
     },
@@ -367,6 +383,14 @@
       "mask": false
     },
     {
+      "name": "Tyre Pressure - Slow Puncture Drop (bar)",
+      "key": "TYRE_PRESSURE_DROP_BAR",
+      "value": "0.15",
+      "description": "How far one tyre may fall behind the other three over two weeks before it is reported as a possible slow puncture. 0 switches the alert off.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Alert - Low 12V Battery (V)",
       "key": "AUX_BATTERY_LOW_VOLT",
       "value": "12.0",
@@ -427,6 +451,14 @@
       "key": "DEBUG_LOGS",
       "value": "false",
       "description": "true turns on debug logging in the API and the Worker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Files Kept",
+      "key": "LOG_RETAINED_FILES",
+      "value": "30",
+      "description": "Log files each service keeps under /data: one per day, and another whenever a day's file passes 100 MB. The oldest go first.",
       "required": false,
       "mask": false
     },

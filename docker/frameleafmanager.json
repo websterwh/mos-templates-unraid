@@ -1,0 +1,171 @@
+{
+  "name": "frameleaf-manager",
+  "repo": "ghcr.io/frameleaf/frameleaf-manager:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--label app.frameleaf.manager.role=controller --security-opt no-new-privileges --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER",
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:9443]",
+  "icon": "https://raw.githubusercontent.com/Frameleaf/frameleaf-app/main/design/frameleaf/brand-kit/frameleaf-app-icon.svg",
+  "project": "https://github.com/Frameleaf/frameleaf-app",
+  "description": "Install and manage a self-hosted Frameleaf photo and video library. Manager coordinates sibling services through the Docker socket. Encrypted recovery covers the database and configuration, not media originals. Before applying, create the storage folders and follow the linked setup guide for the storage mappings. Create the administrator from your home network on first open.",
+  "paths": [
+    {
+      "name": "Manager state",
+      "host": "/mnt/cache/appdata/frameleaf-manager",
+      "container": "/mnt/user/appdata/frameleaf-manager",
+      "mode": "rw",
+      "description": "Persistent sessions and recovery configuration. When changing the host path, change the container path and MANAGER_DATA too.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/appdata/frameleaf-media",
+      "container": "/mnt/user/appdata/frameleaf-media",
+      "mode": "rw",
+      "description": "Original media. Keep host and container paths identical and update MANAGER_STORAGE_ROOTS.",
+      "required": true
+    },
+    {
+      "name": "Database parent",
+      "host": "/mnt/cache/appdata/frameleaf-databases",
+      "container": "/mnt/user/appdata/frameleaf-databases",
+      "mode": "rw",
+      "description": "Physical host storage outside Docker data/docker.img. Keep host and container paths identical and update database root variables.",
+      "required": true
+    },
+    {
+      "name": "Database backups",
+      "host": "/mnt/cache/appdata/frameleaf-backups",
+      "container": "/mnt/user/appdata/frameleaf-backups",
+      "mode": "rw",
+      "description": "Encrypted database-only checkpoints. Keep host and container paths identical and update MANAGER_BACKUP_ROOT.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Allows Manager to create and control sibling containers on this host.",
+      "required": true
+    },
+    {
+      "name": "Host mount information",
+      "host": "/proc/1/mountinfo",
+      "container": "/run/frameleaf-host/mountinfo",
+      "mode": "ro",
+      "description": "Read-only host filesystem evidence for database storage checks.",
+      "required": true
+    },
+    {
+      "name": "Unraid Docker configuration",
+      "host": "/boot/config/docker.cfg",
+      "container": "/run/frameleaf-host/docker.cfg",
+      "mode": "ro",
+      "description": "Read-only Unraid appdata and Docker storage configuration.",
+      "required": true
+    },
+    {
+      "name": "Unraid autostart file",
+      "host": "",
+      "container": "/run/frameleaf-host/unraid-autostart",
+      "mode": "rw",
+      "description": "Required for imports: select the existing unraid-autostart file beneath the exact DockerRootDir reported by docker info. Do not create a replacement or guess a pool path.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Manager HTTPS port",
+      "host": "2282",
+      "container": "9443",
+      "protocol": "tcp",
+      "description": "Port you open Manager on. 2282 sits next to Frameleaf (2283) and avoids 9443, which Portainer and other apps often use",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Manager HTTPS origin",
+      "key": "MANAGER_ORIGIN",
+      "value": "",
+      "description": "Optional. Leave blank to open Manager by IP address or tower.local. Only for a custom DNS name, enter that exact HTTPS address with port (for example https://nas.example.com:2282) and set Advanced View WebUI to match.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "State path",
+      "key": "MANAGER_DATA",
+      "value": "/mnt/user/appdata/frameleaf-manager",
+      "description": "Must equal both paths in the Manager state mapping above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media roots",
+      "key": "MANAGER_STORAGE_ROOTS",
+      "value": "/mnt/user/appdata/frameleaf-media",
+      "description": "Approved media folders, separated by colons. Each needs an identical host/container mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database roots",
+      "key": "MANAGER_DATABASE_ROOTS",
+      "value": "/mnt/user/appdata/frameleaf-databases",
+      "description": "Approved database parent folders, separated by colons. Each needs an identical host/container mapping.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Database default",
+      "key": "MANAGER_APPDATA_ROOT",
+      "value": "/mnt/user/appdata/frameleaf-databases",
+      "description": "Default database parent. Must be one of the mapped database roots above.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backup path",
+      "key": "MANAGER_BACKUP_ROOT",
+      "value": "/mnt/user/appdata/frameleaf-backups",
+      "description": "Must equal both paths in the Database backups mapping above. Does not back up media.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Frameleaf address",
+      "key": "MANAGER_BIND_ADDRESS",
+      "value": "0.0.0.0",
+      "description": "Where the Frameleaf app it installs is published. 0.0.0.0 makes it reachable from other devices on your network; 127.0.0.1 limits it to this server.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Platform",
+      "key": "MANAGER_PLATFORM",
+      "value": "unraid",
+      "description": "Unraid host integration; keep this value.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Autostart controller path",
+      "key": "MANAGER_UNRAID_AUTOSTART",
+      "value": "",
+      "description": "Leave blank unless the autostart file above is mounted. For an import, set this to /run/frameleaf-host/unraid-autostart after selecting that existing host file.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

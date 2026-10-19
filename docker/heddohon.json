@@ -9,7 +9,7 @@
   "custom_ip": null,
   "default_shell": "bash",
   "privileged": false,
-  "extra_parameters": "--user 99:100",
+  "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:3000]",
   "icon": "https://raw.githubusercontent.com/zorcerer/heddohon/main/docs/assets/icon.png",
@@ -41,8 +41,8 @@
       "name": "Secret",
       "key": "HEDDOHON_SECRET",
       "value": "",
-      "description": "Encrypts stored music-server credentials and derives session keys. Minimum 32 characters: openssl rand -base64 48. Changing it signs everyone out.",
-      "required": true,
+      "description": "Encrypts stored music-server credentials and derives session keys. Minimum 32 characters: openssl rand -base64 48. Changing it signs everyone out. Left empty, the first-run setup makes one and saves it in appdata.",
+      "required": false,
       "mask": true
     },
     {
@@ -65,8 +65,8 @@
       "name": "Public URL",
       "key": "ORIGIN",
       "value": "",
-      "description": "The address you open Heddohon at, exactly as the browser shows it, with its scheme and port: http://192.168.1.10:3000 on the LAN, or https://music.example.com behind a reverse proxy. Sign-in and every other change are refused from an address that does not match.",
-      "required": true,
+      "description": "The address you open Heddohon at, exactly as the browser shows it, with its scheme and port: http://192.168.1.10:3000 on the LAN, or https://music.example.com behind a reverse proxy. Sign-in and every other change are refused from an address that does not match. Left empty, the address is asked for by the first-run setup and can be changed by an administrator under Settings, Storage.",
+      "required": false,
       "mask": false
     },
     {
@@ -166,6 +166,38 @@
       "mask": false
     },
     {
+      "name": "Default theme",
+      "key": "HEDDOHON_DEFAULT_THEME",
+      "value": "terminal",
+      "description": "The theme an account starts in, and the one the sign-in page is drawn in: terminal, liquid, paper or phosphor. Each account can change its own under Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "User ID",
+      "key": "PUID",
+      "value": "500",
+      "description": "The user the server runs as, and the owner the appdata folder is given when the container starts. 99 is nobody on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Group ID",
+      "key": "PGID",
+      "value": "500",
+      "description": "The group the server runs as, and the group the appdata folder is given when the container starts. 100 is users on Unraid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "First-run setup",
+      "key": "HEDDOHON_SETUP",
+      "value": "true",
+      "description": "When the Secret or every music server address is left empty, Heddohon prints a code to its log as it starts and serves a setup page that takes the code. false switches that off: a start without them is then an error.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Folder view",
       "key": "HEDDOHON_FOLDERS",
       "value": "true",
@@ -196,6 +228,14 @@
       "description": "Optional. Set it to let the Heddohon plugin for Navidrome (heddohon.ndp, from github.com/zorcerer/heddohon-navidrome-plugin) tell this server what is played in other apps: those plays go into the listening history, an import brings in the whole scrobble history, and the Devices button lists the other apps. At least 32 characters and not the Secret: openssl rand -hex 32. The plugin's settings in Navidrome take the same value. Empty leaves it off.",
       "required": false,
       "mask": true
+    },
+    {
+      "name": "AI assistants (MCP)",
+      "key": "HEDDOHON_MCP",
+      "value": "",
+      "description": "true lets each account make a token under Settings, AI, for an AI assistant that speaks the Model Context Protocol, such as Claude Code. The assistant then searches that account's library at /api/mcp and, if the token allows it, makes and changes playlists, favourites and ratings. What it reads goes to whoever runs its model. Left empty, it is off until the first-run setup or an administrator under Settings, AI, turns it on; true or false here decides it, and Settings does not offer the switch.",
+      "required": false,
+      "mask": false
     },
     {
       "name": "Lyrics from LRCLIB",

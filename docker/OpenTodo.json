@@ -1,0 +1,115 @@
+{
+  "name": "OpenTodo",
+  "repo": "ghcr.io/pixari/opentodo:stable",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/pixari/opentodo/pkgs/container/opentodo",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/pixari/opentodo/main/web/public/pwa-512.png",
+  "project": "https://open-todo.app",
+  "description": "Open-source, local-first task manager. Works offline and syncs every device from one small container. Projects, sections and boards, recurring tasks and reminders, sharing, CalDAV, an optional AI assistant, import from Todoist, Things, TickTick and Linear. No telemetry, no subscription. Open the Web UI and the first visitor creates the owner account. Installing the app, push notifications, passkeys and end-to-end encryption need https (a reverse proxy with a certificate); everything else works on the server's address.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/opentodo",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Everything OpenTodo stores: the database, attachments and backups. Back up this folder.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "The port the app and API answer on.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Base URL",
+      "key": "OPENTODO_BASE_URL",
+      "value": "",
+      "description": "The address people open, for example https://todo.example.com. Needed behind a reverse proxy for passkeys, secure cookies and links in emails. Include the port if there is one. Leave empty when you open OpenTodo by the server's address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Setup token",
+      "key": "OPENTODO_SETUP_TOKEN",
+      "value": "",
+      "description": "Optional, at least 16 characters. When set, creating the first (owner) account asks for this token, so a server reachable from the internet cannot be claimed by a stranger.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Open sign-up",
+      "key": "OPENTODO_ALLOW_SIGNUP",
+      "value": "false",
+      "description": "true lets anyone who can reach the server create an account. Otherwise the owner invites people.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "OPENTODO_TRUSTED_PROXIES",
+      "value": "",
+      "description": "Reverse proxies whose X-Forwarded-For is trusted for the visitor's address: IP addresses or ranges such as 192.0.2.0/24 separated by commas, or cloudflare. Set it only when every request comes through them.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Push notifications",
+      "key": "OPENTODO_PUSH",
+      "value": "on",
+      "description": "on or off: reminders as push notifications (needs https).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session days",
+      "key": "OPENTODO_SESSION_DAYS",
+      "value": "90",
+      "description": "Days a sign-in stays valid.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trash retention days",
+      "key": "OPENTODO_TRASH_RETENTION_DAYS",
+      "value": "30",
+      "description": "Days deleted items stay in the Trash; 0 keeps them forever.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Largest import (MB)",
+      "key": "OPENTODO_IMPORT_MAX_MB",
+      "value": "20",
+      "description": "Largest import file accepted, in MB.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "OPENTODO_LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warn or error. The first log line shows the level in use; debug adds one line per request the app makes.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

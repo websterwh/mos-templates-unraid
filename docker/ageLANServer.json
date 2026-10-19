@@ -1,0 +1,57 @@
+{
+  "name": "ageLANServer",
+  "repo": "ghcr.io/indyone/agelanserver:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/indyone/unraid-templates/main/ageLANServer/icon.png",
+  "project": "https://github.com/luskaner/ageLANServer",
+  "description": "LAN server emulator for Age of Empires: DE (AoE1), Age of Empires II: DE (AoE2) and Age of Empires III: DE (AoE3). Play multiplayer over your local network without an internet connection. Each container instance serves one game. To support multiple titles simultaneously, run one container per game \u2014 but switch from host networking to an ipvlan network so each container gets its own LAN IP and can independently bind port 443 and the UDP discovery port. When you create a lobby, choose Use Local Lan Server in the game's Server list. SSL certificates are generated automatically on the first start and reused on subsequent runs. For Age of Empires IV or Age of Mythology: Retold use the ageLANServer-BattleServer template.",
+  "paths": [
+    {
+      "name": "Certificates Path",
+      "host": "/mnt/cache/appdata/agelanserver/certificates",
+      "container": "/app/resources/certificates",
+      "mode": "rw",
+      "description": "Persistent storage for the server's SSL certificates. Generated automatically on first run; keep this mounted so the certificates survive restarts and clients keep trusting the server.",
+      "required": true
+    },
+    {
+      "name": "Config Path",
+      "host": "/mnt/cache/appdata/agelanserver/config",
+      "container": "/app/resources/config",
+      "mode": "rw",
+      "description": "Server configuration. On first run the per-game folders (do not delete them) and a fully commented config.toml.example are placed here. Rename the example to config.toml and edit it to change authentication, announce settings, BattleServers, etc. Restart the container after editing.",
+      "required": false
+    },
+    {
+      "name": "Logs Path",
+      "host": "/mnt/cache/appdata/agelanserver/logs",
+      "container": "/app/logs",
+      "mode": "rw",
+      "description": "Server log files. Detailed file logging is off by default; add --log to Post Arguments (Advanced View) to enable it.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Game",
+      "key": "GAMES",
+      "value": "age2",
+      "description": "The single game this container serves: age2 (AoE II: DE), age1 (AoE: DE) or age3 (AoE III: DE). For AoE IV or AoM use the ageLANServer-BattleServer template, which includes the BattleServer they need. To serve another game, run a second container with its own IP (ipvlan network) and its own appdata folders.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

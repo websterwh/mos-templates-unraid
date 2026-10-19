@@ -1,0 +1,139 @@
+{
+  "name": "DSH",
+  "repo": "ghcr.io/2220545672/dsh:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/2220545672/dsh-docker/pkgs/container/dsh",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--security-opt seccomp=unconfined --security-opt systempaths=unconfined --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://gh-proxy.com/https://raw.githubusercontent.com/2220545672/dsh-unraid/main/templates/img/dsh.png",
+  "project": "https://github.com/deepseek-ai/deepseek-harness",
+  "description": "DSH\uff08DeepSeek Harness\uff09\u662f\u5f00\u6e90 AI \u7f16\u7801\u667a\u80fd\u4f53\uff1a\u5728\u6d4f\u89c8\u5668\u91cc\u4e0e\u5b83\u534f\u4f5c\uff0c\u8bfb\u5199\u4f60\u7684\u9879\u76ee\u3001\u6267\u884c\u547d\u4ee4\u3001\u7ba1\u7406\u6a21\u578b\u4e0e\u4f1a\u8bdd\u5386\u53f2\u3002\u672c\u955c\u50cf\u4e3a Unraid \u51c6\u5907\u2014\u2014\u81ea\u52a8\u8ddf\u968f\u4e0a\u6e38\u53d1\u7248\u91cd\u5efa\uff0c\u5185\u7f6e\u547d\u4ee4\u6c99\u7bb1\u6240\u9700\u7684 bubblewrap\uff0c\u4f7f\u5b83\u5728\u6ca1\u6709 Landlock \u7684\u5185\u6838\u4e0a\u4e5f\u80fd\u6b63\u5e38\u6267\u884c\u547d\u4ee4\uff0c\u5e76\u96c6\u6210 [dsh-remote-signin](https://github.com/2220545672/dsh-remote-signin) \u63d2\u4ef6\uff1a\u5728\u5c40\u57df\u7f51\u3001Tailscale \u6216\u53cd\u5411\u4ee3\u7406\u540e\u9762\uff0c\u7528 DeepSeek \u8d26\u53f7\u767b\u5f55\u4e5f\u80fd\u6b63\u5e38\u8d70\u5b8c\uff08\u53ea\u5728\u6700\u540e\u591a\u4e00\u6b65\u7c98\u8d34\uff0c\u7c98\u8d34\u6846\u4f1a\u81ea\u5df1\u51fa\u73b0\u5728\u9875\u9762\u4e0a\uff09\u3002 \u5bb9\u5668\u5185\u7f6e Caddy \u53cd\u5411\u4ee3\u7406\u4e0e\u53ef\u9009\u53e3\u4ee4\u95e8\u7981\uff08\u4e5f\u53ef\u8bbe\u4e3a none \u4ea4\u7ed9\u4f60\u73b0\u6709\u7684 SSO\uff09\uff0c\u4ee5\u975e root \u8eab\u4efd\uff08PUID/PGID\uff0c\u9ed8\u8ba4 1000\uff09\u8fd0\u884c\u3002\u26a0\ufe0f \u4e0a\u6e38\u5904\u4e8e\u5f00\u53d1\u8005\u9884\u89c8\u9636\u6bb5\uff0c\u672a\u6765\u4f1a\u51fa\u73b0\u7834\u574f\u517c\u5bb9\u6027\u7684\u53d8\u66f4\u3002 | DSH (DeepSeek Harness) is an open-source AI coding agent you drive from the browser: it works on your projects, runs commands and keeps your session history. Built for Unraid \u2014 rebuilt automatically for every upstream release, with the bubblewrap sandbox bundled so commands work even on kernels without Landlock, and with the [dsh-remote-signin](https://github.com/2220545672/dsh-remote-signin) plugin integrated: a DeepSeek account sign-in also works over the LAN, Tailscale or behind a reverse proxy (it adds one paste, into a box that appears in the page). The container bundles its own reverse proxy and an optional password gate (or set none and delegate to your SSO), and runs unprivileged as a non-root uid (PUID/PGID, 1000 by default). \u26a0\ufe0f Upstream is in developer preview: compatibility-breaking changes are coming.",
+  "paths": [
+    {
+      "name": "Data Directory",
+      "host": "/mnt/cache/appdata/dsh/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "DSH_HOME\uff1a\u4f1a\u8bdd\u3001\u51ed\u636e\u3001agent home\uff08/data/dsh\uff09\u4e0e Caddy \u72b6\u6001\u3002\u5fc5\u987b\u662f\u6301\u4e45\u5316\u76ee\u5f55\uff0c\u5426\u5219\u91cd\u5efa\u5bb9\u5668\u5373\u4e22\u5931\u5168\u90e8\u4f1a\u8bdd\u3002DSH_HOME (sessions, credentials, agents) plus Caddy state; keep it persistent.",
+      "required": true
+    },
+    {
+      "name": "Workspace Directory",
+      "host": "/mnt/cache/appdata/dsh/workspace",
+      "container": "/workspace",
+      "mode": "rw",
+      "description": "\u667a\u80fd\u4f53\u7684\u5de5\u4f5c\u76ee\u5f55\uff08DSH_WORKSPACE\uff09\uff0c\u5bb9\u5668\u542f\u52a8\u5373 cd \u5230\u6b64\u3002\u5bbf\u4e3b\u673a\u4e0a\u5efa\u8bae\u653e\u9700\u8981\u957f\u671f\u4fdd\u7559\u7684\u9879\u76ee\u3002The agent's working directory; the container cd's here at start.\u5bb9\u5668\u5185\u4e5f\u53ef\u7528 ~/workspace \u8bbf\u95ee\uff0c\u76ee\u5f55\u9009\u62e9\u5668\u9ed8\u8ba4\u5c31\u843d\u5728\u8fd9\u91cc\u3002Also reachable inside the container as ~/workspace, where the directory picker starts.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "0.0.0.0:8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "DeepSeek Harness Web UI \u7684\u5bbf\u4e3b\u4fa7\u7ed1\u5b9a\uff0c\u683c\u5f0f\u5fc5\u987b\u662f IP:\u7aef\u53e3\uff08Unraid \u4f1a\u628a\u88f8\u7aef\u53e3\u53f7\u8bef\u89e3\u6790\u6210 IP\uff0c\u5bb9\u5668\u4f1a\u5361\u5728 Created\uff09\u3002\u5bb9\u5668\u5185\u7aef\u53e3\u56fa\u5b9a\u4e3a 8080\uff1b\u60f3\u53ea\u8ba9\u672c\u673a\u8bbf\u95ee\u5c31\u6539\u6210 127.0.0.1:8080\uff0c\u66b4\u9732\u8303\u56f4\u8bf7\u914d\u5408 **Allowed Clients** \u4e00\u8d77\u6536\u7d27\u3002| Host-side binding, and it MUST be written as IP:port \u2014 Unraid mis-parses a bare port number as an IP and the container stays in Created. The container port is always 8080; use 127.0.0.1:8080 to expose it on the loopback only.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID (default: 1000)",
+      "key": "PUID",
+      "value": "500",
+      "description": "DSH \u8fdb\u7a0b\u4e0e\u5b83\u6d3e\u751f\u7684\u6240\u6709\u8fdb\u7a0b\uff08\u547d\u4ee4\u5de5\u5177\u3001\u63d2\u4ef6\uff09\u4ee5\u54ea\u4e2a uid \u8fd0\u884c\u3002Unraid \u4e0a appdata \u7684\u5e38\u89c4\u5c5e\u4e3b\u662f nobody:users\uff0c\u6240\u4ee5 **Unraid \u7528\u6237\u5efa\u8bae\u586b 99**\uff1b\u9ed8\u8ba4\u503c 1000 \u9762\u5411 compose / \u901a\u7528\u90e8\u7f72\u3002\u5bb9\u5668\u542f\u52a8\u65f6\u4f1a\u628a /data \u4e0e /workspace \u7684\u5c5e\u4e3b\u4ea4\u7ed9 PUID:PGID\uff0c\u6240\u4ee5\u6539\u5b8c\u91cd\u542f\u5373\u53ef\uff0c\u4e0d\u5fc5\u624b\u5de5 chown\u3002PUID \u4e0d\u80fd\u4e3a 0\u3002| The uid DSH and every process it spawns (commands, plugins) run as. Unraid appdata is normally owned by nobody:users, so **set 99 on Unraid**; the 1000 default is for compose and other generic deployments. At every start the container hands /data and /workspace over to PUID:PGID, so a change needs only a restart \u2014 no manual chown. PUID must not be 0.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID (default: 1000)",
+      "key": "PGID",
+      "value": "500",
+      "description": "DSH \u8fdb\u7a0b\u4e0e\u5b83\u6d3e\u751f\u7684\u6240\u6709\u8fdb\u7a0b\u4ee5\u54ea\u4e2a gid \u8fd0\u884c\u3002Unraid \u4e0a appdata \u7684\u5e38\u89c4\u5c5e\u4e3b\u662f nobody:users\uff0c\u6240\u4ee5 **Unraid \u7528\u6237\u5efa\u8bae\u586b 100**\uff1b\u9ed8\u8ba4\u503c 1000 \u9762\u5411 compose / \u901a\u7528\u90e8\u7f72\u3002\u5bb9\u5668\u542f\u52a8\u65f6\u4f1a\u628a /data \u4e0e /workspace \u7684\u5c5e\u4e3b\u4ea4\u7ed9 PUID:PGID\uff0c\u6240\u4ee5\u6539\u5b8c\u91cd\u542f\u5373\u53ef\uff0c\u4e0d\u5fc5\u624b\u5de5 chown\u3002PGID \u4e0d\u80fd\u4e3a 0\u3002| The gid DSH and every process it spawns runs as. Unraid appdata is normally owned by nobody:users, so **set 100 on Unraid**; the 1000 default is for compose and other generic deployments. At every start the container hands /data and /workspace over to PUID:PGID, so a change needs only a restart \u2014 no manual chown. PGID must not be 0.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Clients (IP / hostname)",
+      "key": "ALLOWED_CLIENTS",
+      "value": "127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,100.64.0.0/10,fc00::/7,fe80::/10",
+      "description": "\u53ea\u5141\u8bb8\u8fd9\u4e9b\u6765\u6e90\u8bbf\u95ee\u754c\u9762\uff0c\u9017\u53f7\u5206\u9694\u3002**IP \u6216 CIDR** \u6309\u8fde\u63a5\u6765\u6e90\u5730\u5740\u5339\u914d\uff1b**\u57df\u540d**\u6309 Host \u5934\u5339\u914d\u3002\u6a21\u677f\u9ed8\u8ba4\u5df2\u653e\u5bbd\u5230\u79c1\u6709\u7f51\u6bb5\uff08RFC1918 + \u94fe\u8def\u672c\u5730 + Tailscale CGNAT\uff09\uff0c\u88c5\u5b8c\u5373\u53ef\u4ece\u5c40\u57df\u7f51/Tailscale \u6253\u5f00\uff0c\u516c\u7f51\u4ecd\u8fdb\u4e0d\u6765\u2014\u2014\u56e0\u4e3a\u516c\u7f51\u6765\u6e90\u4e0d\u5c5e\u4e8e\u4efb\u4f55\u4e00\u6761\uff1b\u60f3\u6536\u7d27\u5c31\u628a\u591a\u4f59\u7684\u7f51\u6bb5\u5220\u6389\uff0c\u53ea\u7559\u4f60\u81ea\u5df1\u7684\u3002**\u955c\u50cf\u672c\u8eab\u7684\u9ed8\u8ba4\u503c\u662f\u4e25\u683c\u7684 127.0.0.1**\uff08\u53ea\u5141\u8bb8\u672c\u673a\uff09\uff0c\u6a21\u677f\u53ea\u662f\u66ff\u4f60\u653e\u5bbd\u5230\u300c\u4e0d\u4f1a\u88ab\u516c\u7f51\u78b0\u5230\u300d\u7684\u8303\u56f4\u3002\u586b\u57df\u540d\u65f6\u6d4f\u89c8\u5668\u5fc5\u987b\u7528\u8be5\u57df\u540d\u8bbf\u95ee\uff08\u7ecf\u4ee3\u7406\u65f6\u57df\u540d\u5e94\u4e3a PUBLIC_URL \u7684\u4e3b\u673a\u540d\uff09\u3002| Only these clients may reach the UI, comma separated: IPs/CIDRs match the peer address, hostnames match the Host header. The default 127.0.0.1 means localhost only (loopback is always allowed because the container's own healthcheck needs it). Add your LAN subnet, or your reverse proxy's address, when something else must connect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Username (default: dsh)",
+      "key": "AUTH_USER",
+      "value": "dsh",
+      "description": "\u767b\u5f55\u6846\u91cc\u7684\u7528\u6237\u540d\uff08**\u9ed8\u8ba4 dsh**\uff0c\u5fc5\u586b\uff09\u3002\u6539\u8fd9\u91cc\u7b49\u4e8e\u6362\u7528\u6237\u540d\uff1b\u6d4f\u89c8\u5668\u4f1a\u8bb0\u4f4f\u65e7\u7684\u7528\u6237\u540d/\u53e3\u4ee4\u7ec4\u5408\uff0c\u6539\u5b8c\u8bf7\u6e05\u7406\u5df2\u4fdd\u5b58\u7684\u767b\u5f55\u4fe1\u606f\u3002| User name for the built-in gate (default dsh, required). The browser remembers the old pair, so clear the saved login after changing it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Password (default: 12345678 \u2014 change it)",
+      "key": "DSH_PASSWORD",
+      "value": "12345678",
+      "description": "\u26a0\ufe0f **\u6a21\u677f\u81ea\u5e26\u9ed8\u8ba4\u53e3\u4ee4 12345678\uff0c\u8bf7\u52a1\u5fc5\u6539\u6210\u53ea\u6709\u4f60\u77e5\u9053\u7684\u53e3\u4ee4**\uff08\u6539\u5b8c\u70b9 Apply \u91cd\u5efa\u5bb9\u5668\u5373\u751f\u6548\uff1b\u9ed8\u8ba4\u503c 12345678 \u4ee5\u5706\u70b9\u663e\u793a\uff0c\u6539\u4e86\u5b83\u6d4f\u89c8\u5668\u4e0b\u6b21\u5c31\u4f1a\u7528\u65b0\u53e3\u4ee4\uff09\u3002\u8fd9\u662f\u5bb9\u5668\u81ea\u5e26\u95e8\u7981\uff08Authentication Mode = builtin\uff09\u7684\u552f\u4e00\u53e3\u4ee4\uff1b\u5728\u6539\u6389\u4e4b\u524d\uff0c\u4efb\u4f55\u80fd\u8bbf\u95ee\u8fd9\u4e2a\u7aef\u53e3\u3001\u4e14\u77e5\u9053\u8fd9\u4e2a\u516c\u5f00\u9ed8\u8ba4\u503c\u7684\u4eba\u90fd\u80fd\u64cd\u4f5c\u4f60\u7684\u667a\u80fd\u4f53\uff08\u53ef\u5728\u4f60\u7684\u9879\u76ee\u91cc\u6267\u884c\u547d\u4ee4\u3001\u8bfb\u53d6 /data \u91cc\u7684\u51ed\u636e\uff09\u3002\u5728\u754c\u9762\u4e0a\u5b83\u4ee5\u5706\u70b9\u663e\u793a\uff08Mask \u53ea\u5f71\u54cd\u663e\u793a\uff0c\u503c\u4f1a\u7167\u5e38\u4f20\u7ed9\u5bb9\u5668\uff09\uff1b\u6e05\u7a7a\u5185\u5bb9 = \u7528\u56de\u9ed8\u8ba4\u503c 12345678\uff1b\u60f3\u6539\u6210\u968f\u673a\u53e3\u4ee4\u8bf7\u5728 CLI/compose \u91cc\u663e\u5f0f\u4f20\u7a7a `-e DSH_PASSWORD=`\uff08\u9996\u542f\u751f\u6210\u5e76\u6253\u5370\u4e00\u6b21\uff09\u3002\u53e3\u4ee4\u81f3\u5c11 8 \u4f4d\u3001\u4e0d\u80fd\u542b\u7a7a\u767d\u5b57\u7b26\uff1b\u6539\u53e3\u4ee4\u4f1a\u8ba9\u6b64\u524d\u7b7e\u53d1\u7684\u767b\u5f55 Cookie \u5168\u90e8\u5931\u6548\u3002Password for the built-in gate. The template ships 12345678 as a default \u2014 change it before you go further; until then anybody who can reach the port and knows this public default can drive the agent. It shows as dots in the GUI (Mask is display only; the value still reaches the container); clearing it falls back to the default 12345678; for a random one pass an explicitly empty `-e DSH_PASSWORD=` from the CLI/compose (generated on first start and printed once). At least 8 characters, no whitespace.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Authentication Mode",
+      "key": "AUTH_MODE",
+      "value": "builtin",
+      "description": "builtin\uff08\u9ed8\u8ba4\uff09= \u5bb9\u5668\u81ea\u5e26\u53e3\u4ee4\u95e8\u7981\uff0c\u9002\u5408\u76f4\u63a5\u7ed9\u5185\u7f51\u4f7f\u7528\u6216\u7ecf\u7aef\u53e3\u8f6c\u53d1\u8fdc\u7a0b\u8bbf\u95ee\uff1bnone = \u4e0d\u4f7f\u7528\u81ea\u5e26\u8ba4\u8bc1\uff0c\u628a\u9274\u6743\u4ea4\u7ed9\u524d\u9762\u7684\u53cd\u5411\u4ee3\u7406 / SSO\uff08\u5982 SWAG + Authelia\uff09\u6216\u53d7\u4fe1\u5185\u7f51\u3002\u5176\u5b83\u53d6\u503c\u4f1a\u8ba9\u5bb9\u5668\u62d2\u7edd\u542f\u52a8\u3002\u6ce8\u610f\uff1a\u53e3\u4ee4\u8d70\u660e\u6587 HTTP \u65f6\u53ef\u88ab\u76d1\u542c\uff0c\u516c\u7f51\u8bbf\u95ee\u4ecd\u5fc5\u987b\u7531\u53cd\u5411\u4ee3\u7406\u63d0\u4f9b HTTPS\u3002builtin serves the container's own password gate (default); none delegates to an authenticating proxy or a trusted LAN. Other values fail closed. A password over plain HTTP is sniffable, so internet exposure still needs a TLS reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Proxy CIDRs (optional)",
+      "key": "TRUSTED_PROXY_CIDRS",
+      "value": "",
+      "description": "\u4ec5\u5f53\u5bb9\u5668\u524d\u9762\u6709\u53cd\u5411\u4ee3\u7406\u65f6\u586b\u5199\uff1aCaddy \u53ea\u5bf9\u8fd9\u4e9b\u6765\u6e90\u8bfb\u53d6 X-Forwarded-For\uff0c\u4ece\u800c\u6309**\u771f\u5b9e\u5ba2\u6237\u7aef IP** \u5339\u914d **Allowed Clients**\u3002\u5207\u52ff\u586b\u5199\u4e0d\u53ef\u4fe1\u5ba2\u6237\u7aef\u4e5f\u80fd\u53d1\u8d77\u7684\u7f51\u6bb5\u2014\u2014\u90a3\u6837\u4efb\u4f55\u4eba\u90fd\u80fd\u4f2a\u9020\u6765\u6e90\u7ed5\u8fc7\u767d\u540d\u5355\u3002| Only when a reverse proxy fronts this container: Caddy then reads X-Forwarded-For from these peers only, so the allowlist sees the real client address. Never list a range untrusted clients can originate from; they could forge the header and bypass the allowlist.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "\u5bf9\u5916\u8bbf\u95ee\u5730\u5740\u7684\u5b8c\u6574 origin\uff0c\u4f8b\u5982 https://dsh.example.com\uff08\u4e0d\u8981\u5e26\u8def\u5f84\uff09\u3002\u8bbe\u7f6e\u540e\u4f1a\u542f\u7528\u4e25\u683c\u6a21\u5f0f\uff1aDSH \u53ea\u63a5\u53d7\u8be5 authority \u7684\u8bf7\u6c42\uff0c\u5e76\u62d2\u7edd\u5176\u5b83 Origin\u3002\u7559\u7a7a = \u5c40\u57df\u7f51\u6a21\u5f0f\uff1a\u4ec5\u5265\u6389 Origin \u5e76\u628a Host \u56fa\u5b9a\u4e3a loopback\uff0c\u9002\u5408\u53d7\u4fe1\u5185\u7f51\u6216 VPN\u3002Full origin when a reverse proxy fronts this container; leave empty for a trusted LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted Hosts (DSH_TRUSTED_HOSTS)",
+      "key": "DSH_TRUSTED_HOSTS",
+      "value": "",
+      "description": "\u989d\u5916\u7684\u53ef\u4fe1 authority\uff0c\u9017\u53f7\u5206\u9694\uff08\u5982 dsh.example.com,192.168.1.10:8080\uff09\u3002\u4ec5\u5728\u8bbe\u7f6e\u4e86 PUBLIC_URL \u65f6\u751f\u6548\u3002Extra accepted host[:port] authorities, comma separated; only used together with PUBLIC_URL.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remote Sign-in (default: on)",
+      "key": "REMOTE_SIGNIN",
+      "value": "on",
+      "description": "\u7528 DeepSeek **\u8d26\u53f7**\uff08\u800c\u4e0d\u662f API Key\uff09\u767b\u5f55\u65f6\uff1aon\uff08\u9ed8\u8ba4\uff09\u4f1a\u52a0\u8f7d dsh-remote-signin \u63d2\u4ef6\uff0c\u8ba9\u5c40\u57df\u7f51 / Tailscale / \u53cd\u5411\u4ee3\u7406\u540e\u9762\u7684\u6d4f\u89c8\u5668\u4e5f\u80fd\u628a\u767b\u5f55\u8d70\u5b8c\u2014\u2014\u767b\u5f55\u6807\u7b7e\u9875\u6700\u540e\u505c\u5728\u6253\u4e0d\u5f00\u7684 127.0.0.1 \u9875\u9762\u4e0a\uff0c\u6b64\u65f6 DSH \u9875\u9762\u91cc\u4f1a\u81ea\u52a8\u51fa\u73b0\u7c98\u8d34\u6846\uff1boff = \u4e0a\u6e38\u884c\u4e3a\uff08\u53ea\u6709\u56de\u73af\u5730\u5740\u4e0b\u7684\u6d4f\u89c8\u5668\u80fd\u7528\u8d26\u53f7\u767b\u5f55\uff09\u3002\u586b\u5176\u5b83\u503c\u5bb9\u5668\u62d2\u7edd\u542f\u52a8\u3002| DeepSeek **account** sign-in (as opposed to an API key): on (default) loads the dsh-remote-signin plugin so a browser on the LAN, Tailscale or behind a proxy can finish the login \u2014 the login tab ends on a dead 127.0.0.1 page and a paste panel appears in the page itself; off = upstream behaviour (only a loopback browser can sign in with an account). Any other value refuses to start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "Asia/Shanghai",
+      "description": "\u5bb9\u5668\u65f6\u533a\u3002Container time zone.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

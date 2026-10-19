@@ -1,0 +1,107 @@
+{
+  "name": "YAMZ",
+  "repo": "ghcr.io/zombifiedturkey/yamz:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/zombifiedturkey/YAMZ/pkgs/container/yamz",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:7979]/",
+  "icon": "https://raw.githubusercontent.com/zombifiedturkey/YAMZ/main/unraid/yamz-icon.png",
+  "project": "https://github.com/zombifiedturkey/YAMZ",
+  "description": "YAMZ (Yet Another Media Zombie) is a good-looking browser for your movie and TV collection. Connect Plex or Jellyfin and get a poster wall with ratings, cast and photos, a Gaps page that finds what's missing from your franchises and TV seasons, Discover (Popular, Upcoming, Recent and Essentials by genre and decade), your own Lists, a release Calendar, Plex Watchlist sync, and one-click adding to Radarr and Sonarr. Everything is stored in /config and protected by its own sign-in. Open the WebUI and create your account on first run. Note: YAMZ is tested day to day with Plex. Jellyfin support should work but still needs more real-world testing.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/yamz",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where YAMZ keeps its settings, lists, account and cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "7979",
+      "container": "7979",
+      "protocol": "tcp",
+      "description": "Port for the YAMZ web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID YAMZ runs as (Unraid default: 99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID YAMZ runs as (Unraid default: 100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sign-in",
+      "key": "YAMZ_AUTH",
+      "value": "on",
+      "description": "Keep 'on'. Choose 'none' ONLY if a reverse proxy in front of YAMZ already requires a login (Authelia, Authentik, etc.).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Behind a reverse proxy",
+      "key": "YAMZ_TRUST_PROXY",
+      "value": "false",
+      "description": "Set to true when you reach YAMZ through a reverse proxy (SWAG, Nginx Proxy Manager, Traefik, Caddy). Enables secure cookies over https and correct client addresses for sign-in protection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow self-signed certificates",
+      "key": "YAMZ_ALLOW_SELF_SIGNED",
+      "value": "false",
+      "description": "Set to true if your Plex, Jellyfin, Radarr or Sonarr use https with a self-signed certificate.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base path",
+      "key": "YAMZ_BASE_PATH",
+      "value": "",
+      "description": "Only needed if your reverse proxy serves YAMZ under a sub-folder (e.g. /yamz) WITHOUT stripping it. Leave empty otherwise.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial username",
+      "key": "YAMZ_USER",
+      "value": "",
+      "description": "Optional. Creates this account on first start instead of the in-browser setup screen.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Initial password",
+      "key": "YAMZ_PASSWORD",
+      "value": "",
+      "description": "Optional. Password for the initial account (at least 8 characters). You can remove it after the first start.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

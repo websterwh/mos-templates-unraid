@@ -1,0 +1,123 @@
+{
+  "name": "clewis-free-games-claimer",
+  "repo": "corylewis/free-games-claimer:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/corylewis/free-games-claimer",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6080]/",
+  "icon": "https://raw.githubusercontent.com/mecharmor/free-games-claimer/main/unraid-templates/icons/icon.png",
+  "project": "https://github.com/vogler/free-games-claimer",
+  "description": "Automatically claims free games on the Epic Games Store, Amazon Prime Gaming (Luna), GOG, Steam and more. Runs headless in Docker with Playwright \u2014 no manual clicking. This container starts, runs the claimers, and then stops on its own. To claim on a schedule, use the \"User Scripts\" Unraid plugin (available in Community Applications): create a new script, set it to run daily, and use the following as the script content: #!/bin/bash docker start clewis-free-games-claimer Free games rotate weekly, so daily is more than frequent enough to never miss one. FIRST RUN / LOGIN: Logins persist in /fgc/data (the Appdata path below). If a site logs you out, open the container's noVNC web UI (port 6080) and log in manually in the browser, or run once with SHOW=1 to watch the login flow. Epic Games supports 2FA via TOTP: enable an authenticator app in your Epic account settings and paste the TOTP secret into the EG_OTPKEY field below.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/clewis-free-games-claimer",
+      "container": "/fgc/data",
+      "mode": "rw",
+      "description": "Persistent storage for browser sessions, screenshots and claim history. Keep this mapped or you will have to log in again on every run.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "noVNC Port",
+      "host": "6080",
+      "container": "6080",
+      "protocol": "tcp",
+      "description": "noVNC browser-based VNC client \u2014 open the container's WebUI to log in manually when a session expires.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Email",
+      "key": "EMAIL",
+      "value": "",
+      "description": "Optional. Shared email used as a fallback for any store below that has no store-specific email set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Epic Email",
+      "key": "EG_EMAIL",
+      "value": "",
+      "description": "Epic Games Store login email. Leave empty to skip Epic (Epic is also skipped entirely if no email is set).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Epic Password",
+      "key": "EG_PASSWORD",
+      "value": "",
+      "description": "Epic Games Store password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Epic TOTP Secret",
+      "key": "EG_OTPKEY",
+      "value": "",
+      "description": "Optional. TOTP secret for Epic 2FA. In your Epic account settings, choose 'Enable Authenticator App' and paste the secret shown there (the QR code contains it). The claimer then generates 2FA codes automatically.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Prime Gaming Email",
+      "key": "PG_EMAIL",
+      "value": "",
+      "description": "Amazon account email for Prime Gaming (Luna) claims.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prime Gaming Password",
+      "key": "PG_PASSWORD",
+      "value": "",
+      "description": "Amazon account password for Prime Gaming (Luna) claims.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Prime Gaming TOTP Secret",
+      "key": "PG_OTPKEY",
+      "value": "",
+      "description": "Optional. TOTP secret for Amazon 2FA, from your Amazon account's authenticator app setup.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "GOG Email",
+      "key": "GOG_EMAIL",
+      "value": "",
+      "description": "GOG.com login email.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GOG Password",
+      "key": "GOG_PASSWORD",
+      "value": "",
+      "description": "GOG.com password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify URL",
+      "key": "NOTIFY",
+      "value": "",
+      "description": "Optional. Apprise notification URL for claim results, e.g. discord://webhook_id/webhook_token for Discord. See https://github.com/caronc/apprise for all supported services.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

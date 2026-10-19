@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/GilbN/geometrikks/main/resources/static/pwa-512x512.png",
   "project": "https://github.com/GilbN/geometrikks",
-  "description": "GeoMetrikks tails your reverse proxy's access logs, looks up where every request came from with MaxMind GeoLite2, and shows the result on a live map and a traffic analytics dashboard. It reads nginx, Traefik JSON and Caddy JSON logs, detected per file. The only outbound traffic is the GeoLite2 download and a public-IP lookup for the map's home location, which you can turn off. Features: \u2022 Live map with heatmap and marker views, and routes that fly in as requests arrive \u2022 Overview and analytics for requests, bandwidth, latency, status mix, top URLs and user agents, plus a Top ASNs view of the networks your traffic comes from \u2022 Searchable access log history with filters and sorting, a live tail, and a debug view of the raw lines behind parse failures \u2022 CrowdSec integration: active bans next to the traffic that caused them, ban or unban IPs and ranges from the UI, and abuse reports for hosting providers \u2022 Password login, or OpenID Connect sign-in against Authelia, Authentik, Keycloak, Pocket ID or Google \u2022 Multi-source ingestion: tail several files from one instance, or run headless agents on other hosts that write into the same database \u2022 Batch import of rotated and archived logs \u2022 Application logs in the UI, plus a login log that fail2ban and CrowdSec can parse Requirements: \u2022 A TimescaleDB + PostGIS database. Install the companion \"geometrikks-timescaledb\" template from this repository first, or point the container at your own instance. \u2022 A free MaxMind GeoLite2 account (https://www.maxmind.com/en/geolite2/signup) for the GeoIP databases. \u2022 A free CARTO basemaps API key (https://carto.com/basemaps/apikey) for the map tiles. See the repository README for full setup steps.",
+  "description": "GeoMetrikks tails your reverse proxy's access logs, looks up where every request came from with MaxMind GeoLite2, and shows the result on a live map and a traffic analytics dashboard. It reads nginx, Traefik JSON and Caddy JSON logs, detected per file, from a file or from Grafana Loki. The only outbound traffic is the GeoLite2 download and a public-IP lookup that places this server on the map, which you can turn off. Features: \u2022 Live map with heatmap and marker views, and routes that fly in as requests arrive \u2022 Overview and analytics for requests, bandwidth, latency, status mix, top URLs and user agents, plus a Top ASNs view of the networks your traffic comes from \u2022 Searchable access log history with filters and sorting, a live tail, and a debug view of the raw lines behind parse failures \u2022 CrowdSec integration: active bans next to the traffic that caused them, ban or unban IPs and ranges from the UI, and abuse reports for hosting providers \u2022 Password login, or OpenID Connect sign-in against Authelia, Authentik, Keycloak, Pocket ID or Google \u2022 Multi-source ingestion: tail several files from one instance, or run headless agents on other hosts that write into the same database and show up on Settings > Agents \u2022 Batch import of rotated and archived logs \u2022 Application logs in the UI, plus a login log that fail2ban and CrowdSec can parse Requirements: \u2022 A TimescaleDB + PostGIS database. Install the companion \"geometrikks-timescaledb\" template from this repository first, or point the container at your own instance. \u2022 A free MaxMind GeoLite2 account (https://www.maxmind.com/en/geolite2/signup) for the GeoIP databases. \u2022 A free CARTO basemaps API key (https://carto.com/basemaps/apikey) for the map tiles. See the repository README for full setup steps.",
   "paths": [
     {
       "name": "Access Logs",
@@ -174,10 +174,10 @@
       "mask": false
     },
     {
-      "name": "LOGPARSER_HOST_NAME",
-      "key": "LOGPARSER_HOST_NAME",
+      "name": "LOGPARSER_SERVER_NAME",
+      "key": "LOGPARSER_SERVER_NAME",
       "value": "Unraid",
-      "description": "Hostname label attached to ingested log events. A JSON list matched to LOGPARSER_LOG_PATHS by position labels each file separately, e.g. [&quot;edge-01&quot;, &quot;edge-02&quot;], and the UI then filters them as separate sources.",
+      "description": "A name you choose for this server, recorded on every request it ingests. It is not your nginx server_name. A JSON list matched to LOGPARSER_LOG_PATHS by position names each file separately, e.g. [&quot;edge-01&quot;, &quot;edge-02&quot;], and the UI then filters them as separate servers. Replaces LOGPARSER_HOST_NAME: copy your value here and delete the old variable, because the app refuses to start when the two differ.",
       "required": false,
       "mask": false
     },
@@ -186,6 +186,14 @@
       "key": "LOGPARSER_LOG_FORMATS",
       "value": "auto",
       "description": "Format of the file(s) above: auto (detected per file), geometrikks-json, nginx, traefik-json or caddy-json. One value covers every path, or give a JSON list matched to LOGPARSER_LOG_PATHS by position. Leave at auto unless detection gets it wrong.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APP_INSTANCE_NAME",
+      "key": "APP_INSTANCE_NAME",
+      "value": "",
+      "description": "Name this container goes by on Settings &gt; Agents, which lists every GeoMetrikks instance writing to the database. Blank: it shows as head, or as agent with APP_MODE=agent. Give every agent its own name, because two unnamed agents share one and overwrite each other's status. Up to 255 characters, no slashes.",
       "required": false,
       "mask": false
     },
@@ -441,15 +449,15 @@
       "name": "MAP_DEFAULT_VIEW",
       "key": "MAP_DEFAULT_VIEW",
       "value": "",
-      "description": "Where the map opens, as latitude,longitude or latitude,longitude,zoom (zoom 0-22, default 3), e.g. 71.129982,27.653369,15. Unset: the map opens on your site homes, or the whole world when there are none.",
+      "description": "Where the map opens, as latitude,longitude or latitude,longitude,zoom (zoom 0-22, default 3), e.g. 71.129982,27.653369,15. Unset: the map opens on your server locations, or the whole world when there are none.",
       "required": false,
       "mask": false
     },
     {
-      "name": "MAP_AUTO_DETECT_HOME",
-      "key": "MAP_AUTO_DETECT_HOME",
+      "name": "MAP_AUTO_DETECT_SERVER_LOCATION",
+      "key": "MAP_AUTO_DETECT_SERVER_LOCATION",
       "value": "true",
-      "description": "Resolve the server's public IP at startup and geolocate it when home coordinates are unset.",
+      "description": "Look up this server's public IP at startup and geolocate it, so the map knows where live request routes end. Set false to skip the lookup. Replaces MAP_AUTO_DETECT_HOME: copy your value here and delete the old variable, because the app refuses to start when the two differ.",
       "required": false,
       "mask": false
     },
@@ -462,18 +470,18 @@
       "mask": false
     },
     {
-      "name": "MAP_HOME_REFRESH_HOURS",
-      "key": "MAP_HOME_REFRESH_HOURS",
+      "name": "MAP_SERVER_LOCATION_REFRESH_HOURS",
+      "key": "MAP_SERVER_LOCATION_REFRESH_HOURS",
       "value": "24",
-      "description": "Hours between re-detections of this instance's own public IP and its map home location.",
+      "description": "Hours between re-detecting this server's public IP and updating its map location. Replaces MAP_HOME_REFRESH_HOURS: copy your value here and delete the old variable, because the app refuses to start when the two differ.",
       "required": false,
       "mask": false
     },
     {
-      "name": "MAP_HOME_LOCATIONS",
-      "key": "MAP_HOME_LOCATIONS",
+      "name": "MAP_SERVER_LOCATIONS",
+      "key": "MAP_SERVER_LOCATIONS",
       "value": "{}",
-      "description": "Per-hostname home overrides as a JSON object of latitude/longitude pairs, e.g. {&quot;edge-01&quot;: [59.91, 10.75]}. Use it for a source whose public IP geolocates wrong (CGNAT, VPN) or for hostnames in logs shipped from another machine. An override beats auto-detection; delete the entry and its row goes at the next start.",
+      "description": "Fixed map locations per server name, as a JSON object of latitude/longitude pairs, e.g. {&quot;edge-01&quot;: [59.91, 10.75]}. Use it for a server whose public IP geolocates wrong (CGNAT, VPN), or whose logs are shipped from another machine. An entry here beats the location the server detects for itself. Delete the entry and its row goes at the next start. Replaces MAP_HOME_LOCATIONS: copy your value here and delete the old variable, because the app refuses to start when the two differ.",
       "required": false,
       "mask": false
     },

@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8080]/",
   "icon": "https://raw.githubusercontent.com/NightCrawler1016/immich-album-sync/main/icon.png",
   "project": "https://github.com/NightCrawler1016/immich-album-sync",
-  "description": "One-way album sync between two Immich servers with a responsive web UI. Designed for Unraid users who run a private Immich server (full library) and a public/family-facing Immich server (curated albums only). Configure sync jobs, schedules, and API keys entirely through the browser \u2014 no config files or environment variables needed after the initial setup. Features: - Web UI with password protection - Multiple sync jobs with independent schedules - Preserves original files, EXIF, GPS, and Apple Live Photos (.HEIC + .MOV) - Duplicate-safe (uses immich-go for smart detection) - Real-time log streaming in the browser - Run history with a 30-day (configurable) window, filterable by job and status - Webhook notifications on sync start/success/failure (Discord, Slack, or any JSON endpoint) - Mobile-responsive design - Add-only mode by default (safe for family sharing)",
+  "description": "One-way album sync between two Immich servers with a responsive web UI. Designed for Unraid users who run a private Immich server (full library) and a public/family-facing Immich server (curated albums only). Configure sync jobs, schedules, and API keys entirely through the browser \u2014 no config files or environment variables needed after the initial setup. Features: - Web UI with password protection - Multiple sync jobs with independent schedules - Preserves original files, EXIF, GPS, and Apple Live Photos (.HEIC + .MOV) - Duplicate-safe (uses immich-go for smart detection) - Real-time log streaming in the browser - Run history with a 30-day (configurable) window, filterable by job and status - Webhook notifications on sync start/success/failure (Discord, Slack, or any JSON endpoint) - Mobile-responsive design - Add-only mode by default (safe for family sharing) - Optional per-job \"Mirror deletes\" mode keeps the destination album matching the source album (changes album membership only; photos are never deleted from the server)",
   "paths": [
     {
       "name": "App Data",
@@ -41,7 +41,7 @@
       "name": "Secret Key",
       "key": "SECRET_KEY",
       "value": "change-me-to-a-unique-random-32-64-char-string",
-      "description": "REQUIRED: Change to a unique random string used to sign session cookies and encrypt stored API keys. The container WILL NOT START while this is left at the default/placeholder value (any value starting with 'change-me') or shorter than 16 characters. Key length: minimum 16 characters | recommended 32\u201364 characters | maximum 128 characters (longer values provide no extra security). Generate a strong key at: https://1password.com/password-generator/ \u2014 select 32\u201364 characters, all character types. WARNING: changing this key after initial setup will invalidate all stored API keys and log out all active sessions \u2014 you will need to re-enter API keys for every sync job.",
+      "description": "REQUIRED: Change to a unique random string used to sign session cookies and encrypt stored API keys. The container WILL NOT START while this is left at the default/placeholder value (any value starting with 'change-me') or shorter than 16 characters. Key length: minimum 16 characters | recommended 32\u201364 characters | maximum 128 characters (longer values provide no extra security). Generate a strong key at: https://1password.com/password-generator/ \u2014 select 32\u201364 characters, all character types. WARNING: changing this key after initial setup will invalidate all stored API keys and webhook URLs and log out all active sessions \u2014 you will need to re-enter API keys for every sync job and any webhook URLs.",
       "required": true,
       "mask": true
     },
@@ -49,7 +49,7 @@
       "name": "Timezone",
       "key": "TZ",
       "value": "America/New_York",
-      "description": "Container timezone. Used for log timestamps. Examples: America/New_York, America/Chicago, America/Los_Angeles, Europe/London, UTC. Full list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
+      "description": "Container timezone. Used for sync log timestamps only \u2014 cron schedules always run in UTC, and the web UI shows times in UTC. Examples: America/New_York, America/Chicago, America/Los_Angeles, Europe/London, UTC. Full list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones",
       "required": false,
       "mask": false
     },
@@ -73,7 +73,7 @@
       "name": "Cleanup Cache After Upload",
       "key": "CLEANUP_CACHE",
       "value": "false",
-      "description": "Set to 'true' to automatically delete downloaded originals from the cache directory after they have been successfully uploaded. Saves disk space but files will be re-downloaded on the next sync run. Can also be toggled per-job in the Web UI.",
+      "description": "Set to 'true' to turn on 'Clean up cache after upload' for every job: downloaded originals are deleted right after a successful upload instead of at the start of the next run. Either way the cache is pruned at the start of every run, and files already on the destination are never re-downloaded. Leave 'false' to choose per job in the Web UI.",
       "required": false,
       "mask": false
     },
@@ -105,7 +105,7 @@
       "name": "Log File Path",
       "key": "LOG_PATH",
       "value": "/app/appdata/logs/sync.log",
-      "description": "Internal path for the sync log file. Viewable live in the Web UI under 'Live Logs'. Leave blank to use the default.",
+      "description": "Internal path for the sync log file. Viewable live in the Web UI under 'Live Logs'. Rotates at 10 MB, keeping 3 old files (sync.log.1 to sync.log.3). Leave blank to use the default.",
       "required": false,
       "mask": false
     },
@@ -122,6 +122,30 @@
       "key": "RUN_HISTORY_RETENTION_DAYS",
       "value": "90",
       "description": "How many days of sync run history to keep. Older runs are pruned automatically once a day; the 10 most recent runs of each job are always kept regardless of age. Default: 90 (matches the widest filter on the Run History page). Set to 0 to keep all history forever (the database will grow over time, especially with frequent schedules).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Certificate File (optional)",
+      "key": "HTTPS_CERT_FILE",
+      "value": "",
+      "description": "OPTIONAL \u2014 leave blank for normal plain-HTTP use on your LAN. Path INSIDE the container to a PEM certificate, e.g. /app/appdata/certs/cert.pem (put the file in your App Data folder under certs/). When this AND 'HTTPS Key File' are both set, port 8080 serves HTTPS only: open https:// :8080 instead of the WebUI link (which stays http://). A self-signed certificate works. See the README section 'Optional HTTPS'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Key File (optional)",
+      "key": "HTTPS_KEY_FILE",
+      "value": "",
+      "description": "OPTIONAL \u2014 leave blank unless you set 'HTTPS Certificate File'. Path INSIDE the container to the matching unencrypted PEM private key, e.g. /app/appdata/certs/key.pem.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Secure Session Cookie (reverse proxy)",
+      "key": "SESSION_COOKIE_SECURE",
+      "value": "false",
+      "description": "OPTIONAL \u2014 only for when an HTTPS reverse proxy (nginx, NPM, SWAG, Traefik\u2026) sits in front of this app. 'true' makes the browser send the login cookie over HTTPS only. Leave 'false' if you open the UI over plain http:// \u2014 with 'true' you could never stay logged in. Not needed with the HTTPS Certificate/Key settings above (the cookie is secured automatically).",
       "required": false,
       "mask": false
     }

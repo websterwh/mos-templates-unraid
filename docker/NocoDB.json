@@ -1,0 +1,83 @@
+{
+  "name": "NocoDB",
+  "repo": "nocodb/nocodb:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/nocodb/nocodb",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--init --stop-timeout=30",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/dashboard",
+  "icon": "https://raw.githubusercontent.com/nocodb/nocodb/develop/packages/nc-gui/public/icon.png",
+  "project": "https://github.com/nocodb/nocodb",
+  "description": "NocoDB is a self-hosted database application with a spreadsheet-style interface, forms, views, and APIs. This template uses the official NocoDB image. It works with SQLite by default. PostgreSQL is recommended for ongoing use; provide its database and user separately. Persistent appdata is required with either database. See the installation and database guide at https://github.com/MircoBlitz/Unraid-community-apps/blob/main/docs/nocodb/README.md.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/nocodb",
+      "container": "/usr/app/data",
+      "mode": "rw",
+      "description": "Persistent SQLite database, local attachments, and application files. Required with SQLite and PostgreSQL. Back up this directory.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "NocoDB web interface and API. Restrict access to a trusted LAN or VPN, or use an HTTPS reverse proxy.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Authentication Secret",
+      "key": "NC_AUTH_JWT_SECRET",
+      "value": "",
+      "description": "Required long random secret used to sign authentication tokens. Generate it with a password manager before first start, store it securely, and keep the same value across updates and recreation.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Database Connection",
+      "key": "NC_DB",
+      "value": "",
+      "description": "Leave empty for SQLite. PostgreSQL is recommended for ongoing use and must be supplied separately. Format: pg://HOST:5432?u=USER&amp;p=PASSWORD&amp;d=DATABASE. URL-encode special characters in connection values. Use a dedicated database and user. This value contains credentials.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Public URL",
+      "key": "NC_PUBLIC_URL",
+      "value": "",
+      "description": "Optional externally reachable URL when using an HTTPS reverse proxy, for example https://nocodb.example.com. Leave empty for direct LAN access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Connection Encryption Key",
+      "key": "NC_CONNECTION_ENCRYPT_KEY",
+      "value": "",
+      "description": "Optional stable encryption key for credentials of external data sources. Without it, upstream stores those credentials in plaintext in the database. Set it before configuring external sources. Later changes require the upstream secret-management CLI; do not simply replace the value.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Telemetry",
+      "key": "NC_DISABLE_TELE",
+      "value": "true",
+      "description": "Set true to disable anonymous NocoDB usage telemetry.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

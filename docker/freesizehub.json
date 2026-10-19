@@ -1,0 +1,163 @@
+{
+  "name": "freesize-hub",
+  "repo": "ghcr.io/mcgeaverbeaver/freesize-hub:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/McGeaverBeaver/FreeSize/pkgs/container/freesize-hub",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9090]/",
+  "icon": "https://raw.githubusercontent.com/McGeaverBeaver/FreeSize/HEAD/unraid/freesize-hub.png",
+  "project": "https://github.com/McGeaverBeaver/FreeSize",
+  "description": "FreeSize Hub: one dashboard for the storage of all your devices. Phones, PCs and servers running FreeSize report their disks, biggest folders and files; you can compare scans over time, search every device at once and get alerts (ntfy, Gotify, Pushover, webhooks) before a disk fills up. Nothing is ever deleted automatically. The dashboard can only ask: each request is shown on the device itself, with every path, to approve or deny. Servers without a screen send their requests to an approver phone, which can only be chosen on the server (freesize approver set), never from the dashboard. Sign-in is OpenID Connect against Authentik: make an OAuth2/OpenID provider and application there, with the redirect URI [Hub address]/auth/callback, and fill in the fields below.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/freesize-hub",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The database and the Hub's key. Back this folder up: devices trust the key, and a new one means pairing every device again.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web port",
+      "host": "9090",
+      "container": "9090",
+      "protocol": "tcp",
+      "description": "Port of the dashboard and of the address devices report to, over HTTPS with the Hub's own certificate. To keep the Hub off the internet, reach it over your LAN or WireGuard only.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Hub address",
+      "key": "FREESIZE_HUB_URL",
+      "value": "",
+      "description": "The address people and devices use to reach the Hub, e.g. https://freesize.home.lan or https://192.168.10.200:9090. The Hub makes its certificate for this host. It goes into pairing codes, and [address]/auth/callback is the redirect URI to give Authentik.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Hub name",
+      "key": "FREESIZE_HUB_NAME",
+      "value": "FreeSize Hub",
+      "description": "Shown in the dashboard and on devices when they pair.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Authentik issuer URL",
+      "key": "FREESIZE_OIDC_ISSUER",
+      "value": "",
+      "description": "The OpenID Configuration Issuer of the Authentik provider, e.g. https://auth.home.lan/application/o/freesize/",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Client ID",
+      "key": "FREESIZE_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "The provider's Client ID.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Client secret",
+      "key": "FREESIZE_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "The provider's Client Secret (a confidential client).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin group",
+      "key": "FREESIZE_ADMIN_GROUP",
+      "value": "freesize-admins",
+      "description": "Authentik group whose members can pair devices, send requests and change settings. Authentik sends a user's groups with the profile scope.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Viewer group",
+      "key": "FREESIZE_VIEWER_GROUP",
+      "value": "freesize-viewers",
+      "description": "Authentik group whose members can look at every device but change nothing. Device groups can also name groups that see only their devices.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen address",
+      "key": "FREESIZE_HUB_LISTEN",
+      "value": "0.0.0.0:9090",
+      "description": "Address and port inside the container. Leave it in bridge mode. With the Host network, set it to one of the server's addresses, e.g. the WireGuard one (10.253.0.1:9090), so the Hub only answers there; then the web port above must match.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "TLS",
+      "key": "FREESIZE_TLS",
+      "value": "auto",
+      "description": "auto: HTTPS with the Hub's own certificate, renewed by itself (Settings in the dashboard offers the authority to install in your browser). off: plain http, for a reverse proxy that does HTTPS in front.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Certificate file",
+      "key": "FREESIZE_TLS_CERT_FILE",
+      "value": "",
+      "description": "Optional: your own certificate (PEM, with its chain) under /data instead of the Hub's own, e.g. /data/certs/fullchain.pem. Reloaded when the file changes. Needs the key file too.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Certificate key file",
+      "key": "FREESIZE_TLS_KEY_FILE",
+      "value": "",
+      "description": "Optional: the private key (PEM) for that certificate, e.g. /data/certs/privkey.pem.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Metrics token",
+      "key": "FREESIZE_METRICS_TOKEN",
+      "value": "",
+      "description": "Optional. With a token, /metrics serves Prometheus metrics and /metrics/json the same for Home Assistant, to anyone sending Authorization: Bearer [token].",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the Hub runs as; the appdata folder is given to it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the Hub runs as.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "FREESIZE_HUB_LOG",
+      "value": "info",
+      "description": "info, or debug when something doesn't work.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

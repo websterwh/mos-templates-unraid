@@ -1,0 +1,115 @@
+{
+  "name": "Whisper-asr-CPU",
+  "repo": "onerahmet/openai-whisper-asr-webservice:latest-gpu",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://registry.hub.docker.com/r/onerahmet/openai-whisper-asr-webservice/",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--memory=12g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9000]/docs",
+  "icon": "https://raw.githubusercontent.com/hernandito/docker-templates/master/hernando/whisper-asr.png",
+  "project": "https://github.com/ahmetoner/whisper-asr-webservice",
+  "description": "CPU-ONLY Whisper ASR Webservice (no NVIDIA GPU required). Same faster-whisper HTTP API with word-level timestamps, but transcription runs on the CPU + system RAM. It WORKS but is MUCH slower than GPU - expect roughly 5-15x longer (a 50-min episode can take well over an hour). This uses the SAME image as the GPU template on purpose, so WhisperX and the SubSyncarr multilingual patch are guaranteed compatible; it simply never requests a GPU and sets ASR_DEVICE=cpu. (The image carries CUDA libraries it won't use - it still runs fine on a GPU-less box. Advanced users can swap the Repository tag to onerahmet/openai-whisper-asr-webservice:latest for a smaller CPU image, but then verify the patch files still match.) NOTE: WhisperX word-alignment on CPU is extremely slow, so SubSyncarr skips or down-scopes alignment on CPU-only setups. Leave the two \"SubSyncarr patch\" mappings empty if you do not use SubSyncarr.",
+  "paths": [
+    {
+      "name": "Models",
+      "host": "/mnt/cache/appdata/whisper-asr",
+      "container": "/data/whisper",
+      "mode": "rw",
+      "description": "Host folder that persists downloaded models. Keeps the model OUT of the docker image.",
+      "required": true
+    },
+    {
+      "name": "SubSyncarr patch: webservice.py",
+      "host": "/mnt/cache/appdata/subsync-build/wasr-multilingual-patch/webservice.py",
+      "container": "/app/app/webservice.py",
+      "mode": "ro",
+      "description": "SubSyncarr multilingual patch - bind-mounts the patched file over the image's copy. Survives image upgrades. Leave EMPTY if you do not use SubSyncarr.",
+      "required": false
+    },
+    {
+      "name": "SubSyncarr patch: faster_whisper_engine.py",
+      "host": "/mnt/cache/appdata/subsync-build/wasr-multilingual-patch/faster_whisper_engine.py",
+      "container": "/app/app/asr_models/faster_whisper_engine.py",
+      "mode": "ro",
+      "description": "SubSyncarr multilingual patch - bind-mounts the patched file over the image's copy. Survives image upgrades. Leave EMPTY if you do not use SubSyncarr.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI / API Port",
+      "host": "9000",
+      "container": "9000",
+      "protocol": "tcp",
+      "description": "HTTP API + Swagger docs (http://host:9000/docs). Change the host port if a GPU Whisper container already uses 9000.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "ASR_ENGINE",
+      "key": "ASR_ENGINE",
+      "value": "faster_whisper",
+      "description": "Use faster_whisper (supports SubSyncarr's multilingual=true). Do NOT set to whisperx.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ASR_MODEL",
+      "key": "ASR_MODEL",
+      "value": "large-v3",
+      "description": "Model: tiny, base, small, medium, large-v3. On a weak CPU, 'medium' or 'small' trade accuracy for a big speed-up.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ASR_QUANTIZATION",
+      "key": "ASR_QUANTIZATION",
+      "value": "int8",
+      "description": "int8 = smallest + fastest on CPU. (float32/float16 are slower and heavier on CPU.)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ASR_MODEL_PATH",
+      "key": "ASR_MODEL_PATH",
+      "value": "/data/whisper",
+      "description": "Where models are stored INSIDE the container. Must match the Models host-path mapping below.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "ASR_DEVICE",
+      "key": "ASR_DEVICE",
+      "value": "cpu",
+      "description": "cpu = run entirely on the processor + RAM. No GPU is requested.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OMP_NUM_THREADS",
+      "key": "OMP_NUM_THREADS",
+      "value": "8",
+      "description": "CPU threads used for transcription. Set near your core count for best speed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MODEL_IDLE_TIMEOUT",
+      "key": "MODEL_IDLE_TIMEOUT",
+      "value": "0",
+      "description": "Seconds of inactivity before the model is unloaded from RAM (0 = keep loaded). Set e.g. 300 to free RAM between jobs at the cost of a reload delay.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -14,29 +14,54 @@
   "web_ui_url": "http://[IP]:[PORT:80]",
   "icon": "https://raw.githubusercontent.com/dadaloop82/EverShelf/main/assets/img/logo/logo_icon_512.png",
   "project": "https://github.com/dadaloop82/EverShelf",
-  "description": "EverShelf: Your pantry's best friend. A self-hosted, open source smart pantry manager with AI expiry tracking, barcode scanning, smart shopping lists, and Android Kiosk support. Connects to OpenFoodFacts for product data (millions of items). Features include camera-based barcode reading, nutrition tracking, allergen information, and offline support for kitchen devices. For full features (barcode scanning, expiry reading, AI recipe suggestions), you'll need to configure environment variables in the .env file: - GEMINI_API_KEY: Get free API key at https://aistudio.google.com/app/apikey for AI features - Optional TTS_URL/TTS_TOKEN for Home Assistant voice readout",
+  "description": "Self-hosted pantry manager: AI expiry tracking, barcode scanning, smart shopping lists and an Android kiosk for the kitchen wall. Free, open source, no account and no advertising. Product data comes from OpenFoodFacts (millions of items); the AI features need a free Gemini key (see docs). First start: open the Web UI and pair the device with the one-time code printed in the container log: docker logs evershelf 2&1 | grep -i \"pairing code\" | tail -1 Keep both paths on the array: \"App data\" holds the database, \"Configuration\" holds .env.",
   "paths": [
     {
-      "name": "Data",
-      "host": "/mnt/cache/appdata/evershelf/.env",
-      "container": "/var/www/html/.env",
+      "name": "App data",
+      "host": "/mnt/cache/appdata/evershelf/data",
+      "container": "/var/www/html/data",
       "mode": "rw",
-      "description": "EverShelf data directory",
+      "description": "SQLite database, caches and logs \u2014 this is the pantry. Never put it on a tmpfs: an update would start empty.",
+      "required": true
+    },
+    {
+      "name": "Configuration",
+      "host": "/mnt/cache/appdata/evershelf",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Folder holding .env (created from the example on first start, writable by the app).",
       "required": true
     }
   ],
   "ports": [
     {
-      "name": "Port",
-      "host": "80",
+      "name": "Web UI",
+      "host": "8080",
       "container": "80",
       "protocol": "tcp",
-      "description": "WebUI port for EverShelf",
+      "description": "Port of the web interface (the container listens on 80).",
       "required": true,
       "mask": false
     }
   ],
-  "variables": [],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone for expiry dates, logs and cron.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Configuration file",
+      "key": "EVERSHELF_ENV_FILE",
+      "value": "/config/.env",
+      "description": "Where the app reads and writes .env inside the container.",
+      "required": false,
+      "mask": false
+    }
+  ],
   "devices": [],
   "labels": []
 }

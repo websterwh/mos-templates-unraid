@@ -1,0 +1,307 @@
+{
+  "name": "Posteryard",
+  "repo": "ghcr.io/sandobserver/posteryard:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/SandObserver/Posteryard/pkgs/container/posteryard",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user=99:100 --restart=unless-stopped --init --read-only --tmpfs=/tmp --cap-drop=ALL --security-opt=no-new-privileges:true --memory=1536m",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8098]",
+  "icon": "https://raw.githubusercontent.com/SandObserver/Posteryard/main/site/public/icon-512.png",
+  "project": "https://github.com/SandObserver/Posteryard",
+  "description": "Clean, consistent posters for Plex, Jellyfin and Emby, picked, rendered and kept current automatically. Posteryard gives every movie, show, season and episode the same calm look: clean art without printed text, the title logo in one fixed spot, a soft fade, and small badges for 4K, Dolby Vision, Dolby Atmos and the streaming service. It finds the art on TMDB, checks it, renders it, uploads it and keeps it up to date. With Live TV on, it does the same for the shows and movies in the Plex or Jellyfin guide. It starts with Dry Run on: images go to the previews folder in Data and the server is not touched. Set Dry Run to false when you like them. For new titles right away, add the webhook http://Unraid-IP:8098/webhook/YOUR-WEBHOOK-SECRET in Plex under Settings, Webhooks. For Jellyfin and Emby, see the README. Without it, new titles get posters within 15 minutes.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/posteryard",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Database, previews and custom art. Keep this, or every image is rendered and uploaded again.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Webhook Port",
+      "host": "8098",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the Plex, Jellyfin or Emby webhook and the /healthz check.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TMDB API Key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "A free key from TMDB, under Settings, API. The API Read Access Token works too.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Plex URL",
+      "key": "PLEX_URL",
+      "value": "",
+      "description": "Your Plex server's address on the network, such as http://192.168.1.10:32400. Not localhost. Leave it empty for Jellyfin or Emby.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Plex Token",
+      "key": "PLEX_TOKEN",
+      "value": "",
+      "description": "Your Plex token. Leave it empty for Jellyfin or Emby.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Webhook Secret",
+      "key": "WEBHOOK_SECRET",
+      "value": "",
+      "description": "Any long random text, such as the output of openssl rand -hex 16. It is part of the webhook address.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Dry Run",
+      "key": "DRY_RUN",
+      "value": "true",
+      "description": "true saves previews and changes nothing on your server. false uploads the images and locks them.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Libraries",
+      "key": "LIBRARIES",
+      "value": "Movies,TV Shows",
+      "description": "Libraries to manage, separated by commas, named as your server shows them. Movie and TV libraries only. PLEX_LIBRARIES works too.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Streaming Regions",
+      "key": "STREAMING_REGIONS",
+      "value": "US",
+      "description": "Countries to look up a show's streaming service in, in order. Outside the US, put yours first, such as GB,US.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Notify URLs",
+      "key": "NOTIFY_URLS",
+      "value": "",
+      "description": "Where alerts go: Apprise addresses separated by spaces or commas, for Discord, Telegram, ntfy, email and about 100 more.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Notify Events",
+      "key": "NOTIFY_EVENTS",
+      "value": "problems",
+      "description": "Which alerts are sent: problems, new and summary.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin URL",
+      "key": "JELLYFIN_URL",
+      "value": "",
+      "description": "Your Jellyfin server's address. Use it instead of PLEX_URL and PLEX_TOKEN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Jellyfin API Key",
+      "key": "JELLYFIN_API_KEY",
+      "value": "",
+      "description": "A Jellyfin API key, from API Keys in the Jellyfin dashboard.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Emby URL",
+      "key": "EMBY_URL",
+      "value": "",
+      "description": "Your Emby server's address. Use it instead of PLEX_URL and PLEX_TOKEN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Emby API Key",
+      "key": "EMBY_API_KEY",
+      "value": "",
+      "description": "An Emby API key, from API Keys in the Emby dashboard.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Maintainerr URL",
+      "key": "MAINTAINERR_URL",
+      "value": "",
+      "description": "Your Maintainerr address, for the LEAVING IN 5 DAYS countdown.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "fanart.tv API Key",
+      "key": "FANART_API_KEY",
+      "value": "",
+      "description": "Your fanart.tv API key. A second art source when TMDB has nothing clean.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Apple TV Art",
+      "key": "APPLE_ART",
+      "value": "false",
+      "description": "Use Apple TV's key art when TMDB has no textless poster.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Text Check",
+      "key": "TEXT_CHECK",
+      "value": "true",
+      "description": "Check art for printed titles and skip it. false saves about 350 MB of memory on small machines, but a few posters may show the title twice.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Only Rating Keys",
+      "key": "ONLY_RATING_KEYS",
+      "value": "",
+      "description": "Limit Posteryard to a few titles, for a first test. Rating keys separated by commas. A show includes its seasons and episodes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Minimum Video Badge",
+      "key": "QUALITY_MIN_VIDEO",
+      "value": "2160",
+      "description": "Lowest resolution that gets a badge: off, 720, 1080 or 2160.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Minimum HDR Badge",
+      "key": "QUALITY_MIN_HDR",
+      "value": "hdr10",
+      "description": "Lowest HDR format that gets a badge: off, hdr10, hdr10plus or dolbyvision.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Minimum Audio Badge",
+      "key": "QUALITY_MIN_AUDIO",
+      "value": "atmos",
+      "description": "Lowest audio that gets a badge: off, 5.1, 7.1 or atmos. DTS:X counts as atmos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Accessibility Badges",
+      "key": "QUALITY_ACCESSIBILITY",
+      "value": "",
+      "description": "Subtitle and audio description badges on movies: any of sdh, cc and ad, separated by commas. Read from the track flags, or from track names such as &quot;English (SDH)&quot;.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Status Labels",
+      "key": "STATUS_LABELS",
+      "value": "true",
+      "description": "JUST ADDED, NEW EPISODE and NEW SEASON labels. false turns them off.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Episode Thumbnails",
+      "key": "EPISODE_THUMBNAILS",
+      "value": "plain",
+      "description": "plain adds a light shade, titled adds the episode number and title, off gives episodes back their server thumbnails.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Logo Languages",
+      "key": "LOGO_LANGUAGES",
+      "value": "en",
+      "description": "Title logo languages in order, such as fr,en.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prefer Wordmark",
+      "key": "PREFER_WORDMARK",
+      "value": "true",
+      "description": "Prefer a wide logo with the name written out. false allows tall or square logos.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Collection Posters",
+      "key": "COLLECTION_POSTERS",
+      "value": "false",
+      "description": "Give every collection a poster.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Live TV",
+      "key": "LIVE_TV",
+      "value": "false",
+      "description": "Posters for the shows and movies in the Live TV guide, on Plex and Jellyfin.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Service Collections",
+      "key": "SERVICE_COLLECTIONS",
+      "value": "false",
+      "description": "Keep one collection per streaming service with at least 3 shows.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sweep Minutes",
+      "key": "SWEEP_MINUTES",
+      "value": "15",
+      "description": "Minutes between checks for new and changed titles.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Daily Pass At",
+      "key": "DAILY_AT",
+      "value": "04:15",
+      "description": "Time of the daily full pass, as HH:MM in your TZ.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Heartbeat URL",
+      "key": "HEARTBEAT_URL",
+      "value": "",
+      "description": "An address Posteryard calls every minute while healthy, such as an Uptime Kuma push URL.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "debug, info, warning or error.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

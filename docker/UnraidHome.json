@@ -1,0 +1,387 @@
+{
+  "name": "Unraid-Home",
+  "repo": "ghcr.io/rcodehub/unraid-home:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/rcodehub/unraid-home",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/rcodehub/Unraid-CA-Apps/master/templates/unraid-home.png",
+  "project": "https://github.com/rcodehub/unraid-home",
+  "description": "Self-populating homepage for your Unraid server. Scans Docker for containers and shows each one as a tile with its WebUI link, icon and status. Edit mode (from your home network) lets you rename, regroup, pin and hide tiles, add links and pages, and pick themes. Optional: login with authenticator sign-in, alerts (ntfy, Gotify, Discord, webhook, email), uptime and update badges, server stats, and automation for Nginx Proxy Manager and Cloudflare Tunnel so your apps get internet addresses automatically. All settings are optional. Built entirely by AI (Claude, by Anthropic). Features are tested, but not every situation has been, so do your own due diligence before exposing it to the internet: keep the login on, use a strong password and 2FA, and review your Cloudflare, proxy and firewall settings. Use at your own risk.",
+  "paths": [
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Used to discover containers (and, only if you turn on Container controls, to start/stop/restart them). Note: the read-only flag does not limit what the Docker API allows.",
+      "required": true
+    },
+    {
+      "name": "Unraid templates",
+      "host": "/boot/config/plugins/dockerMan/templates-user",
+      "container": "/templates",
+      "mode": "ro",
+      "description": "Optional. Lets the hover summaries use each app's Overview text from its Unraid template. Read-only; only the name, repository, overview and category are read.",
+      "required": false
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/unraid-home",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Stores your tile overrides and custom links",
+      "required": true
+    },
+    {
+      "name": "Update status file",
+      "host": "/var/lib/docker/unraid-update-status.json",
+      "container": "/unraid-update-status.json",
+      "mode": "ro",
+      "description": "Optional. Lets tiles show an Update badge for containers Unraid says are out of date. Read-only.",
+      "required": false
+    },
+    {
+      "name": "Disk stats: array",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "ro",
+      "description": "Optional. Read-only. Lets the stats strip show array usage.",
+      "required": false
+    },
+    {
+      "name": "Disk stats: cache",
+      "host": "/mnt/cache",
+      "container": "/mnt/cache",
+      "mode": "ro",
+      "description": "Optional. Read-only. Lets the stats strip show cache usage.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8484",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port the homepage is served on",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Page title",
+      "key": "TITLE",
+      "value": "Server Home",
+      "description": "Heading shown at the top of the page",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server address",
+      "key": "HOST_IP",
+      "value": "",
+      "description": "Optional. IP or hostname used in app links. Leave blank to use whatever address you opened the homepage with.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show stopped containers",
+      "key": "SHOW_STOPPED",
+      "value": "true",
+      "description": "Show stopped containers (dimmed)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Only containers with a WebUI",
+      "key": "ONLY_WITH_WEBUI",
+      "value": "false",
+      "description": "true = hide containers that have no WebUI set in their Unraid template",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Show Unraid link",
+      "key": "SHOW_UNRAID_LINK",
+      "value": "true",
+      "description": "Add a tile for the Unraid dashboard itself",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Open in new tab",
+      "key": "OPEN_IN_NEW_TAB",
+      "value": "true",
+      "description": "Open apps in a new browser tab",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Read-only",
+      "key": "READ_ONLY",
+      "value": "false",
+      "description": "true = hide the Edit button and block changes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "PASSWORD",
+      "value": "",
+      "description": "Login password (12+ characters). Leave blank to have one generated on first start; it is printed once in this container's log and stored only as a salted hash.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Remote domain",
+      "key": "REMOTE_DOMAIN",
+      "value": "",
+      "description": "Optional. Your main domain (e.g. example.com). Every app with a web UI then gets https://container-name.example.com as its Remote URL automatically. Can also be set on the page in Edit mode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Uptime checks",
+      "key": "UPTIME_CHECKS",
+      "value": "true",
+      "description": "Check that each app's Remote URL answers over the internet and show a status dot on its tile.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stats strip",
+      "key": "SHOW_STATS",
+      "value": "true",
+      "description": "Show CPU, memory, disk and uptime at the top of the page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alerts: ntfy URL",
+      "key": "NOTIFY_NTFY_URL",
+      "value": "",
+      "description": "Optional. Full ntfy topic address (e.g. https://ntfy.sh/my-secret-topic) for alerts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alerts: Gotify URL",
+      "key": "NOTIFY_GOTIFY_URL",
+      "value": "",
+      "description": "Optional. Gotify server address. Also set the Gotify token.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Alerts: Gotify token",
+      "key": "NOTIFY_GOTIFY_TOKEN",
+      "value": "",
+      "description": "Optional. Gotify app token.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Alerts: Discord webhook",
+      "key": "NOTIFY_DISCORD_WEBHOOK",
+      "value": "",
+      "description": "Optional. Discord webhook address for alerts.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Alerts: generic webhook",
+      "key": "NOTIFY_WEBHOOK_URL",
+      "value": "",
+      "description": "Optional. Any address that accepts a JSON POST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email: SMTP server",
+      "key": "NOTIFY_SMTP_HOST",
+      "value": "smtp.gmail.com",
+      "description": "Optional. Mail server for email alerts, e.g. smtp.gmail.com (Gmail needs an app password)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email: port",
+      "key": "NOTIFY_SMTP_PORT",
+      "value": "587",
+      "description": "Optional. 587 (STARTTLS, default), 465 (TLS) or 25 (plain relay)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email: user",
+      "key": "NOTIFY_SMTP_USER",
+      "value": "",
+      "description": "Optional. SMTP login (usually your email address)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email: password",
+      "key": "NOTIFY_SMTP_PASSWORD",
+      "value": "",
+      "description": "Optional. SMTP password. Gmail (and most providers with 2-step verification) require an app-specific password, not your normal password. Create a Gmail one at https://myaccount.google.com/apppasswords (2-Step Verification must be on first).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Email: from",
+      "key": "NOTIFY_EMAIL_FROM",
+      "value": "",
+      "description": "Optional. Sender address (defaults to the SMTP user)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Email: to",
+      "key": "NOTIFY_EMAIL_TO",
+      "value": "",
+      "description": "Optional. Who gets alerts; comma-separated addresses",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NPM address",
+      "key": "NPM_URL",
+      "value": "",
+      "description": "Optional. Nginx Proxy Manager admin address, e.g. http://192.168.xxx.xxx:7818. Lets Edit mode create proxy hosts for your apps.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NPM user",
+      "key": "NPM_USER",
+      "value": "",
+      "description": "Optional. An Nginx Proxy Manager user (email) with permission to manage Proxy Hosts. Use a separate user without two-factor login.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NPM password",
+      "key": "NPM_PASSWORD",
+      "value": "",
+      "description": "Optional. That user's password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "NPM forward address",
+      "key": "NPM_FORWARD_HOST",
+      "value": "",
+      "description": "Optional. Address Nginx Proxy Manager should forward to (your Unraid IP). Blank = the host in NPM address.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "NPM automatic sync",
+      "key": "NPM_AUTO_SYNC",
+      "value": "false",
+      "description": "true = every few minutes, create proxy hosts for new apps automatically (never edits or deletes existing ones).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare API token",
+      "key": "CLOUDFLARE_API_TOKEN",
+      "value": "",
+      "description": "Optional. Token limited to this zone's DNS edit and the account's Tunnel edit (and Access edit if you use it). See the README.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Cloudflare account ID",
+      "key": "CLOUDFLARE_ACCOUNT_ID",
+      "value": "",
+      "description": "Optional. Your Cloudflare account ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare tunnel ID",
+      "key": "CLOUDFLARE_TUNNEL_ID",
+      "value": "",
+      "description": "Optional. The ID of your Cloudflare Tunnel.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cloudflare Access emails",
+      "key": "CLOUDFLARE_ACCESS_EMAILS",
+      "value": "",
+      "description": "Optional. Comma-separated emails allowed through a Cloudflare Access login for the whole wildcard. Leave blank to skip Access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Remote edits blocked",
+      "key": "REMOTE_READ_ONLY",
+      "value": "true",
+      "description": "true = editing is only possible from your home network, not through a tunnel or reverse proxy",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed countries",
+      "key": "GEO_ALLOW",
+      "value": "US",
+      "description": "Optional. Comma-separated 2-letter country codes (e.g. US,CA). Only these can reach the page from the internet. Needs Cloudflare (it supplies the country).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Blocked countries",
+      "key": "GEO_BLOCK",
+      "value": "",
+      "description": "Optional. Comma-separated country codes to refuse (e.g. CN,RU). Ignored if Allowed countries is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed host names",
+      "key": "ALLOWED_HOSTS",
+      "value": "",
+      "description": "Optional. Comma-separated host names the page may be opened by (e.g. home.example.com,192.168.1.10). Anything else is refused.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login-free networks",
+      "key": "TRUSTED_NETS",
+      "value": "",
+      "description": "Optional. Comma-separated addresses/CIDRs on your LAN that skip the login (e.g. 192.168.1.0/24). Never applies to tunnel/proxy traffic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Login required",
+      "key": "AUTH",
+      "value": "on",
+      "description": "Turn the login off only if something else in front already protects the page",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Container controls",
+      "key": "DOCKER_CONTROLS",
+      "value": "false",
+      "description": "true = show start / stop / restart buttons on tiles when you are on your home network. Needs Docker API write access (a socket proxy must allow POST and start/stop/restart). Off by default.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

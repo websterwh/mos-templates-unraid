@@ -1,6 +1,6 @@
 {
   "name": "gramps-web-mcp",
-  "repo": "ghcr.io/scormave/gramps-web-mcp:2.4.0",
+  "repo": "ghcr.io/scormave/gramps-web-mcp:2.6.0",
   "category": [
     "Productivity"
   ],
@@ -15,7 +15,16 @@
   "icon": "https://raw.githubusercontent.com/Scormave/gramps-web-mcp-unraid/main/icon.svg",
   "project": "https://github.com/Scormave/gramps-web-mcp",
   "description": "MCP server for Gramps Web \u2014 structured AI agent access to your family tree over HTTP.",
-  "paths": [],
+  "paths": [
+    {
+      "name": "Media Upload Folder",
+      "host": "",
+      "container": "/uploads",
+      "mode": "ro",
+      "description": "Optional host folder containing files to upload. Also enable Media Resources and set Media Upload Directories to /uploads.",
+      "required": false
+    }
+  ],
   "ports": [
     {
       "name": "MCP HTTP Port",
@@ -85,6 +94,14 @@
       "mask": true
     },
     {
+      "name": "MCP Allowed Origins",
+      "key": "MCP_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Comma-separated trusted browser origins for HTTP/SSE, such as https://app.example.com (no path). Blank rejects requests with an Origin header; non-browser clients need no setting.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Mutation Serialize",
       "key": "GRAMPS_MUTATION_SERIALIZE",
       "value": "true",
@@ -104,7 +121,7 @@
       "name": "Enable Media Resources",
       "key": "GRAMPS_MEDIA_RESOURCES_ENABLED",
       "value": "false",
-      "description": "Enable read_media and binary media resources for thumbnails and full files.",
+      "description": "Enable read_media, binary media resources, and uploads via create_media or update_media filePath.",
       "required": false,
       "mask": false
     },
@@ -121,6 +138,22 @@
       "key": "GRAMPS_MEDIA_ALLOW_PRIVATE",
       "value": "false",
       "description": "Allow media bytes for Gramps records marked private.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Upload Directories",
+      "key": "GRAMPS_MEDIA_UPLOAD_DIRS",
+      "value": "",
+      "description": "Absolute container folders allowed for media uploads, separated by colons; use /uploads with the Media Upload Folder mapping. Uploads also require Enable Media Resources=true.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Media Upload Max Bytes",
+      "key": "GRAMPS_MEDIA_UPLOAD_MAX_BYTES",
+      "value": "52428800",
+      "description": "Maximum size in bytes for a file uploaded by create_media or update_media (default 50 MiB).",
       "required": false,
       "mask": false
     },

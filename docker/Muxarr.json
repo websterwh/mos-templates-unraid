@@ -1,0 +1,83 @@
+{
+  "name": "Muxarr",
+  "repo": "ghcr.io/kirovair/muxarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/KirovAir/muxarr/pkgs/container/muxarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8183]/",
+  "icon": "https://raw.githubusercontent.com/KirovAir/muxarr/master/docs/unraid/muxarr.png",
+  "project": "https://muxarr.app",
+  "description": "Bulk-strip unwanted audio and subtitle tracks from your media library by remux (no re-encode, no quality loss), with Sonarr/Radarr integration to keep each title's original language. Dropping spare audio tracks alone often reclaims 10-30% of a file, and a 4GB one still processes in about a minute even on a NAS. Under the hood it uses mkvmerge for Matroska and ffmpeg stream-copy for MP4-family, and validates the remuxed output before replacing the original, so a failed run leaves your source untouched. New imports can be auto-processed via webhook, and per-directory profiles let different folders (anime vs movies, say) follow different rules. Features: - Language priority and per-language track limits (e.g. keep only the best English audio), tuned for quality or smallest size. - Metadata cleanup of encoder/codec junk in track names, applied instantly with mkvpropedit (no remux for metadata-only changes). - Library overview of codecs, resolutions and languages, plus a stats API for dashboards. - Supports Matroska (.mkv, .webm) and MP4-family (.mp4, .m4v). Paths: mount your library at the SAME path your Sonarr/Radarr containers use (e.g. /media). If they differ, add a Path Mapping under Settings > Integrations in Muxarr. Add more /media style mappings for libraries that live on other shares.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/muxarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database and settings.",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Your media library. Mount this at the SAME container path your Sonarr/Radarr use, or set a Path Mapping in Muxarr. Add more Path entries for libraries on other shares.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8183",
+      "container": "8183",
+      "protocol": "tcp",
+      "description": "Web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "022",
+      "description": "Permission mask for files Muxarr writes, e.g. 002 for group-writable libraries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone, e.g. Europe/London or America/New_York.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

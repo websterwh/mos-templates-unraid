@@ -1,0 +1,203 @@
+{
+  "name": "JusttPrint",
+  "repo": "ace2123/justtprint:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://hub.docker.com/r/ace2123/justtprint",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--memory=8g --memory-reservation=1g",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5000]/",
+  "icon": "https://raw.githubusercontent.com/ngolston/JusttPrint/main/assets/pwa-icon-512.png",
+  "project": "https://github.com/ngolston/JusttPrint",
+  "description": "A self-hosted library for your 3D printing models (STL, 3MF, OBJ, STEP, ZIP and more), used from any browser on your network. It scans your model folders, renders thumbnails, and keeps tags, designers, licenses, categories, collections, print history, printers and kits in one place, with accounts for family or a makerspace. Choose a Password (user name admin ); leave it empty and a random password is printed once in the container log. Then open the WebUI: JusttPrint asks which folders hold your models and scans them. Change them later under Settings, Scanning, STL Home. Unraid Shares makes your shares visible at the same paths (/mnt/user/...), read and write, so delete, move and Organize Library work. Unraid's own shares (appdata, system, domains, isos) are never scanned or shown. To limit JusttPrint to one share, set both the host path and the container path to it, for example /mnt/user/models. Settings given here win over the web UI on every start; leave one empty to set it in the web UI instead. NVIDIA GPU (optional, faster thumbnails): with the Nvidia Driver plugin, add --runtime=nvidia to Extra Parameters and the variables NVIDIA_VISIBLE_DEVICES=all and NVIDIA_DRIVER_CAPABILITIES=graphics,compute,utility.",
+  "paths": [
+    {
+      "name": "App Data",
+      "host": "/mnt/cache/appdata/justtprint",
+      "container": "/root/.config/justtprint",
+      "mode": "rw",
+      "description": "Database, thumbnails, settings and backups. Keep this folder: it holds your library.",
+      "required": true
+    },
+    {
+      "name": "Unraid Shares",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "Your shares, at the same paths inside the container; pick the model folders in the web UI. For one share only, change BOTH paths to it, for example host /mnt/user/models and container /mnt/user/models.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5000",
+      "container": "5000",
+      "protocol": "tcp",
+      "description": "Port for the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Password",
+      "key": "JUSTTPRINT_PASSWORD",
+      "value": "",
+      "description": "Password of the admin account, applied on every start (also how to reset a forgotten one). Empty: a random password is printed once in the container log.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "User Name",
+      "key": "JUSTTPRINT_USERNAME",
+      "value": "admin",
+      "description": "User name of the admin account. Other accounts are added under Settings, Authentication, Users.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "STL Home",
+      "key": "STL_HOME",
+      "value": "",
+      "description": "Optional: folders to scan, for example /mnt/user/models,/mnt/user/archive. Empty: choose them in the web UI. Folders added or removed here are added or removed on the next start; folders chosen in the web UI stay.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the app runs as (99 is Unraid's nobody). Files it writes get this owner.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the app runs as (100 is Unraid's users).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Scan ZIP Files",
+      "key": "JUSTTPRINT_ENABLE_ZIP",
+      "value": "",
+      "description": "true or false: also scan the models inside ZIP files. Empty: set it in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra File Types",
+      "key": "JUSTTPRINT_FILE_TYPES",
+      "value": "",
+      "description": "Extra file types to scan, for example obj,step,ply,gcode.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Skip Folders",
+      "key": "STL_HOME_EXCLUDE",
+      "value": "",
+      "description": "Folders inside STL Home to skip, for example /mnt/user/models/cache.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Guest Access",
+      "key": "JUSTTPRINT_GUEST_ACCESS",
+      "value": "",
+      "description": "true: people who open JusttPrint without logging in can browse like a Viewer. Empty: set it in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Automatic Backups",
+      "key": "JUSTTPRINT_AUTO_BACKUP",
+      "value": "",
+      "description": "true or false: back up the database automatically (into backups in App Data). Empty: set it in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups to Keep",
+      "key": "JUSTTPRINT_BACKUP_KEEP",
+      "value": "",
+      "description": "How many automatic backups to keep (default 7). Empty: set it in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Service",
+      "key": "JUSTTPRINT_AI_SERVICE",
+      "value": "",
+      "description": "For AI tagging: openai, claude, gemini, puter or custom. Can also be set in the web UI.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "JUSTTPRINT_AI_API_KEY",
+      "value": "",
+      "description": "API key for the AI service (never written to the log).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AI Model",
+      "key": "JUSTTPRINT_AI_MODEL",
+      "value": "",
+      "description": "AI model name, for example gpt-5-nano.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI Endpoint",
+      "key": "JUSTTPRINT_AI_ENDPOINT",
+      "value": "",
+      "description": "Address of the AI service for custom, for example a local Ollama server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Origins",
+      "key": "JUSTTPRINT_ALLOWED_ORIGINS",
+      "value": "",
+      "description": "Your public address when behind a reverse proxy (SWAG, Nginx Proxy Manager), for example https://library.example.com.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "JUSTTPRINT_TRUST_PROXY",
+      "value": "",
+      "description": "Number of reverse proxies in front (usually 1). Leave empty without a proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Thumbnail Rendering",
+      "key": "JUSTTPRINT_GPU",
+      "value": "auto",
+      "description": "auto uses an NVIDIA GPU when one is passed in, else the CPU (swiftshader).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "JUSTTPRINT_LOG_LEVEL",
+      "value": "info",
+      "description": "How much the container log shows.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

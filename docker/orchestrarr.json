@@ -1,0 +1,99 @@
+{
+  "name": "orchestrarr",
+  "repo": "ghcr.io/xspylon/orchestrarr:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/xSpylon/orchestrarr/pkgs/container/orchestrarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4173]",
+  "icon": "https://raw.githubusercontent.com/xSpylon/orchestrarr/main/public/orchestrarr_logo.png",
+  "project": "https://orchestrarr.com",
+  "description": "Orchestrarr is an open-source, self-hosted control center for Plex and *arr media stacks. See playback, requests, download queues and service health in one workspace, then approve requests, import completed downloads, blocklist releases or pause and resume torrents. Early beta; maintenance is best-effort. Try the demo with fictional data at https://demo.orchestrarr.com before installing. On first start Orchestrarr generates an API key and prints it once; read it with \"docker logs orchestrarr\" and sign in with it. Then add your services under Services, using your server's LAN address and each service's port. Settings and credentials persist in /app/.data. All signed-in users have administrative access to the connected services. For remote access, keep authentication enabled and use a VPN or an HTTPS reverse proxy.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/orchestrarr",
+      "container": "/app/.data",
+      "mode": "rw",
+      "description": "Settings, service credentials and the generated API key. Keep this in appdata so it is backed up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "4173",
+      "container": "4173",
+      "protocol": "tcp",
+      "description": "Port for the dashboard. Change the host side if 4173 is taken.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Demo mode",
+      "key": "DEMO_MODE",
+      "value": "false",
+      "description": "true shows fictional sample data instead of your services. Leave false to use your own stack.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Authentication",
+      "key": "AUTH_MODE",
+      "value": "apikey",
+      "description": "apikey: sign in with a key (generated on first start if empty below). basic: username and password. none: no sign-in, only for a trusted network.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "API key",
+      "key": "ORCHESTRARR_API_KEY",
+      "value": "",
+      "description": "Optional. Leave empty and Orchestrarr generates one on first start and prints it in the logs. To choose your own: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Basic auth username",
+      "key": "AUTH_USERNAME",
+      "value": "",
+      "description": "Only with Authentication = basic.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Basic auth password",
+      "key": "AUTH_PASSWORD",
+      "value": "",
+      "description": "Only with Authentication = basic.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Webhook secret",
+      "key": "ORCHESTRARR_WEBHOOK_SECRET",
+      "value": "",
+      "description": "Optional shared secret for Sonarr, Radarr and Plex webhooks. Generate with: openssl rand -hex 32",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Behind a proxy",
+      "key": "TRUST_PROXY",
+      "value": "false",
+      "description": "true when Orchestrarr sits behind Cloudflare or a reverse proxy, so rate limits see each visitor's address.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

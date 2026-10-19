@@ -14,7 +14,7 @@
   "web_ui_url": "https://[IP]:[PORT:3001]/",
   "icon": "https://raw.githubusercontent.com/junkerderprovinz/unraid-apps/main/strawdroid/icon.png",
   "project": "https://github.com/junkerderprovinz/strawdroid",
-  "description": "A straw droid is a practice dummy shaped like an Android phone: built like the real thing so somebody can strike at it without anybody getting hurt. This one runs the REAL Android emulator - the same AVD Android Studio starts - on a Selkies desktop, so an app under development can be installed, driven and broken without an APK ever touching a phone. NOT Android-in-a-container (ReDroid, Waydroid). Those run the Android userspace directly on the host kernel: no battery, no motion sensor, no power HAL. Doze therefore never fires, WorkManager runs more eagerly than it ever would on real hardware, and Android's limits on a dataSync foreground service never kick in. For an app whose job is syncing files in the background, a rig that is green because it never asks the question is worse than no rig at all. Android 16 (API 36), the NEWEST on purpose. It keeps the six-hour daily cap on dataSync foreground services that arrived in 14 AND the timeout that arrived in 15, so the newest level is the STRICTEST rather than a different one - and the Play Store wants a recent target level anyway. The google_apis image carries Play services and a real DocumentsUI, the SAF folder picker. Screen: Selkies over HTTPS on 3001. No login. Deploy from a development machine: adb connect container-ip:5555 Android Studio then lists it as an ordinary device and deploys and debugs on it exactly like a phone on a cable. Force Doze, which is the point of using a real AVD: adb -s container-ip:5555 shell dumpsys deviceidle force-idle Needs /dev/kvm, passed in via Extra Parameters. Bottich is bare metal, so no nested virtualisation is involved. Without it the emulator will not start, and the container log says so in as many words. NOT set to restart on its own, on purpose. An emulator is a virtual machine and holds its memory whether anybody is testing or not - measured idle, with no app installed, about 6 GB. Start it when it is needed and stop it after.",
+  "description": "A straw droid is a practice dummy shaped like an Android phone: built like the real thing so somebody can strike at it without anybody getting hurt. This one runs the REAL Android emulator - the same AVD Android Studio starts - on a Selkies desktop, so an app under development can be installed, driven and broken without an APK ever touching a phone. NOT Android-in-a-container (ReDroid, Waydroid). Those run the Android userspace directly on the host kernel: no battery, no motion sensor, no power HAL. Doze therefore never fires, WorkManager runs more eagerly than it ever would on real hardware, and Android's limits on a dataSync foreground service never kick in. For an app whose job is syncing files in the background, a rig that is green because it never asks the question is worse than no rig at all. Android 16 (API 36), the NEWEST on purpose. It keeps the six-hour daily cap on dataSync foreground services that arrived in 14 AND the timeout that arrived in 15, so the newest level is the STRICTEST rather than a different one - and the Play Store wants a recent target level anyway. The google_apis image carries Play services and a real DocumentsUI, the SAF folder picker. Everything a phone has that the emulator can fake is switched on: a SIM that takes calls and SMS, a front and a back camera, every sensor the image offers (heart rate and wrist tilt among them), Bluetooth, and sound in the browser. Shizuku and PCAPdroid come installed for testing, and ROOT=true gives apps root. Android 14 is available as the latest-api34 tag. Flutter apps need vm.overcommit_memory=1 on the host: without it the emulator crashes as soon as one draws. Add sysctl -w vm.overcommit_memory=1 to /boot/config/go to keep it after a reboot. Screen: Selkies over HTTPS on 3001. No login. Deploy from a development machine: adb connect container-ip:5555 Android Studio then lists it as an ordinary device and deploys and debugs on it exactly like a phone on a cable. Force Doze, which is the point of using a real AVD: adb -s container-ip:5555 shell dumpsys deviceidle force-idle Needs /dev/kvm, passed in via Extra Parameters. Bottich is bare metal, so no nested virtualisation is involved. Without it the emulator will not start, and the container log says so in as many words. NOT set to restart on its own, on purpose. An emulator is a virtual machine and holds its memory whether anybody is testing or not - measured idle, with no app installed, about 6 GB. Start it when it is needed and stop it after.",
   "paths": [
     {
       "name": "AppData (/config)",
@@ -66,9 +66,17 @@
     {
       "name": "Emulator rendering (EMULATOR_GPU)",
       "key": "EMULATOR_GPU",
-      "value": "swiftshader_indirect",
-      "description": "How the emulator draws. swiftshader_indirect works everywhere, including with no GPU wired in at all. 'host' is faster and is what makes scrolling read honestly, but it needs the nvidia runtime and /dev/dri - set it once the GPU is confirmed.",
+      "value": "auto",
+      "description": "How the emulator draws. auto uses a graphics card when one is passed in and the CPU otherwise, which works everywhere but is slow. Intel or AMD: add --device=/dev/dri to Extra Parameters. NVIDIA: add --runtime=nvidia to Extra Parameters and set NVIDIA_VISIBLE_DEVICES below; this needs the Nvidia Driver plugin. host forces the GPU, swiftshader_indirect forces the CPU. The READY block at the end of the log names the renderer Android ended up on.",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "NVIDIA GPU (NVIDIA_VISIBLE_DEVICES)",
+      "key": "NVIDIA_VISIBLE_DEVICES",
+      "value": "",
+      "description": "Only with an NVIDIA card and --runtime=nvidia in Extra Parameters: all, or the card's UUID from the Nvidia Driver plugin page. Empty leaves the card out.",
+      "required": false,
       "mask": false
     },
     {
@@ -84,6 +92,54 @@
       "key": "EMULATOR_RAM",
       "value": "2048",
       "description": "Memory given to the emulated phone. Read on FIRST boot only, same as the device profile. Below about 1536 Android 14 boots badly or not at all.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Phone number (EMULATOR_PHONE_NUMBER)",
+      "key": "EMULATOR_PHONE_NUMBER",
+      "value": "12015550123",
+      "description": "The SIM's number, digits only. The emulator's own default, 555-521-5554, is not a valid number to libphonenumber, so SMS apps that check numbers hide it. The default here is libphonenumber's US example number. Incoming SMS and calls come from the container's terminal: sk sms number text, sk call number.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Back camera (EMULATOR_CAMERA_BACK)",
+      "key": "EMULATOR_CAMERA_BACK",
+      "value": "picture",
+      "description": "picture shows a QR code that sk camera swaps for another code or a picture of your own, so scanning apps can be tested. emulated shows the emulator's moving test scene. none removes the camera, for testing how an app copes without one. imagefile:path and videofile:path show a picture or a video from inside the container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Front camera (EMULATOR_CAMERA_FRONT)",
+      "key": "EMULATOR_CAMERA_FRONT",
+      "value": "emulated",
+      "description": "Same choices as the back camera.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Sound (EMULATOR_AUDIO)",
+      "key": "EMULATOR_AUDIO",
+      "value": "true",
+      "description": "true sends the phone's sound to the browser tab, through the desktop's own audio. false starts the emulator without audio.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Test tools (TEST_TOOLS)",
+      "key": "TEST_TOOLS",
+      "value": "true",
+      "description": "true installs Shizuku and PCAPdroid once on each new device and starts the Shizuku server again after every boot, so apps that need it find it running. PCAPdroid shows which hosts an app talks to, without root. false leaves both alone.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Root for apps (ROOT)",
+      "key": "ROOT",
+      "value": "false",
+      "description": "true gives apps root through su, for testing an app's root mode. The first start with it reboots the phone once to make the system partition writable. SELinux runs permissive then, unlike on most rooted phones, so leave it false unless a test needs root.",
       "required": false,
       "mask": false
     },
