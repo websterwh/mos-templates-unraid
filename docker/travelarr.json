@@ -1,0 +1,75 @@
+{
+  "name": "travelarr",
+  "repo": "ghcr.io/alien4u/travelarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://github.com/users/alien4u/packages/container/package/travelarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8484]/",
+  "icon": "https://raw.githubusercontent.com/alien4u/travelarr/main/unraid/travelarr.png",
+  "project": "https://github.com/alien4u/travelarr",
+  "description": "travelarr fills your travel NAS with movies and TV shows from your home Plex server, so you can watch them on the road without streaming. Sign in with Plex, browse your watchlist and libraries, and pick movies, whole shows, seasons or single episodes. travelarr copies the original files, with their external subtitles, into a share on this server in the same folder layout as at home. Play them with Infuse or any player that reads a network share. No transcoding, and no Plex server needed on this NAS. Downloads resume after dropped connections and restarts, and every resume is checked so a bad connection never leaves a corrupt file. At home it copies over your LAN; away it uses Plex Remote Access. Local Files lets you browse the share and delete what you have watched. Turn on sign-in with a user name and password in Settings. Tested with the account that owns the Plex server, on a server with Plex Pass. Without Plex Pass, copying away from home may be blocked by Plex's remote playback rules; see the README.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/travelarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings, copy history and the Plex sign-in (travelarr.db).",
+      "required": true
+    },
+    {
+      "name": "Media share",
+      "host": "/mnt/cache/Media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Where copies land, in the same layout as at home (Movies/..., TV-Shows/...). Local Files can delete anything inside its library folders.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8484",
+      "container": "8484",
+      "protocol": "tcp",
+      "description": "Port for the travelarr web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Reset sign-in",
+      "key": "TRAVELARR_RESET_LOGIN",
+      "value": "",
+      "description": "Forgot the web UI password? Set to yes and restart: sign-in turns off. Then remove it and turn sign-in on again in Settings.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Device name",
+      "key": "TRAVELARR_NAME",
+      "value": "",
+      "description": "Optional. What the UI calls this NAS (Copy to ..., On ...). Empty uses the Unraid server name.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "TRAVELARR_LOG",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR. Shown under Logs in the Docker tab.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,100 @@
+{
+  "name": "apt-cacher-ultra",
+  "repo": "ghcr.io/hoody424/apt-cacher-ultra:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/hoody424/unraid-templates/pkgs/container/apt-cacher-ultra",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6789]/",
+  "icon": "https://raw.githubusercontent.com/hoody424/unraid-templates/main/apt-cacher-ultra/apt-cacher-ultra.png",
+  "project": "https://github.com/linsomniac/apt-cacher-ultra",
+  "description": "Caching proxy for Debian and Ubuntu package downloads (apt). The first machine that installs a package fetches it from the internet; every other machine gets it from your server. A maintained replacement for apt-cacher-ng: same port 3142 and the same client settings, so existing clients keep working. Checks every file against the repository's signed index, and keeps serving cached packages when a mirror is slow or down. Clients: put Acquire::http::Proxy \"http://SERVER-IP:3142\"; into /etc/apt/apt.conf.d/01proxy. HTTPS repositories are not cached unless their sources line is changed to http://HTTPS///host/path. The config is written to /config/config.toml on the first start; edit it there and restart. The status page and Prometheus metrics are on port 6789.",
+  "paths": [
+    {
+      "name": "Cache",
+      "host": "/mnt/cache/appdata/apt-cacher-ultra/cache",
+      "container": "/cache",
+      "mode": "rw",
+      "description": "Downloaded packages and the cache database. A cache pool is faster than the array.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/apt-cacher-ultra/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "config.toml, written with defaults on the first start.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Proxy port",
+      "host": "3142",
+      "container": "3142",
+      "protocol": "tcp",
+      "description": "Port the apt clients use: Acquire::http::Proxy &quot;http://SERVER-IP:3142&quot;;",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Status page port",
+      "host": "6789",
+      "container": "6789",
+      "protocol": "tcp",
+      "description": "Status page, /metrics (Prometheus) and /healthz. Set an admin password below if other people can reach it.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Admin password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Optional. Protects the status page with a login (user below). Empty = no login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Admin user",
+      "key": "ADMIN_USER",
+      "value": "admin",
+      "description": "Login name for the status page when a password is set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID that owns the cache files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID that owns the cache files.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "Etc/UTC",
+      "description": "Time zone for log timestamps, e.g. Europe/Berlin.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

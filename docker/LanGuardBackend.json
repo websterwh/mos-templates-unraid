@@ -1,0 +1,65 @@
+{
+  "name": "LanGuard-Backend",
+  "repo": "ghcr.io/hillaliy/languard-backend:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://ghcr.io/hillaliy/languard-backend",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": true,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/hillaliy/LanGuard/main/frontend/public/logo.png",
+  "project": "https://github.com/hillaliy/LanGuard",
+  "description": "LanGuard Backend is the core API, database engine, and integration hub for LanGuard. NOTE: This is the backend component of the LanGuard stack. It should be deployed alongside LanGuard (frontend) and LanGuard-Scanner . Runs on the host network with privileged access to perform network-level operations. Credits & Support: - Created by Yossi Hillali ( GitHub ). Support the developer on PayPal . - The donation link below specifically supports the maintenance of this Unraid template repository.",
+  "paths": [
+    {
+      "name": "AppData Database",
+      "host": "/mnt/cache/appdata/languard/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Storage path for SQLite database (db.sqlite3) and application logs. Must be shared with LanGuard-Scanner.",
+      "required": true
+    },
+    {
+      "name": "Static Files",
+      "host": "/mnt/cache/appdata/languard/static",
+      "container": "/static",
+      "mode": "rw",
+      "description": "Directory for collected static assets.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "SECRET_KEY",
+      "value": "",
+      "description": "Long random secret key used for session signing and cryptographic tokens (generate e.g. with 'openssl rand -base64 48'). Must be identical to the one in LanGuard-Scanner.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Allowed Hosts",
+      "key": "ALLOWED_HOSTS",
+      "value": "127.0.0.1,[IP],languard.local",
+      "description": "Comma-separated list of hostnames or IP addresses allowed to reach the API (must include 127.0.0.1 for health checks).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Backend Listen Port",
+      "key": "BACKEND_LISTEN_PORT",
+      "value": "8000",
+      "description": "Port on which the backend Granian WSGI web server listens (default 8000).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

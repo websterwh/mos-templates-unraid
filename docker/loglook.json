@@ -1,0 +1,75 @@
+{
+  "name": "loglook",
+  "repo": "ccmpbll/loglook:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/ccmpbll/loglook",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/ccmpbll/unraid-docker-templates/refs/heads/master/images/loglook.png",
+  "project": "https://github.com/ccmpbll/loglook",
+  "description": "Small read-only viewer and API for the syslog files Unraid's built-in syslog server collects (syslog-IP.log and its rotated copies). Pick a device and a time window and loglook finds the lines by their own timestamps across the live and rotated files, so you never open a multi-gigabyte file by hand. Three views of any window: the lines, top patterns (MACs, IPs and numbers collapsed so repeats become one row with a count) and counts per captured value. Filters take plain text or a regex, and a window can end earlier to compare today with previous days. A read-only JSON API behind bearer tokens serves the same queries to scripts and automations such as n8n. Tokens are created in the web UI, shown once, and stored hashed. Setup: set Syslog Folder to your Unraid syslog share (Settings, Syslog Server, Local syslog folder). Open the web UI, create the admin user, then open Sources: every device that has written a log appears with a Name it box, and the timezone is set on the same page. Nothing to write by hand. The log folder is mounted read-only and nothing in it is ever changed. Web interface: http://Unraid_IP:8000",
+  "paths": [
+    {
+      "name": "Syslog Folder",
+      "host": "/mnt/cache/syslog",
+      "container": "/logs",
+      "mode": "ro",
+      "description": "The folder your syslog server writes to (files named syslog-IP.log). Mounted read-only.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/loglook/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Where the Sources page keeps device names and the timezone (sources.yml). Must be writable; created on first save.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/loglook/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "The admin login, API tokens and the generated session key. Keep on persistent storage.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "Port for the web interface and the API.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Secret Key",
+      "key": "LOGLOOK_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Signs the login cookie. Leave empty and a random key is generated on first start and kept in the Data folder.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secure Cookies",
+      "key": "LOGLOOK_SECURE_COOKIES",
+      "value": "",
+      "description": "Set to true only when you reach loglook over HTTPS (a reverse proxy such as Traefik terminates TLS). The login does not work over plain HTTP while this is on.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

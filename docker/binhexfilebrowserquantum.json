@@ -1,0 +1,211 @@
+{
+  "name": "binhex-filebrowser-quantum",
+  "repo": "ghcr.io/binhex/arch-filebrowser-quantum",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/binhex/arch-filebrowser-quantum/pkgs/container/arch-filebrowser-quantum",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8125]",
+  "icon": "https://raw.githubusercontent.com/binhex/templates/main/unraid/binhex/images/filebrowser-quantum-icon.png",
+  "project": "https://github.com/gtsteffaniak/filebrowser",
+  "description": "File Browser provides a file managing interface within a specified directory and it can be used to upload, delete, preview and edit your files. It is a create-your-own-cloud-kind of software where you can just install it on your server, direct it to a path and access your files through a nice web interface.",
+  "paths": [
+    {
+      "name": "Path: /config",
+      "host": "/mnt/cache/appdata/filebrowser-quantum",
+      "container": "/config",
+      "mode": "rw",
+      "description": "This is the container path to your configuration files, e.g. databases, configuration files, logs etc.",
+      "required": true
+    },
+    {
+      "name": "Path: /media",
+      "host": "/mnt/user",
+      "container": "/media",
+      "mode": "rw",
+      "description": "This is the container path to your media files, e.g. movies, tv, music, pictures etc.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web Interface",
+      "host": "8125",
+      "container": "8125",
+      "protocol": "tcp",
+      "description": "This is the Web UI port for the application.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Variable: FILEBROWSER_ADMIN_PASSWORD",
+      "key": "FILEBROWSER_ADMIN_PASSWORD",
+      "value": "",
+      "description": "Admin password. Leave blank to keep the upstream behaviour: a random admin password is generated, written to /config/filebrowser/logs/filebrowser.log once, and a reset is forced at first login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_JWT_TOKEN_SECRET",
+      "key": "FILEBROWSER_JWT_TOKEN_SECRET",
+      "value": "",
+      "description": "Secret used to sign JWT authentication tokens. Changing it after first start invalidates all existing sessions.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_TOTP_SECRET",
+      "key": "FILEBROWSER_TOTP_SECRET",
+      "value": "",
+      "description": "Encryption secret for stored TOTP two-factor secrets. Set it before enrolling users in TOTP.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_RECAPTCHA_SECRET",
+      "key": "FILEBROWSER_RECAPTCHA_SECRET",
+      "value": "",
+      "description": "reCAPTCHA secret key used by password authentication when reCAPTCHA is enabled in config.yaml.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_LDAP_USER_PASSWORD",
+      "key": "FILEBROWSER_LDAP_USER_PASSWORD",
+      "value": "",
+      "description": "Password of the LDAP bind account used to look up users.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_OIDC_CLIENT_ID",
+      "key": "FILEBROWSER_OIDC_CLIENT_ID",
+      "value": "",
+      "description": "OIDC client id for single sign-on, for example from Authentik, Keycloak or Pocket ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FILEBROWSER_OIDC_CLIENT_SECRET",
+      "key": "FILEBROWSER_OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "OIDC client secret for single sign-on.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_ONLYOFFICE_SECRET",
+      "key": "FILEBROWSER_ONLYOFFICE_SECRET",
+      "value": "",
+      "description": "JWT secret shared with your OnlyOffice document server.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Variable: FILEBROWSER_DISABLE_AUTOMATIC_BACKUP",
+      "key": "FILEBROWSER_DISABLE_AUTOMATIC_BACKUP",
+      "value": "false|true",
+      "description": "Automatic backups are on by default. Set this to true to disable the backup taken automatically before an upgrade.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FILEBROWSER_CONFIG",
+      "key": "FILEBROWSER_CONFIG",
+      "value": "/config/filebrowser/config/config.yaml",
+      "description": "Path to the configuration file. The default config is seeded here on first start when the file is absent.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FILEBROWSER_DATABASE_PATH",
+      "key": "FILEBROWSER_DATABASE_PATH",
+      "value": "/config/filebrowser/db/filebrowser.sqlite",
+      "description": "Path to the SQLite database.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: FILEBROWSER_FFMPEG_PATH",
+      "key": "FILEBROWSER_FFMPEG_PATH",
+      "value": "/usr/local/bin",
+      "description": "Directory holding the ffmpeg and ffprobe binaries.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ADDITIONAL_PARAMETERS",
+      "key": "ADDITIONAL_PARAMETERS",
+      "value": "",
+      "description": "Additional parameters to pass to the File Browser cli",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: ENABLE_HEALTHCHECK",
+      "key": "ENABLE_HEALTHCHECK",
+      "value": "yes|no",
+      "description": "Enable or disable healthchecks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_COMMAND",
+      "key": "HEALTHCHECK_COMMAND",
+      "value": "",
+      "description": "The command or script to execute, if not specified then the script healthcheck.sh will be used (process, dns and https checking).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_ACTION",
+      "key": "HEALTHCHECK_ACTION",
+      "value": "",
+      "description": "The action to execute if the healthcheck command returns a non zero exit code, if not specified the action will be 'exit 1', if you want the container to exit on failure then set the action to 'kill 1'.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: HEALTHCHECK_HOSTNAME",
+      "key": "HEALTHCHECK_HOSTNAME",
+      "value": "google.com",
+      "description": "The hostname used when performing HTTPS and DNS healthchecking.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Variable: PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for the running container",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Variable: UMASK",
+      "key": "UMASK",
+      "value": "000",
+      "description": "UMASK for the running container",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

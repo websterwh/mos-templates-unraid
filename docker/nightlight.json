@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:4000]/",
   "icon": "https://raw.githubusercontent.com/sauso/nightlight/main/frontend/public/icons/icon-512.png",
   "project": "https://github.com/sauso/nightlight",
-  "description": "Nightlight is a self-hosted baby monitor with low-latency multi-camera streaming from RTSP cameras, installable as a web app (PWA) on your phone. No cloud, no subscription - runs entirely on your own network. One container includes the app, MediaMTX (RTSP to WebRTC/HLS bridge), and FFmpeg (audio transcoding) together. Nightlight needs a routable LAN address so WebRTC (the low-latency viewing mode) works correctly. Host networking (the default below) is the simplest way to get one and needs no extra setup; a dedicated ipvlan/macvlan address on a custom Docker network is also supported if you'd rather avoid host-mode port conflicts - see the Networking modes section of the README (github.com/sauso/nightlight) for both options. Set the data path below to somewhere under your appdata share before starting. After starting, open the WebUI and you'll be prompted to create the first admin account.",
+  "description": "Nightlight is a self-hosted baby monitor with low-latency multi-camera streaming from RTSP cameras, installable as a web app (PWA) on your phone. No cloud, no subscription - runs entirely on your own network. One container includes the app, MediaMTX (RTSP to WebRTC/HLS bridge), and FFmpeg (audio transcoding) together. Nightlight needs a routable LAN address so WebRTC (the low-latency viewing mode) works correctly. Host networking (the default below) is the simplest way to get one and needs no extra setup; a dedicated ipvlan/macvlan address on a custom Docker network is also supported if you'd rather avoid host-mode port conflicts - see the Networking modes section of docs/networking.md (github.com/sauso/nightlight) for both options. Set the data path below to somewhere under your appdata share before starting. After starting, open the WebUI and you'll be prompted to create the first admin account.",
   "paths": [
     {
       "name": "Data Directory",
@@ -29,7 +29,7 @@
       "host": "",
       "container": "/recordings",
       "mode": "rw",
-      "description": "OPTIONAL - where event-recording clips are stored. Leave unset and clips go under the Data Directory (your SSD cache). To keep large clips off the SSD, map this to a folder on your array (e.g. /mnt/user/nightlight-clips) AND set the CLIPS_DIR variable below to /recordings. Retention caps (Settings - Recording) protect the disk either way.",
+      "description": "OPTIONAL - where event-recording clips are stored. Leave unset and clips go under the Data Directory (your SSD cache). To keep large clips off the SSD, map this to a folder on your array (e.g. /mnt/user/nightlight-clips) AND set the CLIPS_DIR variable below to /recordings. Retention caps (Settings - Recording) protect the disk either way. The folder must be writable by PUID/PGID (default 99:100), or clip recording is disabled; see https://github.com/sauso/nightlight/blob/main/docs/recording.md#where-recordings-are-stored.",
       "required": false
     }
   ],
@@ -57,7 +57,7 @@
       "name": "CLIPS_DIR",
       "key": "CLIPS_DIR",
       "value": "",
-      "description": "OPTIONAL - set to /recordings only if you mapped the Recordings Directory above to store clips on your array instead of under the Data Directory (a trailing slash is fine). Leave blank otherwise.",
+      "description": "OPTIONAL - set to /recordings only if you mapped the Recordings Directory above to store clips on your array instead of under the Data Directory (a trailing slash is fine). Leave blank otherwise. The folder must be writable by PUID/PGID (default 99:100), or clip recording is disabled; see https://github.com/sauso/nightlight/blob/main/docs/recording.md#where-recordings-are-stored.",
       "required": false,
       "mask": false
     },
@@ -97,7 +97,7 @@
       "name": "Timezone",
       "key": "TZ",
       "value": "UTC",
-      "description": "Your local timezone, e.g. Australia/Melbourne - affects log timestamps only",
+      "description": "Your local timezone, e.g. Australia/Melbourne - affects log timestamps and video buffer file names only; the times the app shows follow the timezone in Settings under General",
       "required": false,
       "mask": false
     },
@@ -137,7 +137,7 @@
       "name": "Trusted Proxy",
       "key": "TRUST_PROXY",
       "value": "",
-      "description": "OPTIONAL - leave blank unless you run Nightlight behind a reverse proxy AND that proxy connects from something other than 127.0.0.1 (SWAG reaching it by LAN IP is the common case - see the README). Set it to the address your proxy connects FROM, e.g. 10.0.0.20. Accepts an IP or CIDR, a comma-separated list, a hop count (1), or a named range. WARNING: only trust an address you control - too broad a value, or the word true (which trusts every upstream), lets anyone forge X-Forwarded-For and evade the login rate limit. Blank is safe: login attempts are also limited per account. A value Nightlight cannot make sense of is ignored with a warning in the log and the safe default (loopback) is used - it will not stop the app starting.",
+      "description": "OPTIONAL - leave blank unless you run Nightlight behind a reverse proxy AND that proxy connects from something other than 127.0.0.1 (SWAG reaching it by LAN IP is the common case - see docs/remote-access.md on github.com/sauso/nightlight). Set it to the address your proxy connects FROM, e.g. 10.0.0.20. Accepts an IP or CIDR, a comma-separated list, a hop count (1), or a named range. WARNING: only trust an address you control - too broad a value, or the word true (which trusts every upstream), lets anyone forge X-Forwarded-For and evade the login rate limit. Blank is safe: login attempts are also limited per account. A value Nightlight cannot make sense of is ignored with a warning in the log and the safe default (loopback) is used - it will not stop the app starting.",
       "required": false,
       "mask": false
     },

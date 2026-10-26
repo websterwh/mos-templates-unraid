@@ -1,0 +1,87 @@
+{
+  "name": "CertWarden",
+  "repo": "ghcr.io/gregtwallace/certwarden:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/gregtwallace/certwarden/pkgs/container/certwarden",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:4050]/",
+  "icon": "https://raw.githubusercontent.com/devzwf/unraid-docker-templates/main/images/certwarden-logo.png",
+  "project": "https://www.certwarden.com/",
+  "description": "Cert Warden is a centralized ACME (Let's Encrypt) certificate manager. It obtains and renews certificates in one place, then lets your clients and servers fetch them over an API, or pushes them out automatically. Supports http-01, dns-01 (Cloudflare, ACME-DNS, acme.sh, custom scripts...) and dns-01 aliasing. Initial login: admin / password (change it immediately). Once a certificate named 'serverdefault' exists, the web UI is also served over HTTPS on port 4055.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/certwarden/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Persistent storage for the database, config.yaml, backups and logs.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTP Port",
+      "host": "4050",
+      "container": "4050",
+      "protocol": "tcp",
+      "description": "Primary HTTP server (web UI and API). Redirects to HTTPS once the 'serverdefault' certificate is configured.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTPS Port",
+      "host": "4055",
+      "container": "4055",
+      "protocol": "tcp",
+      "description": "Primary HTTPS server (web UI and API). Active once the 'serverdefault' certificate is configured.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "HTTP-01 Challenge Port",
+      "host": "4060",
+      "container": "4060",
+      "protocol": "tcp",
+      "description": "Internal http-01 challenge server. Port 80 of your domain(s) must be forwarded / proxied to this port when using the http-01 challenge. Not needed if you only use dns-01.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "pprof HTTP Port",
+      "host": "4065",
+      "container": "4065",
+      "protocol": "tcp",
+      "description": "pprof debug server (HTTP). Disabled by default (enable_pprof in config.yaml). Leave empty unless debugging.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "pprof HTTPS Port",
+      "host": "4070",
+      "container": "4070",
+      "protocol": "tcp",
+      "description": "pprof debug server (HTTPS). Disabled by default (enable_pprof in config.yaml). Leave empty unless debugging.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Time Zone",
+      "key": "TZ",
+      "value": "America/Toronto",
+      "description": "Time zone used for logs and scheduled tasks (renewals, backups).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

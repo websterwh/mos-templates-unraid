@@ -1,0 +1,67 @@
+{
+  "name": "OpenWatchParty",
+  "repo": "ghcr.io/edde746/owp-relay:1",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/edde746/openwatchparty/pkgs/container/owp-relay",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 0:0",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9977]",
+  "icon": "https://raw.githubusercontent.com/BBergle/unraid-templates/main/owp-relay/owp-relay.png",
+  "project": "https://openwatch.party",
+  "description": "Self-hosted Open Watch Party relay, for Watch Together in Plezy and other Open Watch Party apps. This container has NO web interface. After starting it, set the custom relay in each app to: http://YOUR-Unraid-IP:9977 In Plezy: Settings - Watch Together Relay. Rooms on your relay are separate from the public relays, so everyone in a room must use the same relay. To reach the relay from outside your LAN, put a reverse proxy with TLS in front of it, give apps the proxy's https:// address, and set OWP_TRUST_PROXY to true. The container runs as root (--user 0:0 in Extra Parameters) so it can save room state to appdata. Uses the official image from github.com/edde746/openwatchparty. Tag 1 tracks the latest 1.x release.",
+  "paths": [
+    {
+      "name": "Path: /state",
+      "host": "/mnt/cache/appdata/owp-relay",
+      "container": "/state",
+      "mode": "rw",
+      "description": "Room state, so rooms survive a container restart or update.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Relay",
+      "host": "9977",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Host port for the relay. Set the app's custom relay to http://YOUR-UNRAID-IP:THIS-PORT (base URL only, no path).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "OWP_STATE_DIR",
+      "key": "OWP_STATE_DIR",
+      "value": "/state",
+      "description": "Container path for room state. Leave as /state.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "OWP_TRUST_PROXY",
+      "key": "OWP_TRUST_PROXY",
+      "value": "false",
+      "description": "Set to true only behind a reverse proxy, so per-IP limits see the real client IP from X-Forwarded-For.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OWP_MAX_PARTICIPANTS",
+      "key": "OWP_MAX_PARTICIPANTS",
+      "value": "8",
+      "description": "Participants per room, from 1 to 20.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

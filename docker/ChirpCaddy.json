@@ -1,0 +1,75 @@
+{
+  "name": "Chirp-Caddy",
+  "repo": "joshsalvi/chirp-caddy:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/joshsalvi/chirp-caddy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "-p 127.0.0.1:2019:2019",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8443]",
+  "icon": "https://raw.githubusercontent.com/joshsalvi/unraid-templates/main/icon.png",
+  "project": "https://github.com/joshsalvi/chirp",
+  "description": "Optional companion to Chirp-Headscale: Caddy with the Cloudflare DNS plugin, giving Headscale a public HTTPS address with automatic certificates (Headscale can't run behind Cloudflare's proxy or tunnel).",
+  "paths": [
+    {
+      "name": "Caddyfile",
+      "host": "/mnt/cache/appdata/chirp-caddy/Caddyfile",
+      "container": "/etc/caddy/Caddyfile",
+      "mode": "ro",
+      "description": "Your edited Caddyfile.",
+      "required": true
+    },
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/chirp-caddy/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Certificates.",
+      "required": true
+    },
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/chirp-caddy/config",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Caddy's saved config (changes made from Chirp's Global Admin).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "HTTPS port",
+      "host": "8443",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "Forward your router's 443 here (Unraid's own UI usually has 443).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Cloudflare API token",
+      "key": "CF_API_TOKEN",
+      "value": "",
+      "description": "Zone:DNS:Edit for your zone only, for certificates.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin API",
+      "key": "CADDY_ADMIN",
+      "value": "0.0.0.0:2019",
+      "description": "Published to the host's loopback only (see Extra Parameters).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

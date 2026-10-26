@@ -1,0 +1,60 @@
+{
+  "name": "reostream",
+  "repo": "ghcr.io/volttech21/reostream:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://github.com/VoltTech21/reostream/pkgs/container/reostream",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8562]/",
+  "icon": "https://raw.githubusercontent.com/VoltTech21/reostream/main/contrib/unraid/reostream.png",
+  "project": "https://github.com/VoltTech21/reostream",
+  "description": "Stable Reolink streams for Frigate, go2rtc or any recorder. reostream talks to Reolink cameras over their own protocol (port 9000, the one the Reolink app and NVR use) instead of their RTSP server, and serves the video back out as RTSP and HTTP. That avoids the dropped frames and smearing of the cameras' RTSP server, and gets you full-res 4K main streams. Also changes camera settings (lights, time, defaults) from one page. First run: open the WebUI, then get the one-time token from the container log (Docker tab, reostream, Logs) and paste it in to claim the install. Before the first start, open the Unraid terminal and run: mkdir -p /mnt/user/appdata/reostream && chown 65532:65532 /mnt/user/appdata/reostream (the container runs as that user, not root). If you skip this, the log says so and the claim tells you the same command.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/reostream",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds config.toml. Must be owned by 65532:65532.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Streams (HTTP)",
+      "host": "8560",
+      "container": "8560",
+      "protocol": "tcp",
+      "description": "MPEG-TS streams, http:// :8560/camera.ts",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Streams (RTSP)",
+      "host": "8561",
+      "container": "8561",
+      "protocol": "tcp",
+      "description": "RTSP streams for go2rtc or Frigate, rtsp:// :8561/camera",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "WebUI",
+      "host": "8562",
+      "container": "8562",
+      "protocol": "tcp",
+      "description": "Control page: claim, cameras, settings, logs",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,67 @@
+{
+  "name": "GravityLAN",
+  "repo": "sleeperxr/gravitylan:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/sleeperxr/gravitylan",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_RAW --cap-add=NET_ADMIN",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]",
+  "icon": "https://raw.githubusercontent.com/SleeperXr/GravityLAN/main/assets/logo.png",
+  "project": "https://github.com/SleeperXr/GravityLAN",
+  "description": "GravityLAN is a self-hosted network radar and homelab inventory dashboard: sweeps subnets, tracks devices and IP history, draws network topology and racks, and monitors Linux hosts via an optional lightweight agent. Which network type? - Host (default, recommended): GravityLAN uses the server's own interfaces and sees every subnet Unraid is in at Layer 2 (ARP, real MAC addresses, vendors, mDNS). Web UI at http://SERVER-IP:8000; the port is set with \"Internal Port\", port mappings are ignored. - Custom: br0 (macvlan or ipvlan): the container gets its own IP in your LAN (set a fixed IP) and scans that subnet at Layer 2. Unraid and the container cannot reach each other unless \"Host access to custom networks\" is on under Settings \u2192 Docker. - VLANs : add one custom network per VLAN under \"Additional Networks\" (br0.10, br0.20 \u2026) so the container gets an address in each VLAN and scans all of them at Layer 2. Create the VLAN interfaces first under Settings \u2192 Network Settings. - Bridge : not recommended. Hosts are only found through NAT, without MAC addresses or vendors. How scanning works Scheduled Nmap and ARP scans run over your scan subnets. The IP addresses page shows how each subnet is reached: - L2 Direct : GravityLAN has an interface in the subnet. ARP and Nmap give hosts, MAC addresses, vendors, ports and services. - L3 Routed : the subnet is only reachable through the router. Nmap finds hosts and services, but ARP stops at the router, so there are no MAC addresses. - L2 Probe : an agent inside a routed subnet with \"L2 Subnet Scanner (Probe)\" switched on reports the real MAC addresses. The setup wizard detects your subnets; routed ones such as an IoT VLAN can be added there or later on the IP addresses page. Scanning needs NET_RAW and NET_ADMIN (already in Extra Parameters), not privileged mode. Deutsch GravityLAN ist ein selbst gehostetes Netzwerk-Radar und Homelab-Inventar: scannt Subnetze, verfolgt Ger\u00e4te und IP-Verlauf, zeichnet Topologie und Racks und \u00fcberwacht Linux-Hosts \u00fcber einen optionalen schlanken Agenten. Welcher Netzwerktyp? - Host (Standard, empfohlen): GravityLAN nutzt die Schnittstellen des Servers und sieht jedes Subnetz, in dem Unraid h\u00e4ngt, auf Layer 2 (ARP, echte MAC-Adressen, Hersteller, mDNS). Weboberfl\u00e4che unter http://SERVER-IP:8000; der Port wird \u00fcber \"Internal Port\" gesetzt, Port-Mappings werden ignoriert. - Custom: br0 (macvlan oder ipvlan): Der Container bekommt eine eigene IP im LAN (feste IP eintragen) und scannt dieses Subnetz auf Layer 2. Unraid und Container erreichen sich gegenseitig nur, wenn unter Settings \u2192 Docker \"Host access to custom networks\" eingeschaltet ist. - VLANs : Unter \"Additional Networks\" je VLAN ein Custom-Netz hinzuf\u00fcgen (br0.10, br0.20 \u2026). Dann hat der Container in jedem VLAN eine Adresse und scannt alle auf Layer 2. Die VLAN-Schnittstellen vorher unter Settings \u2192 Network Settings anlegen. - Bridge : nicht empfohlen. Hosts werden nur durch NAT gefunden, ohne MAC-Adressen und Hersteller. So wird gescannt Geplante Nmap- und ARP-Scans laufen \u00fcber deine Scan-Subnetze. Die Seite IP-Adressen zeigt, wie jedes Subnetz erreicht wird: - L2 Direkt : GravityLAN hat eine Schnittstelle im Subnetz. ARP und Nmap liefern Hosts, MAC-Adressen, Hersteller, Ports und Dienste. - L3 Geroutet : Das Subnetz ist nur \u00fcber den Router erreichbar. Nmap findet Hosts und Dienste, aber ARP endet am Router, daher gibt es keine MAC-Adressen. - L2 Probe : Ein Agent im gerouteten Subnetz mit eingeschaltetem \"L2 Subnetz-Scanner (Probe)\" meldet die echten MAC-Adressen. Der Setup-Wizard erkennt deine Subnetze; geroutete wie ein IoT-VLAN lassen sich dort oder sp\u00e4ter auf der Seite IP-Adressen erg\u00e4nzen. Zum Scannen braucht der Container NET_RAW und NET_ADMIN (stehen schon in Extra Parameters), keinen Privileged-Modus.",
+  "paths": [
+    {
+      "name": "Data Storage",
+      "host": "/mnt/cache/appdata/gravitylan",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Directory to store persistent data (SQLite database, SSH key vault, backups).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8000",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "The HTTP port on which the GravityLAN WebUI and REST API are served.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Container timezone (e.g. Europe/Berlin, UTC, America/New_York).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Internal Port",
+      "key": "GRAVITYLAN_PORT",
+      "value": "8000",
+      "description": "Container internal listening port (matches WebUI port).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Debug Mode",
+      "key": "GRAVITYLAN_DEBUG",
+      "value": "false",
+      "description": "Enable detailed logging for debugging scanner and backend issues.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

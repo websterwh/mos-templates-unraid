@@ -14,7 +14,7 @@
   "web_ui_url": "http://[IP]:[PORT:8000]/",
   "icon": "https://raw.githubusercontent.com/vonhex/a-eye/main/frontend/static/a-eye-logo.png",
   "project": "https://github.com/vonhex/a-eye",
-  "description": "A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local Ollama vision model to understand, describe, tag, and rename your photos \u2014 no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. Powered by Ollama for local AI inference.",
+  "description": "A-Eye is a self-hosted AI photo intelligence tool. This is a fork of the original A-Eye by SpaceinvaderOne (https://github.com/SpaceinvaderOne/a-eye), created to fix bugs present in the original. Uses a local vision model (Ollama, or any OpenAI-compatible server such as Halogen, llama.cpp or vLLM) to understand, describe, tag, and rename your photos \u2014 no cloud required, everything runs on your own hardware. Supports automatic renaming, manual review mode, XMP sidecar writing (compatible with Immich, Lightroom, and digiKam), natural language photo search, quality detection for blurry or accidental shots, and a temporary workspace for processing photos from other devices. Works as a full photo renamer, a metadata enrichment tool, or a non-destructive read-only catalogue. This fork adds OpenAI-compatible servers with an option to turn off model thinking for much faster tagging, and the API endpoints the Eyeris photo manager uses to send untagged photos and videos for analysis.",
   "paths": [
     {
       "name": "Photos Directory",
@@ -49,8 +49,32 @@
       "name": "Ollama Host",
       "key": "OLLAMA_HOST",
       "value": "http://192.168.1.x:11434",
-      "description": "URL of your running Ollama instance. Use your server's LAN IP \u2014 not localhost (that resolves inside the container).",
+      "description": "URL of the AI server: Ollama (e.g. http://192.168.1.x:11434) or an OpenAI-compatible server (e.g. http://192.168.1.x:8731). Use the server's LAN IP \u2014 not localhost (that resolves inside the container).",
       "required": true,
+      "mask": false
+    },
+    {
+      "name": "AI API",
+      "key": "AI_API",
+      "value": "ollama",
+      "description": "API type of the server above: ollama (native Ollama API) or openai (any OpenAI-compatible server such as Halogen, llama.cpp or vLLM).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "AI API Key",
+      "key": "AI_API_KEY",
+      "value": "",
+      "description": "Bearer token for OpenAI-compatible servers that require one. Leave empty for Ollama and Halogen.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Disable Thinking",
+      "key": "AI_DISABLE_THINKING",
+      "value": "true",
+      "description": "Ask reasoning models (Qwen, Halogen) to answer without a thinking phase: much faster tagging.",
+      "required": false,
       "mask": false
     },
     {

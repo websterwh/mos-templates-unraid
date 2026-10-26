@@ -1,0 +1,107 @@
+{
+  "name": "UnKeep",
+  "repo": "ghcr.io/brettkinny/unkeep:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/BrettKinny/UnKeep/pkgs/container/unkeep",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--user 0:0 --read-only --tmpfs /tmp:size=16m,mode=1777 --cap-drop ALL --cap-add CHOWN --cap-add SETUID --cap-add SETGID --security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/BrettKinny/unraid-templates/main/icons/unkeep.png",
+  "project": "https://github.com/BrettKinny/UnKeep",
+  "description": "A private, self-hosted, Google Keep-style notes app with end-to-end encrypted sync. Notes are encrypted on your devices; this container only stores ciphertext. AI agents and scripts can use the same vault through the bundled unkeep CLI. HTTPS is required: on plain HTTP (including the WebUI button) you'll see an \"UnKeep needs HTTPS\" page. Use Tailscale Serve, a reverse proxy, or Cloudflare Tunnel. Set two different random tokens below (openssl rand -hex 32). On your first device, enter the setup token and save the recovery kit. Back up appdata before updating.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/unkeep",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Encrypted vault database. No preparation needed. Back it up before updating.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "Web app port (plain HTTP). Put HTTPS in front of it; don't expose it to the internet directly.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User the app runs as. It takes ownership of the data folder on start. Must not be 0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group the app runs as. Must not be 0.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Setup token",
+      "key": "UNKEEP_SETUP_TOKEN",
+      "value": "",
+      "description": "Creates the vault on your first device. 32-256 characters, no spaces (openssl rand -hex 32).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Recovery token",
+      "key": "UNKEEP_RECOVERY_TOKEN",
+      "value": "",
+      "description": "Restores access with your recovery kit if you lose every device. Must differ from the setup token. Keep it safe.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Link previews",
+      "key": "UNKEEP_LINK_PREVIEWS",
+      "value": "|1",
+      "description": "Set to 1 for Keep-style link previews. The server then sees previewed URLs and needs internet access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed origin",
+      "key": "UNKEEP_ALLOWED_ORIGIN",
+      "value": "",
+      "description": "Only for a separately hosted web app: its exact origin, such as https://notes.example.com. Usually empty.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trust proxy",
+      "key": "UNKEEP_TRUST_PROXY",
+      "value": "|1",
+      "description": "Set to 1 only if your reverse proxy replaces X-Forwarded-For, so rate limits see real client addresses.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max attachment size",
+      "key": "UNKEEP_MAX_ATTACHMENT_SIZE",
+      "value": "",
+      "description": "Attachment limit in bytes, default 26214400 (25 MiB). Lower it to restrict uploads; the apps never send more than 25 MiB.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

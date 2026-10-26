@@ -1,0 +1,107 @@
+{
+  "name": "FanKarr",
+  "repo": "masutayunikon/fankarr:latest",
+  "category": [
+    "Downloader"
+  ],
+  "registry": "https://hub.docker.com/r/masutayunikon/fankarr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9898]/",
+  "icon": "https://raw.githubusercontent.com/Masutayunikon/FanKarr/main/public/fankai.png",
+  "project": "https://github.com/Masutayunikon/FanKarr",
+  "description": "Gestionnaire de telechargements pour le catalogue Fankai (editions Kai & Yabai), inspire de Radarr/Sonarr. Envoi en un clic vers votre client torrent (qBittorrent, Transmission, Deluge, rTorrent, uTorrent, Synology Download Station, Real-Debrid, RDT-Client), import automatique (hardlink, copie ou deplacement) vers une mediatheque compatible Jellyfin/Plex, suivi par episode, demandes utilisateurs, synchro Jellyfin, logs centralises et authentification JWT. Premier lancement : ouvrez la WebUI, creez le compte administrateur puis suivez l'assistant (dossiers, client torrent, serveur multimedia). Les telechargements termines et la mediatheque doivent etre tous les deux sous le chemin Media, sinon les hardlinks ne fonctionnent pas et FanKarr copie les fichiers. Si le client torrent tourne dans un autre conteneur, renseignez dans ses reglages FanKarr le chemin distant (vu par le client) et le chemin local (vu par FanKarr).",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/fankarr",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Configuration, journaux et base de donnees",
+      "required": true
+    },
+    {
+      "name": "Media",
+      "host": "/mnt/cache/media",
+      "container": "/media",
+      "mode": "rw",
+      "description": "Dossier parent des telechargements termines et de la mediatheque",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "9898",
+      "container": "9898",
+      "protocol": "tcp",
+      "description": "Port de l'interface web FanKarr (doit correspondre a la variable PORT)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Fuseau horaire",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "UID proprietaire des fichiers de /config (Unraid : 99)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "GID proprietaire des fichiers de /config (Unraid : 100)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "9898",
+      "description": "Port interne du serveur (doit correspondre au port conteneur de WebUI Port)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JWT_SECRET",
+      "key": "JWT_SECRET",
+      "value": "",
+      "description": "Secret des sessions (vide = genere dans /config/secret.key)",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "AUTH_TOKEN_EXPIRY",
+      "key": "AUTH_TOKEN_EXPIRY",
+      "value": "30d",
+      "description": "Duree de validite de la session (ex. 7d, 30d, 1y ; never ou 0 : pas d'expiration)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GITHUB_BASE",
+      "key": "GITHUB_BASE",
+      "value": "",
+      "description": "URL des donnees du scraper si vous hebergez votre propre copie (vide = depot officiel)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

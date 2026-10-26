@@ -12,7 +12,7 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8080]",
-  "icon": "https://raw.githubusercontent.com/alexindigo/unraid-templates/main/img/globnotes.svg",
+  "icon": "https://raw.githubusercontent.com/alexindigo/unraid-templates/main/img/globnotes.png",
   "project": "https://github.com/alexindigo/globnotes",
   "description": "A self-hosted, database-less note taking web app over a flat folder of markdown files. Obsidian-faithful links, multi-vault, plugins, white-label branding. Fork of flatnotes. Authentication is set up on first run via the built-in wizard.",
   "paths": [
@@ -21,8 +21,16 @@
       "host": "/mnt/cache/appdata/globnotes",
       "container": "/data",
       "mode": "rw",
-      "description": "Host path for your notes vault (markdown tree). globnotes creates/owns only the .globnotes index dir inside it.",
+      "description": "Host path for your notes vault (markdown tree). Unless App data is set below, globnotes also keeps its settings, search index, branding and plugins in a .globnotes folder inside it.",
       "required": true
+    },
+    {
+      "name": "App data",
+      "host": "",
+      "container": "/state",
+      "mode": "rw",
+      "description": "Optional. Keeps globnotes' settings, search index, branding and plugins outside your notes, e.g. /mnt/user/appdata/globnotes-state, so Appdata Backup and your notes backup can each cover their own part. Also set App data location to /state. Moving an existing install: stop the container and copy the contents of the .globnotes folder from your notes here first, otherwise the setup wizard starts again. See https://github.com/alexindigo/globnotes#keep-application-state-outside-your-notes",
+      "required": false
     }
   ],
   "ports": [
@@ -37,6 +45,14 @@
     }
   ],
   "variables": [
+    {
+      "name": "App data location",
+      "key": "GLOBNOTES_INDEX_PATH",
+      "value": "",
+      "description": "Optional. Set to /state when you use App data above; leave empty to keep app data in the .globnotes folder inside your notes.",
+      "required": false,
+      "mask": false
+    },
     {
       "name": "User ID",
       "key": "PUID",

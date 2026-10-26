@@ -1,0 +1,307 @@
+{
+  "name": "Ratatoskr",
+  "repo": "ghcr.io/magnuspihl/ratatoskr:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://github.com/magnuspihl/Ratatoskr/pkgs/container/ratatoskr",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/magnuspihl/Ratatoskr/main/web/public/icons/icon-512.png",
+  "project": "https://github.com/magnuspihl/Ratatoskr",
+  "description": "Ratatoskr is a self-hosted webmail client for any IMAP/SMTP account. One container, configured by environment variables, with data in SQLite under /data. Features: unified inbox, conversations, Web Push notifications and PWA, snooze, and dark mode. Every email is treated as hostile: server-side sanitising, sandboxed rendering, and remote images are proxied. REQUIRES HTTPS through a reverse proxy (SWAG, Nginx Proxy Manager, Traefik, Caddy) for push notifications and installing it as an app. WebSockets on /api/ws must be proxied. Set the Base URL to the public https address and keep Trust Proxy enabled.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/ratatoskr",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Holds ratatoskr.db (users, accounts, settings) and cache.db (mail cache).",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web interface port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the server runs as and that owns /data. The entrypoint chowns /data and drops privileges. Image default is 1000; Unraid uses 99.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the server runs as and that owns /data. Image default is 1000; Unraid uses 100.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "",
+      "description": "Optional umask for files the server creates, e.g. 022.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL",
+      "key": "RATATOSKR_BASE_URL",
+      "value": "",
+      "description": "Public https URL users reach Ratatoskr at, e.g. https://mail.example.com. Used for the OIDC redirect URI, the cookie Secure flag and the WebSocket origin check.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Secret Key",
+      "key": "RATATOSKR_SECRET_KEY",
+      "value": "",
+      "description": "Master secret, at least 32 characters. Generate one with: openssl rand -base64 48. WARNING: changing it later makes stored mail account passwords unreadable.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Trust Proxy",
+      "key": "RATATOSKR_TRUST_PROXY",
+      "value": "true",
+      "description": "Trust X-Forwarded-* headers. Keep true when running behind a reverse proxy.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Password Login",
+      "key": "RATATOSKR_PASSWORD_LOGIN",
+      "value": "",
+      "description": "Optional. Enable username/password login (true/false). Leave empty for the default: true without OIDC, false with OIDC.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Registration",
+      "key": "RATATOSKR_REGISTRATION",
+      "value": "first",
+      "description": "Who may create a password account: open, first (first user of an empty instance only) or closed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Issuer URL",
+      "key": "OIDC_ISSUER_URL",
+      "value": "",
+      "description": "Optional OIDC. Issuer URL; the discovery document is read from it. Register ${RATATOSKR_BASE_URL}/auth/callback as the redirect URI with your provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client ID",
+      "key": "OIDC_CLIENT_ID",
+      "value": "",
+      "description": "Optional OIDC client ID.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Client Secret",
+      "key": "OIDC_CLIENT_SECRET",
+      "value": "",
+      "description": "Optional OIDC client secret (confidential clients).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "OIDC Label",
+      "key": "OIDC_LABEL",
+      "value": "",
+      "description": "Optional. Provider name shown on the login button. Empty uses the default (Single sign-on).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "OIDC Scopes",
+      "key": "OIDC_SCOPES",
+      "value": "openid email profile",
+      "description": "Scopes requested from the OIDC provider.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Block Private Mail Hosts",
+      "key": "RATATOSKR_BLOCK_PRIVATE_MAIL_HOSTS",
+      "value": "false",
+      "description": "Refuse IMAP/SMTP hosts resolving to private/internal addresses. Leave false when your mail server is on the LAN.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default IMAP Host",
+      "key": "RATATOSKR_DEFAULT_IMAP_HOST",
+      "value": "",
+      "description": "Optional. Pre-fills the IMAP host in the Add account form. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default SMTP Host",
+      "key": "RATATOSKR_DEFAULT_SMTP_HOST",
+      "value": "",
+      "description": "Optional. Pre-fills the SMTP host in the Add account form. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default IMAP Security",
+      "key": "RATATOSKR_DEFAULT_IMAP_SECURITY",
+      "value": "",
+      "description": "Optional. tls, starttls or none (app default: tls).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default SMTP Security",
+      "key": "RATATOSKR_DEFAULT_SMTP_SECURITY",
+      "value": "",
+      "description": "Optional. tls, starttls or none (app default: tls).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default IMAP Port",
+      "key": "RATATOSKR_DEFAULT_IMAP_PORT",
+      "value": "",
+      "description": "Optional. Pre-fills the IMAP port. Accepts the {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default SMTP Port",
+      "key": "RATATOSKR_DEFAULT_SMTP_PORT",
+      "value": "",
+      "description": "Optional. Pre-fills the SMTP port. Accepts the {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Mail Username",
+      "key": "RATATOSKR_DEFAULT_MAIL_USERNAME",
+      "value": "",
+      "description": "Optional. Pre-fills the mail username. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Email",
+      "key": "RATATOSKR_DEFAULT_EMAIL",
+      "value": "",
+      "description": "Optional. Pre-fills the email address, e.g. {username}@example.com. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Display Name",
+      "key": "RATATOSKR_DEFAULT_DISPLAY_NAME",
+      "value": "",
+      "description": "Optional. Pre-fills the sender display name. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Default Account Label",
+      "key": "RATATOSKR_DEFAULT_ACCOUNT_LABEL",
+      "value": "",
+      "description": "Optional. Pre-fills the account label. Accepts {username}, {email} and {name} tokens.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache",
+      "key": "RATATOSKR_CACHE",
+      "value": "true",
+      "description": "Keep a local copy of each account's newest INBOX and Sent mail. false always asks the mail server.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Messages",
+      "key": "RATATOSKR_CACHE_MESSAGES",
+      "value": "2000",
+      "description": "Newest messages kept per cached folder (50-100000).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Max Body MB",
+      "key": "RATATOSKR_CACHE_MAX_BODY_MB",
+      "value": "1",
+      "description": "Largest message whose content is cached. 0 keeps no message content.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Cache Account MB",
+      "key": "RATATOSKR_CACHE_ACCOUNT_MB",
+      "value": "200",
+      "description": "Message content kept per account; least recently read is removed first.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Message MB",
+      "key": "RATATOSKR_MAX_MESSAGE_MB",
+      "value": "50",
+      "description": "Largest message the server downloads for display.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max Upload MB",
+      "key": "RATATOSKR_MAX_UPLOAD_MB",
+      "value": "25",
+      "description": "Largest total attachment upload when composing.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IMAP Idle Timeout",
+      "key": "RATATOSKR_IMAP_IDLE_TIMEOUT",
+      "value": "300",
+      "description": "Seconds before an unused pooled IMAP connection is closed.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "VAPID Subject",
+      "key": "RATATOSKR_VAPID_SUBJECT",
+      "value": "",
+      "description": "Optional. Contact sent to push services. Empty uses the base URL if https, else mailto:postmaster@host.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "One of fatal, error, warn, info, debug, trace.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

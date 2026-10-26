@@ -1,0 +1,121 @@
+{
+  "name": "socket-proxy",
+  "repo": "wollomatic/socket-proxy:1",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/wollomatic/socket-proxy",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 0:0 --read-only --cap-drop=ALL --security-opt=no-new-privileges --memory=64m --restart=unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/ccmpbll/unraid-docker-templates/refs/heads/master/images/socket-proxy.png",
+  "project": "https://github.com/wollomatic/socket-proxy",
+  "description": "A lightweight, secure-by-default proxy for the Docker socket. Containers that need to read Docker (Traefik, Dozzle, Homepage, Telegraf, n8n) connect to this proxy over TCP instead of mounting /var/run/docker.sock themselves, and the proxy only passes through the exact API calls you allow. Everything is denied until you allow it: set \"Allowed Clients\" and at least the GET allowlist below, or no client will get through. Allowlists are Go regular expressions, one per HTTP method (a leading ^ and trailing $ are added for you). How other containers use it: put them on the same custom Docker network as this container (name lookup does not work on the default bridge), remove their docker.sock mount, and point them at http://socket-proxy:2375 (for example DOCKER_HOST=tcp://socket-proxy:2375). Do not publish the port to your LAN and never expose it to the internet. Traefik 2.11.31 / 3.6.1 and later also need HEAD /_ping allowed. Coming from the Tecnativa or LinuxServer docker-socket-proxy? The converter at https://socket-proxy-configurator.wollomatic.dev/ turns their environment variables into allowlists. This template runs the container as root (Extra Parameters: --user 0:0) because the image's default user (65534) cannot open the root-owned Docker socket on Unraid. It is also run read-only with all capabilities dropped. For least privilege, check the socket's group with ls -l /var/run/docker.sock and use --user 65534:that group id instead.",
+  "paths": [
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "ro",
+      "description": "Host Docker socket the proxy filters. Mounted read-only; the API filtering is done by the allowlists below, not by this mount mode.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Allowed Clients",
+      "key": "SP_ALLOWFROM",
+      "value": "",
+      "description": "Container names or IPs/CIDRs allowed to connect, comma-separated with NO spaces, and each name exactly as Docker shows it (docker ps). Examples: traefik,dozzle or 172.18.0.0/16. A space or a wrong name makes the proxy refuse that client (log: error looking up allowed client hostname). Required: the default only allows localhost, so nothing else could connect.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow GET",
+      "key": "SP_ALLOW_GET",
+      "value": "",
+      "description": "Regex of allowed GET paths. Traefik example: /v1\\..{1,2}/(version|containers/.*|events.*) . Log and container reading only: /(v1\\..{1,2}/)?containers/(json|[^/]+/logs)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Allow HEAD",
+      "key": "SP_ALLOW_HEAD",
+      "value": "",
+      "description": "Regex of allowed HEAD paths. Traefik 2.11.31 / 3.6.1 and later need /_ping. Leave empty if the client does not use HEAD.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allow POST",
+      "key": "SP_ALLOW_POST",
+      "value": "",
+      "description": "Regex of allowed POST paths. Leave empty to keep the proxy read-only. POST can start, stop, create and exec containers, so only allow exactly what a trusted client needs (for example a restart-only proxy: /containers/[^/]+/restart).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Listen IP",
+      "key": "SP_LISTENIP",
+      "value": "0.0.0.0",
+      "description": "Address the proxy binds inside the container. Must be 0.0.0.0 for other containers to reach it.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Proxy Port",
+      "key": "SP_PROXYPORT",
+      "value": "2375",
+      "description": "TCP port the proxy listens on inside the container. Not published to the host by this template.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "SP_LOGLEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARN or ERROR. DEBUG logs every request, which is the easy way to find out which API calls a client needs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Watchdog Interval",
+      "key": "SP_WATCHDOGINTERVAL",
+      "value": "3600",
+      "description": "Check every N seconds that the Docker socket still answers (0 disables). Useful after a Docker engine update.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Stop On Watchdog",
+      "key": "SP_STOPONWATCHDOG",
+      "value": "true",
+      "description": "Stop the container when the watchdog finds the socket unavailable, so the restart policy brings it back with a fresh connection.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Allowed Bind Mounts",
+      "key": "SP_ALLOWBINDMOUNTFROM",
+      "value": "",
+      "description": "Optional, comma-separated host directories that clients may bind-mount in container-create requests, for example /mnt/user/appdata. Only matters if you allow POST.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Proxy Container Name",
+      "key": "SP_PROXYCONTAINERNAME",
+      "value": "",
+      "description": "Optional. Set to this container's own name to read per-client allowlists from Docker labels (socket-proxy.allow.get and so on) on each client container instead of one global list.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

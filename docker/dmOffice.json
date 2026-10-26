@@ -1,0 +1,83 @@
+{
+  "name": "dmOffice",
+  "repo": "ghcr.io/taloan/dmoffice:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/Taloan/dmOffice/pkgs/container/dmoffice",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Taloan/unraid-templates/main/dmoffice.png",
+  "project": "https://github.com/Taloan/dmOffice",
+  "description": "dmOffice is a self-hosted office suite in the browser: mail, calendar, contacts, tasks, notes and files. Mail has IMAP/SMTP with many accounts, a local copy with attachments, full-text search, rules, categories and a learning junk filter. Files come with previews, full-text search, recycle bin, previous versions, sharing with other users and by link, and editing of Word, Excel and PowerPoint documents in the browser through your own Collabora or ONLYOFFICE server. It ships its own CalDAV, CardDAV and WebDAV server with app passwords, so phones, Thunderbird and the Windows Explorer connect directly, and an Android app is available. Multiple users, every user database encrypted with SQLCipher, every stored file encrypted on its own, two-factor sign-in (TOTP), light and dark theme. Set DMOFFICE_MASTER_KEY to a long random value (e.g. openssl rand -hex 32) and keep it safe: without it the databases cannot be opened. The first visit of the web UI creates the admin account. For access from outside use HTTPS through your reverse proxy. More at https://dmoffice.de (German) and in the README on GitHub.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/dmoffice",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Users and encrypted databases (mail, calendar, contacts, files, notes)",
+      "required": true
+    },
+    {
+      "name": "File contents",
+      "host": "",
+      "container": "/blobs",
+      "mode": "rw",
+      "description": "Optional: own folder (e.g. on the array) for the contents of the file storage - every file encrypted on its own. Also set DMOFFICE_BLOBS to /blobs. Empty: inside Data (blobs/)",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web UI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the browser and DAV clients (CalDAV, CardDAV, WebDAV)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "DMOFFICE_BLOBS",
+      "key": "DMOFFICE_BLOBS",
+      "value": "",
+      "description": "Optional: where the file contents live inside the container, /blobs together with 'File contents'. Empty: /data/blobs. Back it up together with Data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "DMOFFICE_MASTER_KEY",
+      "key": "DMOFFICE_MASTER_KEY",
+      "value": "",
+      "description": "Master key that wraps the database keys, e.g. 64 characters from 'openssl rand -hex 32'. Empty: dmOffice stores a key file in appdata (weaker). Losing it means losing the data!",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DMOFFICE_MS_CLIENT_ID",
+      "key": "DMOFFICE_MS_CLIENT_ID",
+      "value": "",
+      "description": "Optional: application (client) ID of your own Microsoft app registration for Outlook.com/Hotmail/Live accounts (OAuth2). Empty = the built-in dmOffice registration, off = disable. See the README.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone of the container (logs)",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

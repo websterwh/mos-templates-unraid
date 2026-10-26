@@ -12,8 +12,8 @@
   "extra_parameters": null,
   "post_parameters": null,
   "web_ui_url": "http://[IP]:[PORT:8788]/",
-  "icon": "https://raw.githubusercontent.com/Cstolworthy/fireside/main/assets/icon.png",
-  "project": "https://github.com/Cstolworthy/fireside",
+  "icon": "https://raw.githubusercontent.com/magic-smoke-technologies-llc/fireside/main/assets/icon.png",
+  "project": "https://github.com/magic-smoke-technologies-llc/fireside",
   "description": "Drop in an EPUB or paste a public story link and fireside narrates it, chapter by chapter. Built for long serialized fiction: no subscription wall, no account required, runs on your own machine. Bring your own TTS key (Azure, OpenAI-compatible, MiniMax) or point it at a local engine such as Kokoro and it costs nothing per word. Open source (MIT). \u2022 EPUB, pasted story links, and Archive of Our Own (with optional login cookie) \u2022 Per-chapter audio you can replay, plus continuous \"whole book\" mode \u2022 Local filesystem storage by default; SQLite metadata by default, MySQL/MariaDB optional \u2022 Character-capacity accounting hooks for hosted use; self-host is free First run: open the WebUI, add a speech engine on the Settings page, drop in a book, and press play.",
   "paths": [
     {
@@ -21,7 +21,7 @@
       "host": "/mnt/cache/appdata/fireside/data",
       "container": "/data",
       "mode": "rw",
-      "description": "Library metadata and content-addressed audio blobs. Point this at appdata so your library survives container updates.",
+      "description": "Library metadata and content-addressed audio blobs. Point this at appdata so your library survives container updates. Ownership is handled for you: the container makes this directory writable by its app user on start, so a root-owned appdata path will not stop it from booting. Set PUID/PGID below if you want the files owned by a specific user instead.",
       "required": true
     }
   ],
@@ -66,6 +66,22 @@
       "key": "FIRESIDE_PLUGINS_ROOT",
       "value": "plugins",
       "description": "Directory the host scans for reader/speech/storage plugins. Leave default unless you mount a custom plugin set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "Owner of the files fireside writes under the Data path. Leave default unless you want them owned by a specific user; the container applies this on start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group of the files fireside writes under the Data path. Leave default unless you want them owned by a specific group; the container applies this on start.",
       "required": false,
       "mask": false
     }

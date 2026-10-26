@@ -1,0 +1,107 @@
+{
+  "name": "Enable-Actual",
+  "repo": "2manyvcos/enable-actual:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://hub.docker.com/r/2manyvcos/enable-actual",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:3000]/",
+  "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/actual-budget.png",
+  "project": "https://github.com/2manyvcos/enable-actual",
+  "description": "Enable Actual imports transactions from European banks into Actual Budget through Enable Banking (official PSD2 APIs, free for personal use, read-only access to your accounts). A web UI handles setup, account mapping, import schedules and history, with optional ntfy notifications. Image tag: the Actual client bundled in the image must be the same version as your Actual Budget server or newer. Set the tag to your Actual server version, e.g. 2manyvcos/enable-actual:actual26.10.0 for Actual 26.10.0, and change it each time you update Actual. latest always ships the newest Actual client: only keep it if your Actual server is always up to date. First launch: set Public URL to the exact address you open the UI with (e.g. https://192.168.1.10:3000), since the UI calls the API through it. Open that address and follow the setup: Enable Banking application (redirect URL: PUBLIC_URL/enablebanking/callback), Actual Budget server (e.g. http://192.168.1.10:5006), account mapping and schedule. HTTPS is required by Enable Banking: SSL is on by default with a self-signed certificate (expect a browser warning). There is no built-in authentication: never expose the port to the internet, use a reverse proxy with authentication if you need remote access.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/enable-actual",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Settings, import history and Actual cache (owner 1001:1001)",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "WebUI port (must match PORT)",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public URL",
+      "key": "PUBLIC_URL",
+      "value": "",
+      "description": "Address you open the UI with, e.g. https://192.168.1.10:3000 (also the Enable Banking redirect base)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SSL_ENABLED",
+      "key": "SSL_ENABLED",
+      "value": "true",
+      "description": "Serve HTTPS with a self-signed certificate (false behind a reverse proxy that handles HTTPS)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Paris",
+      "description": "Timezone used by import schedules",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PORT",
+      "key": "PORT",
+      "value": "3000",
+      "description": "Internal listen port (must match WebUI Port container port)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL_CERTIFICATE_FILE",
+      "key": "SSL_CERTIFICATE_FILE",
+      "value": "",
+      "description": "Your own certificate, path inside the container (e.g. /data/cert.pem); set with SSL_PRIVATE_KEY_FILE",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SSL_PRIVATE_KEY_FILE",
+      "key": "SSL_PRIVATE_KEY_FILE",
+      "value": "",
+      "description": "Private key of your own certificate, path inside the container (e.g. /data/key.pem)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log level: none, info or debug",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "HISTORY_LENGTH",
+      "key": "HISTORY_LENGTH",
+      "value": "10",
+      "description": "Number of import history entries kept",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

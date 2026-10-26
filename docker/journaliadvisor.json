@@ -1,0 +1,99 @@
+{
+  "name": "journali-advisor",
+  "repo": "ghcr.io/journalipim/journali:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/journalipim/journali/pkgs/container/journali",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped --entrypoint node",
+  "post_parameters": "/app/plugins/advisor/serve.mjs",
+  "web_ui_url": "http://[IP]:[PORT:8090]/health",
+  "icon": "https://raw.githubusercontent.com/journalipim/journali/master/unraid/journali.png",
+  "project": "https://journali.de",
+  "description": "The service of a journali product advisor: the chat window for a website and MCP for AI agents. It asks journali through its API with the token of the advisor and needs no database of its own. Runs from the journali image; set up the advisor in journali first (Export, Product advisor) and issue a token there.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/journali-advisor",
+      "container": "/daten",
+      "mode": "rw",
+      "description": "What the advisor learns (lernen.json) and optionally the token as a file",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Service",
+      "host": "8090",
+      "container": "8090",
+      "protocol": "tcp",
+      "description": "Port of the service; the reverse proxy forwards the public address here",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "JOURNALI",
+      "key": "JOURNALI",
+      "value": "http://SERVER:8080",
+      "description": "Address of journali as this container reaches it: the address of the Unraid server in the network and the port of the app journali",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JOURNALI_ADVISOR",
+      "key": "JOURNALI_ADVISOR",
+      "value": "shop",
+      "description": "Key of the advisor in journali",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "JOURNALI_ADVISOR_TOKEN",
+      "key": "JOURNALI_ADVISOR_TOKEN",
+      "value": "",
+      "description": "Token of the advisor (ja_...); empty if JOURNALI_ADVISOR_TOKEN_FILE is set",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "JOURNALI_ADVISOR_TOKEN_FILE",
+      "key": "JOURNALI_ADVISOR_TOKEN_FILE",
+      "value": "",
+      "description": "Instead of the field: path of a file with the token, e.g. /daten/token",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JOURNALI_ADVISOR_DATA",
+      "key": "JOURNALI_ADVISOR_DATA",
+      "value": "/daten",
+      "description": "Directory for what the advisor learns, matching the path Data; empty: memory only",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "JOURNALI_PROXY",
+      "key": "JOURNALI_PROXY",
+      "value": "1",
+      "description": "1 behind a reverse proxy: the visitor address comes from X-Forwarded-For; otherwise all visitors count as one",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone of the container",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,139 @@
+{
+  "name": "Buybutler",
+  "repo": "ghcr.io/tom-joad/buybutler:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--security-opt no-new-privileges",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Tom-Joad/unraid-templates/main/icons/buybutler.png",
+  "project": "https://github.com/Tom-Joad/buybutler",
+  "description": "Remember which groceries to buy again and which not, with a reason, 1 to 5 stars, the store, the date, a photo and optionally the price paid. Scan the barcode with the phone camera; product names and pictures come from Open Food Facts. Every entry keeps the time it was made and last changed. After the first start, create a user in the container's console: buybutler user add NAME. The camera in the browser needs HTTPS: open it through a reverse proxy with a certificate. The appdata folder holds the database and all photos; back it up.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/buybutler",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Database, pictures and backups. Never delete it.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web interface",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port of the web interface. Point the reverse proxy here.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User that owns the files (nobody)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group of the files (users)",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": "002: new files are writable for the users group",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "Europe/Berlin",
+      "description": "Time zone: decides the date a rating gets by default, and the log",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Product language",
+      "key": "BUYBUTLER_OFF_LANGUAGE",
+      "value": "de",
+      "description": "Language of product names from Open Food Facts (two letters)",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Currency",
+      "key": "BUYBUTLER_CURRENCY",
+      "value": "EUR",
+      "description": "Currency of all prices, a three-letter code such as EUR or CHF",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public URL",
+      "key": "BUYBUTLER_PUBLIC_URL",
+      "value": "",
+      "description": "The address Buybutler is opened at, such as https://buybutler.example.com; needed for passkeys",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Open Food Facts lookup",
+      "key": "BUYBUTLER_OFF_LOOKUP",
+      "value": "true",
+      "description": "false: never send barcodes to Open Food Facts; products are entered by hand",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Session days",
+      "key": "BUYBUTLER_SESSION_DAYS",
+      "value": "90",
+      "description": "Days a login stays valid without being used",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max upload MB",
+      "key": "BUYBUTLER_MAX_UPLOAD_MB",
+      "value": "10",
+      "description": "Largest accepted picture",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Trusted proxies",
+      "key": "BUYBUTLER_TRUSTED_PROXIES",
+      "value": "*",
+      "description": "Addresses whose X-Forwarded headers are trusted; the reverse proxy's address, or *",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "BUYBUTLER_LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,107 @@
+{
+  "name": "DockMon",
+  "repo": "darthnorse/dockmon:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://hub.docker.com/r/darthnorse/dockmon",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "https://[IP]:[PORT:443]/",
+  "icon": "https://raw.githubusercontent.com/darthnorse/dockmon/main/ui/public/android-chrome-512x512.png",
+  "project": "https://github.com/darthnorse/dockmon",
+  "description": "DockMon is a comprehensive, self-hosted Docker container monitoring and management platform. Monitor local and remote containers in real time with customizable dashboard widgets, intelligent auto-restart logic, multi-channel alerting (Discord, Slack, Telegram, Pushover, Gotify, SMTP), multi-container live log viewing, Compose stack management, and automatic container image updates. Key Features: - Multi-Host Monitoring: Monitor containers across unlimited local and remote Docker hosts with a lightweight Go agent. - Real-Time Dashboard & Stats: Drag-and-drop customizable widgets with WebSocket-streamed CPU, memory, and network metrics. - Intelligent Auto-Restart: Per-container auto-restart policy with exponential backoff and retry tracking. - Multi-Channel Alerting: Real-time alerts to Discord, Slack, Telegram, Pushover, Gotify, or Email with customizable alert rules and blackout windows. - Stack Management: Create, edit, and deploy Docker Compose stacks with image pull progress. - Automatic Updates: Schedule automatic image updates or trigger one-click updates with webhooks. - Multi-User & SSO/OIDC: Group-based RBAC with custom groups, granular permissions, and OIDC single sign-on (Authentik, Keycloak, Okta, Authelia). Initial Setup: 1. Open the WebUI at https:// :[PORT:443]/ after starting the container (accept the self-signed SSL certificate). 2. Create your administrator account on the initial setup screen. Local Docker socket access is pre-configured. Credits & Support: - DockMon is created by darthnorse ( GitHub ). Support the developer at Buy Me a Coffee . - The donation link below specifically supports the maintenance of this Unraid template repository.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/dockmon",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Storage path for DockMon database, settings, SSL certificates, and stack configurations.",
+      "required": true
+    },
+    {
+      "name": "Docker Socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Host Docker socket required for managing and monitoring local containers.",
+      "required": true
+    },
+    {
+      "name": "Host /proc (System Metrics)",
+      "host": "/proc",
+      "container": "/host/proc",
+      "mode": "ro",
+      "description": "Read-only mount of host /proc for accurate local CPU, memory, and IP detection.",
+      "required": false
+    },
+    {
+      "name": "Host Root (Disk Metrics)",
+      "host": "/",
+      "container": "/host/root",
+      "mode": "ro",
+      "description": "Read-only mount of host root filesystem for disk space monitoring and low-disk alerts.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port (HTTPS)",
+      "host": "8001",
+      "container": "443",
+      "protocol": "tcp",
+      "description": "The WebUI port for DockMon (internal port is 443 HTTPS).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/Amsterdam",
+      "description": "Timezone for the container (e.g. Europe/Amsterdam, America/New_York, UTC).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "External URL",
+      "key": "DOCKMON_EXTERNAL_URL",
+      "value": "",
+      "description": "Optional public URL (e.g. https://dockmon.yourdomain.com) included in alerts for one-click action buttons.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "DOCKMON_CORS_ORIGINS",
+      "value": "",
+      "description": "Allowed CORS origins if accessing DockMon behind a reverse proxy (e.g. https://dockmon.yourdomain.com).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base Path",
+      "key": "BASE_PATH",
+      "value": "",
+      "description": "Subpath if running behind a reverse proxy subfolder (e.g. /dockmon/).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Force Local Login",
+      "key": "DOCKMON_FORCE_LOCAL_LOGIN",
+      "value": "false",
+      "description": "Emergency recovery flag: set to 'true' to force local login if SSO/OIDC misconfiguration locks you out.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

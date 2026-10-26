@@ -1,0 +1,131 @@
+{
+  "name": "speedketchup",
+  "repo": "gatispei/speedketchup",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/gatispei/speedketchup",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/gatispei/speedketchup-files/main/img/icon.png",
+  "project": "https://speedketchup.com",
+  "description": "Runs an internet speed test every 10 minutes against the nearest speedtest.net server, stores the results in a csv file and shows them in a builtin web page. The web page has speed and latency charts with distributions of the displayed results, daily, monthly, time of day and time of week averages, and a sortable table of every result. A single statically linked binary of a few hundred kilobytes, the image has nothing else in it.",
+  "paths": [
+    {
+      "name": "Results",
+      "host": "/mnt/cache/appdata/speedketchup",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Where the test results csv file is stored.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web page with the test results.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Test interval",
+      "key": "SPEEDKETCHUP_INTERVAL",
+      "value": "10",
+      "description": "Minutes between the speed tests.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Speedtest server",
+      "key": "SPEEDKETCHUP_SERVER",
+      "value": "",
+      "description": "Speedtest server host[:port] to always test against, empty picks the server with the lowest latency for every test.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Download duration",
+      "key": "SPEEDKETCHUP_DOWNLOAD_DURATION",
+      "value": "10",
+      "description": "Seconds to test the download speed, 0 skips the download test.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Upload duration",
+      "key": "SPEEDKETCHUP_UPLOAD_DURATION",
+      "value": "10",
+      "description": "Seconds to test the upload speed, 0 skips the upload test.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Download connections",
+      "key": "SPEEDKETCHUP_DOWNLOAD_CONNECTIONS",
+      "value": "8",
+      "description": "Parallel connections for the download test.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Upload connections",
+      "key": "SPEEDKETCHUP_UPLOAD_CONNECTIONS",
+      "value": "8",
+      "description": "Parallel connections for the upload test.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB write url",
+      "key": "SPEEDKETCHUP_INFLUX_URL",
+      "value": "",
+      "description": "InfluxDB line protocol write url to also write every result to, http only, eg http://influxdb:8086/api/v2/write?org=home&amp;bucket=speedketchup. Empty writes nowhere.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "InfluxDB token",
+      "key": "SPEEDKETCHUP_INFLUX_TOKEN",
+      "value": "",
+      "description": "Token for the InfluxDB write url.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "MQTT broker",
+      "key": "SPEEDKETCHUP_MQTT",
+      "value": "",
+      "description": "MQTT broker host[:port] to also publish every result to, with Home Assistant discovery, plain mqtt only, port 1883 by default. Empty publishes nowhere.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT user",
+      "key": "SPEEDKETCHUP_MQTT_USER",
+      "value": "",
+      "description": "User name for the MQTT broker.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "MQTT password",
+      "key": "SPEEDKETCHUP_MQTT_PASSWORD",
+      "value": "",
+      "description": "Password for the MQTT broker.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

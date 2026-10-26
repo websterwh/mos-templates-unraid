@@ -1,0 +1,177 @@
+{
+  "name": "Chirp",
+  "repo": "joshsalvi/chirp:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://hub.docker.com/r/joshsalvi/chirp",
+  "network": "host",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--cap-add=NET_ADMIN --device=/dev/net/tun",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8768]/",
+  "icon": "https://raw.githubusercontent.com/joshsalvi/unraid-templates/main/icon.png",
+  "project": "https://github.com/joshsalvi/chirp",
+  "description": "Bird and bat call detection for your yard. Raspberry Pi stations listen and identify birds with BirdNET; this server keeps the recordings, spectrograms, life list, alerts and the web app (also the Chirp iPhone app's server). Runs one site or many, each with its own users and database.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/chirp",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Databases, recordings, spectrograms and bird media. Put it on a share with space: recordings grow over time.",
+      "required": true
+    },
+    {
+      "name": "Headscale key (optional)",
+      "host": "/mnt/cache/appdata/chirp-headscale/shared",
+      "container": "/shared",
+      "mode": "ro",
+      "description": "Only with the Chirp Headscale container: the folder it writes its auth key to.",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "Secret key",
+      "key": "CHIRP_SECRET_KEY",
+      "value": "",
+      "description": "Signs sign-in tokens. Any long random string, e.g. the output of: openssl rand -hex 32. Keep it the same across updates.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "Admin username",
+      "key": "CHIRP_GLOBAL_ADMIN_USERNAME",
+      "value": "",
+      "description": "Register with this username in the web app and it becomes the server-wide admin on the next restart.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public address",
+      "key": "CHIRP_SERVER_URL",
+      "value": "",
+      "description": "How people and stations reach this server, e.g. https://chirp.example.com. Used in emails and links. Leave blank on a LAN-only setup.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Port",
+      "key": "CHIRP_PORT",
+      "value": "8768",
+      "description": "Web app port (host network).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "eBird API key",
+      "key": "CHIRP_EBIRD_API_KEY",
+      "value": "",
+      "description": "Optional default for the Field Guide (free at ebird.org/api/keygen). Can also be set per site in Settings.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "CARTO map key",
+      "key": "CHIRP_CARTO_KEY",
+      "value": "",
+      "description": "Optional key for the dark map tiles (free at carto.com/basemaps/apikey). Without it maps show an API key required watermark.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Time zone",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Server time zone (each site also has its own in Settings).",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Tailscale",
+      "key": "CHIRP_TAILSCALE_ENABLED",
+      "value": "false",
+      "description": "true to join a tailnet so remote stations can reach this server. Needs an auth key below or the Chirp Headscale container.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Tailscale auth key",
+      "key": "CHIRP_TAILSCALE_AUTH_KEY",
+      "value": "",
+      "description": "A reusable key from Tailscale.com or your Headscale. Blank with Chirp Headscale: read from /shared automatically.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Tailscale login server",
+      "key": "CHIRP_TAILSCALE_LOGIN_SERVER",
+      "value": "",
+      "description": "Your Headscale address (e.g. https://headscale.example.com). Blank for Tailscale.com.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Station API key",
+      "key": "CHIRP_DEVICE_API_KEY",
+      "value": "",
+      "description": "Legacy shared key for older stations. New stations get their own key when paired; leave blank.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Sign-in required",
+      "key": "CHIRP_AUTH_ENABLED",
+      "value": "true",
+      "description": "Keep true.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Data dir",
+      "key": "CHIRP_DATA_DIR",
+      "value": "/app/data",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Recordings dir",
+      "key": "CHIRP_RECORDINGS_DIR",
+      "value": "/app/data/recordings",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Media dir",
+      "key": "CHIRP_MEDIA_DIR",
+      "value": "/app/data/media/birds",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Legacy DB",
+      "key": "CHIRP_DB_URL",
+      "value": "sqlite:////app/data/_legacy_unused.db",
+      "description": null,
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Host",
+      "key": "CHIRP_HOST",
+      "value": "0.0.0.0",
+      "description": null,
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

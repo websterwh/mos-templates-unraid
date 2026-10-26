@@ -1,0 +1,107 @@
+{
+  "name": "MediaCache",
+  "repo": "ghcr.io/bbergle/mediacache:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://github.com/BBergle/MediaCache/pkgs/container/mediacache",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:5757]",
+  "icon": "https://raw.githubusercontent.com/BBergle/unraid-templates/main/mediacache/mediacache.png",
+  "project": "https://github.com/BBergle/MediaCache",
+  "description": "MediaCache moves what you are about to watch onto your cache drive, so the array can stay spun down, and moves watched media back afterwards. Works with Plex, or Jellyfin (experimental): - Plex: OnDeck and Watchlist for you and other users. - Jellyfin: Continue Watching and Next Up as OnDeck, Favorites as Watchlist. Web UI on port 5757 with a setup wizard, scheduling, notifications and cache management. MOVER INTEGRATION (optional): if you use the CA Mover Tuning plugin, set its exclude file to the Unraid_mover_exclusions.txt in this container's Config folder. Migrating from PlexCache-D: stop it and set Config to its existing appdata folder (e.g. /mnt/user/appdata/plexcache). Settings, tracking and mover exclusions carry over. A fork of PlexCache-D by StudioNirin (github.com/StudioNirin/PlexCache-D).",
+  "paths": [
+    {
+      "name": "Path: Config",
+      "host": "/mnt/cache/appdata/mediacache",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Settings, logs, tracking data and the mover exclude list. Migrating from PlexCache-D? Point this at its existing appdata folder.",
+      "required": true
+    },
+    {
+      "name": "Path: Cache",
+      "host": "/mnt/cache",
+      "container": "/mnt/cache",
+      "mode": "rw",
+      "description": "Your cache drive, where media gets cached.",
+      "required": true
+    },
+    {
+      "name": "Path: Array",
+      "host": "/mnt/user0",
+      "container": "/mnt/user0",
+      "mode": "rw",
+      "description": "Direct array access (user0), for moving files back and for .plexcached backups.",
+      "required": true
+    },
+    {
+      "name": "Path: User shares",
+      "host": "/mnt/user",
+      "container": "/mnt/user",
+      "mode": "rw",
+      "description": "User shares, for resolving your media server's library paths.",
+      "required": true
+    },
+    {
+      "name": "Path: Unraid notify script",
+      "host": "/usr/local/emhttp",
+      "container": "/usr/local/emhttp",
+      "mode": "ro",
+      "description": "Unraid's notify script, for native Unraid notifications. Optional.",
+      "required": false
+    },
+    {
+      "name": "Path: Unraid notifications",
+      "host": "/tmp/notifications",
+      "container": "/tmp/notifications",
+      "mode": "rw",
+      "description": "Unraid's notification queue, for native Unraid notifications. Optional.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Port: Web UI",
+      "host": "5757",
+      "container": "5757",
+      "protocol": "tcp",
+      "description": "Web UI port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID for file permissions (99 = nobody on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID for file permissions (100 = users on Unraid).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "America/New_York",
+      "description": "Timezone for log timestamps and scheduling.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

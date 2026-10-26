@@ -1,0 +1,139 @@
+{
+  "name": "MealieShopper",
+  "repo": "ghcr.io/helmerznl/mealieshopper:latest",
+  "category": [
+    "Home Automation"
+  ],
+  "registry": "https://ghcr.io/helmerznl/mealieshopper",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8000]/",
+  "icon": "https://raw.githubusercontent.com/helmerzNL/MealieShopper/main/static/brand/icon-512.png",
+  "project": "https://github.com/helmerzNL/MealieShopper",
+  "description": "MealieShopper connects your Mealie meal planner directly to your online shopping basket at Albert Heijn, Picnic, or Jumbo (Van recept naar geregeld). Load your weekly meal plan from Mealie with full recipe images, calculate required package sizes automatically, review matched supermarket items, and fill your online shopping basket with a single click. You can also search, compare, and import recipes from Allerhande, Jumbo, and Picnic directly into your Mealie instance. Key Features: - Meal Plan to Basket: Export your Mealie week menu straight into Albert Heijn, Picnic, or Jumbo shopping carts with automatic packaging quantity calculation. - Search & Import Recipes: Search across Allerhande, Jumbo, and Picnic recipes and import them into Mealie with one click. - Local Caching & Receipt History: Store local offline copies of saved recipe lists, shopping carts, order history, and digital supermarket receipts. - Interactive Onboarding: 6-step guided wizard on first launch to configure security, Mealie API, and store connections. - Passkeys, 2FA & Multi-User: Secure login with WebAuthn passkeys (over HTTPS), TOTP two-factor authentication, and invite links for household members. - AI Assistant Integration (MCP): Built-in Model Context Protocol (MCP) server for Claude, ChatGPT, and Copilot. - Privacy First: Runs in a single container with a local SQLite database in appdata; zero telemetry or third-party cloud dependencies. Initial Setup: 1. After starting the container, open the WebUI at http:// :[PORT:8000]/ . 2. Follow the 6-step setup wizard to configure authentication, connect Mealie, and link your supermarket accounts. All environment variables in this template are optional because the wizard configures them inside the web interface. Credits & Support: - MealieShopper is an open-source project created by helmerzNL ( GitHub ). Support the developer at Buy Me a Coffee . - The donation link below specifically supports the maintenance of this Unraid template repository.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/mealieshopper",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Storage path for SQLite database, encryption key (secret.key), sessions, and cache.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "5959",
+      "container": "8000",
+      "protocol": "tcp",
+      "description": "The port for the MealieShopper web interface (internal container port is 8000).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public Base URL",
+      "key": "MEALIESHOPPER_PUBLIC_BASE_URL",
+      "value": "http://[IP]:[PORT:8000]",
+      "description": "Public base URL for the application (e.g. http://192.168.1.100:5959 or https://groceries.yourdomain.com). Used for invite links, preview images, and AI/MCP assistant integration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passkey RP ID",
+      "key": "RP_ID",
+      "value": "",
+      "description": "Host name for WebAuthn passkey authentication, without scheme or port (e.g. groceries.yourdomain.com). Passkeys require a valid domain name over HTTPS.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passkey RP Origins",
+      "key": "RP_ORIGINS",
+      "value": "",
+      "description": "Full allowed browser origins for WebAuthn passkeys (e.g. https://groceries.yourdomain.com). Comma-separated if using multiple URLs.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Passkey RP Name",
+      "key": "RP_NAME",
+      "value": "MealieShopper",
+      "description": "Display name presented to the user during WebAuthn passkey registration.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auth Secret Key",
+      "key": "MEALIESHOPPER_AUTH_SECRET",
+      "value": "",
+      "description": "Optional 32-byte secret key (e.g. 'openssl rand -hex 32') to encrypt stored supermarket credentials and sign sessions. If left empty, MealieShopper automatically creates and saves 'secret.key' inside /data on first start.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mealie URL",
+      "key": "MEALIE_URL",
+      "value": "",
+      "description": "Optional Mealie instance URL (e.g. http://192.168.1.50:9000). Can also be configured interactively in the web UI under Settings -&gt; Mealie.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mealie API Token",
+      "key": "MEALIE_API_TOKEN",
+      "value": "",
+      "description": "Optional Mealie API token (generated in Mealie under User Profile -&gt; Manage API Tokens). Can also be configured in the web UI.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Albert Heijn Refresh Token",
+      "key": "AH_REFRESH_TOKEN",
+      "value": "",
+      "description": "Optional Albert Heijn refresh token. You can also log in directly via the web UI under Settings -&gt; Stores -&gt; Albert Heijn.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Picnic Country Code",
+      "key": "PICNIC_COUNTRY_CODE",
+      "value": "NL",
+      "description": "Country for Picnic account: NL (Netherlands, default), DE (Germany), or FR (France).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Enable MCP AI Server",
+      "key": "MEALIESHOPPER_MCP",
+      "value": "true",
+      "description": "Enable the Model Context Protocol (MCP) server at /mcp for AI assistants such as Claude, ChatGPT, and Copilot (true / false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Audit Log",
+      "key": "MEALIESHOPPER_AUDIT_LOG",
+      "value": "true",
+      "description": "Log API requests to supermarkets and AI assistants in the WebUI audit log (true / false).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Check for Updates",
+      "key": "MEALIESHOPPER_UPDATE_CHECK",
+      "value": "true",
+      "description": "Check GitHub for newer releases and notify administrators in the web UI (true / false).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

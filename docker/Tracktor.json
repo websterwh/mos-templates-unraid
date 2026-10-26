@@ -1,0 +1,99 @@
+{
+  "name": "Tracktor",
+  "repo": "ghcr.io/javedh-dev/tracktor:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://ghcr.io/javedh-dev/tracktor",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/javedh-dev/tracktor/main/static/pwa-512x512.png",
+  "project": "https://github.com/javedh-dev/tracktor",
+  "description": "Tracktor is a modern, open-source, self-hosted vehicle management platform built with SvelteKit, Tailwind CSS, and SQLite. Keep fuel logs, service history, insurance and compliance certificates, and maintenance reminders for all your vehicles in one place. Key Features: - Garage Management: Multi-vehicle fleet support with individual fuel types, specs, and history. - Fuel & Efficiency Tracking: Log fill-ups and monitor fuel consumption, mileage, and cost-per-distance trends. - Service & Maintenance Logs: Full service history with parts, costs, and scheduled maintenance alerts. - Compliance & Documents: Track insurance policies, pollution certs, and upcoming renewal expiry dates. - Customizable Dashboard: Fleet-wide overview with drag-and-drop widget layout. - Multi-Language: Supports 11 languages (English, German, French, Spanish, Italian, and more). - Fast & Self-Contained: SQLite with Drizzle ORM, local file uploads, and zero required external services. Initial Setup: When opening the web interface for the first time at http:// :[PORT:3000]/ , Tracktor will automatically display the account registration form to create your admin account.",
+  "paths": [
+    {
+      "name": "AppData",
+      "host": "/mnt/cache/appdata/tracktor",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Storage path for SQLite database (tracktor.db), uploaded documents, images, and log files.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI Port",
+      "host": "3333",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "The port for the Tracktor web interface (internal container port is 3000).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "App Secret Key",
+      "key": "APP_SECRET",
+      "value": "",
+      "description": "Secret key used to encrypt stored credentials (e.g. notification provider passwords). Generate a random 32-character hex string (e.g. run 'openssl rand -hex 32' in terminal).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "HTTP Mode",
+      "key": "HTTP_MODE",
+      "value": "http",
+      "description": "Set to 'https' if running behind an SSL/TLS reverse proxy (marks session cookies as Secure), or 'http' for direct local network access.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Base URL Path",
+      "key": "BASE_URL",
+      "value": "",
+      "description": "Base URL sub-path if serving behind a reverse proxy sub-folder (e.g. '/tracktor'). Leave blank if serving from root domain or subdomain.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "CORS Origins",
+      "key": "CORS_ORIGINS",
+      "value": "*",
+      "description": "Allowed CORS origins (comma-separated list, e.g. 'http://example.com,https://garage.domain.com' or '*' to allow all).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Disable Authentication",
+      "key": "TRACKTOR_DISABLE_AUTH",
+      "value": "false",
+      "description": "Set to 'true' to disable authentication entirely (not recommended).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Demo Mode",
+      "key": "TRACKTOR_DEMO_MODE",
+      "value": "false",
+      "description": "Set to 'true' to load sample demo vehicles and data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Log Level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Logging verbosity (error, warn, info, http, verbose, debug, silly).",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

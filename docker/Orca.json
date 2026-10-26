@@ -1,0 +1,155 @@
+{
+  "name": "Orca",
+  "repo": "ghcr.io/originalbyteme/unraid-orca:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/OriginalByteMe/unraid-orca/pkgs/container/unraid-orca",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:6768]/web-index.html",
+  "icon": "https://raw.githubusercontent.com/OriginalByteMe/unraid-orca/main/icon.png",
+  "project": "https://github.com/OriginalByteMe/unraid-orca",
+  "description": "Unofficial Unraid image for Orca, Stably's open-source app (github.com/stablyai/orca) for running coding agents such as Claude Code and Codex side by side, each in its own git worktree. This container runs orca serve, Orca's headless runtime, so the agents, worktrees and terminals live on your server while the Orca desktop app, the browser client or the Orca phone app connect to it. The pairing link is printed in this container's log. On top of Orca, the image installs agent CLIs by name, clones your GitHub repositories into a Projects folder you choose, gives the terminals bash, zsh (with optional Oh My Zsh) or fish, works with Unraid's Use Tailscale switch, and is rebuilt for every Orca release. Optional: map the Docker or libvirt socket so agents can run their own containers or VMs; either one gives the agents root-level control of this server. The README has a step-by-step setup guide and tips.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/orca",
+      "container": "/home/orca",
+      "mode": "rw",
+      "description": "Orca's state, pairing keys, agent logins, shell settings and worktrees.",
+      "required": true
+    },
+    {
+      "name": "Projects",
+      "host": "/mnt/cache/appdata/orca/projects",
+      "container": "/projects",
+      "mode": "rw",
+      "description": "Your repositories, at /projects in the container. Open or clone projects here from Orca. Point it at any share.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Optional. Enter /var/run/docker.sock to let agents create and manage containers, for example a sandbox per agent. This gives the agents root-level control of this server.",
+      "required": false
+    },
+    {
+      "name": "libvirt socket",
+      "host": "",
+      "container": "/var/run/libvirt/libvirt-sock",
+      "mode": "rw",
+      "description": "Optional. Enter /var/run/libvirt/libvirt-sock to let agents start and manage VMs with virsh. This gives the agents root-level control of this server.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "Orca port",
+      "host": "6768",
+      "container": "6768",
+      "protocol": "tcp",
+      "description": "Port the Orca clients connect to.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Pairing address",
+      "key": "ORCA_PAIRING_ADDRESS",
+      "value": "",
+      "description": "Address the clients dial: this server's LAN IP, Tailscale IP or hostname. Leave empty when Use Tailscale is on and the container's own Tailscale IP is used.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "GitHub token",
+      "key": "GH_TOKEN",
+      "value": "",
+      "description": "Optional. A GitHub token git and gh use for cloning, pushing and pull requests.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Repositories",
+      "key": "GIT_REPOS",
+      "value": "",
+      "description": "Optional. Space-separated owner/name (GitHub) or clone URLs. Each is cloned once into /projects and added to Orca.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Agents",
+      "key": "AGENTS",
+      "value": "claude codex",
+      "description": "Space-separated agent CLIs installed once into the Data folder: amp, auggie, autohand, claude, cline, codebuddy, codebuff, codex, command-code, continue, copilot, crush, droid, freebuff, gemini, kilo, kimi, minimax, omp, openclaw, opencode, pi, qwen, or any npm package name. Log in to each agent once from the container console.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Shell",
+      "key": "SHELL",
+      "value": "bash",
+      "description": "Shell for Orca's terminals and the console. tmux is installed as well.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Oh My Zsh",
+      "key": "OH_MY_ZSH",
+      "value": "false",
+      "description": "Install Oh My Zsh into the Data folder on the next start. Used when Shell is zsh.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git user name",
+      "key": "GIT_USER_NAME",
+      "value": "",
+      "description": "Optional. Name on the agents' commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Git user email",
+      "key": "GIT_USER_EMAIL",
+      "value": "",
+      "description": "Optional. Email on the agents' commits.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra serve arguments",
+      "key": "ORCA_EXTRA_ARGS",
+      "value": "",
+      "description": "Optional flags for orca serve, for example --mobile-pairing to print a phone pairing link.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the agents run as.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the agents run as.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

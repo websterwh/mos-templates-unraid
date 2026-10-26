@@ -1,0 +1,187 @@
+{
+  "name": "seerrcompanion",
+  "repo": "ghcr.io/poag/seerrcompanion:latest",
+  "category": [
+    "System"
+  ],
+  "registry": "https://github.com/Poag/seerrcompanion/pkgs/container/seerrcompanion",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--user 99:100",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]/",
+  "icon": "https://raw.githubusercontent.com/Poag/docker-xml/refs/heads/main/images/seerrcompanion.png",
+  "project": "https://github.com/Poag/seerrcompanion",
+  "description": "Seerr companion: trims multi-season requests to the first season and marks unwatched series for deletion, with a web UI to approve or keep.",
+  "paths": [
+    {
+      "name": "Config",
+      "host": "/mnt/cache/appdata/seerrcompanion",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Holds the state database and web UI secret.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Web UI port.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "SEERR_URL",
+      "key": "SEERR_URL",
+      "value": "",
+      "description": "Seerr base URL, e.g. http://10.0.0.2:5055.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "SEERR_API_KEY",
+      "key": "SEERR_API_KEY",
+      "value": "",
+      "description": "Seerr admin API key (Settings -&gt; General).",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "WEBUI_USERNAME",
+      "key": "WEBUI_USERNAME",
+      "value": "",
+      "description": "Web UI login username; the UI is off unless this and the password are set.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBUI_PASSWORD",
+      "key": "WEBUI_PASSWORD",
+      "value": "",
+      "description": "Web UI login password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "DRY_RUN",
+      "key": "DRY_RUN",
+      "value": "true",
+      "description": "true = log only, change and delete nothing; set false to go live.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TAUTULLI_URL",
+      "key": "TAUTULLI_URL",
+      "value": "",
+      "description": "Tautulli base URL for watch state; blank uses Seerr's own watch data.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TAUTULLI_API_KEY",
+      "key": "TAUTULLI_API_KEY",
+      "value": "",
+      "description": "Tautulli API key.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "APPRISE_URLS",
+      "key": "APPRISE_URLS",
+      "value": "",
+      "description": "Comma-separated Apprise notification URLs; blank logs only.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "WEBUI_URL",
+      "key": "WEBUI_URL",
+      "value": "",
+      "description": "Public URL of this web UI, added to notifications as a review link.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SEERR_PUBLIC_URL",
+      "key": "SEERR_PUBLIC_URL",
+      "value": "",
+      "description": "Seerr URL for title links in the UI, if SEERR_URL is internal.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TRIM_SEASONS",
+      "key": "TRIM_SEASONS",
+      "value": "true",
+      "description": "Trim pending multi-season TV requests to the first season.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "APPROVE_AFTER_TRIM",
+      "key": "APPROVE_AFTER_TRIM",
+      "value": "true",
+      "description": "Approve a request after trimming it.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "FLAG_UNWATCHED",
+      "key": "FLAG_UNWATCHED",
+      "value": "true",
+      "description": "Mark a user's unwatched series for deletion when they request another title.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PURGE_AFTER_DAYS",
+      "key": "PURGE_AFTER_DAYS",
+      "value": "",
+      "description": "Auto-delete flagged titles after this many days; blank never auto-deletes.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "IGNORE_USER_IDS",
+      "key": "IGNORE_USER_IDS",
+      "value": "",
+      "description": "Comma-separated Seerr user IDs to skip.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "POLL_INTERVAL",
+      "key": "POLL_INTERVAL",
+      "value": "60",
+      "description": "Seconds between Seerr polls.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LOG_LEVEL",
+      "key": "LOG_LEVEL",
+      "value": "INFO",
+      "description": "DEBUG, INFO, WARNING or ERROR.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TZ",
+      "key": "TZ",
+      "value": "UTC",
+      "description": "Timezone, e.g. Europe/London.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

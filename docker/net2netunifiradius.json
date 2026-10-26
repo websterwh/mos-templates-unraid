@@ -1,0 +1,77 @@
+{
+  "name": "net2net-unifi-radius",
+  "repo": "botchris/net2netunifiradius:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/botchris/net2netunifiradius",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": null,
+  "project": "https://github.com/Net2NetMain/Net2NetUniFiRadius",
+  "description": "Net2Net UniFi RADIUS. Local users, VLAN profiles, PEAP/MSCHAPv2 and accounting. Set a unique administrator password of at least 12 characters before first start. For a dedicated LAN IP, select your custom br0 network and assign an unused address.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/net2net-unifi-radius/data",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Persistent database, encryption key, certificates and accounting logs",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Web portal",
+      "host": "8088",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Portal host port when using bridge networking; dedicated br0 uses port 8080 directly",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RADIUS authentication",
+      "host": "1812",
+      "container": "1812",
+      "protocol": "udp",
+      "description": "RADIUS authentication",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "RADIUS accounting",
+      "host": "1813",
+      "container": "1813",
+      "protocol": "udp",
+      "description": "RADIUS accounting",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Initial administrator password",
+      "key": "ADMIN_PASSWORD",
+      "value": "",
+      "description": "Required on first start. Choose a unique password with at least 12 characters. Initializes an empty database only.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "RADIUS certificate DNS name",
+      "key": "RADIUS_SERVER_NAME",
+      "value": "radius.net2net.local",
+      "description": "Set before first start. Clients validate this name against the generated server certificate.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

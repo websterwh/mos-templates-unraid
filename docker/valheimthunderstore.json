@@ -1,0 +1,308 @@
+{
+  "name": "valheim-thunderstore",
+  "repo": "ghcr.io/czerwonowlosy666/valheim-unraid:latest",
+  "category": [
+    "Game Server"
+  ],
+  "registry": "https://github.com/czerwonowlosy666/valheim-unraid/pkgs/container/valheim-unraid",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": "--stop-timeout=120",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:2456]",
+  "icon": "https://raw.githubusercontent.com/czerwonowlosy666/valheim-unraid/main/unraid/icon.png",
+  "project": "https://github.com/czerwonowlosy666/valheim-unraid",
+  "description": "Valheim dedicated server with Thunderstore mod support. - Installs mods (and their dependencies) straight from thunderstore.io: list them by name or paste an r2modman / Thunderstore Mod Manager profile code. - Keeps Valheim and your mods up to date automatically, waiting until nobody is online before restarting. - Lets you choose the world seed, difficulty preset and world modifiers for new worlds. - Backs up the world before every restart and saves cleanly on stop. First start downloads about 1 GB of server files, so give it a few minutes. Forward UDP 2456-2457 on your router to play over the internet.",
+  "paths": [
+    {
+      "name": "Data",
+      "host": "/mnt/cache/appdata/valheim/data",
+      "container": "/config",
+      "mode": "rw",
+      "description": "Worlds (saves/), backups, mod configs (bepinex-config/), your own plugins (custom-plugins/) and logs.",
+      "required": true
+    },
+    {
+      "name": "Server files",
+      "host": "/mnt/cache/appdata/valheim/server",
+      "container": "/opt/valheim",
+      "mode": "rw",
+      "description": "Valheim server files, BepInEx and installed mods. Can be deleted; everything here is re-downloaded.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Game port",
+      "host": "2456",
+      "container": "2456",
+      "protocol": "udp",
+      "description": "Valheim game port. Keep host and container port the same as SERVER_PORT.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Query port",
+      "host": "2457",
+      "container": "2457",
+      "protocol": "udp",
+      "description": "Steam query port (game port + 1). Used for the server browser and the player count.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Server name",
+      "key": "SERVER_NAME",
+      "value": "My Valheim Server",
+      "description": "Name shown in the server browser.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "World name",
+      "key": "WORLD_NAME",
+      "value": "Dedicated",
+      "description": "World to load or create (letters and numbers, no spaces recommended). Changing it starts a new world; the old one stays in saves/.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Password",
+      "key": "SERVER_PASS",
+      "value": "",
+      "description": "At least 5 characters, and must not be part of the server name.",
+      "required": true,
+      "mask": true
+    },
+    {
+      "name": "World seed",
+      "key": "WORLD_SEED",
+      "value": "",
+      "description": "Seed for a NEW world (1-10 characters, e.g. HHcLC5acQt). Leave empty for random. Has no effect on a world that already exists.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Public",
+      "key": "SERVER_PUBLIC",
+      "value": "false",
+      "description": "List the server in the in-game community server browser.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Crossplay",
+      "key": "CROSSPLAY",
+      "value": "false",
+      "description": "Allow Xbox / Microsoft Store players (uses PlayFab; the player count for idle updates is not available with crossplay).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Admins",
+      "key": "ADMINS",
+      "value": "",
+      "description": "SteamID64s of admins, separated by commas. Leave empty to manage saves/adminlist.txt yourself.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mods",
+      "key": "MODS",
+      "value": "",
+      "description": "Thunderstore mods, separated by commas: Author-ModName (always latest), Author-ModName-1.2.3 (pinned) or the mod's thunderstore.io link. Dependencies and BepInEx are installed automatically. Example: ValheimModding-Jotunn, Azumatt-AzuCraftyBoxes",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Profile code",
+      "key": "THUNDERSTORE_PROFILE_CODE",
+      "value": "",
+      "description": "Optional. In r2modman or Thunderstore Mod Manager: Settings, Profile, Export profile as code. Installs the same mods as your client profile (saved locally, so it keeps working after the code expires).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Exclude mods",
+      "key": "MODS_EXCLUDE",
+      "value": "",
+      "description": "Mods never to install, e.g. client-only UI mods from your profile. Same format as Mods.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Pin profile versions",
+      "key": "PROFILE_PIN_VERSIONS",
+      "value": "false",
+      "description": "true = keep the exact mod versions from the profile instead of updating them.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Import profile configs",
+      "key": "PROFILE_IMPORT_CONFIGS",
+      "value": "true",
+      "description": "Copy config files from the profile code (only files you don't already have).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Always install BepInEx",
+      "key": "BEPINEX_ENABLED",
+      "value": "false",
+      "description": "Install BepInEx even with no Thunderstore mods. Happens automatically when custom-plugins/ has files.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Auto update",
+      "key": "AUTO_UPDATE",
+      "value": "true",
+      "description": "Check for Valheim and mod updates in the background and restart to apply them. Updates are always applied when the container starts.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update Valheim",
+      "key": "SERVER_AUTO_UPDATE",
+      "value": "true",
+      "description": "Include Valheim itself in background updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update mods",
+      "key": "MODS_AUTO_UPDATE",
+      "value": "true",
+      "description": "Include Thunderstore mods in background updates.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Update check interval",
+      "key": "UPDATE_CHECK_INTERVAL",
+      "value": "60",
+      "description": "Minutes between update checks.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Only update when empty",
+      "key": "UPDATE_WHEN_IDLE",
+      "value": "true",
+      "description": "Wait until no players are online before restarting for an update.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Max wait for empty server",
+      "key": "UPDATE_MAX_WAIT",
+      "value": "360",
+      "description": "Minutes to wait for an empty server before restarting anyway (0 = wait forever).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam branch",
+      "key": "STEAM_BRANCH",
+      "value": "public",
+      "description": "Valheim branch, e.g. public or public-test.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Steam branch password",
+      "key": "STEAM_BRANCH_PASSWORD",
+      "value": "",
+      "description": "Password for a protected branch (public-test uses yesimadebackups).",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Difficulty preset",
+      "key": "WORLD_PRESET",
+      "value": "",
+      "description": "Optional: normal, casual, easy, hard, hardcore, immersive or hammer.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "World modifiers",
+      "key": "WORLD_MODIFIERS",
+      "value": "",
+      "description": "Optional, comma separated name:value. combat (veryeasy-veryhard), deathpenalty (casual-hardcore), resources (muchless-most), raids (none-muchmore), portals (casual, hard, veryhard). Example: combat:hard, raids:none",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "World keys",
+      "key": "WORLD_KEYS",
+      "value": "",
+      "description": "Optional, comma separated: nomap, playerevents, passivemobs, nobuildcost, fire, teleportall",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backup on restart",
+      "key": "BACKUP_ON_RESTART",
+      "value": "true",
+      "description": "Save a .tar.gz of the world to backups/ before every start.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Backups to keep",
+      "key": "BACKUP_KEEP",
+      "value": "10",
+      "description": "Number of world backups to keep.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Server port",
+      "key": "SERVER_PORT",
+      "value": "2456",
+      "description": "Only change together with both port mappings (host and container) above.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Extra server arguments",
+      "key": "SERVER_ARGS",
+      "value": "",
+      "description": "Passed straight to valheim_server, e.g. -saveinterval 600 -backups 4",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID files are owned by (99 = nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID files are owned by (100 = users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Timezone",
+      "key": "TZ",
+      "value": "Europe/London",
+      "description": "Timezone for logs and backup names.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

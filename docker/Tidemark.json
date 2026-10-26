@@ -1,0 +1,123 @@
+{
+  "name": "Tidemark",
+  "repo": "ghcr.io/tidemark-analytics/tidemark:latest",
+  "category": [
+    "Productivity"
+  ],
+  "registry": "https://github.com/tidemark-analytics/tidemark/pkgs/container/tidemark",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:8080]",
+  "icon": "https://raw.githubusercontent.com/tidemark-analytics/unraid-templates/main/icon.png",
+  "project": "https://github.com/tidemark-analytics/tidemark",
+  "description": "Tidemark is privacy-first web analytics with one calm dashboard. It sets no cookies and never stores IP addresses, and visitor ids change every day, so nobody can be followed around. It shows visitors, pageviews, bounce rate and visit duration, with sources, pages, locations, devices, goals and custom events underneath, plus public dashboards and password-protected shared links you can brand with your own logo and color. The tracking script is about 2 KB and follows Plausible's conventions. First run: start the container, open the WebUI, and visit /install to create your admin account (SQLite needs no setup; MySQL, MariaDB and PostgreSQL work too). Everything lives in the appdata folder. Put it behind a reverse proxy for HTTPS and set Public address to match. Update by pulling a newer image; migrations run on the first visit.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/tidemark",
+      "container": "/data",
+      "mode": "rw",
+      "description": "Settings, the SQLite database, logs and uploads. Back this folder up.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI port",
+      "host": "8080",
+      "container": "8080",
+      "protocol": "tcp",
+      "description": "Port for the Tidemark dashboard and the tracking script.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "Public address",
+      "key": "APP_URL",
+      "value": "http://tower:8080",
+      "description": "The address people and your websites use to reach Tidemark, such as https://stats.example.com. It appears in the tracking snippet and in links.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User id the app runs as. Unraid's nobody is 99.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group id the app runs as. Unraid's users is 100.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Keep raw data (days)",
+      "key": "TIDEMARK_RETENTION_DAYS",
+      "value": "0",
+      "description": "Delete raw visits and events older than this many days. 0 keeps everything.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Mail driver",
+      "key": "MAIL_MAILER",
+      "value": "log",
+      "description": "Use smtp to send password reset and invitation emails. The default only writes them to the log.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP host",
+      "key": "MAIL_HOST",
+      "value": "",
+      "description": "SMTP server, when the mail driver is smtp.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP port",
+      "key": "MAIL_PORT",
+      "value": "587",
+      "description": "SMTP port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP username",
+      "key": "MAIL_USERNAME",
+      "value": "",
+      "description": "SMTP username.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "SMTP password",
+      "key": "MAIL_PASSWORD",
+      "value": "",
+      "description": "SMTP password.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Mail from address",
+      "key": "MAIL_FROM_ADDRESS",
+      "value": "",
+      "description": "The address emails are sent from.",
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

@@ -1,0 +1,115 @@
+{
+  "name": "WatchSense",
+  "repo": "ghcr.io/peppeg/watchsense:latest",
+  "category": [
+    "Media"
+  ],
+  "registry": "https://ghcr.io/peppeg/watchsense",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "bash",
+  "privileged": false,
+  "extra_parameters": null,
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:3000]/",
+  "icon": "https://raw.githubusercontent.com/peppeg/watchsense/main/ui/public/icon.svg",
+  "project": "https://github.com/peppeg/watchsense",
+  "description": "WatchSense suggests TV series to watch next, based on your own viewing history and an LLM of your choice. It imports what you watched on Netflix (session cookies with automatic sync, bookmarklet or CSV), Prime Video (bookmarklet or CSV), Stremio (account sync) and Trakt (data export), enriches it with TMDB metadata (posters, genres, streaming providers of your region) and asks any OpenAI-compatible endpoint, cloud (OpenRouter, OpenAI, Groq, Mistral, ...) or local (Ollama, LM Studio), for recommendations. Your ratings, show status and taste notes shape the next suggestions. TV series only: films found in your histories are stored but not shown or used. Disney+, Apple TV+ and other services without a viewing history are not imported. All data stays on your server in one SQLite file plus the key that encrypts saved secrets (/app/data). The free TMDB API key and the LLM provider are set in Settings on first start; the environment variables below are optional. The UI is in English and Italian.",
+  "paths": [
+    {
+      "name": "Appdata",
+      "host": "/mnt/cache/appdata/watchsense/data",
+      "container": "/app/data",
+      "mode": "rw",
+      "description": "Database (watchsense.db) and secret.key, the key that encrypts saved secrets. Back up both together.",
+      "required": true
+    },
+    {
+      "name": "Trakt exports",
+      "host": "/mnt/cache/appdata/watchsense/exports",
+      "container": "/app/exports",
+      "mode": "ro",
+      "description": "Optional, read-only. Only for the Trakt import: put the files of your Trakt data export in its trakt/ subfolder.",
+      "required": false
+    }
+  ],
+  "ports": [
+    {
+      "name": "WebUI",
+      "host": "3000",
+      "container": "3000",
+      "protocol": "tcp",
+      "description": "HTTP port of the web interface.",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": "User ID the app runs as. At startup /app/data is given to PUID:PGID if needed. Unraid default: 99 (nobody).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": "Group ID the app runs as. Unraid default: 100 (users).",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "TMDB API key",
+      "key": "TMDB_API_KEY",
+      "value": "",
+      "description": "Optional. TMDB v3 API key (32 hex characters). A key saved in Settings takes precedence.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LLM base URL",
+      "key": "LLM_BASE_URL",
+      "value": "",
+      "description": "Optional. Base URL of an OpenAI-compatible provider, e.g. https://openrouter.ai/api/v1 or http://192.168.1.10:11434/v1 for Ollama. Settings take precedence.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "LLM API key",
+      "key": "LLM_API_KEY",
+      "value": "",
+      "description": "Optional. API key of the LLM provider (not needed for local addresses). Settings take precedence.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "LLM model",
+      "key": "LLM_MODEL",
+      "value": "",
+      "description": "Optional. Model name, e.g. deepseek/deepseek-chat. Settings take precedence.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Access token",
+      "key": "WATCHSENSE_TOKEN",
+      "value": "",
+      "description": "Optional. When set, the web interface asks for this token. Empty = no login.",
+      "required": false,
+      "mask": true
+    },
+    {
+      "name": "Secret key",
+      "key": "WATCHSENSE_SECRET_KEY",
+      "value": "",
+      "description": "Optional. Key that encrypts saved secrets: 64 hex characters or 32 bytes in base64 (openssl rand -base64 32). Empty = /app/data/secret.key, created on first start.",
+      "required": false,
+      "mask": true
+    }
+  ],
+  "devices": [],
+  "labels": []
+}

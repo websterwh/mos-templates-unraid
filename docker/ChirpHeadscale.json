@@ -1,0 +1,66 @@
+{
+  "name": "Chirp-Headscale",
+  "repo": "joshsalvi/chirp-headscale:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/joshsalvi/chirp-headscale",
+  "network": "bridge",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "-p 127.0.0.1:50444:50444",
+  "post_parameters": null,
+  "web_ui_url": "http://[IP]:[PORT:9877]",
+  "icon": "https://raw.githubusercontent.com/joshsalvi/unraid-templates/main/icon.png",
+  "project": "https://github.com/joshsalvi/chirp",
+  "description": "Optional companion to Chirp: a self-hosted Headscale (Tailscale control server) so Chirp stations outside your home network can reach your Chirp server privately. Creates its own reusable key on first start and hands it to the Chirp container.",
+  "paths": [
+    {
+      "name": "Config file",
+      "host": "/mnt/cache/appdata/chirp-headscale/config.yaml",
+      "container": "/etc/headscale/config.yaml",
+      "mode": "ro",
+      "description": "Headscale config; set server_url before first start.",
+      "required": true
+    },
+    {
+      "name": "State",
+      "host": "/mnt/cache/appdata/chirp-headscale/data",
+      "container": "/var/lib/headscale",
+      "mode": "rw",
+      "description": "Keys and the node database. Keep on the cache or appdata share.",
+      "required": true
+    },
+    {
+      "name": "Socket",
+      "host": "/mnt/cache/appdata/chirp-headscale/run",
+      "container": "/var/run/headscale",
+      "mode": "rw",
+      "description": "Unix socket. Must be on a share the Unraid mover never touches (appdata on cache, set to Prefer/Only).",
+      "required": true
+    },
+    {
+      "name": "Shared",
+      "host": "/mnt/cache/appdata/chirp-headscale/shared",
+      "container": "/shared",
+      "mode": "rw",
+      "description": "Where the auth key is written for Chirp.",
+      "required": true
+    }
+  ],
+  "ports": [
+    {
+      "name": "Control port",
+      "host": "9877",
+      "container": "9877",
+      "protocol": "tcp",
+      "description": "Headscale's port (Chirp-Caddy forwards HTTPS here).",
+      "required": true,
+      "mask": false
+    }
+  ],
+  "variables": [],
+  "devices": [],
+  "labels": []
+}

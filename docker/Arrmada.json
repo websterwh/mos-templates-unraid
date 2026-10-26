@@ -14,14 +14,14 @@
   "web_ui_url": "http://[IP]:[PORT:7878]/",
   "icon": "https://raw.githubusercontent.com/tristenlammi/Arrmada/main/web/public/icon-512.png",
   "project": "https://github.com/tristenlammi/Arrmada",
-  "description": "Arrmada finds, downloads and organises movies, series, books and audiobooks in one app, with requests for your household, subtitles, Convert and Plex or Jellyfin watch insights. This container includes qBittorrent and FlareSolverr, already connected: there's nothing to set up for them. To use your own instead, switch either off under Show more settings (ARRMADA_BUNDLE_QBITTORRENT, ARRMADA_BUNDLE_FLARESOLVERR) and add yours in Settings, Connections. Map the share that holds your media and downloads to /storage, so imports hardlink instead of copying. On first start, open the web UI, create the admin account, and follow the setup: your TMDB key, then each library folder and the Downloads folder under /storage. Never put media in /data: that's the database.",
+  "description": "Arrmada finds, downloads and organises movies, series, books and audiobooks in one app, with requests for your household, subtitles, Convert and Plex or Jellyfin watch insights. This container includes qBittorrent and FlareSolverr, already connected: there's nothing to set up for them. To use your own instead, switch either off under Show more settings (ARRMADA_BUNDLE_QBITTORRENT, ARRMADA_BUNDLE_FLARESOLVERR) and add yours in Settings, Connections. For Usenet or for managing indexers in one place, a SABnzbd and a Prowlarr are included too, switched off. Switch them on under Show more settings (Built-in SABnzbd, Built-in Prowlarr). SABnzbd is connected for you; add your Usenet provider on its own page. Prowlarr needs your indexers added on its page, then its API key in Arrmada. Map the share that holds your media and downloads to /storage, so imports hardlink instead of copying. On first start, open the web UI, create the admin account, and follow the setup: your TMDB key, then each library folder and the Downloads folder under /storage. Never put media in /data: that's the database.",
   "paths": [
     {
       "name": "App data",
       "host": "/mnt/cache/appdata/arrmada",
       "container": "/data",
       "mode": "rw",
-      "description": "The database, its backups and settings, and the built-in qBittorrent's settings and torrent list. Keep it in appdata. Never put media here.",
+      "description": "The database, its backups and settings, and the built-in apps' settings (qBittorrent's torrent list, and SABnzbd's and Prowlarr's when they're switched on). Keep it in appdata. Never put media here.",
       "required": true
     },
     {
@@ -86,6 +86,24 @@
       "description": "Optional. The built-in qBittorrent's own page, if you want to look inside it. Arrmada doesn't need it. The login is in Arrmada, Settings, Connections (admins).",
       "required": false,
       "mask": false
+    },
+    {
+      "name": "SABnzbd web UI port",
+      "host": "8085",
+      "container": "8085",
+      "protocol": "tcp",
+      "description": "Only used when Built-in SABnzbd is switched on: SABnzbd's own page, where you add your Usenet provider. Its login is in Arrmada, Settings, Connections (admins). If another app already uses 8085, pick another number here and in SABnzbd web UI host port.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prowlarr web UI port",
+      "host": "9697",
+      "container": "9696",
+      "protocol": "tcp",
+      "description": "Only used when Built-in Prowlarr is switched on: Prowlarr's own page, where you add your indexers. 9697 stays clear of a Prowlarr you may already have on 9696. If you change it, change Prowlarr web UI host port too.",
+      "required": false,
+      "mask": false
     }
   ],
   "variables": [
@@ -106,6 +124,22 @@
       "mask": false
     },
     {
+      "name": "Built-in SABnzbd",
+      "key": "ARRMADA_BUNDLE_SABNZBD",
+      "value": "false",
+      "description": "Off unless you set it to true. true runs SABnzbd, a Usenet downloader, inside this container, connected to Arrmada for you; add your Usenet provider on its page (SABnzbd web UI port). Its settings stay in appdata if you switch it off again.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Built-in Prowlarr",
+      "key": "ARRMADA_BUNDLE_PROWLARR",
+      "value": "false",
+      "description": "Off unless you set it to true. true runs Prowlarr, which manages your indexers in one place, inside this container. Add your indexers on its page (Prowlarr web UI port), then put its API key in Arrmada, Settings, Connections, Prowlarr, and choose Sync now.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "Torrent port setting",
       "key": "ARRMADA_QBIT_PORT",
       "value": "56881",
@@ -122,10 +156,26 @@
       "mask": false
     },
     {
+      "name": "SABnzbd web UI host port",
+      "key": "ARRMADA_SABNZBD_HOST_PORT",
+      "value": "8085",
+      "description": "The same number as the SABnzbd web UI port above, so Arrmada links the right page.",
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "Prowlarr web UI host port",
+      "key": "ARRMADA_PROWLARR_HOST_PORT",
+      "value": "9697",
+      "description": "The same number as the Prowlarr web UI port above, so Arrmada links the right page.",
+      "required": false,
+      "mask": false
+    },
+    {
       "name": "PUID",
       "key": "PUID",
       "value": "500",
-      "description": "The user Arrmada and the built-in qBittorrent run as. 99 is Unraid's nobody.",
+      "description": "The user Arrmada and the built-in qBittorrent, SABnzbd and Prowlarr run as. 99 is Unraid's nobody.",
       "required": true,
       "mask": false
     },

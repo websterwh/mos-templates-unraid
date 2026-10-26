@@ -1,0 +1,89 @@
+{
+  "name": "caddy-ui-backend",
+  "repo": "zackwag/caddy-ui-backend:latest",
+  "category": [
+    "Network"
+  ],
+  "registry": "https://hub.docker.com/r/zackwag/caddy-ui-backend/",
+  "network": "caddy-ui",
+  "custom_ip": null,
+  "default_shell": "sh",
+  "privileged": false,
+  "extra_parameters": "--restart unless-stopped",
+  "post_parameters": null,
+  "web_ui_url": null,
+  "icon": "https://raw.githubusercontent.com/Soitora/Unraid-Templates/refs/heads/main/caddy-ui/logo-backend.png",
+  "project": "https://github.com/zackwag/caddy-ui",
+  "description": "Backend for caddy/ui, a web interface for managing Caddy servers, Caddyfiles, routes, certificates, logs, and metrics. Requires the caddy-ui-frontend container and an existing Caddy server. Select the same user-defined Docker bridge network for both UI containers and Caddy. You can use an existing custom bridge network: change Network Type in both templates to that network. If you need a new network, run \"docker network create caddy-ui\" in the Unraid terminal before installing and select \"Custom: caddy-ui\". Keep the container names caddy-ui-backend and caddy-ui-frontend. Enable \"admin 0.0.0.0:2019\" in Caddy's global configuration block; keep the admin API private. Start the backend before the frontend. Set External UI URL to the exact address used in your browser, including scheme and port, such as http://192.168.1.10:9877. Open the frontend to create the administrator, save the recovery key, and discover or add Caddy instances. Restrict access until initial setup is complete. Configuration and credentials persist in /etc/caddy-ui. The Docker socket grants control of Docker containers and is used for discovery and file operations.",
+  "paths": [
+    {
+      "name": "Application data",
+      "host": "/mnt/cache/appdata/caddy-ui",
+      "container": "/etc/caddy-ui",
+      "mode": "rw",
+      "description": "Persistent administrator credentials, instances, Caddyfile history, and settings.",
+      "required": true
+    },
+    {
+      "name": "Docker socket",
+      "host": "/var/run/docker.sock",
+      "container": "/var/run/docker.sock",
+      "mode": "rw",
+      "description": "Required for Docker discovery and operations inside Caddy containers. Grants control of the Docker host.",
+      "required": true
+    }
+  ],
+  "ports": [],
+  "variables": [
+    {
+      "name": "External UI URL",
+      "key": "CADDY_UI_EXTERNAL_URL",
+      "value": "",
+      "description": "Required browser-facing frontend URL, including scheme and port, e.g. http://192.168.1.10:9877. Use the external HTTPS URL when behind a reverse proxy. Update this if the frontend address changes.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Log level",
+      "key": "LOG_LEVEL",
+      "value": "info",
+      "description": "Log verbosity: debug, info, warn, or error.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "Uptime history retention (days)",
+      "key": "UPTIME_HISTORY_RETENTION_DAYS",
+      "value": "7",
+      "description": "Number of days of upstream and route health history to retain.",
+      "required": true,
+      "mask": false
+    },
+    {
+      "name": "PUID",
+      "key": "PUID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "PGID",
+      "key": "PGID",
+      "value": "500",
+      "description": null,
+      "required": false,
+      "mask": false
+    },
+    {
+      "name": "UMASK",
+      "key": "UMASK",
+      "value": "002",
+      "description": null,
+      "required": false,
+      "mask": false
+    }
+  ],
+  "devices": [],
+  "labels": []
+}
